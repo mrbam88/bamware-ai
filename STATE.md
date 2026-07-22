@@ -9,8 +9,9 @@
 
 ## Vision (one line)
 
-White-label mobile-first SaaS platform; first product is **Baat**, a
-Pan-South Asian dating app (matches on language, faith, family).
+White-label mobile-first software business, ALL altitudes: multi-tenant
+SaaS, dedicated instances, full buyouts, + consulting (docs/business-models.md).
+First product: **Baat**, Pan-South Asian dating app.
 
 ## Now building
 
