@@ -69,6 +69,11 @@ package:
 - **Agents get capabilities, humans keep credentials.** Never
   authenticate to an account, generate signing keys, or handle secret
   values — prepare everything around the ceremony and hand it to Bilal.
+- **Account separation:** `mrbam88` is the only account for Bamware
+  (GitHub, Expo/EAS, Apple). A legacy `vpg-health` Expo session may
+  exist on machines — NEVER run Bamware EAS ops under it (Bilal's rule,
+  2026-07-23). Check `eas whoami` before local EAS work; CI is immune
+  (uses EXPO_TOKEN secret).
 
 ## Working with Bilal
 
