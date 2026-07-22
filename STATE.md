@@ -14,8 +14,13 @@ Pan-South Asian dating app (matches on language, faith, family).
 
 ## Now building
 
-Bilal manual-testing v1.0.4 on TestFlight. Then: #3 (onboarding,
-supervised) + #6 (contract ADR, needs his call) + backend follow-up issues.
+**OVERNIGHT RUN (Bilal asleep):** Round 2 done — service PRs #6 (discovery
+prefs) + #7 (match scoring) merged & deployed to dev; matchScore/commonground
+now live server-side (182 tests). Cross-file conflict between the two agents
+resolved by supervisor. Service repo gained PR-level CI. Round 3 in flight:
+service#3 (block/report backend) + service#5 (prompts schema). Round 4 queued:
+mobile #11 (block/report UI) + #12 (profile detail). Morning: Bilal tests
+v1.0.4 on TestFlight; #3 onboarding + #6 ADR remain supervised.
 
 ## Shipped ✅
 
@@ -38,7 +43,8 @@ supervised) + #6 (contract ADR, needs his call) + backend follow-up issues.
 - ~~#2 Match badges~~ ✅ merged (PR #8) · ~~#4 Icebreaker~~ ✅ merged (PR #7) · ~~#5 Settings~~ ✅ merged (PR #9)
 - [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) Onboarding cultural steps — next, supervised
 - [#6](https://github.com/mrbam88/bamware-dating-app/issues/6) Contract-layer ADR (client-core fate) — needs Bilal's decision
-- Backend follow-ups now FILED: dating-service#1 (matchScore/commonground), dating-service#2 (discovery pref fields), dating-app#10 (tenant legal URLs) — all on the board
+- ~~service#1 match scoring~~ ✅ merged+deployed · ~~service#2 discovery prefs~~ ✅ merged+deployed
+- Board grew to 12 cards: P0 block/report pair (#11 app / #3 service), profile detail #12, prompts #13/service#5, deep links #14, curated batch service#4, legal URLs #10
 
 ## Blocked on Bilal 🔴
 
