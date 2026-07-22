@@ -1,5 +1,7 @@
 # State of the Union — Bamware
 
+> 📋 Board: https://github.com/users/mrbam88/projects/2 (cross-repo, all open work)
+
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
 > Last updated: 2026-07-22 (late night)
@@ -35,7 +37,7 @@ supervised) + #6 (contract ADR, needs his call) + backend follow-up issues.
 - ~~#2 Match badges~~ ✅ merged (PR #8) · ~~#4 Icebreaker~~ ✅ merged (PR #7) · ~~#5 Settings~~ ✅ merged (PR #9)
 - [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) Onboarding cultural steps — next, supervised
 - [#6](https://github.com/mrbam88/bamware-dating-app/issues/6) Contract-layer ADR (client-core fate) — needs Bilal's decision
-- Backend follow-ups surfaced by agents: matchScore/commonground fields don't exist server-side yet; UpdateProfileSchema lacks ageMin/ageMax/maxDistance (settings sends them forward-compatibly); TenantConfig lacks legal URLs
+- Backend follow-ups now FILED: dating-service#1 (matchScore/commonground), dating-service#2 (discovery pref fields), dating-app#10 (tenant legal URLs) — all on the board
 
 ## Blocked on Bilal 🔴
 
