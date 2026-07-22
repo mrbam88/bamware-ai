@@ -12,15 +12,14 @@ Pan-South Asian dating app (matches on language, faith, family).
 ## Now building
 
 **Agent fan-out IN FLIGHT** (3 parallel agents on #2/#4/#5, worktree-isolated,
-PRs incoming). **iOS release v1.0.3 IN FLIGHT** (production build ✅ succeeded —
-first with new ASC key + regenerated profile; TestFlight submit running).
+PRs incoming).
 
 ## Shipped ✅
 
 | Date | What |
 |---|---|
 | 2026-07-22 | Apple credential rotation DONE: old ASC key + app-specific password revoked, new `baat-ci-eas` key in EAS credentials, `ascAppId` set — iOS rail fully wired |
-| 2026-07-22 | v1.0.3 production build succeeded (new provisioning profile w/ push + deep-link entitlements; May-era profile was stale) |
+| 2026-07-22 | **v1.0.3 shipped to TestFlight — first fully-automated release** (dispatch → EAS build → submit, zero laptop involvement; new profile w/ push + deep-link entitlements) |
 | 2026-07-22 | Mobile CI/CD: merge→OTA preview, tag→TestFlight/Play (gated); first OTA publish succeeded |
 | 2026-07-22 | Security: committed Apple creds scrubbed from HEAD, CI credential tripwire, Maestro creds → env |
 | 2026-07-22 | Chat contract fix (matches pagination envelope) — chat UI works again |
