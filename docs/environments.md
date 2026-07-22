@@ -32,3 +32,14 @@ password from env `TEST_SEED_PASSWORD` — never committed.
 Reset/reseed: idempotent — rerun the script; it upserts. Legacy ad-hoc
 accounts (kobe/lebron era, demo.noor2) are superseded; don't build on
 them.
+
+## Account tiers (the fake/real distinction)
+
+| Tier | What | Login | Cleanup |
+|---|---|---|---|
+| Scenery | isFake profile rows (admin AI seed) — no auth record, CANNOT log in | never | TTL 30d |
+| Cast | persona accounts @test.bamware.io — full real accounts for driving | yes | reseedable |
+| Humans | real users | yes | never |
+
+Rule: scenery never ships to prod discover (service issue: prod guard).
+Want a drivable "fake"? That is a persona, not a seed.
