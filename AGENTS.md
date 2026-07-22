@@ -69,9 +69,14 @@ package:
 2. Tests pass (`jest`). Mocked tests are not proof of integration — if
    you changed an API surface, hit the live dev endpoint or update both
    sides.
-3. The app BOOTS. For mobile: build + launch in simulator; a change
-   nobody ran is not done. (35 commits shipped unbooted once. Never
-   again.)
+3. The app BOOTS. For mobile: build + launch in simulator/emulator; a
+   change nobody ran is not done. (35 commits shipped unbooted once.
+   Never again.) Both platforms boot as of 2026-07-22 — Android parity
+   verified (sign-in/sign-up render + navigate on emulator). Android
+   facts: `ios/` is committed but `android/` is gitignored (CNG — EAS
+   prebuilds it from app.json; regenerate locally with
+   `npx expo run:android`). Gradle needs JDK 21 (Android Studio's JBR
+   works; newer system JDKs break AGP).
 4. Styling only through theme tokens (`src/theme`, tenant config). Zero
    hex literals in feature code.
 5. Maestro flows updated when UI flows change (`.maestro/`, creds via
