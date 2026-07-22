@@ -1,6 +1,7 @@
 # State of the Union — Bamware
 
-> 📋 Board: https://github.com/users/mrbam88/projects/2 (cross-repo, all open work)
+> 📋 Board: https://github.com/users/mrbam88/projects/2 — cross-repo, fielded
+> (Priority/Area/Size/Worker; conventions in skills/board-ops)
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
