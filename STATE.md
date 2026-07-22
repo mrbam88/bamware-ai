@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-07-23 (morning)
+> Last updated: 2026-07-23 (LAUNCH DAY)
 
 ## Vision (one line)
 
@@ -36,6 +36,9 @@ Morning report for Bilal:
 
 | Date | What |
 |---|---|
+| 2026-07-23 | **Launch-day pack complete**: real app icon (serif B + ✦), bamware.io/terms + /privacy LIVE (also fixed month-broken Vercel deploys — dead client-core dep), ASC listing pack + privacy labels, seeded demo account, 5 App Store screenshots (6.9", automated capture) |
+| 2026-07-23 | Launch-day fixes: matches showed UUIDs → server sends matchedName/matchedPhoto; commonground grammar ("You share X"); icebreaker banner copy; sim builds need ad-hoc signing (CODE_SIGNING_ALLOWED=NO strips Keychain → login breaks — also fixed in E2E workflow) |
+| 2026-07-23 | v1.0.6 → TestFlight (icon + legal, submit queued); production-channel OTA path proven for updating store builds |
 | 2026-07-23 | **v1.0.5 → TestFlight**: the overnight drop — block/report end-to-end (Apple P0 ✅), profile detail view, live match scores, working discovery filters (build ✅, submit in flight) |
 | 2026-07-22 | **v1.0.4 → TestFlight: first agent-built feature drop, fully automated rail** |
 | 2026-07-22 | **First agent fan-out: 3 parallel agents → 3 PRs → all merged** (#7 icebreaker banner, #8 match % badges, #9 settings screens; ~5-11 min each, 57/57 tests, boot-verified) |
@@ -59,10 +62,14 @@ Morning report for Bilal:
 
 ## Blocked on Bilal 🔴
 
+- **THE launch step:** ASC → listing pack (delivered) → attach v1.0.6 →
+  Submit for Review. Demo account for review notes:
+  demo.review@bamware.io (password in the listing pack).
 - Android: Google Cloud service-account JSON + Play Console API access
-  (Play app exists ✓, EAS keystore exists ✓ — deferred by choice;
-  note: his google-services.json is Firebase, NOT this, and its package
-  says com.bamware.baat vs actual bamware.baat)
+  (Play app ✓, keystore ✓; google-services.json is Firebase — not this)
+- Post-launch: auth token refresh endpoint (sessions die in ~30min —
+  users will be logged out constantly), rotate BlackMamba24!, MAESTRO_*
+  GH secrets
 
 ## Next up 🗺️
 
