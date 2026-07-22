@@ -11,13 +11,16 @@ Pan-South Asian dating app (matches on language, faith, family).
 
 ## Now building
 
-First supervised agent fan-out on Baat features (issues #2–#5), then
-overnight autonomous runs once boot+Maestro CI gates exist.
+**Agent fan-out IN FLIGHT** (3 parallel agents on #2/#4/#5, worktree-isolated,
+PRs incoming). **iOS release v1.0.3 IN FLIGHT** (production build ✅ succeeded —
+first with new ASC key + regenerated profile; TestFlight submit running).
 
 ## Shipped ✅
 
 | Date | What |
 |---|---|
+| 2026-07-22 | Apple credential rotation DONE: old ASC key + app-specific password revoked, new `baat-ci-eas` key in EAS credentials, `ascAppId` set — iOS rail fully wired |
+| 2026-07-22 | v1.0.3 production build succeeded (new provisioning profile w/ push + deep-link entitlements; May-era profile was stale) |
 | 2026-07-22 | Mobile CI/CD: merge→OTA preview, tag→TestFlight/Play (gated); first OTA publish succeeded |
 | 2026-07-22 | Security: committed Apple creds scrubbed from HEAD, CI credential tripwire, Maestro creds → env |
 | 2026-07-22 | Chat contract fix (matches pagination envelope) — chat UI works again |
@@ -36,9 +39,10 @@ overnight autonomous runs once boot+Maestro CI gates exist.
 
 ## Blocked on Bilal 🔴
 
-- Revoke ASC key `J5U9GPZJFC` + app-specific password at Apple
-- `ascAppId` in eas.json + `eas credentials -p ios` (new key)
-- Play Console bootstrap (checklist: dating-app docs/RELEASING.md)
+- Android: Google Cloud service-account JSON + Play Console API access
+  (Play app exists ✓, EAS keystore exists ✓ — deferred by choice;
+  note: his google-services.json is Firebase, NOT this, and its package
+  says com.bamware.baat vs actual bamware.baat)
 
 ## Next up 🗺️
 
