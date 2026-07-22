@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-07-22 (late night)
+> Last updated: 2026-07-23 (morning)
 
 ## Vision (one line)
 
@@ -36,6 +36,7 @@ Morning report for Bilal:
 
 | Date | What |
 |---|---|
+| 2026-07-23 | **v1.0.5 → TestFlight**: the overnight drop — block/report end-to-end (Apple P0 ✅), profile detail view, live match scores, working discovery filters (build ✅, submit in flight) |
 | 2026-07-22 | **v1.0.4 → TestFlight: first agent-built feature drop, fully automated rail** |
 | 2026-07-22 | **First agent fan-out: 3 parallel agents → 3 PRs → all merged** (#7 icebreaker banner, #8 match % badges, #9 settings screens; ~5-11 min each, 57/57 tests, boot-verified) |
 | 2026-07-22 | Apple credential rotation DONE: old ASC key + app-specific password revoked, new `baat-ci-eas` key in EAS credentials, `ascAppId` set — iOS rail fully wired |
