@@ -36,4 +36,10 @@ templates/           ADR, agent-ready issue template.
 1. Facts only — if it's stale, it's worse than nothing. Date claims
    that will age (`as of 2026-07`).
 2. Nothing secret. Ever. Names of secrets are fine; values never.
+   A private repo is NOT a secrets store — secrets live in EAS
+   credentials / GitHub secrets / AWS Secrets Manager.
 3. Small files, one concern each. Agents load selectively.
+4. **Repo-first policy:** durable knowledge lives HERE, not on
+   anyone's laptop. Agent sessions may keep local working memory, but
+   anything worth surviving a laptop switch gets committed and pushed
+   the same session it's learned. Commit early, push often.
