@@ -21,6 +21,7 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 | `bamware-client-core` | Shared TS lib (logger, audit, auth store). **Currently orphaned** — service inlined its logger, app vendored a stub (`vendor/client-core`). Its future = dating-app issue #6 (contract-package ADR). | npm-linked locally |
 | `bamware-infra` | Terraform: DynamoDB, Lambda, API GW, IAM, S3 state. | manual |
 | `bamware-workspace` | Meta-repo: submodules pinning known-good SHAs across repos + ops docs (RUNBOOK, HANDOFF). NOT a dev checkout — never run dev servers from it. | n/a |
+| `bamware-web` | Marketing site + web auth targets (terms/privacy, reset-password, verify-email, member sign-up, universal-links well-known files). Next.js. | Vercel (build breaks block deploy) |
 | `bamware-ai` | This repo. | n/a |
 
 ## Live endpoints (dev)
@@ -28,6 +29,26 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 - Auth: `https://cje3ppxv47.execute-api.us-east-1.amazonaws.com`
 - Dating: `https://1l5fzig94l.execute-api.us-east-1.amazonaws.com`
 - Region us-east-1; tenant id `bamware-dating`.
+
+## Brand & design system (pivot 2026-07-22)
+
+Public positioning: bamware is a **multi-agent mobile app studio** —
+senior mobile craft × a fleet of AI agents; fixed-scope sprints. The old
+pink brand is dead. Canonical design source: Claude Design project
+**"Bamware Design System"** (claude.ai/design, Bilal's account; a skill
+export zip mirrors it 1:1). One semantic token contract, two themes:
+
+- **bamware studio** (default `:root`) — graphite surfaces + signal-lime
+  `#A8E82F`, Geist + JetBrains Mono, mono `// comment` eyebrows,
+  build-console card as the signature surface. No emoji.
+- **Baat** (`.theme-baat`) — the case-study skin: espresso + champagne
+  gold `#C9A86A`, Instrument Serif + Manrope (matches the app's
+  `src/theme` / tenant config).
+
+The project's `bamware-web` mockup (full-scroll studio landing) is the
+approved target UI for the `bamware-web` site rebuild — not yet
+implemented there. Mockups are desktop-only (fixed grids); responsive
+treatment is part of the port, not the design.
 
 ## Cross-repo contracts — THE thing agents get wrong
 
