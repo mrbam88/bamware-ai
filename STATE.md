@@ -2,7 +2,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-07-22
+> Last updated: 2026-07-22 (late night)
 
 ## Vision (one line)
 
@@ -11,13 +11,15 @@ Pan-South Asian dating app (matches on language, faith, family).
 
 ## Now building
 
-**Agent fan-out IN FLIGHT** (3 parallel agents on #2/#4/#5, worktree-isolated,
-PRs incoming).
+**v1.0.4 → TestFlight IN FLIGHT** — first agent-built feature drop
+(build dispatched, monitoring). Next: Bilal manual-tests on TestFlight,
+then #3 (onboarding, supervised) + #6 (contract ADR, needs his call).
 
 ## Shipped ✅
 
 | Date | What |
 |---|---|
+| 2026-07-22 | **First agent fan-out: 3 parallel agents → 3 PRs → all merged** (#7 icebreaker banner, #8 match % badges, #9 settings screens; ~5-11 min each, 57/57 tests, boot-verified) |
 | 2026-07-22 | Apple credential rotation DONE: old ASC key + app-specific password revoked, new `baat-ci-eas` key in EAS credentials, `ascAppId` set — iOS rail fully wired |
 | 2026-07-22 | **v1.0.3 shipped to TestFlight — first fully-automated release** (dispatch → EAS build → submit, zero laptop involvement; new profile w/ push + deep-link entitlements) |
 | 2026-07-22 | Mobile CI/CD: merge→OTA preview, tag→TestFlight/Play (gated); first OTA publish succeeded |
@@ -30,11 +32,10 @@ PRs incoming).
 
 ## In flight 🔨 (bamware-dating-app issues)
 
-- [#2](https://github.com/mrbam88/bamware-dating-app/issues/2) Match % + commonground badges — ready for agent
-- [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) Onboarding cultural steps — ready, supervised
-- [#4](https://github.com/mrbam88/bamware-dating-app/issues/4) Chat icebreaker banner — ready for agent
-- [#5](https://github.com/mrbam88/bamware-dating-app/issues/5) Settings sub-screens — ready for agent
+- ~~#2 Match badges~~ ✅ merged (PR #8) · ~~#4 Icebreaker~~ ✅ merged (PR #7) · ~~#5 Settings~~ ✅ merged (PR #9)
+- [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) Onboarding cultural steps — next, supervised
 - [#6](https://github.com/mrbam88/bamware-dating-app/issues/6) Contract-layer ADR (client-core fate) — needs Bilal's decision
+- Backend follow-ups surfaced by agents: matchScore/commonground fields don't exist server-side yet; UpdateProfileSchema lacks ageMin/ageMax/maxDistance (settings sends them forward-compatibly); TenantConfig lacks legal URLs
 
 ## Blocked on Bilal 🔴
 
@@ -45,7 +46,7 @@ PRs incoming).
 
 ## Next up 🗺️
 
-- First tag release `v1.0.3` (makes OTA live on devices)
+- Backend issues for the agent-surfaced gaps (match scoring fields, discovery pref fields, tenant legal URLs)
 - Boot + Maestro smoke gate in CI → unlocks overnight agent runs
 - Real app icon (Apple auto-rejects the Expo template)
 - Fix jest teardown leak (worker force-exit warning)
