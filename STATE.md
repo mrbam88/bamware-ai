@@ -11,14 +11,14 @@ Pan-South Asian dating app (matches on language, faith, family).
 
 ## Now building
 
-**v1.0.4 → TestFlight IN FLIGHT** — first agent-built feature drop
-(build dispatched, monitoring). Next: Bilal manual-tests on TestFlight,
-then #3 (onboarding, supervised) + #6 (contract ADR, needs his call).
+Bilal manual-testing v1.0.4 on TestFlight. Then: #3 (onboarding,
+supervised) + #6 (contract ADR, needs his call) + backend follow-up issues.
 
 ## Shipped ✅
 
 | Date | What |
 |---|---|
+| 2026-07-22 | **v1.0.4 → TestFlight: first agent-built feature drop, fully automated rail** |
 | 2026-07-22 | **First agent fan-out: 3 parallel agents → 3 PRs → all merged** (#7 icebreaker banner, #8 match % badges, #9 settings screens; ~5-11 min each, 57/57 tests, boot-verified) |
 | 2026-07-22 | Apple credential rotation DONE: old ASC key + app-specific password revoked, new `baat-ci-eas` key in EAS credentials, `ascAppId` set — iOS rail fully wired |
 | 2026-07-22 | **v1.0.3 shipped to TestFlight — first fully-automated release** (dispatch → EAS build → submit, zero laptop involvement; new profile w/ push + deep-link entitlements) |
