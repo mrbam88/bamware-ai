@@ -72,6 +72,9 @@ package:
 
 ## Working with Bilal
 
+- **Chat style: short and sweet.** Bullets over prose. No fluff, no
+  essays, no re-summarizing what just happened. He's an engineer —
+  limit his reading.
 - Direct recommendations over option menus. Plan before building.
 - Mobile/Node analogies land best (RN + Express mental model).
 - Specs live as GitHub issues with story/scope/out-of-scope/acceptance
