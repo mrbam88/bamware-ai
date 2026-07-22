@@ -39,3 +39,24 @@ decision procedure.
 ## Preview / manual builds
 
 `gh workflow run release.yml -f platform=ios -f profile=preview -f submit=false`
+
+## Gotchas learned in production (2026-07-22, first release)
+
+- **Added a native capability?** (push, associated domains, etc.) The
+  stored App Store provisioning profile does NOT auto-update — builds
+  fail with "profile doesn't support X capability." Fix: Bilal runs
+  `npx eas-cli credentials -p ios` → production → Build Credentials →
+  delete provisioning profile → set up all — EAS re-mints it with
+  current entitlements from app.json.
+- **CI can't answer interactive EAS prompts.** If a build fails with
+  "stdin is not readable / Failed to display prompt", the fix is a
+  local interactive `eas credentials` run, never a workflow change.
+- **`eas credentials` asks "Generate a new API key?"** → answer **n**
+  when a key was already created in App Store Connect; y creates a
+  second key.
+- **Android's two Google JSONs are different things:**
+  `google-services.json` = Firebase (unused — we push via AWS SNS).
+  Play submission needs a *service-account* JSON (`"type":
+  "service_account"`, from Google Cloud IAM, granted Release Manager in
+  Play Console). Android state: Play app ✓, EAS keystore ✓, service
+  account still pending.
