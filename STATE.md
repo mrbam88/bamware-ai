@@ -14,13 +14,23 @@ Pan-South Asian dating app (matches on language, faith, family).
 
 ## Now building
 
-**OVERNIGHT RUN (Bilal asleep):** Round 2 done — service PRs #6 (discovery
-prefs) + #7 (match scoring) merged & deployed to dev; matchScore/commonground
-now live server-side (182 tests). Cross-file conflict between the two agents
-resolved by supervisor. Service repo gained PR-level CI. Round 3 in flight:
-service#3 (block/report backend) + service#5 (prompts schema). Round 4 queued:
-mobile #11 (block/report UI) + #12 (profile detail). Morning: Bilal tests
-v1.0.4 on TestFlight; #3 onboarding + #6 ADR remain supervised.
+**OVERNIGHT RUN COMPLETE — 4 rounds, 9 agent PRs, all merged.** ☀️
+
+Morning report for Bilal:
+1. **Server (deployed to dev):** match scoring live (matchScore/commonground
+   on discover+matches) · discovery prefs accepted+filtering by age ·
+   **block/report API live (P0)** with mutual exclusion everywhere ·
+   prompts schema round-tripping. 228 backend tests.
+2. **Mobile (merged to main):** block/report UI in chat (P0 done end-to-end)
+   · profile detail view (photo pager, badge, prompts, like/pass from
+   detail). 85 app tests, boot-verified in simulator.
+3. **Supervisor interventions:** 1 real merge conflict (both backend agents
+   restructured discoverService) — resolved + re-verified; 1 premature
+   deploy-probe false alarm — re-checked properly.
+4. **Infra added overnight:** PR-level CI on the service repo.
+5. **Your morning list:** test v1.0.4 on TestFlight (note: it predates
+   tonight's mobile features — cut v1.0.5 whenever) · rotate BlackMamba24!
+   + set MAESTRO_* GH secrets · then #3 onboarding (supervised) + #6 ADR.
 
 ## Shipped ✅
 
