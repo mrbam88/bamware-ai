@@ -45,10 +45,10 @@ export zip mirrors it 1:1). One semantic token contract, two themes:
   gold `#C9A86A`, Instrument Serif + Manrope (matches the app's
   `src/theme` / tenant config).
 
-The project's `bamware-web` mockup (full-scroll studio landing) is the
-approved target UI for the `bamware-web` site rebuild — not yet
-implemented there. Mockups are desktop-only (fixed grids); responsive
-treatment is part of the port, not the design.
+The project's `bamware-web` mockup shipped to production 2026-07-22
+(bamware-web PR #1 → bamware.io): landing rebuilt on the token contract,
+responsive, auth/legal/admin routes untouched. Still old-brand: favicon,
+OG image; waitlist form parked (route intact, not rendered).
 
 ## Cross-repo contracts — THE thing agents get wrong
 
