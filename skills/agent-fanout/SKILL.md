@@ -50,3 +50,18 @@ cd ~/code/<repo> && git worktree add <scratch>/wt-issueN -b feat/N-slug origin/m
 - Expect ~2 clean / 1 nudge / 1 redo per 4 PRs. Redo = fix the SPEC,
   then relaunch, don't hand-patch a wrong-direction PR.
 - Update STATE.md in this repo with outcomes.
+
+## Round-2+ learnings (2026-07-23)
+
+- Fences hold for FILES but not for RESTRUCTURES: two agents can each
+  respect their scope yet still conflict when one moves code the other
+  edited (discoverService round 2). Supervisor resolves the merge and
+  re-runs the FULL suite on the combined tree before merging.
+- Every repo agents touch needs PR-level CI first (the service repo
+  didn't — we added test.yml before round 3).
+- In auto-deploy-on-main repos, agents are PR-ONLY. Never let an agent
+  merge into a repo that ships on push.
+- Deploy-verify race: "latest run succeeded" may be the PREVIOUS
+  deploy. Match the run's headSha to your merge commit before probing.
+- Agents' spec-gap decision lists are gold — several became new board
+  tickets (matchedName enrichment, prompt catalogs, legal URLs).
