@@ -10,6 +10,19 @@ Proven pattern (first run 2026-07-22: 3 agents on dating-app issues
 
 ## Preconditions
 
+- **Permissions are pre-cleared — verify BEFORE launching.** Background
+  agents inherit the session's permission mode; an unattended fleet
+  stalls at the first prompt (2026-07-23: 4 agents froze ~8h overnight
+  on install/push prompts). Requirements:
+  - `~/.claude/settings.json` has `permissions.defaultMode:
+    "bypassPermissions"` + the command allowlist (set 2026-07-23), OR
+    launch with `--dangerously-skip-permissions`. Repo-level
+    `.claude/settings.json` only applies when the session STARTS in
+    that repo — a session run from `~` never loads them.
+  - Smoke-test ONE mutating command (e.g. a no-op commit in a scratch
+    worktree) before launching the fleet.
+  - Never flip PLAN MODE on while agents are mid-write: every agent
+    action becomes an approval request (prompt storm).
 - Issues are agent-ready (see skills/agent-ready-tickets) and
   **file-level orthogonal** — no two agents touch the same file.
 - CI gates exist on PRs (tsc + tests + secrets tripwire).
