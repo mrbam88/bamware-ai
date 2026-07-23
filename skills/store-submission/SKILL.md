@@ -18,9 +18,11 @@ description: Take a Bamware app from TestFlight to App Store submission — icon
    `fastlane/screenshots/en-US/` in the app repo; push with
    `bundle exec fastlane ios_metadata` (needs ASC_KEY_ID/ISSUER/P8_B64
    + ASC_DEMO_PASSWORD envs). New tenant = new metadata folder.
-4. **Screenshots** — 6.9" (iPhone Pro Max sim, native 1320×2868 via
-   `xcrun simctl io <udid> screenshot`). One size is enough; ASC
-   downscales. Stage the world first (see below).
+4. **Screenshots** — capture on an iPhone Pro Max sim (native
+   1320×2868 via `xcrun simctl io <udid> screenshot`), then RESIZE to
+   **1284×2778** (6.5" spec) — ASC rejected native 6.9" uploads
+   (2026-07). Scale to width, center-crop the ~12px excess. One size
+   is enough; ASC downscales. Stage the world first (see below).
 5. **Demo account for review** — a real, pre-registered account with
    matches + chats, creds in review notes. Never a personal account.
 6. **UI-only rump (human, one-time):** privacy nutrition labels, age
