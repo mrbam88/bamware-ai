@@ -15,23 +15,10 @@ First product: **Baat**, Pan-South Asian dating app.
 
 ## Now building
 
-**OVERNIGHT RUN COMPLETE — 4 rounds, 9 agent PRs, all merged.** ☀️
-
-Morning report for Bilal:
-1. **Server (deployed to dev):** match scoring live (matchScore/commonground
-   on discover+matches) · discovery prefs accepted+filtering by age ·
-   **block/report API live (P0)** with mutual exclusion everywhere ·
-   prompts schema round-tripping. 228 backend tests.
-2. **Mobile (merged to main):** block/report UI in chat (P0 done end-to-end)
-   · profile detail view (photo pager, badge, prompts, like/pass from
-   detail). 85 app tests, boot-verified in simulator.
-3. **Supervisor interventions:** 1 real merge conflict (both backend agents
-   restructured discoverService) — resolved + re-verified; 1 premature
-   deploy-probe false alarm — re-checked properly.
-4. **Infra added overnight:** PR-level CI on the service repo.
-5. **Your morning list:** test v1.0.4 on TestFlight (note: it predates
-   tonight's mobile features — cut v1.0.5 whenever) · rotate BlackMamba24!
-   + set MAESTRO_* GH secrets · then #3 onboarding (supervised) + #6 ADR.
+**WAITING ON APPLE** — v1.0.6 in App Review (submitted 2026-07-23,
+typical turnaround 24-48h). Meanwhile: Play Console bootstrap (packs +
+feature graphic ready, needs service account), then the agent-ready
+pool: web#8, service#11, app#13/#14/#17.
 
 ## Shipped ✅
 
@@ -65,14 +52,11 @@ Morning report for Bilal:
 
 ## Blocked on Bilal 🔴
 
-- **THE launch step:** ASC → listing pack (delivered) → attach v1.0.6 →
-  Submit for Review. Demo account for review notes:
-  demo.review@bamware.io (password in the listing pack).
-- Android: Google Cloud service-account JSON + Play Console API access
-  (Play app ✓, keystore ✓; google-services.json is Firebase — not this)
-- Post-launch: auth token refresh endpoint (sessions die in ~30min —
-  users will be logged out constantly), rotate BlackMamba24!, MAESTRO_*
-  GH secrets
+- Google Cloud service account → Play Console API access → first
+  manual AAB upload (packs on ~/Desktop/baat-launch)
+- Post-launch debt: auth token refresh (sessions die ~30min), rotate
+  BlackMamba24!, MAESTRO_* GH secrets, rotate ADMIN_SECRET (in chat
+  transcript)
 
 ## Next up 🗺️
 
