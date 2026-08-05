@@ -1,6 +1,6 @@
 # wfhCafe MVP — shared contract & session state
 
-**Updated:** 2026-08-05 (Claude/backend session) · **Read this first, both agents.**
+**Updated:** 2026-08-05 (Claude backend + OpenCode client sessions) · **Read this first, both agents.**
 
 ## Division of labor
 - **Claude (this session):** venue-engine backend, deployment, data, App Store readiness docs. Reads mobile code, never writes it.
@@ -26,9 +26,15 @@ JSON: camelCase except `distance_m` (only on geo queries). Attribute = claim: `{
 
 ## ACTION ITEMS
 **Sol:**
-1. **Remove the login screen (P0).** Engine has no auth; a login wall on a public directory risks App Review 5.1.1 ("no account requirement for non-account features") and adds friction. Delete `LoginView.swift` gate; boot straight to tabs. Auth returns post-MVP if ever.
-2. When PROD_URL lands: swap `VenueAPI` default baseURL; delete the "localhost:3000" wording from the error/empty state (prod copy: "Can't reach the cafe engine — pull to retry").
-3. App Review polish: real app icon (Apple rejects template icons — Baat lesson), OSM attribution line ("© OpenStreetMap contributors") in an About/Settings screen, empty states everywhere.
+1. **Client direction (Bilal decision, 2026-08-05): build the full acquisition shell now.** The current prototype is onboarding → StoreKit paywall → separate `bamware-cafe` tenant auth → location → discovery. This supersedes the earlier free/no-login assumption for development; App Review gating remains a release decision because 5.1.1 may require useful guest access.
+2. Release builds use `https://venuekit-ashen.vercel.app`; Debug builds retain `http://localhost:3000` for local integration. User-facing errors no longer mention localhost.
+3. App Review polish still needed: real app icon (Apple rejects template icons — Baat lesson), OSM attribution line ("© OpenStreetMap contributors") in About/Settings, and final guest/account policy.
+
+## Client status (verified 2026-08-05)
+- SwiftUI acquisition flow, local monthly/annual StoreKit catalog, Keychain token storage, startup JWT validation/refresh, and separate `bamware-cafe` tenant configuration are implemented in `bamware-cafe`.
+- Map-first discovery uses live Venue Engine data with Work Fit markers, search, laptop/Wi-Fi/outlet filters, location fallback, synchronized cards, and provenance details.
+- Simulator boot verified against the local 2,180-venue engine. CafeKit tests, app unit tests, and UI smoke tests pass.
+- Auth backend handoff: seed a `bamware-cafe` test user; confirm tenant provisioning policy. Current login/register/refresh/recovery routes are sufficient for email auth. Do not expose social sign-in or claim complete account deletion until `/auth/social` and `DELETE /auth/account` exist on current auth-service main.
 
 **Bilal (2 min, from Terminal):**
 ```bash
@@ -41,10 +47,10 @@ npx vercel --prod              # link to your account when prompted
 ```
 Then paste the production URL into this file (PROD_URL above) and tell both agents.
 
-## App Store readiness (wfhCafe v1, free)
+## App Store readiness (wfhCafe v1)
 - [ ] PROD_URL live + app pointed at it (review runs on Apple's network — localhost = auto-reject)
-- [ ] Login wall removed (5.1.1) · [ ] Real icon (4.3/2.3) · [ ] OSM attribution (ODbL)
-- [ ] Privacy policy URL (reuse bamware.io/privacy) · [ ] Privacy label: aim "Data Not Collected" (no accounts, anonymous observations)
+- [ ] Guest/account gating decision reviewed against 5.1.1 · [ ] Real icon (4.3/2.3) · [ ] OSM attribution (ODbL)
+- [ ] Privacy policy URL (reuse bamware.io/privacy) · [ ] Privacy labels cover account and purchase data if the gated funnel ships
 - [ ] Empty/error states — no dead screens if API hiccups (2.1)
 - [ ] Screenshots 6.9" + 6.5" (reuse Baat capture automation) · [ ] Support URL
 - Positioning vs 4.3(b): "measured wifi speeds + provenance for NYC work sessions" — name the differentiation in App Review notes.

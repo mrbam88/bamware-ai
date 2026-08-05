@@ -24,13 +24,14 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 | `bamware-web` | Marketing site + web auth targets (terms/privacy, reset-password, verify-email, member sign-up, universal-links well-known files). Next.js. | Vercel (build breaks block deploy) |
 | `bamware-ios` | Reusable Swift package products: Core, UI, Messaging. Tenant-aware native foundation. | Swift Package |
 | `bamware-cafe` | Native SwiftUI proving-ground app. Uses local CafeKit/VenueKit and the shared iOS package. | Local/TestFlight later |
-| `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for bamware-cafe. | Local MVP |
+| `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for bamware-cafe. | Vercel (`venuekit-ashen.vercel.app`) |
 | `bamware-ai` | This repo. | n/a |
 
 ## Live endpoints (dev)
 
 - Auth: `https://cje3ppxv47.execute-api.us-east-1.amazonaws.com`
 - Dating: `https://1l5fzig94l.execute-api.us-east-1.amazonaws.com`
+- Venue Engine: `https://venuekit-ashen.vercel.app`
 - Region us-east-1; tenant id `bamware-dating`.
 
 ## Brand & design system (pivot 2026-07-22)
