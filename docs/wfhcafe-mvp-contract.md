@@ -30,30 +30,77 @@ JSON: camelCase except `distance_m` (only on geo queries). Attribute = claim: `{
 2. Release builds use `https://venuekit-ashen.vercel.app`; Debug builds retain `http://localhost:3000` for local integration. User-facing errors no longer mention localhost.
 3. App Review polish still needed: real app icon (Apple rejects template icons — Baat lesson), OSM attribution line ("© OpenStreetMap contributors") in About/Settings, and final guest/account policy.
 
+## P0 verification — read by Claude from `bamware-cafe` @ e3c86ec (2026-08-05 evening)
+Backend session verified these by reading Sol's tree. **No Swift was modified.**
+
+| P0 | Status | Evidence |
+|---|---|---|
+| Login screen removed | ❌ **Not done — and correctly so** | `BamwareCafe/Flow/AuthenticationView.swift` present; flow is Onboarding → Paywall → Auth → Location → Discovery. Superseded by Bilal's 2026-08-05 acquisition-shell decision (ACTION ITEMS #1). Not a Sol miss. **Still needs a final 5.1.1 call before submission.** |
+| `VenueAPI.baseURL` → prod | ✅ **Done** | `Packages/BamwareCafeKit/Sources/VenueKit/VenueAPI.swift:53-59` — `#if DEBUG` localhost:3000 `#else` `https://venuekit-ashen.vercel.app`. Release builds hit prod. Compile-time, no runtime toggle to misconfigure. |
+
+**⚠️ New finding — speed-test flywheel is OFF in Debug builds.**
+`VenueAPI.supportsSpeedTest` (VenueAPI.swift:69-71) requires `https` and a non-localhost
+host, `submitSpeedTest` throws `.unsupportedSpeedTest` (:133), and `VenueDetailScreen`
+disables the button (:65). So a plain Debug simulator build against localhost has the
+flywheel **disabled** — it only lights up in Release, or in Debug pointed at PROD_URL.
+This matters twice: (1) the flywheel is our 4.3(b) differentiation, so **screenshots must
+be captured from a build where it is enabled**; (2) any "verified working in simulator"
+claim should name which configuration it was verified in. Sol's call how to handle
+(a Debug-only allowance for the prod host would do it) — flagged, not fixed.
+
 ## Client status (verified 2026-08-05)
 - SwiftUI acquisition flow, local monthly/annual StoreKit catalog, Keychain token storage, startup JWT validation/refresh, and separate `bamware-cafe` tenant configuration are implemented in `bamware-cafe`.
 - Map-first discovery uses live Venue Engine data with Work Fit markers, search, laptop/Wi-Fi/outlet filters, location fallback, synchronized cards, and provenance details.
 - Simulator boot verified against the local 2,180-venue engine. CafeKit tests, app unit tests, and UI smoke tests pass.
 - Auth backend handoff: seed a `bamware-cafe` test user; confirm tenant provisioning policy. Current login/register/refresh/recovery routes are sufficient for email auth. Do not expose social sign-in or claim complete account deletion until `/auth/social` and `DELETE /auth/account` exist on current auth-service main.
 
-**Bilal (2 min, from Terminal):**
-```bash
-mkdir -p ~/code/bamware-venue-engine && cd ~/code/bamware-venue-engine
-unzip -o ~/Downloads/bamware-venue-engine.zip && mv bamware-venue-engine/* bamware-venue-engine/.[!.]* . 2>/dev/null; rmdir bamware-venue-engine
-npm install && npm test        # expect 11 passing
-git init -b main && git add -A && git commit -m "venue engine v0.1 — deploy-ready"
-gh repo create mrbam88/bamware-venue-engine --private --source=. --push
-npx vercel --prod              # link to your account when prompted
-```
-Then paste the production URL into this file (PROD_URL above) and tell both agents.
+**Bilal — open decisions (the deploy bootstrap below is DONE, kept for history):**
+1. **Guest browsing vs hard signup wall (5.1.1).** Blocks submission. See the 5.1.1 read below. Claude recommends guest browse + gate the speed test.
+2. **App Store Connect app record** for wfhCafe — bundle id, name, SKU, 4+ age rating. Agents can't create it; everything downstream (metadata push, screenshots, build upload) waits on it.
+3. **Privacy nutrition labels** — ASC UI only, human-gated. Recommended answers are tabulated below; the old "Data Not Collected" plan is dead once accounts ship.
+4. Unrelated but now urgent: **web#10 (admin JWT hardening) is merged to bamware-web main** — `JWT_SECRET` must exist in Vercel env or the admin portal breaks in prod.
 
-## App Store readiness (wfhCafe v1)
-- [ ] PROD_URL live + app pointed at it (review runs on Apple's network — localhost = auto-reject)
-- [ ] Guest/account gating decision reviewed against 5.1.1 · [ ] Real icon (4.3/2.3) · [ ] OSM attribution (ODbL)
-- [ ] Privacy policy URL (reuse bamware.io/privacy) · [ ] Privacy labels cover account and purchase data if the gated funnel ships
-- [ ] Empty/error states — no dead screens if API hiccups (2.1)
-- [ ] Screenshots 6.9" + 6.5" (reuse Baat capture automation) · [ ] Support URL
+<details><summary>Done 2026-08-05 — venue engine bootstrap</summary>
+
+```bash
+# repo created, pushed, linked to Vercel project "venuekit"; push to main = auto-deploy
+# live: https://venuekit-ashen.vercel.app
+```
+</details>
+
+## App Store readiness (wfhCafe v1) — owner in brackets
+- [x] **PROD_URL live + app pointed at it** [Claude+Sol] — engine re-verified green 2026-08-05 evening (health 2180, geo, neighborhoods); Release build targets it.
+- [x] **Privacy policy URL** [Claude] — **https://bamware.io/wfhcafe/privacy** (shipped bamware-web 7328162). ⚠️ `bamware.io/privacy` is Baat-specific (dating profiles, matches, 18+) — **do NOT submit wfhCafe against it.**
+- [x] **Support URL** [Claude] — **https://bamware.io/wfhcafe/support** (bamware.io/support was a 404). Carries FAQ + OSM/ODbL attribution.
+- [ ] **Guest/account gating decision vs 5.1.1** [Bilal] — the one open blocker with real rejection risk. See "5.1.1 read" below.
+- [ ] **Real icon (4.3/2.3)** [Claude produces asset → Sol installs] — Apple auto-rejects template icons (Baat lesson). Not started.
+- [ ] **OSM attribution in-app (ODbL)** [Sol] — "© OpenStreetMap contributors" in About/Settings. Web pages already carry it; the app still needs its own.
+- [ ] **Privacy nutrition labels** [Bilal, ASC UI] — **"Data Not Collected" is no longer truthful** once accounts ship. See recommended answers below.
+- [ ] **Empty/error states** [Sol] — no dead screens if the API hiccups (2.1); prod copy, no "localhost" wording.
+- [ ] **Screenshots 6.9" + 6.5"** [Claude] — needs a build with the flywheel enabled (see P0 finding). Reuse Baat automation: capture native on Pro Max sim, resize to 1284×2778.
 - Positioning vs 4.3(b): "measured wifi speeds + provenance for NYC work sessions" — name the differentiation in App Review notes.
+
+### 5.1.1 read (Claude's recommendation, Bilal decides)
+Guideline 5.1.1(v): an app may not require an account for features that don't depend on
+one. wfhCafe's core — browsing a public cafe directory — demonstrably does not. A hard
+signup+paywall wall in front of a public directory is the single most likely rejection.
+**Recommendation: let guests browse, search, and view cafes; gate the speed-test
+contribution and any saved/favourites behind account+subscription.** That keeps the
+acquisition funnel (the paywall still sits on the valuable action), removes the 5.1.1
+exposure, and gives App Review something useful to see without credentials. If Bilal
+prefers to keep the hard wall, we must ship a review demo account in the notes and
+should expect a 5.1.1 round-trip. Either way this is a release decision, not a rebuild —
+the shell Sol built stays.
+
+### Privacy nutrition labels — recommended answers (from what the code actually does)
+| Data type | Collected? | Linked to user? | Tracking? | Purpose |
+|---|---|---|---|---|
+| Contact Info → Email | Yes (if accounts ship) | Linked | No | App Functionality |
+| Identifiers → User ID | Yes (if accounts ship) | Linked | No | App Functionality |
+| Location → Precise | Yes | **Not linked** | No | App Functionality (sent per-request to rank nearby venues; not stored, no history) |
+| Purchases | Apple-processed; we hold only active/inactive | Linked | No | App Functionality |
+| Usage/Diagnostics | No — no analytics or crash SDK in the cafe app today | — | — | — |
+Speed observations carry no account/device id (`POST /v1/observations` = `{venueId, kind, mbpsDown}`), so they are not declarable user data. If Sentry or any analytics SDK is added, this table changes — update it here first.
 
 ## Rate-limit protocol (both agents)
 - State lives HERE, not in chat context. Check in on session start; write deltas, not essays.

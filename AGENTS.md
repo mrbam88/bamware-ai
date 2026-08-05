@@ -34,6 +34,37 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 - Venue Engine: `https://venuekit-ashen.vercel.app`
 - Region us-east-1; tenant id `bamware-dating`.
 
+## Runtime capability matrix — assign work the runtime can actually do
+
+Agents differ by RUNTIME, not just by skill. A job handed to the wrong
+runtime doesn't fail loudly — it half-completes and leaves debris.
+Check this table before assigning; Bilal orchestrates against it.
+
+| Capability | Claude Code CLI (native macOS) | Sol / opencode (native macOS) | Claude Cowork (cloud) |
+|---|---|---|---|
+| `git push` / release tags | ✅ owns it | ✅ | ❌ **cannot** — no SSH creds through the device bridge |
+| Xcode, simulators, `xcodebuild` | ✅ owns it | ✅ | ❌ no macOS |
+| fastlane, App Store Connect, signing | ✅ owns it | — | ❌ |
+| Credential-bearing ops (EAS, AWS, Vercel CLI) | ✅ owns it | — | ⚠️ connector-based deploys only |
+| SwiftUI / client feature work | ❌ reads only | ✅ owns it | ❌ |
+| Backend / API / data work | ✅ owns it | ❌ reads only | ✅ scratch + research |
+| Long unattended runs, bulk research | ⚠️ rate-limit bound | ⚠️ | ✅ owns it |
+
+**Rules that follow from the table:**
+
+- **Never assign Cowork a push or an Xcode job.** Its bridge git ops fail
+  *and* shed lock cruft (`.git/_bridge_cruft/`, stale `index.lock`,
+  `HEAD.lock`) that blocks the next native session. Cowork produces
+  patches, docs, and zips; a native agent lands them.
+- After any Cowork session touched a repo, the next native agent runs:
+  `rm -rf .git/_bridge_cruft && rm -f .git/index.lock .git/HEAD.lock`
+  then `git fsck` before pushing. (Done 2026-08-05 on this repo.)
+- Cowork hands work off through **files in this repo**, never chat.
+- Ownership is one-way per surface: Claude writes backend, reads Swift;
+  Sol writes Swift, reads backend. Neither edits the other's tree.
+- Credentials never move to satisfy a capability gap — reassign the job
+  to the runtime that already holds them (see Security ground rules).
+
 ## Brand & design system (pivot 2026-07-22)
 
 Public positioning: bamware is a **multi-agent mobile app studio** —
