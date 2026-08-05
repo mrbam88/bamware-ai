@@ -73,7 +73,7 @@ claim should name which configuration it was verified in. Sol's call how to hand
 - [x] **Privacy policy URL** [Claude] — **https://bamware.io/wfhcafe/privacy** (shipped bamware-web 7328162). ⚠️ `bamware.io/privacy` is Baat-specific (dating profiles, matches, 18+) — **do NOT submit wfhCafe against it.**
 - [x] **Support URL** [Claude] — **https://bamware.io/wfhcafe/support** (bamware.io/support was a 404). Carries FAQ + OSM/ODbL attribution.
 - [ ] **Guest/account gating decision vs 5.1.1** [Bilal] — the one open blocker with real rejection risk. See "5.1.1 read" below.
-- [ ] **Real icon (4.3/2.3)** [Claude produces asset → Sol installs] — Apple auto-rejects template icons (Baat lesson). Not started.
+- [~] **Real icon (4.3/2.3)** [Claude ✅ produced → **Sol to install**] — asset + install steps in `assets/wfhcafe-icon/` (INSTALL.md). Cup-with-wifi-steam mark, studio graphite/signal-lime, all 3 iOS 18 appearances, marketing icon alpha-free. The appiconset in `bamware-cafe` currently declares **no filenames at all** — there is no icon today.
 - [ ] **OSM attribution in-app (ODbL)** [Sol] — "© OpenStreetMap contributors" in About/Settings. Web pages already carry it; the app still needs its own.
 - [ ] **Privacy nutrition labels** [Bilal, ASC UI] — **"Data Not Collected" is no longer truthful** once accounts ship. See recommended answers below.
 - [ ] **Empty/error states** [Sol] — no dead screens if the API hiccups (2.1); prod copy, no "localhost" wording.
