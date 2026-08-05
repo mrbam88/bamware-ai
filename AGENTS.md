@@ -22,6 +22,9 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 | `bamware-infra` | Terraform: DynamoDB, Lambda, API GW, IAM, S3 state. | manual |
 | `bamware-workspace` | Meta-repo: submodules pinning known-good SHAs across repos + ops docs (RUNBOOK, HANDOFF). NOT a dev checkout — never run dev servers from it. | n/a |
 | `bamware-web` | Marketing site + web auth targets (terms/privacy, reset-password, verify-email, member sign-up, universal-links well-known files). Next.js. | Vercel (build breaks block deploy) |
+| `bamware-ios` | Reusable Swift package products: Core, UI, Messaging. Tenant-aware native foundation. | Swift Package |
+| `bamware-cafe` | Native SwiftUI proving-ground app. Uses local CafeKit/VenueKit and the shared iOS package. | Local/TestFlight later |
+| `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for bamware-cafe. | Local MVP |
 | `bamware-ai` | This repo. | n/a |
 
 ## Live endpoints (dev)
@@ -81,6 +84,8 @@ package:
    hex literals in feature code.
 5. Maestro flows updated when UI flows change (`.maestro/`, creds via
    `MAESTRO_TEST_EMAIL/PASSWORD` env).
+6. Native Swift packages run `swift test` with strict concurrency; native
+   apps build and launch through their documented development workspace.
 
 ## Security ground rules (non-negotiable)
 
@@ -110,3 +115,5 @@ package:
 - Mobile/Node analogies land best (RN + Express mental model).
 - Specs live as GitHub issues with story/scope/out-of-scope/acceptance
   criteria (template in this repo). Vague tickets get vague PRs.
+- Keep tool use proportional. Prefer focused reads and tests; broad audits,
+  large build logs, and agent fan-out require an explicit request.

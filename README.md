@@ -28,8 +28,10 @@ templates/           ADR, agent-ready issue template.
 - **Claude Code:** symlink a skill into a repo:
   `ln -s ../../bamware-ai/skills/agent-ready-tickets .claude/skills/`
   or reference `AGENTS.md` from a repo's `CLAUDE.md`/`AGENTS.md`.
-- **Cursor / opencode / anything else:** these are plain markdown —
-  attach or paste as context. No lock-in.
+- **OpenCode:** follow `docs/opencode-setup.md`. The global config advertises
+  skills on demand and loads `AGENTS.md` for every session.
+- **Cursor / anything else:** these are plain markdown; attach the system map
+  and load individual skills only when relevant. No lock-in.
 
 ## Rules for this repo
 
