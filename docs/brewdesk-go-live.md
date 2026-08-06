@@ -1,7 +1,18 @@
-# Brewdesk — go-live blockers (backend/infra audit)
+# BrewDesk — go-live blockers (backend/infra audit)
 
 **Owner:** Claude (backend/infra) · **Audited:** 2026-08-05 evening, against live prod
-**App:** "Brewdesk — WFH Cafés" (renamed from wfhCafe, 2026-08-05)
+**App:** "BrewDesk — WFH Cafés" (renamed from wfhCafe, 2026-08-05)
+
+## Final v1 decisions — Bilal, 2026-08-05
+
+- On-device brand: **BrewDesk**. App Store name: **BrewDesk — WFH Cafés**.
+- Guest users can browse the map, search, filters, and venue details without an account.
+- v1 is free. StoreKit subscriptions and the paywall move to v1.1.
+- Optional accounts remain only with real account value (planned: cloud-synced saved cafes) and require production auth plus in-app account deletion.
+- The Ask conversation prototype is excluded from v1. It is preserved in `bamware-cafe` on branch `feature/conversation-prototype`, tag `conversation-prototype-v0.1.0`, commit `7d6bf8f`.
+- v1 is iPhone-only. iPad support can return after dedicated layout and screenshot validation.
+
+These decisions supersede the older paid/hard-gate alternatives below. Keep the audit details for implementation context.
 
 Everything below was verified against running systems or current code, not assumed.
 Severity: 🔴 blocks submission or breaks paying users · 🟠 fix before charging money ·

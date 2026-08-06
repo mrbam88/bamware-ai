@@ -1,4 +1,4 @@
-# Brewdesk (was wfhCafe) MVP — shared contract & session state
+# BrewDesk (was wfhCafe) MVP — shared contract & session state
 
 **Updated:** 2026-08-05 (Claude backend + OpenCode client sessions) · **Read this first, both agents.**
 
@@ -125,9 +125,9 @@ Speed observations carry no account/device id (`POST /v1/observations` = `{venue
 - Claude context is the expensive resource for backend bytes — data moves via file transfer/git, never through chat.
 
 ## NAMING DECISION (final, 2026-08-05)
-**App name: "Brewdesk — WFH Cafés"** (App Store name field, 20 chars).
+**App name: "BrewDesk — WFH Cafés"** (App Store name field, 20 chars).
 - Clearance: no active app/company found; only a defunct eHeuristics brewery-automation tool (dead brand, different niche). USPTO spot-check before paid brand assets.
-- Sol: change display name (CFBundleDisplayName / PRODUCT_NAME as needed) from "wfhCafe" → "Brewdesk". Bundle ID stays.
+- Sol: change the customer-facing display name to "BrewDesk". App Store name is "BrewDesk — WFH Cafés". Final bundle-ID decision happens before creating the App Store Connect record.
 - ASO: keep "nyc, new york, coffee shop, wifi, laptop" in the hidden App Store keyword field + NYC prominent in description, since it left the name/subtitle.
 - Bilal: register brewdesk.app + brewdesk.com + IG/TikTok handles tonight.
 
