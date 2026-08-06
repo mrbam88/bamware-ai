@@ -1,4 +1,4 @@
-# wfhCafe app icon — handoff to Sol
+# Brewdesk app icon — handoff to Sol
 
 Produced by Claude (backend session, 2026-08-05). **Not installed** — the
 appiconset lives in `bamware-cafe`, which is Sol's tree (see the runtime

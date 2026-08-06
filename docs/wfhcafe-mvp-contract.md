@@ -1,6 +1,20 @@
-# wfhCafe MVP — shared contract & session state
+# Brewdesk (was wfhCafe) MVP — shared contract & session state
 
 **Updated:** 2026-08-05 (Claude backend + OpenCode client sessions) · **Read this first, both agents.**
+
+> 🔴 **GO-LIVE BLOCKERS LIVE IN [`brewdesk-go-live.md`](brewdesk-go-live.md)** — backend/infra
+> audit against running prod, 2026-08-05 evening. Read it before planning submission work.
+> Headline: speed-test observations **do not persist in prod** (verified in Vercel logs), the
+> app ships against the **dev** auth Lambda, and it links **Baat's dating terms** as its EULA.
+>
+> ⚠️ **Two sections of THIS file now contradict each other** on accounts. "STORE-CLEARANCE
+> VERIFICATION" (cloud session, 00:31 UTC) says the login screen must go and the privacy label
+> is "Data Not Collected"; the "P0 verification" section and the privacy-label table say
+> accounts + StoreKit ship, which makes that label false. The cloud session did not have the
+> acquisition-shell decision in context. **Resolution depends on Bilal's accounts call** —
+> see "Fastest path to submission" in the go-live doc. Do not act on either until it is settled.
+>
+> File name kept as-is despite the rename so both agents' in-flight paths keep working.
 
 ## Division of labor
 - **Claude (this session):** venue-engine backend, deployment, data, App Store readiness docs. Reads mobile code, never writes it.
@@ -71,8 +85,10 @@ claim should name which configuration it was verified in. Sol's call how to hand
 
 ## App Store readiness (wfhCafe v1) — owner in brackets
 - [x] **PROD_URL live + app pointed at it** [Claude+Sol] — engine re-verified green 2026-08-05 evening (health 2180, geo, neighborhoods); Release build targets it.
-- [x] **Privacy policy URL** [Claude] — **https://bamware.io/wfhcafe/privacy** (shipped bamware-web 7328162). ⚠️ `bamware.io/privacy` is Baat-specific (dating profiles, matches, 18+) — **do NOT submit wfhCafe against it.**
-- [x] **Support URL** [Claude] — **https://bamware.io/wfhcafe/support** (bamware.io/support was a 404). Carries FAQ + OSM/ODbL attribution.
+- [x] **Privacy policy URL** [Claude] — **https://bamware.io/brewdesk/privacy** (bamware-web `f108cd4`). ⚠️ `bamware.io/privacy` is Baat-specific (dating profiles, matches, 18+) — **do NOT submit Brewdesk against it.**
+- [x] **Support URL** [Claude] — **https://bamware.io/brewdesk/support** (bamware.io/support was a 404). Carries FAQ + OSM/ODbL attribution.
+- [x] **Terms of Use / EULA** [Claude] — **https://bamware.io/brewdesk/terms** (new). Carries the 3.1.2 auto-renewing-subscription disclosures. `bamware.io/terms` is Baat's dating terms — **do NOT submit against it.**
+- [ ] **Sol: repoint `AppConfiguration.swift:18-19`** — `termsURL`/`privacyURL` still point at Baat's dating documents. Also `appName` is still `"Work Cafe"` (→ Brewdesk). `/wfhcafe/*` 308-redirects to `/brewdesk/*`, so old links resolve, but ship the canonical URLs.
 - [ ] **Guest/account gating decision vs 5.1.1** [Bilal] — the one open blocker with real rejection risk. See "5.1.1 read" below.
 - [~] **Real icon (4.3/2.3)** [Claude ✅ produced → **Sol to install**] — asset + install steps in `assets/wfhcafe-icon/` (INSTALL.md). Cup-with-wifi-steam mark, studio graphite/signal-lime, all 3 iOS 18 appearances, marketing icon alpha-free. The appiconset in `bamware-cafe` currently declares **no filenames at all** — there is no icon today.
 - [ ] **OSM attribution in-app (ODbL)** [Sol] — "© OpenStreetMap contributors" in About/Settings. Web pages already carry it; the app still needs its own.
