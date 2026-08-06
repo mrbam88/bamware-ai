@@ -53,6 +53,7 @@ claim should name which configuration it was verified in. Sol's call how to hand
 - Map-first discovery uses live Venue Engine data with Work Fit markers, search, laptop/Wi-Fi/outlet filters, location fallback, synchronized cards, and provenance details.
 - Simulator boot verified against the local 2,180-venue engine. CafeKit tests, app unit tests, and UI smoke tests pass.
 - Auth backend handoff: seed a `bamware-cafe` test user; confirm tenant provisioning policy. Current login/register/refresh/recovery routes are sufficient for email auth. Do not expose social sign-in or claim complete account deletion until `/auth/social` and `DELETE /auth/account` exist on current auth-service main.
+- Conversation prototype added to the authenticated client: participant metadata supports humans and agents, the thread has optimistic send/failure states, and `ConversationTransport` is the backend seam. Current replies are local through `DemoAgentTransport`. Backend transport, persistence, streaming, and payload shape remain intentionally undecided; record that contract here before implementation.
 
 **Bilal — open decisions (the deploy bootstrap below is DONE, kept for history):**
 1. **Guest browsing vs hard signup wall (5.1.1).** Blocks submission. See the 5.1.1 read below. Claude recommends guest browse + gate the speed test.
@@ -106,3 +107,10 @@ Speed observations carry no account/device id (`POST /v1/observations` = `{venue
 - State lives HERE, not in chat context. Check in on session start; write deltas, not essays.
 - Big batched turns; artifacts over narration; never re-read what's unchanged.
 - Claude context is the expensive resource for backend bytes — data moves via file transfer/git, never through chat.
+
+## NAMING DECISION (final, 2026-08-05)
+**App name: "Brewdesk — WFH Cafés"** (App Store name field, 20 chars).
+- Clearance: no active app/company found; only a defunct eHeuristics brewery-automation tool (dead brand, different niche). USPTO spot-check before paid brand assets.
+- Sol: change display name (CFBundleDisplayName / PRODUCT_NAME as needed) from "wfhCafe" → "Brewdesk". Bundle ID stays.
+- ASO: keep "nyc, new york, coffee shop, wifi, laptop" in the hidden App Store keyword field + NYC prominent in description, since it left the name/subtitle.
+- Bilal: register brewdesk.app + brewdesk.com + IG/TikTok handles tonight.
