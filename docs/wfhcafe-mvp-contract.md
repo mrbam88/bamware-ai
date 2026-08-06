@@ -114,3 +114,8 @@ Speed observations carry no account/device id (`POST /v1/observations` = `{venue
 - Sol: change display name (CFBundleDisplayName / PRODUCT_NAME as needed) from "wfhCafe" → "Brewdesk". Bundle ID stays.
 - ASO: keep "nyc, new york, coffee shop, wifi, laptop" in the hidden App Store keyword field + NYC prominent in description, since it left the name/subtitle.
 - Bilal: register brewdesk.app + brewdesk.com + IG/TikTok handles tonight.
+
+## STORE-CLEARANCE VERIFICATION (2026-08-05, Claude)
+- Name "Brewdesk": NO app on App Store or Google Play; NO USPTO filing surfaced (Justia index); only defunct eHeuristics brewery tool historically. Bilal: 10-min official TESS check before paid brand assets.
+- Apple residual risks = open to-dos only: (1) login screen MUST go (5.1.1, top risk), (2) real icon, (3) privacy URL + accurate screenshots + "Data Not Collected" label — NO analytics/crash SDKs without updating the label.
+- Google: 12-testers/14-days closed-testing rule CONFIRMED current for personal accounts created after Nov 2023 — Bilal: check Play account age; if affected, iOS-first + start Android closed test clock in parallel. Privacy policy URL mandatory; Data Safety form = "no data collected".
