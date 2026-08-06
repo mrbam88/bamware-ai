@@ -20,6 +20,100 @@ Severity: 🔴 blocks submission or breaks paying users · 🟠 fix before charg
 
 ---
 
+# Client checkpoint review — `bamware-cafe` @ `b42eeec` (2026-08-05, Claude)
+
+Reviewed the "cut BrewDesk v1 guest release" commit by reading the tree **and by building
+it**: Release configuration, iPhone 17 Pro simulator, `-validate-for-store` → **BUILD
+SUCCEEDED, 0 errors**. Test suites: **TEST SUCCEEDED, 5 + 4 tests, 0 failures** (includes the
+UI smoke test asserting the OpenStreetMap attribution renders). Findings below come from the
+built binary, not just the source.
+
+## Verified good ✅
+
+| Item | Evidence |
+|---|---|
+| App icon installed | All three appearances wired in `Contents.json`; build emplaced `AppIcon60x60@2x.png` + `Assets.car` |
+| Name | `CFBundleDisplayName = BrewDesk` in the built `Info.plist` |
+| iPhone-only | `UIDeviceFamily = [1]` (was `1,2`) |
+| Guest browsing | `RootView` gates are gone — Onboarding → Location → Discovery. No auth, no paywall in the flow |
+| Legal URLs repointed | Binary contains only `bamware.io/brewdesk/{privacy,terms,support}`; Baat URLs gone |
+| About screen | Support / Privacy / Terms links + **OpenStreetMap contributors** attribution (`DiscoveryRootView.swift:48-56`), with a UI test asserting it |
+| Empty/error states (2.1) | `CafeMapScreen.loadStatus` — loading state and a `ContentUnavailableView` with Retry on failure |
+| Location purpose string | Present and specific |
+
+## Issues found 🔎
+
+**1. 🟠 `ITSAppUsesNonExemptEncryption` is absent from Info.plist.**
+Confirmed absent in the built app. Every single build upload will stop and ask the export
+compliance question in App Store Connect. BrewDesk uses only standard HTTPS, so it is exempt —
+add `ITSAppUsesNonExemptEncryption = false` and the prompt disappears forever. Small, but it
+is pure friction on exactly the step we want to repeat quickly. **Sol.**
+
+**2. 🟠 The removed paywall and auth still compile into the shipping binary.**
+`BamwareCafe.xcodeproj` uses `PBXFileSystemSynchronizedRootGroup` with **no membership
+exceptions**, so every file under `BamwareCafe/` is a target member regardless of whether
+anything references it. Verified in the Release binary:
+
+- `otool -L` → **StoreKit.framework is linked** (from `SubscriptionStore.swift` / `PaywallView.swift`)
+- `strings` → **`https://cje3ppxv47.execute-api.us-east-1.amazonaws.com`** — the dev auth
+  Lambda — is still embedded
+
+Neither is reachable at runtime, so this is not a correctness bug today. It is worth cleaning
+before submission because: StoreKit linked with zero IAPs configured invites a reviewer
+question; a dev backend URL inside a shipping binary is one re-enabled code path away from
+being a real incident; and it is dead weight in a v1 whose whole pitch is "free, no account".
+**Recommend deleting `Auth/`, `Subscription/`, `PaywallView.swift`, `AuthenticationView.swift`
+for v1** — git history keeps them, and the conversation prototype already set the
+branch-and-tag precedent. **Sol.**
+
+**3. 🟠 The speed test was removed from the UI — our 4.3(b) story has to change.**
+`VenueDetailScreen` lost the "Run speed test here" section (-54 lines) and no longer takes a
+`VenuesModel`. The `VenueAPI` capability still exists in VenueKit but nothing calls it.
+
+Our planned App Review positioning was *"measured wifi speeds + provenance for NYC work
+sessions"*. **Half of that is no longer true**, and 4.3(b) (spam / "yet another cafe finder")
+is the guideline this app is most exposed to. The remaining honest differentiation is:
+per-attribute **provenance** (every claim shows source + date + confidence), a **work-fit
+score** over wifi/outlets/laptop-policy/noise, and a **curated NYC-specific** dataset. That is
+a real answer, but it must be written that way in the review notes and the store description —
+and the description must **not** promise speed testing. I'll draft the notes; flagging so
+nobody ships the old copy.
+
+**4. 🟡 `POST /v1/observations` now has no consumer at all.**
+With the speed test gone from the client, the only writer to our dataset is the public
+internet. **Recommend disabling the route for v1** (one line, reversible, zero client impact)
+and bringing it back with the flywheel in v1.1 alongside durable storage.
+
+Note this also **downgrades my earlier severity on blockers #1 and #2**: because observations
+never persist, a poisoning attempt is equally ephemeral and scoped to one warm lambda
+instance. It is untidy, not a launch risk. Still contract-frozen, so it needs an ack.
+
+**5. 🟡 Bundle id is `bamware.BamwareCafe`.**
+Invisible to users and fine to keep. But no App Store Connect record exists yet, so this is
+the **last moment** it could become something like `io.bamware.brewdesk` for free. After the
+ASC record is created it is permanent. Bilal's call — I'd only bother if he cares.
+
+## Blockers resolved by the free-v1 decision
+
+- 🔴 **#3 (ships against dev auth)** — resolved *in flow*: no auth path executes. The URL is
+  still in the binary (issue 2 above), so close it properly by deleting the dead code.
+- 🟠 **#5 (subscription requirements)** — moot for v1. Returns with the v1.1 paywall.
+- 🔴 **#1 / #2 (persistence, open write endpoint)** — no longer user-facing, since nothing in
+  the app reads or writes observations. Must be solved before the flywheel ships in v1.1.
+
+## Privacy label — "Data Not Collected" is defensible for v1 as built
+
+The engine holds venue data only; it retains nothing per-user, and the Vercel runtime log
+surface records the request path **without** the query string (verified on a live geo probe:
+`GET /v1/venues 200`, no coordinates). Coordinates are used transiently to rank and are never
+stored, which is exactly Apple's carve-out for transient processing.
+
+Two conditions, and this stays true: **do not add an analytics or crash SDK** without redoing
+the label, and **do not start logging query strings** on the engine. If either changes, the
+label becomes Location → App Functionality → not linked to identity → not used for tracking.
+
+---
+
 ## 🔴 1. Speed-test observations do not survive in production
 
 **The flywheel — our 4.3(b) differentiation and the thing the subscription sells — silently
