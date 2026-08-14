@@ -78,12 +78,13 @@ fi
 
 bamware_head="$(git -C "$BAMWARE_AI_DIR" rev-parse --short HEAD)"
 interviews_head="$(git -C "$INTERVIEWS_DIR" rev-parse --short HEAD)"
+content_head="$(git -C "$BAMWARE_AI_DIR" log -1 --format='%h' --fixed-strings --invert-grep --grep='[skip version]')"
 printf 'bamware-ai: HEAD %s, was %s commit(s) behind origin/main\n' "$bamware_head" "$bamware_behind"
 printf 'interviews: HEAD %s, was %s commit(s) behind origin/main\n' "$interviews_head" "$interviews_behind"
 
 if ! read -r marker_timestamp marker_sha < "$BAMWARE_AI_DIR/CONTEXT_VERSION"; then
   printf 'warning: could not read CONTEXT_VERSION\n' >&2
-elif [[ "$bamware_head" != "$marker_sha" ]]; then
-  printf 'warning: bamware-ai HEAD %s differs from CONTEXT_VERSION %s; CI may not have stamped the newest commit yet\n' \
-    "$bamware_head" "$marker_sha" >&2
+elif [[ "$content_head" != "$marker_sha" ]]; then
+  printf 'warning: newest content commit %s differs from CONTEXT_VERSION %s; CI may not have stamped it yet\n' \
+    "$content_head" "$marker_sha" >&2
 fi

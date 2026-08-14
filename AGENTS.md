@@ -68,8 +68,9 @@ So freshness is not optional and not silent:
 
 1. **Fetch the marker first.** One line, no credentials, any runtime:
    `https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION`
-   It holds the commit timestamp and short sha of `main`, rewritten
-   automatically by CI on every push, so the marker cannot drift on its own.
+   It holds the timestamp and short sha of the newest content commit. CI's own
+   `[skip version]` stamp commit sits one commit ahead by design. Compare the
+   marker with the newest non-stamp commit, never `HEAD`.
 2. **State it.** When answering from this context, say which version you read.
    One line is enough: `context: 2026-08-14T19:30:00Z 6e85a73`. This is what
    turns a silent wrong answer into an obvious one.
