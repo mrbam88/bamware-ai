@@ -25,7 +25,8 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 | `bamware-ios` | Reusable Swift package products: Core, UI, Messaging. Tenant-aware native foundation. | Swift Package |
 | `bamware-cafe` | Native SwiftUI proving-ground app. Uses local CafeKit/VenueKit and the shared iOS package. | Local/TestFlight later |
 | `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for bamware-cafe. | Vercel (`venuekit-ashen.vercel.app`) |
-| `bamware-ai` | This repo. | n/a |
+| `interviews` | Job-search agent system (private): `apply-to-job` + `bilal-profile` skills, profile pack, standard answers, guardrails, application tracker. | n/a |
+| `bamware-ai` | This repo. The constitution: AGENTS.md, STATE.md, shared skills. | n/a |
 
 ## Live endpoints (dev)
 
@@ -33,6 +34,26 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 - Dating: `https://1l5fzig94l.execute-api.us-east-1.amazonaws.com`
 - Venue Engine: `https://venuekit-ashen.vercel.app`
 - Region us-east-1; tenant id `bamware-dating`.
+
+## Source of truth — repos, not vendor accounts
+
+Bilal works across multiple model vendors and runtimes. Context lives in
+**git**, never in a vendor's account settings, so every agent reads the
+same bytes.
+
+- `AGENTS.md` (this file) is the entry point. Read it first, in any repo.
+- `STATE.md` is the current picture. Read it second.
+- Skills live in `skills/` here and in `interviews/.claude/skills/`.
+- **A vendor-synced copy of a skill is a CACHE, never the truth.** Claude
+  account skills, for example, sync a point-in-time snapshot; they go
+  stale silently and cannot be written back to from a session.
+  Verified 2026-08-14: the synced `apply-to-job` snapshot (2026-07-24)
+  was missing three standard answers that had been committed to
+  `interviews` the same day.
+- If a synced copy and the repo disagree, **the repo wins.** Re-read from
+  git and carry on; do not edit the cache.
+- Agents that cannot reach a repo must say so and stop, not silently
+  fall back to a cache.
 
 ## Runtime capability matrix — assign work the runtime can actually do
 
