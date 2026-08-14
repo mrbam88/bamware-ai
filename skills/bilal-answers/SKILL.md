@@ -1,22 +1,31 @@
 ---
 name: bilal-answers
-description: Bilal Malik's reusable answers to standard job-application questions — work authorization, salary, logistics, employment history, EEO self-identification, and consents. Read before filling any application form. Use whenever a form asks a question that is not resume content.
+description: Bilal Malik's reusable answers to standard job-application questions — work authorization, logistics, employment history, and consents. Read before filling any application form. Identifying, demographic, and compensation answers live in the private companion repo. Use whenever a form asks a question that is not resume content.
 ---
 
 # Standard application answers
 
 **If a question is not answered here, ASK BILAL.** Never guess, never default.
-"Prefer not to say" is valid only if Bilal chose it. Append new answers here so
-he never answers the same question twice.
+"Prefer not to say" is valid only if Bilal chose it.
 
-## Identity and contact
+## ⚠️ This repo is PUBLIC
+
+Never commit to this file: home address, phone number, EEO self-identification,
+salary figures, or anything else identifying, demographic, or financial.
+
+Those live in the **private** repo `mrbam88/interviews` at
+`profile/private-answers.md`. Read it with a GitHub connector or `gh`. If you
+cannot reach it, STOP and ask Bilal rather than filling those fields.
+
+Covered there: phone, street address, compensation targets and floor, and the
+full EEO self-identification set.
+
+## Identity
 
 - Full legal name: Bilal Malik (no middle name, matches ID and tax documents)
 - Preferred name: Bilal
 - Pronouns: he/him — fill when the field exists
 - Email: bmalik.ee@gmail.com
-- Phone: (607) 207-8048
-- Street address: 171 Thompson St, Apt 11, New York, NY 10012
 - City: New York, NY
 - Languages: English (native)
 - 18 or older: Yes
@@ -48,14 +57,10 @@ he never answers the same question twice.
 - May we contact former employers? **Yes.**
 - References: see `bilal-references`. Default on forms is "Available on request."
 
-## Salary
+## Compensation
 
-- Target base: **$230k–$280k.**
-- Suggested box answer: "$230,000–$280,000, negotiable." Single number: **$240,000.**
-- Contract roles: roughly $110–$140/hr as a starting range. Confirm per role.
-- If a posted range is below target but at or above the floor: say the range works
-  and that he'd target the top of it given 15+ years and prior EM experience.
-- **Never volunteer** the ~$180k floor or the current ~$200k figure in a form field.
+See the private repo. Do not guess a number, and never volunteer his floor or
+current figure in a form field.
 
 ## Quick numbers
 
@@ -75,22 +80,10 @@ he never answers the same question twice.
 Replace every brace with real specifics before submitting. For full letters use
 `bilal-cover-letter`.
 
-## EEO self-identification
+## Voluntary self-identification
 
-Confirmed by Bilal 2026-07-24. Use these. Do **not** default to "prefer not to say".
-
-- Gender: **Male**
-- Hispanic or Latino: **No**
-- Race: **Asian** (background Pakistani; the federal category includes the Indian
-  subcontinent, so it is accurate)
-- Veteran status: **I am not a protected veteran**
-- Disability: **No, I do not have a disability and have not had one in the past**
-
-## Still unanswered — ask before filling
-
-- Sexual orientation and transgender self-identification questions
-- Favorite games / what he plays (asked by gaming companies)
-- Name pronunciation confirmation ("Bih-LAAL Mah-lik"?)
+See the private repo. Bilal has explicit answers on file — do **not** default to
+"prefer not to say", and do not guess.
 
 ## Operating mode
 
