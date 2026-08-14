@@ -4,7 +4,8 @@
 These exist because prose rules in AGENTS.md are suggestions and CI is a wall.
 Each check corresponds to a way this repo has actually drifted or could drift
 silently: a malformed skill an agent trips on, an INDEX that no longer matches
-the directory it describes, or a cross-reference broken by a rename.
+the directory it describes, a cross-reference broken by a rename, or a
+constitution that quietly grows until every agent pays for it every session.
 
 Run: python3 scripts/check-context.py   (exits non-zero on any failure)
 """
@@ -67,6 +68,17 @@ for d in dirs:
     for tok in set(re.findall(r"`([a-z]+(?:-[a-z]+)+)`", f.read_text(encoding="utf-8"))):
         if tok not in known:
             bad(f"{d}: references `{tok}`, which is neither a skill nor a repo")
+
+# --- 4. AGENTS.md size budget --------------------------------------------
+# Every agent loads AGENTS.md every session, so it is the largest recurring
+# token cost in the system. Constitutions grow; without a budget this regresses
+# within a month. Detail belongs in docs/, linked and read on demand.
+BUDGET = 8500
+if AGENTS.exists():
+    size = len(AGENTS.read_bytes())
+    if size > BUDGET:
+        bad(f"AGENTS.md is {size} bytes, over the {BUDGET} budget. "
+            f"Move detail into docs/ and link it rather than inlining it.")
 
 # --- report ---------------------------------------------------------------
 if fail:
