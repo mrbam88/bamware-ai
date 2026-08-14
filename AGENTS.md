@@ -25,7 +25,7 @@ infrastructure (auth, messaging, notifications, payments, multi-tenancy).
 | `bamware-ios` | Reusable Swift package products: Core, UI, Messaging. Tenant-aware native foundation. | Swift Package |
 | `bamware-cafe` | Native SwiftUI proving-ground app. Uses local CafeKit/VenueKit and the shared iOS package. | Local/TestFlight later |
 | `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for bamware-cafe. | Vercel (`venuekit-ashen.vercel.app`) |
-| `interviews` | Job-search agent system (private): `apply-to-job` + `bilal-profile` skills, profile pack, standard answers, guardrails, application tracker. | n/a |
+| `interviews` | Job-search agent system (private): application tracker plus PII, EEO, and compensation answers. | n/a |
 | `bamware-ai` | This repo. The constitution: AGENTS.md, STATE.md, shared skills. | n/a |
 
 ## Live endpoints (dev)
@@ -43,8 +43,8 @@ same bytes.
 
 - `AGENTS.md` (this file) is the entry point. Read it first, in any repo.
 - `STATE.md` is the current picture. Read it second.
-- All skills live in `skills/` here. `interviews` holds only
-  `tracker/applications.md`.
+- All skills live in `skills/` here. The private repo `interviews` holds only
+  `tracker/applications.md` and `profile/private-answers.md` (PII, EEO, comp).
 - **A vendor-synced copy of a skill is a CACHE, never the truth.** Claude
   account skills, for example, sync a point-in-time snapshot; they go
   stale silently and cannot be written back to from a session.
@@ -55,6 +55,31 @@ same bytes.
   git and carry on; do not edit the cache.
 - Agents that cannot reach a repo must say so and stop, not silently
   fall back to a cache.
+
+### Freshness — check it, and say it out loud
+
+A stale copy does not fail loudly. It answers confidently, cites real file
+paths, and is wrong. On 2026-08-14 an agent reading a stale clone quoted
+compensation figures out of this public repo hours after they had been moved to
+the private one, with line ranges that no longer existed. Nothing about the
+answer looked different from a correct one.
+
+So freshness is not optional and not silent:
+
+1. **Fetch the marker first.** One line, no credentials, any runtime:
+   `https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION`
+   It holds the commit timestamp and short sha of `main`, rewritten
+   automatically by CI on every push, so the marker cannot drift on its own.
+2. **State it.** When answering from this context, say which version you read.
+   One line is enough: `context: 2026-08-14T19:30:00Z 6e85a73`. This is what
+   turns a silent wrong answer into an obvious one.
+3. **If you read from a clone, re-sync before answering.** `git fetch` and
+   fast-forward, or run `scripts/sync-context.sh`. If you cannot fast-forward,
+   say so and stop rather than answering from what you have.
+4. **Runtimes that fetch at read time cannot go stale.** Prefer fetching over
+   cloning when you only need to read context. Clone when you need to write.
+
+An agent that answers without a version is making an unverifiable claim.
 
 ## Runtime capability matrix — assign work the runtime can actually do
 
@@ -155,6 +180,10 @@ package:
   credential file types; it exists because an agent once edited
   .gitignore to commit an App Store Connect key (a5ee33b — since
   removed + revoked).
+- **No PII in a public repo.** This repo is public. Home address, phone,
+  EEO self-identification, and compensation figures live in the private
+  `interviews` repo at `profile/private-answers.md`. Verified 2026-08-14
+  after they were briefly committed here in error.
 - Secrets live in: EAS credentials service, GitHub Actions secrets,
   Codespaces secrets, AWS Secrets Manager, or the human's shell. Names
   are documented in each repo's `.env.example`.
