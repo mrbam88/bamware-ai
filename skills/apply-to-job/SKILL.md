@@ -29,6 +29,9 @@ ATS. Then read that ATS's section in `ats-playbooks`.
 
 `bilal-profile` for the index. `bilal-answers` before touching any field.
 `bilal-resume` for upload rules. `bilal-cover-letter` for the letter.
+Identifying, demographic, and compensation answers are in the private
+`interviews` repo at `profile/private-answers.md`. If you cannot reach it, stop
+and ask rather than guessing those fields.
 
 ## 4. Tailor
 
@@ -43,8 +46,8 @@ questions appear late.
 
 ## 6. Handle unknowns
 
-No explicit answer → STOP, ask Bilal, then append it to `bilal-answers` in
-`mrbam88/bamware-ai` so the next session inherits it.
+No explicit answer → STOP, ask Bilal, then write it back: non-sensitive answers
+to `bilal-answers` here, identifying or financial ones to the private repo.
 
 ## 7. Verification gate (mandatory)
 
@@ -57,8 +60,34 @@ No explicit answer → STOP, ask Bilal, then append it to `bilal-answers` in
 
 ## 8. Submit and log
 
-Bilal submits. Then append a row to `tracker/applications.md` in
-`mrbam88/interviews`: date, company, role, link, ATS, status, notes.
+Bilal submits. Then create ONE NEW FILE in the private `interviews` repo at
+`tracker/applications/<date>-<company-slug>.md`. Never append to a shared file —
+per-application files are what let many agents log concurrently without
+conflicting.
+
+```
+---
+date: 2026-08-14
+company: Example Co
+role: Senior Mobile Engineer
+ats: Greenhouse
+status: Applied
+link: https://...
+comp: "$200k-$240k + equity"
+location: NYC hybrid
+---
+
+## Notes
+
+What was tailored, what was flagged, anything unusual about the form.
+```
+
+Slug is the lowercase company with non-alphanumerics as hyphens. Omit `comp` or
+`location` rather than inventing them. **Never hand-edit `tracker/INDEX.md`** —
+CI regenerates it from these files.
+
+Status vocabulary: Researching → Applied → Screen → Interviewing → Offer →
+Rejected → Withdrawn.
 
 ## 9. Blockers
 

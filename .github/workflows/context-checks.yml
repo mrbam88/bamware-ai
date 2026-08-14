@@ -1,0 +1,29 @@
+name: context-checks
+
+# Turns the testable rules in AGENTS.md into a wall instead of a suggestion.
+# See scripts/check-context.py for what each check defends against.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - 'AGENTS.md'
+      - 'scripts/check-context.py'
+      - '.github/workflows/context-checks.yml'
+  pull_request:
+    paths:
+      - 'skills/**'
+      - 'AGENTS.md'
+      - 'scripts/check-context.py'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 scripts/check-context.py
