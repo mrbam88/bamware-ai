@@ -43,7 +43,8 @@ same bytes.
 
 - `AGENTS.md` (this file) is the entry point. Read it first, in any repo.
 - `STATE.md` is the current picture. Read it second.
-- Skills live in `skills/` here and in `interviews/.claude/skills/`.
+- All skills live in `skills/` here. `interviews` holds only
+  `tracker/applications.md`.
 - **A vendor-synced copy of a skill is a CACHE, never the truth.** Claude
   account skills, for example, sync a point-in-time snapshot; they go
   stale silently and cannot be written back to from a session.
