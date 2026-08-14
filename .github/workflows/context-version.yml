@@ -1,0 +1,41 @@
+name: context-version
+
+# Keeps CONTEXT_VERSION equal to the current HEAD of main, so any agent can
+# check freshness with a single credential-free HTTPS fetch. The marker is
+# machine-maintained on purpose: a hand-updated version file drifts exactly the
+# way the context it describes does.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    # Do not re-trigger on the bot's own commit.
+    if: "!contains(github.event.head_commit.message, '[skip version]')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Write CONTEXT_VERSION
+        run: |
+          STAMP="$(git log -1 --date=format:'%Y-%m-%dT%H:%M:%SZ' --format='%cd %h')"
+          echo "$STAMP" > CONTEXT_VERSION
+          echo "stamped: $STAMP"
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet CONTEXT_VERSION; then
+            echo "unchanged, nothing to do"
+            exit 0
+          fi
+          git config user.name  "context-version"
+          git config user.email "actions@github.com"
+          git add CONTEXT_VERSION
+          git commit -m "chore: stamp CONTEXT_VERSION [skip version]"
+          git push
