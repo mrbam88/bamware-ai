@@ -1,0 +1,121 @@
+BILAL MALIK
+Lead Mobile Engineer, AI-Native
+
+bmalik.ee@gmail.com | (607) 207-8048 | New York, NY
+bamware.io | github.com/mrbam88 | linkedin.com/in/bilal-malik-797abb35
+
+SUMMARY
+
+Lead mobile engineer and former engineering manager with 15+ years delivering
+production applications across healthcare, clinical research, cloud media,
+government, and robotics. Built products serving 1M+ patients and 25,000+ daily
+homecare users while leading teams and owning mobile, backend, and cloud
+architecture. Recently adopting best AI-native engineering practices to ship
+faster without compromising quality.
+
+SKILLS
+
+Mobile: Swift, SwiftUI, UIKit, Combine, Objective-C, React Native, TypeScript,
+Expo, Kotlin, Jetpack Compose, Flutter, HealthKit, ResearchKit, CareKit, Bluetooth
+
+AI Engineering: Cursor, Claude Code, Codex, OpenCode; Multi-Agent Orchestration,
+MCP, Skills-Based Workflows; Skills-Based Guardrails, Context Engineering,
+Automated Review Gates, Human Oversight
+
+Cloud & Backend: AWS, GCP, Azure, Firebase, Vercel, Terraform, Serverless, REST,
+GraphQL, Node.js, Express, Django, DynamoDB, PostgreSQL, MongoDB
+
+Practices & Tools: Technical leadership, Agile, TDD, CI/CD, GitHub Actions,
+Fastlane, EAS, CircleCI, Docker, Kubernetes
+
+EXPERIENCE
+
+Lead Mobile Developer - Vector Psychometric Group, LLC, Remote
+Apr 2025 - Jul 2026
+Stack: React Native, TypeScript, Azure, Django, Claude Code, Cursor
+- Served as the sole mobile engineer for a React Native platform delivering
+  electronic clinical outcome assessments for regulated clinical research.
+- Rebuilt survey rendering, authentication, and API integration as configurable,
+  reusable workflows supporting study-specific requirements.
+
+Lead Mobile Developer - Photobucket Inc., Remote
+Jan 2024 - Dec 2024
+Stack: React Native, Swift, GraphQL, AWS, Firebase, GCP
+- Led development of secure media sharing and automatic cloud backup for
+  Photobucket's React Native application.
+- Built custom Swift native modules for background photo and video
+  synchronization while improving code quality, testability, and observability.
+
+Senior iOS Developer - NuvoAir Inc., Remote
+May 2023 - Nov 2023
+Stack: SwiftUI, Core Bluetooth, BLE medical devices, Fastlane
+- Built a SwiftUI clinical-trial application integrating three Bluetooth medical
+  devices: a smart inhaler, a spirometer, and a FeNO sensor.
+- Developed reusable iOS SDKs, maintained the CI/CD pipeline, reviewed code, and
+  demonstrated features to product and clinical stakeholders.
+
+Mobile Engineering Manager - FreedomCare LLC, New York, NY
+Mar 2021 - Feb 2023
+Stack: SwiftUI, Combine, Kotlin, Jetpack Compose, React Native, Node.js, AWS Serverless
+Homecare platform supporting more than 25,000 daily users, including caregivers
+serving elderly and disabled patients.
+- Built and led the mobile team: hired, managed, and mentored the developers
+  behind the company's apps.
+- Replaced legacy iOS and Android apps with modern SwiftUI, Kotlin, and React
+  Native implementations.
+- Stayed hands-on with architecture, code review, and production delivery while
+  managing the team.
+- Built APIs and microservices supporting the mobile platform using Node.js,
+  Express, AWS Serverless, PHP, and SQL.
+
+Senior Full Stack Developer - Cognosante Inc., Remote
+Mar 2018 - Nov 2020
+Stack: React Native, Flutter, SwiftUI, HealthKit, GraphQL, AWS, Terraform
+- Built React Native and Flutter applications for managing personal health
+  information through HealthKit, ResearchKit, and CareKit.
+- Shipped a native SwiftUI application for unemployment entitlement benefits and
+  built supporting microservices with Node.js, GraphQL, AWS Serverless,
+  DynamoDB, and PostgreSQL.
+
+iOS Software Engineer - Allscripts Inc., Raleigh, NC
+Nov 2016 - Feb 2018
+Stack: Swift, Objective-C, Vidyo SDK, Jenkins, Fastlane
+FollowMyHealth is a personal health record used by more than one million
+patients and ranked fourth among free medical applications on the App Store.
+- Led a major application redesign while refactoring core modules from
+  Objective-C to Swift.
+- Shipped major platform features, including telemedicine video functionality
+  built with the Vidyo SDK.
+
+PROJECTS & OPEN SOURCE
+
+bamware - Multi-Agent AI Mobile App Studio (2024 - present)
+bamware.io | github.com/mrbam88
+Stack: Multi-agent systems, Claude Code, CrewAI, React Native, Expo, SwiftUI,
+Terraform, Vercel
+- Built an open-source app studio that coordinates specialized AI agents across
+  design, mobile development, cloud infrastructure, and quality assurance.
+- Designed the workflow around guardrails, evaluations, automated review gates,
+  and hands-on technical oversight.
+- Developed Baat, a fully branded dating application with authentication,
+  discovery, profiles, real-time messaging, and conversational bots using React
+  Native and Expo.
+
+EARLIER EXPERIENCE
+
+iOS Software Engineer, Computer Software Inc., Chalfont, PA (Mar 2015 - Oct 2016)
+Led development of Mobile Inspector, an offline-first iOS checklist application
+for government field inspections.
+
+iOS Software Engineer, WM Robots, Colmar, PA (Sep 2013 - Mar 2015)
+Built an iPad application for piloting a quadcopter drone with low-latency video
+streaming and real-time C++ flight telemetry.
+
+Mobile Application Developer, Two Technologies Inc., Horsham, PA (May 2011 - Jun 2013)
+Built sensor-acquisition, barcode-scanning, and RFID applications and developed
+Bluetooth and GPS SDKs for rugged Windows CE devices.
+
+EDUCATION
+
+Bachelor of Science in Electrical Engineering
+Temple University, Philadelphia, PA - Jan 2011
