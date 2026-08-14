@@ -1,4 +1,4 @@
-# Bamware — the system map (as of 2026-07-22)
+# Bamware — the system map (as of 2026-08-14)
 
 Read this before working in ANY Bamware repo. Per-repo AGENTS.md files
 describe the trees; this describes the forest.
@@ -42,7 +42,8 @@ Check this table before assigning; Bilal orchestrates against it.
 
 | Capability | Claude Code CLI (native macOS) | Sol / opencode (native macOS) | Claude Cowork (cloud) |
 |---|---|---|---|
-| `git push` / release tags | ✅ owns it | ✅ | ❌ **cannot** — no SSH creds through the device bridge |
+| `git push` / release tags | ✅ owns it | ✅ | ⚠️ **API only** — commits/PRs via the GitHub connector; no git or SSH through the device bridge |
+| Repo read/write via GitHub API | ✅ | ✅ | ✅ owns it — connector-based, no local checkout, no lock cruft |
 | Xcode, simulators, `xcodebuild` | ✅ owns it | ✅ | ❌ no macOS |
 | fastlane, App Store Connect, signing | ✅ owns it | — | ❌ |
 | Credential-bearing ops (EAS, AWS, Vercel CLI) | ✅ owns it | — | ⚠️ connector-based deploys only |
@@ -52,10 +53,16 @@ Check this table before assigning; Bilal orchestrates against it.
 
 **Rules that follow from the table:**
 
-- **Never assign Cowork a push or an Xcode job.** Its bridge git ops fail
-  *and* shed lock cruft (`.git/_bridge_cruft/`, stale `index.lock`,
-  `HEAD.lock`) that blocks the next native session. Cowork produces
-  patches, docs, and zips; a native agent lands them.
+- **Never assign Cowork an Xcode job, or any git operation through the
+  device bridge.** Bridge git ops fail *and* shed lock cruft
+  (`.git/_bridge_cruft/`, stale `index.lock`, `HEAD.lock`) that blocks
+  the next native session.
+- **Cowork MAY commit through the GitHub API connector.** Verified
+  2026-08-14: authenticated as `mrbam88`, read + write across all repos.
+  API writes touch no local checkout, so they leave no lock cruft and
+  need no cleanup afterwards. Use this for docs, trackers, state files,
+  and this constitution. Tags, releases, signing, and anything requiring
+  a build still belong to a native runtime.
 - After any Cowork session touched a repo, the next native agent runs:
   `rm -rf .git/_bridge_cruft && rm -f .git/index.lock .git/HEAD.lock`
   then `git fsck` before pushing. (Done 2026-08-05 on this repo.)
