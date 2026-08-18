@@ -1,7 +1,7 @@
 # Repos — detail, deploy targets, endpoints
 
-`AGENTS.md` carries the one-line map. This is the long form; read it when you
-are about to work in a repo, not at session start.
+This is the canonical repo list — the only one. `AGENTS.md` links here; read
+this when you are about to work in a repo, not at session start.
 
 | Repo | What | Deploy |
 |---|---|---|
