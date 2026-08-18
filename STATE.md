@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-04
+> Last updated: 2026-08-15 — **Baat REJECTED 4.3(b)** 🔴
 
 ## Vision (one line)
 
@@ -20,17 +20,28 @@ First product: **Baat**, Pan-South Asian dating app.
 The Xcode development workspace substitutes the sibling shared-package checkout
 so app and reusable modules can evolve together.
 
-**Baat track (last verified 2026-07-23): WAITING ON APPLE** — v1.0.6 in App Review (submitted 2026-07-23,
-typical turnaround 24-48h). Meanwhile: Play Console bootstrap (packs +
-feature graphic ready, needs service account). **13 PRs awaiting
-Bilal's review/merge** from the 2026-07-23 fan-out (see Shipped) —
-merge cheat-sheet in each PR; JWT_SECRET needed in Vercel before
-web#10; ENVIRONMENT=prod needed on prod dating Lambda.
+**Baat track: 🔴 REJECTED 2026-08-04 — Guideline 4.3(b), spam / saturated
+category.** Verbatim text + binding rules: `docs/app-store-rejections.md`.
+Concept rejection, not a bug — Apple's instruction was "submit a new app," so
+**the native iOS track for Baat is closed** (PWA is the only surviving path). Do
+not resubmit, re-skin, or appeal on feature merits. Backend, auth, infra, and
+the EAS→TestFlight→fastlane rail are unaffected and are the reusable assets.
+Still open regardless: **13 PRs awaiting Bilal's review/merge** from the
+2026-07-23 fan-out (merge cheat-sheet in each PR); JWT_SECRET needed in Vercel
+before web#10; ENVIRONMENT=prod needed on prod dating Lambda. Play Console
+bootstrap is moot for now (Google has no 4.3 equivalent, but Baat's iOS
+concept problem is not an Android fix).
+
+**Two-app goal (stated 2026-08-15):** ship one SwiftUI app (BrewDesk) and one RN
+app, for Bamware branding + interview evidence. The RN app is now selected for
+4.3 survivability first: no UGC, no accounts, no IAP in v1, category with no
+incumbents. Reuse the Baat **rail**, not the Baat app.
 
 ## Shipped ✅
 
 | Date | What |
 |---|---|
+| 2026-08-04 (recorded 08-15) | 🔴 **Baat v1.0 (6) REJECTED — Guideline 4.3(b) spam.** Submission `029740e2-f219-407d-b065-996ada511f12`, reviewed on iPad Air 11-inch (M3). "There are already enough of these apps on the App Store… reconsider the app concept and submit a new app." Concept rejection — unfixable in the binary, unappealable on feature merits; Apple pointed at a PWA. Recorded verbatim in `docs/app-store-rejections.md`, with binding rules for all future submissions; 4.3(b) pre-flight gate added to `skills/store-submission`. **BrewDesk flagged as exposed** — cafe finder with the speed test cut from v1, i.e. the differentiator is not in the binary. |
 | 2026-08-05 (release plan) | **BrewDesk v1 decisions locked:** guest discovery, free launch, optional accounts only with cloud saves + in-app deletion, Ask prototype deferred, iPhone-only. Conversation work preserved at `bamware-cafe` tag `conversation-prototype-v0.1.0`; production plan lives in `docs/brewdesk-go-live.md`. |
 | 2026-08-06 | **BrewDesk v1 client checkpoint reviewed + build-verified (Claude, backend/infra).** Reviewed `bamware-cafe@b42eeec` by building it: Release config, `-validate-for-store` → BUILD SUCCEEDED, TEST SUCCEEDED (9 tests, 0 failures). Confirmed in the shipped binary: icon installed (3 appearances), `CFBundleDisplayName=BrewDesk`, `UIDeviceFamily=[1]`, guest flow with no auth/paywall gates, legal URLs repointed to `/brewdesk/*`, OSM attribution + map empty/error states. Issues raised: `ITSAppUsesNonExemptEncryption` absent (export-compliance prompt on every upload); the deleted paywall/auth **still compile in** via the file-system-synchronized group, so StoreKit is linked and the dev auth URL is embedded; the speed test was removed from the UI, so the 4.3(b) positioning must be rewritten away from "measured wifi speeds". Free-v1 decision resolves go-live blockers #3 and #5; #1/#2 are no longer user-facing. "Data Not Collected" confirmed defensible (engine retains nothing; Vercel logs record path without query string). Details in `docs/brewdesk-go-live.md`. |
 | 2026-08-05 (late) | **Brewdesk go-live audit (Claude CLI, backend/infra).** App renamed wfhCafe → **Brewdesk**. Audited prod for submission readiness — findings in `docs/brewdesk-go-live.md`. Three 🔴: (1) speed-test observations **do not persist in prod** (confirmed in Vercel runtime logs — read-only FS, per-instance memory), so the paid differentiator loses data; (2) the app ships against the **dev** auth Lambda with no Debug/Release split, and prod infra was never applied; (3) it links **Baat's dating terms/privacy** as its own legal documents. Shipped bamware-web `f108cd4`: `/brewdesk/privacy`, `/brewdesk/support`, new `/brewdesk/terms` with the 3.1.2 subscription disclosures, and 308 redirects from `/wfhcafe/*`. Recommended collapsing blockers by shipping **v1 free without accounts**; awaiting Bilal's call. |
