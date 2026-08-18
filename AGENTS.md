@@ -91,11 +91,11 @@ doesn't fail loudly, it half-completes and leaves debris.
   Bridge git ops fail *and* shed lock cruft that blocks the next native session.
   Cleanup if it happens: `rm -rf .git/_bridge_cruft && rm -f .git/index.lock
   .git/HEAD.lock`, then `git fsck`.
-- **Cowork CAN write to GitHub.** Use the GitHub connector
-  (`GITHUB_COMMIT_MULTIPLE_FILES` — atomic, multi-file, no checkout). Container
-  `git push` works only for repos in the session's authorized set; otherwise the
-  proxy returns 403. **Try the connector before ever claiming you cannot push.**
-  Tags, releases, signing, and anything requiring a build stay native.
+- **Resolve your write path BEFORE any work, and state it.** Cowork: the GitHub
+  connector (Composio → `GITHUB_COMMIT_MULTIPLE_FILES`). CLI/Sol: native git.
+  Reading needs no connector; writing does, and that gap is where sessions
+  improvise. A missing `gh` or a container-git 403 proves nothing. No path → say
+  so and STOP; never write context to a vendor cache. Builds stay native.
 - Ownership is one-way: Claude writes backend and reads Swift; Sol writes Swift
   and reads backend. Neither edits the other's tree.
 - Credentials never move to close a capability gap. Reassign the job instead.

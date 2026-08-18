@@ -11,7 +11,30 @@ Everything about Bilal and Bamware lives in **`github.com/mrbam88/bamware-ai`**
 on `main`. That repo is the single source of truth across every vendor and
 runtime he uses. This skill exists only so a vendor-hosted assistant can find it.
 
-## Do this first
+## Step 0 — resolve your WRITE path first, before reading anything
+
+Reading this repo needs no connector. **Writing does.** If you discover that gap
+mid-session you will improvise, and improvising means putting durable context in
+a vendor cache — the one thing this system forbids. So settle it first.
+
+Find the GitHub path for YOUR runtime:
+
+| Runtime | Write path |
+|---|---|
+| **Cowork (Claude Desktop/Web)** | The **Composio** connector. Search its tools for GitHub, commit with `GITHUB_COMMIT_MULTIPLE_FILES` (atomic, multi-file, no checkout). This is the path — check it FIRST. |
+| **Claude Code CLI / Sol / opencode** | Native `git` + `gh` on the machine. No connector needed. |
+
+Then **state it in your first reply**, next to the context marker:
+`write-path: composio/github` or `write-path: native git`.
+
+If no path exists: say so and **STOP**. Hand Bilal the patch. Do not write the
+content somewhere else instead.
+
+Never conclude "no write access" from a missing `gh` binary, or from a container
+`git push` 403 ("not in this session's authorized repository set"). Neither is
+the write path in Cowork, so neither tells you anything.
+
+## Step 1 — read
 
 The repo is **public**. These three fetches need no credentials, no API key, and
 no connector. Plain HTTPS from any agent.
@@ -37,22 +60,17 @@ Start at **`bilal-profile`** for anything about Bilal. It routes to the rest.
 Do **not** depend on `api.github.com` for this. It is rate-limited without auth
 and blocked or proxied in some agent sandboxes. Raw always works.
 
-## Writing back — check before you claim you cannot
+## Writing back
 
-Do this in order. Do not stop at step 1 and announce "no access."
+You resolved the path in Step 0. Use it. Every durable fact goes to this repo:
+a decision, a rejection, a new standard answer, an ATS quirk, a changed
+preference, a plan. **Never to a vendor Project, account skill, or chat.**
 
-1. **A GitHub connector / MCP tool.** In Cowork this is Composio
-   (`GITHUB_COMMIT_MULTIPLE_FILES` — atomic, multi-file, no checkout). This is
-   the path that works; try it FIRST.
-2. `git clone`/push over HTTPS if `GITHUB_TOKEN`/`GH_TOKEN` is in the env — but
-   note a session git proxy may 403 with "not in this session's authorized
-   repository set" even when a token exists. That is not a missing capability,
-   it is a repo authorization gap.
-3. `gh` CLI, if installed and authenticated.
-
-Only after all three fail may you say you cannot push — and then hand Bilal the
-exact patch. **The absence of the `gh` binary proves nothing.** Claiming no
-access without checking has already cost one session.
+Incident 2026-08-18: a Cowork session checked for a `gh` binary, found none,
+declared "no push access," and wrote an App Store rejection record into the
+Claude Project instead. The Composio connector was live the entire session. Two
+project-only docs had already gone stale enough to produce confidently wrong
+advice. That is why Step 0 exists and why it comes before reading.
 
 ## Rules
 
