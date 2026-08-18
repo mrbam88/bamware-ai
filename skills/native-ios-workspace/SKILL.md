@@ -1,6 +1,6 @@
 ---
 name: native-ios-workspace
-description: Develop Bamware native iOS apps with reusable local Swift packages and companion APIs. Use for bamware-ios, bamware-cafe, Xcode workspace substitution, Swift package tests, or local Venue Engine integration.
+description: Develop Bamware native iOS apps with reusable local Swift packages and companion APIs. Use for bamware-ios, bamware-brewdesk, Xcode workspace substitution, Swift package tests, or local Venue Engine integration.
 ---
 
 # Native iOS workspace
@@ -8,15 +8,15 @@ description: Develop Bamware native iOS apps with reusable local Swift packages 
 ## Repository boundaries
 
 - `bamware-ios`: reusable Core, UI, and Messaging products.
-- `bamware-cafe/Packages/BamwareCafeKit`: cafe-specific VenueKit and feature UI.
-- `bamware-cafe`: thin app composition root.
+- `bamware-brewdesk/Packages/BrewDeskKit`: BrewDesk-specific VenueKit and feature UI.
+- `bamware-brewdesk`: thin app composition root.
 - `bamware-venue-engine`: Express/Zod backend and venue contract source.
 
 Shared modules never import consumer apps or tenant-specific implementations.
 
 ## Local development
 
-Open `bamware-cafe/BamwareCafeDevelopment.xcworkspace`. It keeps remote package
+Open `bamware-brewdesk/BrewDeskDevelopment.xcworkspace`. It keeps remote package
 pins for standalone builds while substituting the sibling `bamware-ios`
 checkout for immediate local edits.
 
@@ -26,8 +26,8 @@ Minimum validation:
 cd ~/code/bamware-ios
 swift test -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
 
-cd ~/code/bamware-cafe
-xcodebuild -workspace BamwareCafeDevelopment.xcworkspace -scheme BamwareCafe \
+cd ~/code/bamware-brewdesk
+xcodebuild -workspace BrewDeskDevelopment.xcworkspace -scheme BrewDesk \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 ```
 

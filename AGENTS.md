@@ -1,4 +1,4 @@
-# Bamware — the system map (as of 2026-08-14)
+# Bamware — the system map (as of 2026-08-18)
 
 Read this before working in ANY Bamware repo. This is the map, kept deliberately
 small because every agent loads it every session. Detail lives in `docs/`;
@@ -22,7 +22,7 @@ Pan-South Asian dating app. Dating app and future SaaS share core infrastructure
 | `bamware-workspace` | Meta-repo of submodule pins. NOT a dev checkout. |
 | `bamware-web` | Marketing site + web auth targets. Next.js, Vercel. |
 | `bamware-ios` | Reusable Swift packages: Core, UI, Messaging. |
-| `bamware-cafe` | Native SwiftUI proving ground (BrewDesk). |
+| `bamware-brewdesk` | BrewDesk native SwiftUI app and proving ground. |
 | `bamware-venue-engine` | Express/Zod venue API. Vercel. |
 | `interviews` | **Private.** Application tracker + PII/EEO/comp answers. |
 | `bamware-ai` | This repo. AGENTS.md, STATE.md, skills. |

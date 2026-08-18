@@ -1,15 +1,11 @@
-# Brewdesk app icon — handoff to Sol
+# BrewDesk app icon
 
-Produced by Claude (backend session, 2026-08-05). **Not installed** — the
-appiconset lives in `bamware-cafe`, which is Sol's tree (see the runtime
-capability matrix in `AGENTS.md`). Sol installs; Claude only supplies the asset.
+Produced by Claude in the 2026-08-05 backend session and installed in BrewDesk.
 
 ## Why this exists
 
-`BamwareCafe/Assets.xcassets/AppIcon.appiconset/Contents.json` currently
-declares the three iOS 18 appearances **with no `filename` keys** — i.e. there
-is no icon at all. Apple auto-rejects template/placeholder icons (4.3/2.3);
-this bit Baat on its first pass.
+`BrewDesk/Assets.xcassets/AppIcon.appiconset/Contents.json` declares all three
+iOS appearances. Apple rejects template or placeholder icons (4.3/2.3).
 
 ## The mark
 
@@ -30,7 +26,7 @@ parameterised, so tweak there rather than editing pixels.
 ## Install
 
 1. Copy the three `icon-1024*.png` into
-   `BamwareCafe/Assets.xcassets/AppIcon.appiconset/`.
+   `BrewDesk/Assets.xcassets/AppIcon.appiconset/`.
 2. Add the matching `filename` keys to that folder's `Contents.json`:
 
 ```json

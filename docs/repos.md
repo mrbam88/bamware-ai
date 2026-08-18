@@ -13,8 +13,8 @@ are about to work in a repo, not at session start.
 | `bamware-workspace` | Meta-repo: submodules pinning known-good SHAs across repos + ops docs (RUNBOOK, HANDOFF). NOT a dev checkout — never run dev servers from it. | n/a |
 | `bamware-web` | Marketing site + web auth targets (terms/privacy, reset-password, verify-email, member sign-up, universal-links well-known files). Next.js. | Vercel (build breaks block deploy) |
 | `bamware-ios` | Reusable Swift package products: Core, UI, Messaging. Tenant-aware native foundation. | Swift Package |
-| `bamware-cafe` | Native SwiftUI proving-ground app (BrewDesk). Uses local CafeKit/VenueKit and the shared iOS package. | Local/TestFlight |
-| `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for bamware-cafe. | Vercel (`venuekit-ashen.vercel.app`) |
+| `bamware-brewdesk` | BrewDesk native SwiftUI app. Uses local BrewDeskKit/VenueKit and the shared iOS package. | Local/TestFlight |
+| `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for BrewDesk. | Vercel (`venuekit-ashen.vercel.app`) |
 | `interviews` | Private. Job-search tracker (one file per application) plus PII, EEO, and compensation answers. | n/a |
 | `bamware-ai` | The constitution: AGENTS.md, STATE.md, shared skills, context CI. | n/a |
 

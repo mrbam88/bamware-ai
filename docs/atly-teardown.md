@@ -23,7 +23,7 @@ Tailor → paywall → purchase → account creation (monetize before product). 
 - Staleness: top Bar match (124 Old Rabbit Club, 9.5) shown CLOSED at recommendation time
 - Breadth over depth: all categories/cities; any single job (work-cafe) is chip-deep
 
-## "Better" for bamware-cafe
+## "Better" for BrewDesk
 Measured Mbps + test counts vs vibes; visible provenance ("verified Xd ago · N tests"); honest unknowns; calibrated scores (confidence-blend already prevents score soup); open-now-aware ranking; free/cheap vs $50 hard wall. Steal the good UX: aspect chips, query-contextual match framing, chaos→clarity onboarding, collections, category bottom sheet. No copied assets/name/copy (also 4.3(b) insurance).
 
 ## Plan impact

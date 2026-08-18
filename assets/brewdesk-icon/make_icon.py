@@ -1,4 +1,4 @@
-"""wfhCafe app icon generator.
+"""BrewDesk app icon generator.
 
 Motif: a coffee cup whose steam is a wifi signal — the product in one glyph
 (measured wifi + a cafe to work from). Bamware studio palette: graphite
