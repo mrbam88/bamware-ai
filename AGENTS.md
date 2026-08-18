@@ -78,7 +78,7 @@ doesn't fail loudly, it half-completes and leaves debris.
 
 | Capability | Claude Code CLI | Sol / opencode | Claude Cowork (cloud) |
 |---|---|---|---|
-| `git push` / release tags | ✅ owns it | ✅ | ⚠️ API only, no git or SSH via the device bridge |
+| `git push` / release tags | ✅ owns it | ✅ | ✅ API connector; container git needs repo authorized |
 | Repo read/write via GitHub API | ✅ | ✅ | ✅ owns it — no checkout, no lock cruft |
 | Xcode, simulators, `xcodebuild` | ✅ owns it | ✅ | ❌ no macOS |
 | fastlane, App Store Connect, signing | ✅ owns it | — | ❌ |
@@ -91,9 +91,11 @@ doesn't fail loudly, it half-completes and leaves debris.
   Bridge git ops fail *and* shed lock cruft that blocks the next native session.
   Cleanup if it happens: `rm -rf .git/_bridge_cruft && rm -f .git/index.lock
   .git/HEAD.lock`, then `git fsck`.
-- **Cowork MAY commit through the GitHub API connector** — no checkout, no
-  cruft. Docs, trackers, state, this file. Tags, releases, signing, and anything
-  requiring a build stay native.
+- **Cowork CAN write to GitHub.** Use the GitHub connector
+  (`GITHUB_COMMIT_MULTIPLE_FILES` — atomic, multi-file, no checkout). Container
+  `git push` works only for repos in the session's authorized set; otherwise the
+  proxy returns 403. **Try the connector before ever claiming you cannot push.**
+  Tags, releases, signing, and anything requiring a build stay native.
 - Ownership is one-way: Claude writes backend and reads Swift; Sol writes Swift
   and reads backend. Neither edits the other's tree.
 - Credentials never move to close a capability gap. Reassign the job instead.
@@ -121,6 +123,20 @@ response shape and the app breaks silently while its mocked tests keep passing.*
 - **Account separation:** `mrbam88` is the only Bamware account. Never run
   Bamware EAS ops under the legacy `vpg-health` session; check `eas whoami`.
 
+## App Store constraints (non-negotiable)
+
+Baat was rejected **2026-08-04, Guideline 4.3(b) — saturated category.** A
+concept rejection: unfixable in the binary, and Apple said "submit a new app."
+Baat's native iOS track is closed (PWA only). Rail and backend are unharmed.
+
+- `mrbam88` carries a 4.3(b) — expect scrutiny on every future submission.
+- Never ship into a saturated category from this account.
+- The differentiator must be **in the binary** and visible in the **listing**.
+  A roadmap is not a 4.3 defense. No two Bamware apps may be near-duplicates.
+- 🔴 BrewDesk is exposed (cafe finder, speed test cut from v1).
+
+Full record, verbatim text, binding rules: `docs/app-store-rejections.md`.
+
 ## Working with Bilal
 
 - **Chat style: short and sweet.** Bullets over prose. No fluff, no essays, no
@@ -138,5 +154,6 @@ response shape and the app breaks silently while its mocked tests keep passing.*
 | Definition of done, per-repo test gates | `docs/definition-of-done.md` |
 | Brand, design tokens, themes | `docs/brand.md` |
 | Why the context rules exist (drift incidents) | `docs/incidents.md` |
+| App Store rejections, verbatim + binding rules | `docs/app-store-rejections.md` |
 | Running this setup on other AI vendors | `docs/portability.md` |
 | Business models, environments, product plans | `docs/` |

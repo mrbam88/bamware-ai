@@ -37,10 +37,22 @@ Start at **`bilal-profile`** for anything about Bilal. It routes to the rest.
 Do **not** depend on `api.github.com` for this. It is rate-limited without auth
 and blocked or proxied in some agent sandboxes. Raw always works.
 
-## Optional upgrade
+## Writing back — check before you claim you cannot
 
-If a GitHub connector or `gh` is available, prefer it — it also reaches the
-private repos and allows writing changes back.
+Do this in order. Do not stop at step 1 and announce "no access."
+
+1. **A GitHub connector / MCP tool.** In Cowork this is Composio
+   (`GITHUB_COMMIT_MULTIPLE_FILES` — atomic, multi-file, no checkout). This is
+   the path that works; try it FIRST.
+2. `git clone`/push over HTTPS if `GITHUB_TOKEN`/`GH_TOKEN` is in the env — but
+   note a session git proxy may 403 with "not in this session's authorized
+   repository set" even when a token exists. That is not a missing capability,
+   it is a repo authorization gap.
+3. `gh` CLI, if installed and authenticated.
+
+Only after all three fail may you say you cannot push — and then hand Bilal the
+exact patch. **The absence of the `gh` binary proves nothing.** Claiming no
+access without checking has already cost one session.
 
 ## Rules
 

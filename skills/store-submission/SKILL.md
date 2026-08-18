@@ -5,6 +5,24 @@ description: Take a Bamware app from TestFlight to App Store submission — icon
 
 # Store submission playbook (proven on Baat, 2026-07-23)
 
+> Baat cleared this checklist and was still rejected 2026-08-04 under 4.3(b).
+> The checklist gets you *submittable*; it does not get you *approved*. Run the
+> gate below first.
+
+## 4.3(b) pre-flight — BLOCKING, do this before anything else
+
+This account has a 4.3(b) on record (`docs/app-store-rejections.md`). Answer all
+five in writing before starting a submission run. Any weak answer stops the run.
+
+1. Name the 3 closest apps already on the App Store. What does this app do that
+   all 3 do not?
+2. Is that differentiator **in this build**, or only planned? If planned — stop.
+3. Do the description and screenshots lead with the differentiator, or with the
+   category?
+4. Is this a near-duplicate of another `mrbam88` app?
+5. Does the build launch and render correctly on iPad (the review device), even
+   if `UIDeviceFamily=[1]`?
+
 ## The checklist (order matters)
 
 1. **App icon** — Apple auto-rejects template icons. Generate from the
