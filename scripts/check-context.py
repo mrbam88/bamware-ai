@@ -59,8 +59,12 @@ else:
 
 # --- 3. cross-references resolve -----------------------------------------
 # Repo names are legitimate backticked kebab tokens; harvest them from the
-# AGENTS.md repo table so this stays correct when repos are added.
-repos = set(re.findall(r"^\| `([a-z0-9-]+)`", AGENTS.read_text(encoding="utf-8"), re.M)) if AGENTS.exists() else set()
+# docs/repos.md table (the repo list's home since AGENTS.md became a router).
+REPOS_DOC = ROOT / "docs" / "repos.md"
+repos = set()
+for _src in (REPOS_DOC, AGENTS):
+    if _src.exists():
+        repos |= set(re.findall(r"^\| `([a-z0-9-]+)`", _src.read_text(encoding="utf-8"), re.M))
 known = set(dirs) | repos
 for d in dirs:
     f = SKILLS / d / "SKILL.md"
@@ -73,7 +77,7 @@ for d in dirs:
 # Every agent loads AGENTS.md every session, so it is the largest recurring
 # token cost in the system. Constitutions grow; without a budget this regresses
 # within a month. Detail belongs in docs/, linked and read on demand.
-BUDGET = 8500
+BUDGET = 6000
 if AGENTS.exists():
     size = len(AGENTS.read_bytes())
     if size > BUDGET:

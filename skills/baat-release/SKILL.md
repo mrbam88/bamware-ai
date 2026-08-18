@@ -5,6 +5,11 @@ description: Ship Baat app changes — decide between OTA update, store release,
 
 # Releasing Baat
 
+> ⚠️ **Baat cannot ship to the App Store** — rejected 2026-08-04 under 4.3(b),
+> concept rejection, account flagged. See `docs/app-store-rejections.md`.
+> This rail (OTA / EAS / TestFlight mechanics) remains valid for TestFlight
+> builds, Android, and is the template for the next RN app's release rail.
+
 Full reference: `bamware-dating-app/docs/RELEASING.md`. This is the
 decision procedure.
 
