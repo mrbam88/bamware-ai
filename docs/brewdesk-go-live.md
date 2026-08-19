@@ -1,6 +1,6 @@
 # BrewDesk go-live
 
-**Updated:** 2026-08-18
+**Updated:** 2026-08-19
 
 ## Locked v1
 

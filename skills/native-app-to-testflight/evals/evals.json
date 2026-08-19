@@ -1,0 +1,47 @@
+{
+  "skill_name": "native-app-to-testflight",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Spin up a native SwiftUI app around my existing public-art API and get the first build onto my iPhone through TestFlight.",
+      "expected_output": "An end-to-end plan and execution sequence from concept gate through a physically installed TestFlight build, with runtime and credential boundaries.",
+      "files": [],
+      "expectations": [
+        "Runs the 4.3 concept gate before implementation",
+        "Uses a thin app, feature package, and UI-free API package",
+        "Requires processing verification and physical TestFlight installation"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My new native app builds in the simulator. Please create its Apple record, prepare the first beta, and upload it to TestFlight.",
+      "expected_output": "A first-beta workflow covering release compliance, tests, listing assets, App Store identity, authorized signing, upload, and VALID processing.",
+      "files": [],
+      "expectations": [
+        "Routes credential-bearing operations to Claude Code CLI",
+        "Distinguishes API keys, certificates, private keys, and provisioning profiles",
+        "Does not declare success at archive or upload time"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "BrewDesk is already on TestFlight. Finish the listing questionnaires and submit it for App Review.",
+      "expected_output": "A handoff to store-submission rather than rerunning first-TestFlight bootstrap.",
+      "files": [],
+      "expectations": [
+        "Recognizes that the app is past this skill's endpoint",
+        "Uses store-submission for TestFlight-to-review work"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Help me run BrewDesk locally while changing the sibling bamware-ios package.",
+      "expected_output": "A handoff to native-ios-workspace rather than invoking the release workflow.",
+      "files": [],
+      "expectations": [
+        "Uses the development workspace procedure",
+        "Does not begin App Store or TestFlight work"
+      ]
+    }
+  ]
+}

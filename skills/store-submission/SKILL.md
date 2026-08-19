@@ -5,6 +5,9 @@ description: Take a Bamware app from TestFlight to App Store submission — icon
 
 # Store submission playbook (proven on Baat, 2026-07-23)
 
+This skill starts with a processed, physically smoke-tested TestFlight build.
+Use `native-app-to-testflight` to reach that checkpoint for a new native app.
+
 > Baat cleared this checklist and was still rejected 2026-08-04 under 4.3(b).
 > The checklist gets you *submittable*; it does not get you *approved*. Run the
 > gate below first.

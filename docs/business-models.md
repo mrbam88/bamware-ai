@@ -22,8 +22,10 @@ applied*, never a container cluster.
   it's not in Terraform, you can't sell it twice.*
 - **`environments/<customer>/`** parameterization: account, region,
   tenant id, domains.
-- **App template repo** (`create-bamware-app`) so app #2 isn't a fork
-  of Baat.
+- **App factory proof** — BrewDesk 1.0 (1) reached a physical TestFlight install
+  through a thin native shell, shared Swift packages, a companion API, and the
+  agent release rail. The repeatable procedure now lives in
+  `skills/native-app-to-testflight`; extracting a starter template remains.
 - **Contract package** (dating-app #6) so client/server version
   together during handovers.
 - **Bamware MCP server** — the one-person sales-engineering dept (see

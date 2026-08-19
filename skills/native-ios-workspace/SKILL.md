@@ -5,6 +5,9 @@ description: Develop Bamware native iOS apps with reusable local Swift packages 
 
 # Native iOS workspace
 
+This skill owns day-to-day development and local package integration. Use
+`native-app-to-testflight` when the goal is a new app's first physical beta.
+
 ## Repository boundaries
 
 - `bamware-ios`: reusable Core, UI, and Messaging products.

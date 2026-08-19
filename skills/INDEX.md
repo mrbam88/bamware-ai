@@ -28,6 +28,7 @@ https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/<name>/SKILL.md
 | `agent-ready-tickets` | Writing specs an agent can execute. |
 | `baat-release` | Releasing the Baat mobile app. |
 | `board-ops` | Project board conventions. |
+| `native-app-to-testflight` | Taking a new native SwiftUI app from concept through a processed, physically installed first TestFlight build. |
 | `native-ios-workspace` | The Xcode workspace for the shared Swift packages. |
 | `session-handoff` | Preserving durable context at the end of a session. |
 | `simulator-driving` | Driving the iOS simulator. |
