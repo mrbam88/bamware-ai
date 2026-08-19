@@ -53,6 +53,27 @@ before any work — Step 0 of `bamware-context`; a missing binary or a
 container-git 403 proves nothing; if no path truly exists, STOP and hand over
 a patch rather than writing durable context anywhere else.
 
+## 2026-08-19 — an unverified aside became a false fact in Bilal's digest
+
+The overnight runner, correctly aborting a brewdesk ticket over a missing CI
+gate, added a side remark: `bamware-venue-engine` "has no .github/workflows
+at all." It never looked — that repo was outside its ticket. The claim was
+false (the repo had a full PR-triggered test gate). Hours later the daily
+digest, also without checking, relayed the claim to Bilal as fact: two repos
+blocked instead of one. Three backend tickets sat "blocked" that were never
+blocked at all.
+
+Same day, same class: the runner treated the (real) brewdesk CI gap — known
+and checkable for weeks — as a reason to quit at 3am instead of a flag to
+raise in daylight.
+
+**Rules they produced:** claims about CI gates come from
+`scripts/check-ci-gate.py` output, never from memory; a claim without its
+quoted evidence is treated as unverified by every downstream agent; agents
+report facts only about the repo they are working in; readiness checks moved
+to grooming (`definition-of-ready`), and the runner's abort list shrank to
+the three true safety stops (`standing-engineer`).
+
 ## The pattern
 
 Every one of these was a *copy* diverging from its source — or an agent
