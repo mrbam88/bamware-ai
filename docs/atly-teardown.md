@@ -1,4 +1,4 @@
-# Atly teardown (from Bilal's onboarding screenshots, 2026-08-05)
+# Atly teardown (from Bilal's onboarding screenshots, 2026-08-05; updated 2026-08-19)
 
 _Migrated from the Claude Project 2026-08-18. Feeds BrewDesk positioning and its
 4.3(b) defense — see `docs/app-store-rejections.md`._
@@ -25,6 +25,34 @@ Tailor → paywall → purchase → account creation (monetize before product). 
 
 ## "Better" for BrewDesk
 Measured Mbps + test counts vs vibes; visible provenance ("verified Xd ago · N tests"); honest unknowns; calibrated scores (confidence-blend already prevents score soup); open-now-aware ranking; free/cheap vs $50 hard wall. Steal the good UX: aspect chips, query-contextual match framing, chaos→clarity onboarding, collections, category bottom sheet. No copied assets/name/copy (also 4.3(b) insurance).
+
+## Update 2026-08-19 — second capture (8 screens, logged-in product)
+
+- **Price doubled in two weeks:** annual now $69.99 (anchored from a struck
+  $140, "50% OFF ends in 42m" countdown), monthly $13.99. Was $49.99 on
+  2026-08-05. Social proof inflated too: "1,207 joined today" (was 183).
+  Discount theater is the business model; strengthens BrewDesk's
+  free/accountless contrast.
+- **Gluten Free edition paywall:** "330k places worldwide", "vetted by
+  dieticians", celiac safety filters. They monetize *verification as a
+  marketing claim* at the tier level — no per-datum provenance anywhere.
+  BrewDesk's per-claim source/confidence/date one-ups this structurally.
+- **Detail page:** "9.2/10 overall place match" behind a sparkle glyph + LLM
+  prose (Qahwah House). Outlets/work suitability appear only as unstructured
+  prose. No date, source, or methodology on any number.
+- **Community insights:** quote cards with avatar stacks (+217, +115) — undated,
+  unsourced, anonymous. One quote is literally "cool spot to work or study":
+  the WFH job exists inside Atly but only as vibes.
+- **"Also known for" aspect chips:** 9.5 Cool, 9.3 Unique, 9.3 Chai, 9.4 Tea,
+  9.3 Interesting, 9.2 Café. Vibes categories, all 9.x — score-inflation
+  receipts, second capture in a row (map pins ranged 8.9–9.9 across SoHo).
+- **"Good to know" numbered facts** (halal menu, peak wait times) — useful,
+  clearly extracted, still undated/unsourced.
+- **Review-risk note for BrewDesk:** Atly's signature look is emoji pin +
+  9.x score bubble on a dark map. A BrewDesk map/list that leads with a bare
+  score badge pattern-matches the incumbent at reviewer glance distance.
+  Provenance stamps on pins/cards are what break the match — this upgrades the
+  go-live provenance-UI items from cosmetic to load-bearing.
 
 ## Plan impact
 Resurrect Phase 0 review-mining extraction spike (now market-validated as the moat). Order: SwiftUI client vs live engine (interview) → extraction spike on golden-set neighborhood → query-contextual match score as v2. Atly-style map screen (score pins + bottom-sheet chips) = next client milestone + strong SwiftUI portfolio piece.
