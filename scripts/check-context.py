@@ -9,7 +9,7 @@ constitution that quietly grows until every agent pays for it every session.
 
 Run: python3 scripts/check-context.py   (exits non-zero on any failure)
 """
-import re, sys, pathlib
+import os, re, sys, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
@@ -83,6 +83,19 @@ if AGENTS.exists():
     if size > BUDGET:
         bad(f"AGENTS.md is {size} bytes, over the {BUDGET} budget. "
             f"Move detail into docs/ and link it rather than inlining it.")
+
+# --- 5. shipped scripts are executable ------------------------------------
+# The GitHub Contents API has no file-mode parameter and writes every blob as
+# 100644, so a script committed from Cowork lands non-executable and a fresh
+# clone gets "permission denied" on a documented command. Native git carries
+# the bit and hides the problem on the machine that authored it. Committing
+# from Cowork? Use the Git Data API (create tree with mode 100755).
+SCRIPTS = ROOT / "scripts"
+if SCRIPTS.is_dir():
+    for s in sorted(SCRIPTS.glob("*.sh")):
+        if not os.access(s, os.X_OK):
+            bad(f"scripts/{s.name} is not executable — set mode 100755, "
+                f"not chmod on one machine")
 
 # --- report ---------------------------------------------------------------
 if fail:
