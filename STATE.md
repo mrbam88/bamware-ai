@@ -5,7 +5,9 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-19 — **BrewDesk pivots to AI-researched WFH-spot finder; 12 approval tickets filed**
+> Last updated: 2026-08-19 — **BrewDesk pivots to AI-researched WFH-spot finder;
+> 12 approval tickets filed; In flight / Blocked / Next up reconciled to the
+> BrewDesk era (they still described July's Baat work)**
 
 ## Vision (one line)
 
@@ -88,32 +90,76 @@ incumbents. Reuse the Baat **rail**, not the Baat app.
 | 2026-06 (agents) | App: sign-up, onboarding wizard, forgot-password + deep links, push notifications, Sentry |
 | 2026-05 | Core loop live: auth, profiles, photos→S3, discover, swipe/match, messaging |
 
-## In flight 🔨 (bamware-dating-app issues)
+## In flight 🔨
 
-- ~~#2 Match badges~~ ✅ merged (PR #8) · ~~#4 Icebreaker~~ ✅ merged (PR #7) · ~~#5 Settings~~ ✅ merged (PR #9)
-- [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) Onboarding cultural steps — next, supervised
-- [#6](https://github.com/mrbam88/bamware-dating-app/issues/6) Contract-layer ADR (client-core fate) — needs Bilal's decision
-- ~~service#1 match scoring~~ ✅ merged+deployed · ~~service#2 discovery prefs~~ ✅ merged+deployed
-- Board grew to 12 cards: P0 block/report pair (#11 app / #3 service), profile detail #12, prompts #13/service#5, deep links #14, curated batch service#4, legal URLs #10
+**BrewDesk approval sprint** — 12 tickets, filed and fielded 2026-08-19:
+
+- brewdesk#1 out-of-coverage location fallback — **P0, blocks submission.** A
+  reviewer in California gets an empty map; `CafeMapScreen`/`VenuesModel` query
+  2.5km around the user.
+- brewdesk#2 provenance stamps · #3 dataset stat strip · #4 methodology screen ·
+  #5 laptop-policy chips incl. Banned + venueType — together these are the
+  4.3(b) differentiator, visible in the binary
+- brewdesk#6 Google Takeout saved-places import (on-device; Apple Maps has no export)
+- brewdesk#7 community v1 — **P2, DO-NOT-BUILD pre-approval** (Apple 1.2 UGC surface)
+- brewdesk#8 listing v2 (AI-transparency positioning)
+- venue-engine#1 schema v2 (seating/venueType/outdoor/photos/source enum) ·
+  #2 scoring v2 (reweight + decay) · #3 Takeout seed import script ·
+  #4 agentic pipeline v0 (Supervised — needs source-whitelist sign-off)
+
+**Baat (bamware-dating-app) — frozen since 2026-08-04.** The native iOS concept
+is closed under 4.3(b). Listed because the code and the rail are reusable
+assets, not because this work is queued.
+
+- 13 PRs from the 2026-07-23 fan-out still unreviewed (merge cheat-sheet in each)
+- [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) onboarding cultural
+  steps — merged, but the server strips the new fields; schema follow-up open
+- [#6](https://github.com/mrbam88/bamware-dating-app/issues/6) contract-layer ADR
+  (client-core fate) — needs Bilal's decision
+- ~~#2 badges~~ ✅ · ~~#4 icebreaker~~ ✅ · ~~#5 settings~~ ✅ ·
+  ~~service#1 match scoring~~ ✅ · ~~service#2 discovery prefs~~ ✅ merged+deployed
 
 ## Blocked on Bilal 🔴
 
-- Google Cloud service account → Play Console API access → first
-  manual AAB upload (packs on ~/Desktop/baat-launch)
-- Post-launch debt: auth token refresh (sessions die ~30min), rotate
-  BlackMamba24!, MAESTRO_* GH secrets, rotate ADMIN_SECRET (in chat
-  transcript)
+**BrewDesk — these gate submission:**
+
+- Physical-iPhone smoke of build 1.0 (2): permissions + accessibility. Build 1
+  was installed and working; build 2 has not been on a device.
+- Google Takeout export of the ~top-30 saved cafés → input for venue-engine#3
+- Source-whitelist sign-off for venue-engine#4 — which public sources the
+  research agent may read (Google/Yelp content is out)
+- An exportable distribution `.p12` → unblocks the protected `production` GitHub
+  environment. Both TestFlight builds used Xcode cloud-managed signing because
+  Baat's EAS cert has no exportable private key on this Mac.
+- Remaining App Store gates: physical location states, production logging
+  confirmation, questionnaires, submission
+
+**Infra / credentials — not blocking BrewDesk:**
+
+- 🔴 **A plaintext password was committed to this public repo** and sat in this
+  section until 2026-08-19. Treat it as compromised: rotate it and anything that
+  reused it. Removing the line does not purge git history.
+- Rotate `MAESTRO_*` GH secrets and `ADMIN_SECRET` (the latter was pasted into a
+  chat transcript)
+- `JWT_SECRET` in Vercel (before web#10) · `ENVIRONMENT=prod` on the prod dating Lambda
+- Auth token refresh — Baat sessions die after ~30 min
+- Google Cloud service account → Play Console API access. Parked: Google has no
+  4.3 equivalent, but Android is not a fix for a concept rejection.
 
 ## Next up 🗺️
 
-- Backend issues for the agent-surfaced gaps (match scoring fields, discovery pref fields, tenant legal URLs)
+- Land brewdesk#1, then the transparency set (#2–#5) — that is what makes the
+  differentiator visible in the binary, which is what the 4.3(b) preflight demands
+- venue-engine: schema v2 → scoring v2 → Takeout seed → agentic pipeline v0
+- Pick the RN app concept for the two-app goal: no UGC, no accounts, no IAP in
+  v1, category with no incumbents
 - Boot + Maestro smoke gate in CI → unlocks overnight agent runs
-- Real app icon (Apple auto-rejects the Expo template)
-- Fix jest teardown leak (worker force-exit warning)
 
 ## Known debt 🧾
 
-- client-core orphaned by both consumers (→ #6)
-- Apple creds still in git history (revocation pending; purge optional)
-- SDK-56/54 package drift fixed by pinning — run `npx expo install --fix` check on SDK upgrades
+- client-core orphaned by both consumers (→ dating-app#6)
+- Apple creds in git history — revoked; purge optional. See also the plaintext
+  password under Blocked.
 - `bamware-workspace` submodule pins stale (May-era)
+- SDK-56/54 package drift fixed by pinning — run `npx expo install --fix` check on SDK upgrades
+- Baat jest teardown leak (worker force-exit warning)
