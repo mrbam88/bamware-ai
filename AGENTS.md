@@ -61,6 +61,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
 | Security rules: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
+| App Review / 4.3(b) evidence base, what works | docs/app-review-field-notes.md |
 | Current state: building / blocked / shipped | STATE.md |
 | All skills (procedures) | skills/INDEX.md |
 | Definition of done, test gates | docs/definition-of-done.md |
