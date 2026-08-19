@@ -10,7 +10,6 @@ archive, upload command, or processing build is not the milestone.
 
 Read these first:
 
-- `../../docs/app-store-rejections.md`
 - `../../docs/security.md`
 - `../../docs/contracts.md`
 - `../../docs/definition-of-done.md`

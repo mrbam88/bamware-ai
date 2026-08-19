@@ -1,7 +1,7 @@
 # Atly teardown (from Bilal's onboarding screenshots, 2026-08-05; updated 2026-08-19)
 
 _Migrated from the Claude Project 2026-08-18. Feeds BrewDesk positioning and its
-4.3(b) defense — see `docs/app-store-rejections.md`._
+4.3(b) defense — Baat rejection verbatim is in STATE.md's 2026-08-04 log entry._
 
 Bilal ran Atly's full funnel (bought annual $49.99 — cancel trial by day 7!) and captured 13 screens. Key findings:
 

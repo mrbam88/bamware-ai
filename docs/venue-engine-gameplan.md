@@ -8,7 +8,7 @@ _Migrated from the Claude Project 2026-08-18. NOTE: written before the
 2026-08-04..06 native platform work. `bamware-venue-engine` and BrewDesk v1 now
 exist; **the Phase 0 extraction spike below has never been run**, which is why
 the measured-data differentiator is absent from the v1 binary. See
-`docs/brewdesk-go-live.md` and `docs/app-store-rejections.md`._
+`docs/brewdesk-go-live.md`._
 
 ---
 

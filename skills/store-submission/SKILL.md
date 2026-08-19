@@ -14,7 +14,7 @@ Use `native-app-to-testflight` to reach that checkpoint for a new native app.
 
 ## 4.3(b) pre-flight — BLOCKING, do this before anything else
 
-This account has a 4.3(b) on record (`docs/app-store-rejections.md`). Answer all
+Baat was rejected under 4.3(b) on 2026-08-04 (verbatim in STATE.md). Answer all
 five in writing before starting a submission run. Any weak answer stops the run.
 
 1. Name the 3 closest apps already on the App Store. What does this app do that

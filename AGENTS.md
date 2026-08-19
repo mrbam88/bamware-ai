@@ -48,8 +48,9 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   public. Rules: docs/security.md
 - Changing a service API response shape? It breaks the mobile app silently.
   Read docs/contracts.md first.
-- Submitting anything to the App Store? The account is flagged. Read
-  docs/app-store-rejections.md first — blocking.
+- Submitting anything to the App Store? Baat was rejected under 4.3(b) on
+  2026-08-04 (verbatim in STATE.md log). Don't resubmit the dating concept;
+  every new app's differentiator must be visible in the binary and listing.
 - About to run git or Xcode from Cowork? Check docs/runtimes.md first.
 
 ## Table of contents — read on demand
@@ -60,7 +61,6 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
 | Security rules: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
-| App Store rejections, verbatim + binding rules | docs/app-store-rejections.md |
 | Current state: building / blocked / shipped | STATE.md |
 | All skills (procedures) | skills/INDEX.md |
 | Definition of done, test gates | docs/definition-of-done.md |
