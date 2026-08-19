@@ -8,6 +8,8 @@
 # Install:  scripts/install-agent-runner.sh
 # Watch:    tail -f ~/Library/Logs/bamware/agent-runner.log
 # Stop:     launchctl bootout gui/$(id -u)/io.bamware.agent-runner
+#
+# Run by hand: narrates to the terminal. Under launchd: log only.
 
 set -uo pipefail
 
@@ -20,13 +22,26 @@ HEARTBEAT="$LOG_DIR/agent-runner.heartbeat"
 LOCK="${TMPDIR:-/tmp}/bamware-agent-runner.lock"
 
 mkdir -p "$LOG_DIR"
-log() { printf '%s  %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >>"$LOG"; }
+
+# A silent supervised run is indistinguishable from a hung one.
+if [ -t 1 ]; then INTERACTIVE=1; else INTERACTIVE=0; fi
+
+log() {
+  local line
+  line="$(date -u +%Y-%m-%dT%H:%M:%SZ)  $*"
+  printf '%s\n' "$line" >>"$LOG"
+  [ "$INTERACTIVE" = 1 ] && printf '%s\n' "$line"
+  return 0
+}
 beat() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" >"$HEARTBEAT"; }
+
+[ "$INTERACTIVE" = 1 ] && printf 'log: %s\n' "$LOG"
 
 # --- one at a time ---------------------------------------------------------
 # mkdir is atomic on macOS; flock is not available here.
 if ! mkdir "$LOCK" 2>/dev/null; then
-  log "skip: another wake holds the lock ($LOCK)"
+  log "skip: lock held ($LOCK) — a wake is still working, or one died."
+  log "      If nothing is running: rmdir $LOCK"
   exit 0
 fi
 cleanup() { rmdir "$LOCK" 2>/dev/null || true; }
@@ -56,18 +71,22 @@ CONTEXT_VERSION="$(cat "$BAMWARE_AI_DIR/CONTEXT_VERSION" 2>/dev/null || echo unk
 log "wake start (context: $CONTEXT_VERSION)"
 beat "running"
 
-PROMPT="Run the standing-engineer skill from ~/code/bamware-ai/skills/standing-engineer/SKILL.md.
+PROMPT="Run the standing-engineer skill from $BAMWARE_AI_DIR/skills/standing-engineer/SKILL.md.
 You are the unattended runner. Nobody is awake. Take exactly one Agent-ready
 card, honour every hard stop, and open a PR — never a merge. If anything is
 missing or ambiguous, comment on the issue and stop rather than guessing.
 Context-Version: $CONTEXT_VERSION"
 
-if claude -p "$PROMPT" --dangerously-skip-permissions >>"$LOG" 2>&1; then
-  log "wake ok"
-  beat "ok"
+if [ "$INTERACTIVE" = 1 ]; then
+  claude -p "$PROMPT" --dangerously-skip-permissions 2>&1 | tee -a "$LOG"
+  rc=${PIPESTATUS[0]}
 else
+  claude -p "$PROMPT" --dangerously-skip-permissions >>"$LOG" 2>&1
   rc=$?
-  log "wake FAILED rc=$rc"
-  beat "failed"
-  exit "$rc"
+fi
+
+if [ "$rc" -eq 0 ]; then
+  log "wake ok"; beat "ok"
+else
+  log "wake FAILED rc=$rc"; beat "failed"; exit "$rc"
 fi
