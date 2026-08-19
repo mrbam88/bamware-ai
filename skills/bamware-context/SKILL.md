@@ -36,8 +36,21 @@ the write path in Cowork, so neither tells you anything.
 
 ## Step 1 — read
 
-The repo is **public**. These three fetches need no credentials, no API key, and
-no connector. Plain HTTPS from any agent.
+**If your runtime has a shell with `git` and network, clone — don't fetch files
+one at a time:**
+
+```
+git clone --depth 50 https://github.com/mrbam88/bamware-ai.git
+```
+
+Public, so no auth. You get every doc and skill in one call *and* you get
+`git log`, which is the only way to see what actually changed in a session you
+were not in. A recap built from `STATE.md` alone is a paraphrase of whatever the
+last agent chose to write down; one built from history is evidence.
+
+Without a shell, use the raw URLs. The repo is **public**, so these three
+fetches need no credentials, no API key, and no connector — plain HTTPS from any
+agent.
 
 ```
 https://raw.githubusercontent.com/mrbam88/bamware-ai/main/AGENTS.md
