@@ -81,22 +81,30 @@ Then write the handoff into the PR body: files changed, gates run and their
 results, and every spec-gap decision you made. That last list is the most
 valuable output of the wake. It becomes the next ticket.
 
-## Step 6 — fail loudly
+## Step 6 — fail loudly, and in public
 
 On any abort or gate failure: comment the reason on the issue, return the
 card to Todo, and increment a retry note in the comment. Two failed wakes on
 one card means the card is wrong, not the runner — set it to Supervised and
 stop retrying it.
 
-Never leave a wake silent. A failed run that logs nothing is
-indistinguishable from a run that never fired, and per the standing-agents
-thesis a feed that goes quiet must alarm rather than return zero.
+Comment on the issue even when the failure is the runner's own. **GitHub is
+the only place the outside world can see this loop.** The daily digest runs
+in the cloud with no access to this machine, so a failure that exists only
+in a local log is invisible to it — and an invisible failure reads as a calm
+day. Per the standing-agents thesis, a feed that goes quiet must alarm
+rather than return zero.
 
 ## Step 7 — heartbeat
 
 Every wake, success or abort, writes a timestamped line to the log and
-updates the heartbeat file the runner script owns. The daily digest reads
-those. No heartbeat for 48h is itself the alert.
+updates the heartbeat file the runner script owns. That pair is for Bilal at
+the terminal: it distinguishes "ran and found nothing" from "never fired."
+
+The cloud digest cannot read either file. It infers liveness from GitHub
+instead — Agent-ready cards present but no runner-authored PR or comment in
+48h is the alarm. That is a weaker signal than the heartbeat, which is
+exactly why Step 6 insists failures reach GitHub.
 
 ## What this loop deliberately does not do
 
