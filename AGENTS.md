@@ -64,6 +64,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | App Review / 4.3(b) evidence base, what works | docs/app-review-field-notes.md |
 | Current state: building / blocked / shipped | STATE.md |
 | All skills (procedures) | skills/INDEX.md |
+| Interview prep: what to study, what's dead | docs/interview-prep/README.md |
 | Definition of done, test gates | docs/definition-of-done.md |
 | Brand, design tokens | docs/brand.md |
 | Why these context rules exist (incident history) | docs/incidents.md |

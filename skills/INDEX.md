@@ -20,6 +20,10 @@ https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/<name>/SKILL.md
 | `ats-playbooks` | Per-ATS quirks: Greenhouse, Lever, Ashby, Workday, SmartRecruiters, LinkedIn. |
 | `form-verify` | Proving a web form is actually filled before submitting. |
 
+Interview prep is **docs, not skills** — study material, indexed at
+[`docs/interview-prep/README.md`](../docs/interview-prep/README.md). Read that
+index before writing any new prep doc; the bank is closed by default.
+
 ## Engineering — organized by team role
 
 Bilal is admin/master. Agents fill roles; the loop is:
