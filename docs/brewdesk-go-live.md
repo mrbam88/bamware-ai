@@ -39,6 +39,8 @@
   Its protected `production` environment is restricted to `main`; dispatch is
   blocked until a human adds the existing ASC key and distribution certificate
   as environment secrets.
+- BrewDesk 1.0 (1) was uploaded with Xcode cloud-managed distribution signing;
+  App Store Connect reports the processed build as `VALID`.
 
 ## App Store work remaining
 
@@ -46,9 +48,8 @@
    retaining App Privacy as Data Not Collected.
 2. Test allow, deny, restricted, and previously-granted location states on a
    physical iPhone.
-3. Add the existing Apple signing and ASC credentials to the protected
-   `production` environment, dispatch TestFlight CI, and smoke-test that exact
-   build.
+3. Smoke-test TestFlight build 1.0 (1). Add an exportable distribution `.p12`
+   to the protected `production` environment later to enable unattended CI.
 4. Complete category, copyright, age-rating, and content-rights fields.
 5. Submit the tested build.
 
