@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-19 — **BrewDesk App Store package verified**
+> Last updated: 2026-08-19 — **machine-portable harness: bootstrap + repo shims**
 
 ## Vision (one line)
 
@@ -38,6 +38,14 @@ app, for Bamware branding + interview evidence. The RN app is now selected for
 incumbents. Reuse the Baat **rail**, not the Baat app.
 
 ## Shipped ✅
+
+- **2026-08-19 — Machine-portable harness.** Any Mac rebuilds the full dev
+  setup from `gh auth login` + clone + `scripts/bootstrap.sh` (sibling repos,
+  skill installs, Claude Code symlinks, opencode config from template). Every
+  repo's `AGENTS.md` now leads with the bamware-ai system map and carries a
+  `CLAUDE.md` import shim, so Claude Code auto-loads org context in any repo —
+  parity with opencode. Principle codified: a laptop is a cache of this repo;
+  nothing on a machine is authored locally (README "New machine").
 
 | Date | What |
 |---|---|
