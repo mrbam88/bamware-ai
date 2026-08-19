@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-19 — **BrewDesk 1.0 (2) in internal TestFlight**
+> Last updated: 2026-08-19 — **BrewDesk pivots to AI-researched WFH-spot finder; 12 approval tickets filed**
 
 ## Vision (one line)
 
@@ -19,6 +19,19 @@ First product: **Baat**, Pan-South Asian dating app.
 `bamware-ios`; `bamware-venue-engine` is the companion local Express API.
 The Xcode development workspace substitutes the sibling shared-package checkout
 so app and reusable modules can evolve together.
+
+**BrewDesk product direction (decided 2026-08-19):** a WFH-spot finder, not a
+café finder — cafés + parks/libraries/malls (`venueType`), 95–100% AI-researched
+data via a scheduled agent pipeline (whitelisted public sources, never
+Google/Yelp content), admin/community as optional layers later. Scoring
+reweights to Bilal's ranking: laptop policy (incl. visible "laptops banned")
+> seating > wifi > noise, outdoor as bonus; recency decay. Provenance labels
+say "updated <date> · <source>" — never "verified" without a human. Community
+features are post-approval only (Apple 1.2 UGC surface). Approval plan: submit
+→ Resolution Center reply (pre-written) → appeal; evidence base in
+`docs/app-review-field-notes.md`. Tickets: brewdesk#1–8 + venue-engine#1–4,
+all boarded/fielded; brewdesk#1 is P0 (reviewer-in-California location bug
+empties the map — found 2026-08-19, blocks submission).
 
 **Baat track: 🔴 REJECTED 2026-08-04 — Guideline 4.3(b), spam / saturated
 category.** Verbatim text: the 2026-08-04 log entry below.
@@ -49,6 +62,7 @@ incumbents. Reuse the Baat **rail**, not the Baat app.
 
 | Date | What |
 |---|---|
+| 2026-08-19 | **BrewDesk pivot + approval sprint specced.** Product redefined as AI-researched WFH-spot finder (see Now building). 12 tickets filed and fielded on the board: brewdesk#1 out-of-coverage location fallback (P0 — reviewer in CA gets an empty map today, `CafeMapScreen`/`VenuesModel` query 2.5km around user), #2 provenance stamps ("updated <date> · source"), #3 dataset stat strip, #4 methodology screen, #5 laptop-policy chips incl. Banned + venueType, #6 Google Takeout saved-places import (on-device, Apple Maps has no export), #7 community v1 (P2, DO-NOT-BUILD pre-approval), #8 listing v2 (AI-transparency positioning); venue-engine#1 schema v2 (seating/venueType/outdoor/photos/source enum), #2 scoring v2 (reweight+decay), #3 Takeout seed import script, #4 agentic pipeline v0 (Supervised, needs source whitelist sign-off). Also: `docs/app-store-rejections.md` removed (asserted unverified "account flagged" as fact) → replaced by sourced `docs/app-review-field-notes.md`; Atly teardown updated with 2026-08-19 capture (price doubled to $69.99, still zero provenance). Bilal's Takeout export of ~top-30 saved cafés = pending input for engine#3. |
 | 2026-08-19 | **BrewDesk 1.0 (2) is VALID and IN_BETA_TESTING for internal TestFlight.** The release at binary commit `bamware-brewdesk@7bb2109` adds local Saved cafés, Directions/Share actions, English/Spanish localization, iOS 26 Liquid Glass with an iOS 17 material fallback, accessibility-size layouts, VoiceOver state, Reduce Motion behavior, typed venue queries, constructor-injected capability protocols, and removes the Factory dependency. Package tests, all 16 Release app/UI tests, accessibility audits, live production screenshot flow, iPad Pro compatibility smoke, development-workspace Release build, identity/security checks, opaque 1320×2868 screenshots, and unsigned archive pass. Xcode cloud-managed distribution signing uploaded build 2; Apple reports `VALID` and internal testing active. Remaining gate for this exact build: physical iPhone install and permission/accessibility smoke. Source/docs are pushed through `bamware-brewdesk@42f3b1c`; no backend contract changed. |
 | 2026-08-19 | **BrewDesk 1.0 (1) uploaded to TestFlight and Apple processing is VALID.** App Store Connect record exists for `io.bamware.brewdesk`; evidence-first metadata, review notes, 4.3 preflight, five opaque 1320×2868 screenshots, deterministic Release screenshot automation, and the native fastlane CI rail are committed at `bamware-brewdesk@cbbc25f`. The first build used Xcode's App Store Connect API-key authentication and cloud-managed distribution signing because Baat's EAS certificate had no exportable private key on this Mac; no credential values or app changes were committed. The protected GitHub `production` environment remains restricted to `main` but cannot run until it receives an exportable distribution `.p12`. Package tests, full Release app/UI tests, iPad Air iPhone-compatibility smoke, development-workspace Release build, identity check, and unsigned device archive pass. Build 1 was subsequently installed and working on a physical iPhone. Remaining App Store gates: physical location states, production logging confirmation, questionnaires, and submission. |
 | 2026-08-18 | **BrewDesk identity and Swift concurrency checkpoint verified.** Canonical app/project/scheme/module identity is `BrewDesk`, package `BrewDeskKit`, bundle `io.bamware.brewdesk`, repo `bamware-brewdesk`. Dead auth/StoreKit code removed; app uses structured cancellable loading, async Core Location, strict Swift 6 approachable concurrency, export-compliance flag, and a UserDefaults privacy manifest. Package tests, app tests, UI launch, sibling-package workspace build, Release build, and unsigned device archive pass. Archive contains no legacy identity, StoreKit linkage, or dev-auth URL. |
