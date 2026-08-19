@@ -23,13 +23,47 @@ skills/              Reusable skills (SKILL.md format). Copy or symlink
 templates/           ADR, agent-ready issue template.
 ```
 
+## Sibling checkout convention
+
+Every Bamware repo is checked out **next to** `bamware-ai` (any parent
+directory works — `~/code` on the first machine). Cross-repo pointers rely
+on it: each repo's `AGENTS.md` starts with "read `../bamware-ai/AGENTS.md`
+first", and each repo's `CLAUDE.md` is a two-line shim that imports both:
+
+```markdown
+@AGENTS.md
+@../bamware-ai/AGENTS.md
+```
+
+So any Claude Code session opened in any repo loads the system map
+automatically; opencode gets it via its global config; anything else can
+follow the plain-markdown pointer or the raw URL (`docs/portability.md`).
+
+## New machine
+
+The machine is a cache of this repo — nothing on it is authored locally
+(rule 4). Three commands rebuild the whole harness on any Mac:
+
+```sh
+gh auth login
+gh repo clone mrbam88/bamware-ai ~/code/bamware-ai
+~/code/bamware-ai/scripts/bootstrap.sh
+```
+
+`bootstrap.sh` is idempotent: clones missing sibling repos, reinstalls the
+general skill set (manifest in the script mirrors `~/.agents/.skill-lock.json`),
+symlinks `skills/` into `~/.claude/skills`, and renders the opencode config
+from `templates/opencode.jsonc`. If a local config drifted from the template,
+it warns and shows the diff — the repo wins.
+
 ## How to use with each tool
 
-- **Claude Code:** symlink a skill into a repo:
-  `ln -s ../../bamware-ai/skills/agent-ready-tickets .claude/skills/`
-  or reference `AGENTS.md` from a repo's `CLAUDE.md`/`AGENTS.md`.
-- **OpenCode:** follow `docs/opencode-setup.md`. The global config advertises
-  skills on demand and loads `AGENTS.md` for every session.
+- **Claude Code:** nothing per session — every repo's `CLAUDE.md` shim
+  imports `AGENTS.md` + the system map (see sibling convention above), and
+  `bootstrap.sh` links all `skills/` globally into `~/.claude/skills`.
+- **OpenCode:** follow `docs/opencode-setup.md`. The global config (rendered
+  from `templates/opencode.jsonc` by `bootstrap.sh`) advertises skills on
+  demand and loads `AGENTS.md` for every session.
 - **Cursor / anything else:** these are plain markdown; attach the system map
   and load individual skills only when relevant. No lock-in.
 

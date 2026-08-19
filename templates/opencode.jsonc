@@ -1,0 +1,43 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Rendered by bamware-ai scripts/bootstrap.sh, which substitutes the repo's
+  // absolute checkout path. Edit the template in the repo and re-run bootstrap;
+  // never hand-edit the rendered copy in ~/.config/opencode.
+
+  "instructions": [
+    "__BAMWARE_AI__/AGENTS.md"
+  ],
+  "skills": {
+    "paths": [
+      "__BAMWARE_AI__/skills"
+    ]
+  },
+  "references": {
+    "bamware-ai": {
+      "path": "__BAMWARE_AI__",
+      "description": "Bamware system map, current state, durable decisions, skills, and templates"
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "tail_turns": 10
+  },
+  "tool_output": {
+    "max_lines": 200,
+    "max_bytes": 8192
+  },
+
+  // Local model served by Ollama on this machine ('ollama pull qwen3.6:35b-a3b').
+  // Vendor logins (ChatGPT etc.) are stored separately by OpenCode and survive re-renders.
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": { "baseURL": "http://localhost:11434/v1" },
+      "models": {
+        "qwen3.6:35b-a3b": { "name": "Qwen3.6 35B-A3B (local)" }
+      }
+    }
+  }
+}

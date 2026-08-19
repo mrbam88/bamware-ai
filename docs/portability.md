@@ -46,6 +46,14 @@ A runtime **without** web access cannot bootstrap. In that case paste the
 relevant SKILL.md contents in by hand and treat that session as read-only — it
 cannot write updates back.
 
+## New machine (CLI side)
+
+Vendor portability above covers chat products. For a new **laptop**, the same
+principle applies: the machine is a cache of this repo. `scripts/bootstrap.sh`
+rebuilds the whole CLI harness (sibling repos, skill installs, Claude Code
+skill symlinks, opencode config) from a bare `gh auth login` + clone. Nothing
+on a machine is authored locally; see README "New machine".
+
 ## The private half
 
 Identifying, demographic, and compensation answers live in the private repo
