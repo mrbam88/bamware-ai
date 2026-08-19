@@ -20,20 +20,48 @@ https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/<name>/SKILL.md
 | `ats-playbooks` | Per-ATS quirks: Greenhouse, Lever, Ashby, Workday, SmartRecruiters, LinkedIn. |
 | `form-verify` | Proving a web form is actually filled before submitting. |
 
-## Engineering
+## Engineering — organized by team role
+
+Bilal is admin/master. Agents fill roles; the loop is:
+groom → DEV builds → QA verifies → Bilal merges. See `board-ops` for the
+status flow. Roles will grow (Architect, Product) as the team builds up.
+
+### Product / grooming
 
 | Skill | Use it for |
 |---|---|
-| `agent-fanout` | Running parallel agents across repos. |
-| `agent-ready-tickets` | Writing specs an agent can execute. |
-| `baat-release` | Releasing the Baat mobile app. |
-| `board-ops` | Project board conventions. |
-| `native-app-to-testflight` | Taking a new native SwiftUI app from concept through a processed, physically installed first TestFlight build. |
+| `agent-ready-tickets` | Writing specs an agent can execute. The spec IS the prompt. |
+| `definition-of-ready` | The grooming gate a ticket passes BEFORE it becomes Agent-ready. Catch problems in daylight. |
+| `board-ops` | Board statuses, fields, the Dev-QA loop, gh commands. Tickets, never "cards". |
+
+### DEV
+
+| Skill | Use it for |
+|---|---|
+| `standing-engineer` | The unattended DEV loop: one ticket, one PR, hand off to QA, never a merge. Runs headless on the Mac. |
+| `agent-fanout` | Running parallel agents across repos (supervised, daytime). |
 | `native-ios-workspace` | The Xcode workspace for the shared Swift packages. |
-| `session-handoff` | Preserving durable context at the end of a session. |
 | `simulator-driving` | Driving the iOS simulator. |
-| `standing-engineer` | The unattended loop: one Agent-ready card, one PR, never a merge. Runs headless on the Mac. |
+
+### QA
+
+| Skill | Use it for |
+|---|---|
+| `qa-engineer` | Verify PRs against gates + acceptance criteria with evidence; pass the ticket or file bug tickets back to DEV. |
+
+### Release (Bilal-gated)
+
+| Skill | Use it for |
+|---|---|
+| `baat-release` | Releasing the Baat mobile app. |
+| `native-app-to-testflight` | Taking a new native SwiftUI app from concept through a processed, physically installed first TestFlight build. |
 | `store-submission` | App Store submission. |
+
+### Ops
+
+| Skill | Use it for |
+|---|---|
+| `session-handoff` | Preserving durable context at the end of a session. |
 
 ## Meta
 

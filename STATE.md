@@ -5,9 +5,10 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-19 — **BrewDesk pivots to AI-researched WFH-spot finder;
-> 12 approval tickets filed; In flight / Blocked / Next up reconciled to the
-> BrewDesk era (they still described July's Baat work)**
+> Last updated: 2026-08-19 (evening) — **Dev-QA loop set up: board gains
+> "Ready for QA"/"QA Passed" statuses, new `definition-of-ready` +
+> `qa-engineer` skills, runner policy now finish-and-flag; venue-engine
+> #1/#2/#3 built as PRs #5/#6/#7 awaiting review**
 
 ## Vision (one line)
 
@@ -41,8 +42,9 @@ Concept rejection, not a bug — Apple's instruction was "submit a new app," so
 **the native iOS track for Baat is closed** (PWA is the only surviving path). Do
 not resubmit, re-skin, or appeal on feature merits. Backend, auth, infra, and
 the EAS→TestFlight→fastlane rail are unaffected and are the reusable assets.
-Still open regardless: **13 PRs awaiting Bilal's review/merge** from the
-2026-07-23 fan-out (merge cheat-sheet in each PR); JWT_SECRET needed in Vercel
+Still open regardless: the 2026-07-23 fan-out PRs are **no longer open** (0
+open PRs across all repos, verified 2026-08-19 — merged or closed; history in
+each repo); JWT_SECRET needed in Vercel
 before web#10; ENVIRONMENT=prod needed on prod dating Lambda. Play Console
 bootstrap is moot for now (Google has no 4.3 equivalent, but Baat's iOS
 concept problem is not an Android fix).
@@ -53,6 +55,18 @@ app, for Bamware branding + interview evidence. The RN app is now selected for
 incumbents. Reuse the Baat **rail**, not the Baat app.
 
 ## Shipped ✅
+
+- **2026-08-19 — Dev-QA loop (process).** Board 2 statuses now Todo → In
+  Progress → Ready for QA → QA Passed → Done. New skills:
+  `definition-of-ready` (grooming gate — readiness is checked in daylight,
+  never at 3am) and `qa-engineer` (verify PRs with evidence, file `bug`
+  tickets back to DEV). `standing-engineer` rewritten: finish-and-flag —
+  only three abort reasons (credentials, brewdesk#7, would-touch-main);
+  bug tickets on own PRs are pulled first; claims require quoted evidence
+  (`scripts/check-ci-gate.py` for CI claims). Terminology: tickets, never
+  cards. Nightly cloud QA scheduled for backend repos. Merging stays with
+  Bilal. Incident recorded in docs/incidents.md (false "no CI" claim
+  reached the digest).
 
 - **2026-08-19 — Machine-portable harness.** Any Mac rebuilds the full dev
   setup from `gh auth login` + clone + `scripts/bootstrap.sh` (sibling repos,
@@ -103,15 +117,17 @@ incumbents. Reuse the Baat **rail**, not the Baat app.
 - brewdesk#6 Google Takeout saved-places import (on-device; Apple Maps has no export)
 - brewdesk#7 community v1 — **P2, DO-NOT-BUILD pre-approval** (Apple 1.2 UGC surface)
 - brewdesk#8 listing v2 (AI-transparency positioning)
-- venue-engine#1 schema v2 (seating/venueType/outdoor/photos/source enum) ·
-  #2 scoring v2 (reweight + decay) · #3 Takeout seed import script ·
-  #4 agentic pipeline v0 (Supervised — needs source-whitelist sign-off)
+- venue-engine#1 schema v2 · #2 scoring v2 · #3 Takeout seed import —
+  **built 2026-08-19 as PRs #5/#6/#7 (stacked on #5), CI green, awaiting
+  Bilal's review/merge.** Spec-gap decisions flagged in each PR body.
+- venue-engine#4 agentic pipeline v0 (Supervised — needs source-whitelist
+  sign-off)
 
 **Baat (bamware-dating-app) — frozen since 2026-08-04.** The native iOS concept
 is closed under 4.3(b). Listed because the code and the rail are reusable
 assets, not because this work is queued.
 
-- 13 PRs from the 2026-07-23 fan-out still unreviewed (merge cheat-sheet in each)
+- the 2026-07-23 fan-out PRs are closed (0 open PRs verified 2026-08-19)
 - [#3](https://github.com/mrbam88/bamware-dating-app/issues/3) onboarding cultural
   steps — merged, but the server strips the new fields; schema follow-up open
 - [#6](https://github.com/mrbam88/bamware-dating-app/issues/6) contract-layer ADR
