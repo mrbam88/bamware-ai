@@ -35,6 +35,10 @@
   screenshots are committed at `bamware-brewdesk@17abc3c`.
 - The Release build passes on iPhone and in iPhone compatibility mode on an
   iPad Air simulator.
+- Native fastlane TestFlight CI is committed at `bamware-brewdesk@cbbc25f`.
+  Its protected `production` environment is restricted to `main`; dispatch is
+  blocked until a human adds the existing ASC key and distribution certificate
+  as environment secrets.
 
 ## App Store work remaining
 
@@ -42,9 +46,11 @@
    retaining App Privacy as Data Not Collected.
 2. Test allow, deny, restricted, and previously-granted location states on a
    physical iPhone.
-3. Produce and validate a signed distribution archive.
+3. Add the existing Apple signing and ASC credentials to the protected
+   `production` environment, dispatch TestFlight CI, and smoke-test that exact
+   build.
 4. Complete category, copyright, age-rating, and content-rights fields.
-5. Upload to TestFlight, smoke-test that exact build, then submit.
+5. Submit the tested build.
 
 ## Review positioning
 
