@@ -32,6 +32,7 @@ https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/<name>/SKILL.md
 | `native-ios-workspace` | The Xcode workspace for the shared Swift packages. |
 | `session-handoff` | Preserving durable context at the end of a session. |
 | `simulator-driving` | Driving the iOS simulator. |
+| `standing-engineer` | The unattended loop: one Agent-ready card, one PR, never a merge. Runs headless on the Mac. |
 | `store-submission` | App Store submission. |
 
 ## Meta
