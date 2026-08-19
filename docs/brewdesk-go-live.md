@@ -28,18 +28,23 @@
 - Package tests, app tests, UI smoke, development workspace build, Release
   build, and unsigned iOS device archive pass.
 
+## Verified submission prep
+
+- App ID and App Store Connect record exist for `io.bamware.brewdesk`.
+- Evidence-first listing copy, review notes, and five opaque 1320×2868
+  screenshots are committed at `bamware-brewdesk@17abc3c`.
+- The Release build passes on iPhone and in iPhone compatibility mode on an
+  iPad Air simulator.
+
 ## App Store work remaining
 
-1. Create the App ID and App Store Connect record for `io.bamware.brewdesk`.
-2. Produce and validate a signed distribution archive.
-3. Test allow, deny, restricted, and previously-granted location states on a
+1. Reconfirm production logs do not retain coordinate query strings before
+   retaining App Privacy as Data Not Collected.
+2. Test allow, deny, restricted, and previously-granted location states on a
    physical iPhone.
-4. Capture listing screenshots after final copy is locked.
-5. Add description, subtitle, keywords, category, copyright, and review notes.
-6. Complete App Privacy as Data Not Collected only after reconfirming production
-   logs do not retain coordinate query strings.
-7. Complete the updated age-rating and content-rights questionnaires.
-8. Upload to TestFlight, smoke-test that exact build, then submit.
+3. Produce and validate a signed distribution archive.
+4. Complete category, copyright, age-rating, and content-rights fields.
+5. Upload to TestFlight, smoke-test that exact build, then submit.
 
 ## Review positioning
 

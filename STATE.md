@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-18 — **BrewDesk release identity verified**
+> Last updated: 2026-08-19 — **BrewDesk App Store package verified**
 
 ## Vision (one line)
 
@@ -41,6 +41,7 @@ incumbents. Reuse the Baat **rail**, not the Baat app.
 
 | Date | What |
 |---|---|
+| 2026-08-19 | **BrewDesk App Store package verified and published to its repo.** App Store Connect record exists for `io.bamware.brewdesk`; evidence-first metadata, review notes, 4.3 preflight, five opaque 1320×2868 screenshots, deterministic Release screenshot automation, and the compositor are committed at `bamware-brewdesk@17abc3c`. Claim provenance is now more legible without duplicate source detail. Package tests, full Release app/UI tests, iPad Air iPhone-compatibility smoke, development-workspace Release build, identity check, and unsigned device archive pass. Remaining human gates: production logging confirmation, physical-device location states, signed distribution archive, TestFlight smoke, questionnaires, and submission. |
 | 2026-08-18 | **BrewDesk identity and Swift concurrency checkpoint verified.** Canonical app/project/scheme/module identity is `BrewDesk`, package `BrewDeskKit`, bundle `io.bamware.brewdesk`, repo `bamware-brewdesk`. Dead auth/StoreKit code removed; app uses structured cancellable loading, async Core Location, strict Swift 6 approachable concurrency, export-compliance flag, and a UserDefaults privacy manifest. Package tests, app tests, UI launch, sibling-package workspace build, Release build, and unsigned device archive pass. Archive contains no legacy identity, StoreKit linkage, or dev-auth URL. |
 | 2026-08-04 (recorded 08-15) | 🔴 **Baat v1.0 (6) REJECTED — Guideline 4.3(b) spam.** Submission `029740e2-f219-407d-b065-996ada511f12`, reviewed on iPad Air 11-inch (M3). "There are already enough of these apps on the App Store… reconsider the app concept and submit a new app." Concept rejection — unfixable in the binary, unappealable on feature merits; Apple pointed at a PWA. Recorded verbatim in `docs/app-store-rejections.md`, with binding rules for all future submissions; 4.3(b) pre-flight gate added to `skills/store-submission`. **BrewDesk flagged as exposed** — cafe finder with the speed test cut from v1, i.e. the differentiator is not in the binary. |
 | 2026-08-05 | **BrewDesk v1 decisions locked:** guest discovery, free launch, optional accounts only with cloud saves plus in-app deletion, conversation prototype deferred, iPhone-only. Prototype preserved at tag `conversation-prototype-v0.1.0`; production plan lives in `docs/brewdesk-go-live.md`. |
