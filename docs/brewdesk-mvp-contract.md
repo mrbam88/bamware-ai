@@ -30,6 +30,13 @@ Base URL is `http://localhost:3000` in Debug and
 - `GET /v1/venues/:id` returns `{ venue, observations[] }`.
 - `GET /v1/neighborhoods` returns `{ neighborhoods[] }`.
 - `POST /v1/observations` exists in the engine but has no v1 app consumer.
+- `GET /v1/venues/:id/photos` (added 2026-08-20) returns
+  `{ photos: [{ url, attribution?, widthPx?, heightPx? }] }` — `url` is a
+  same-origin proxy path; empty array whenever unmapped or
+  `GOOGLE_PLACES_API_KEY` is unset. `GET .../photos/:i/media?maxWidthPx=`
+  302-redirects to a short-lived Google-hosted image. Google Places (New)
+  data: display-only with attribution; key server-side only; photo bytes
+  never stored (Bilal's 2026-08-20 licensed-API rule).
 
 JSON is camelCase except `distance_m` on geo responses. Attribute claims carry
 `value`, optional detail/range/window, `source`, `confidence`, and `observedAt`.
