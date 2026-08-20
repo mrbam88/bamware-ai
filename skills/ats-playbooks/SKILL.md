@@ -27,6 +27,13 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 - Tab state survives while the application is unsubmitted, so a half-filled form
   can be resumed later. Do not close a mid-fill tab.
 - Watch for custom screening questions that are not in any standard answer set.
+- A role can be **unlisted**: promoted on LinkedIn but absent from both the
+  public board and `https://api.ashbyhq.com/posting-api/job-board/{org}`. It is
+  still open. Find it through the employer's careers-page embed.
+- Embedded Ashby boards expose the posting ID in page JS. Read
+  `window.__Ashby.settings.jobPostingId`, then open
+  `https://jobs.ashbyhq.com/{org}/{jobPostingId}/application` — the standalone
+  form beats the iframe. (Proven on GovWell, 2026-08.)
 
 ## Workday
 
