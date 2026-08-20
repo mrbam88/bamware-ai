@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-20 (eve) — **Open-source track opened: Baat → baat-rn (MIT), epic #9, gated by secrets audit #4. Earlier same day: Source policy REVERSED (Bilal, direct
+> Last updated: 2026-08-20 (eve) — **Open-source track opened: Baat → baat-rn + BrewDesk (MIT), epic #9, gated by secrets audit #4. Earlier same day: Source policy REVERSED (Bilal, direct
 > instruction): ALL publicly available internet sources are allowed for
 > ranking/workability data — Google, Yelp, forums, anything public,
 > scraping included. Supersedes the earlier same-day "scraping banned"
@@ -70,7 +70,11 @@ flip of `bamware-dating-app` (revoked Apple creds remain in its history).
 Backend + white-label engine stay private. Epic bamware-ai#9; tickets #4
 (secrets audit, **P0 Human-only — gates everything**), #5 export, #6 hygiene
 pack, #7 README-as-architecture-article, #8 profile visibility sweep (19
-public → 4: bamware-ai, bamware-ios, DSA-Practice, baat-rn). All boarded.
+public → 5: bamware-ai, bamware-ios, DSA-Practice, baat-rn, bamware-brewdesk).
+**BrewDesk too (#10 flip + #11 README):** visibility flip of `bamware-brewdesk`
+once the audit confirms clean history; `4.3-preflight.md` + review notes move
+out first; `bamware-venue-engine` stays private (data + scoring = the product).
+Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 
 ## Shipped ✅
 
