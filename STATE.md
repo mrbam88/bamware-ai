@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-20 — **Source policy REVERSED (Bilal, direct
+> Last updated: 2026-08-20 (eve) — **Open-source track opened: Baat → baat-rn (MIT), epic #9, gated by secrets audit #4. Earlier same day: Source policy REVERSED (Bilal, direct
 > instruction): ALL publicly available internet sources are allowed for
 > ranking/workability data — Google, Yelp, forums, anything public,
 > scraping included. Supersedes the earlier same-day "scraping banned"
@@ -62,6 +62,15 @@ concept problem is not an Android fix).
 app, for Bamware branding + interview evidence. The RN app is now selected for
 4.3 survivability first: no UGC, no accounts, no IAP in v1, category with no
 incumbents. Reuse the Baat **rail**, not the Baat app.
+
+**Open-source track (decided 2026-08-20):** Baat becomes `mrbam88/baat-rn`,
+public, MIT — a portfolio showcase for interviews, NOT a relaunch (native
+iOS track stays closed under 4.3(b)). Fresh-history repo, never a visibility
+flip of `bamware-dating-app` (revoked Apple creds remain in its history).
+Backend + white-label engine stay private. Epic bamware-ai#9; tickets #4
+(secrets audit, **P0 Human-only — gates everything**), #5 export, #6 hygiene
+pack, #7 README-as-architecture-article, #8 profile visibility sweep (19
+public → 4: bamware-ai, bamware-ios, DSA-Practice, baat-rn). All boarded.
 
 ## Shipped ✅
 
@@ -170,6 +179,10 @@ assets, not because this work is queued.
   chat transcript)
 - `JWT_SECRET` in Vercel (before web#10) · `ENVIRONMENT=prod` on the prod dating Lambda
 - Auth token refresh — Baat sessions die after ~30 min
+- **baat-rn gate (#4):** verify Apple revocation at ASC, rotate `ADMIN_SECRET` +
+  `MAESTRO_*` — nothing goes public before this
+- Paste the bamware Claude Project instructions block (see docs/incidents.md
+  2026-08-20) — forces `bamware-context` on every Cowork session
 - Google Cloud service account → Play Console API access. Parked: Google has no
   4.3 equivalent, but Android is not a fix for a concept rejection.
 
