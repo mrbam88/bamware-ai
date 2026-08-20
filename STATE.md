@@ -5,10 +5,10 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-19 (evening) — **Dev-QA loop set up: board gains
-> "Ready for QA"/"QA Passed" statuses, new `definition-of-ready` +
-> `qa-engineer` skills, runner policy now finish-and-flag; venue-engine
-> #1/#2/#3 built as PRs #5/#6/#7 awaiting review**
+> Last updated: 2026-08-20 — **Google-source rule clarified (scraping
+> review content = banned; licensed APIs like Places Photos = allowed);
+> venue images decision: Google Places Photos via venue-engine proxy.
+> Prior: Dev-QA loop live, venue-engine #1–#3 merged, brewdesk CI merged**
 
 ## Vision (one line)
 
@@ -25,8 +25,11 @@ so app and reusable modules can evolve together.
 
 **BrewDesk product direction (decided 2026-08-19):** a WFH-spot finder, not a
 café finder — cafés + parks/libraries/malls (`venueType`), 95–100% AI-researched
-data via a scheduled agent pipeline (whitelisted public sources, never
-Google/Yelp content), admin/community as optional layers later. Scoring
+data via a scheduled agent pipeline. Clarified 2026-08-20 (Bilal): the
+restriction is on SCRAPING Google/Yelp review content for workability data —
+licensed API use is fine and expected (e.g. Google Places Photos for venue
+images, place_id stored server-side, photos display-only with attribution).
+Admin/community as optional layers later. Scoring
 reweights to Bilal's ranking: laptop policy (incl. visible "laptops banned")
 > seating > wifi > noise, outdoor as bonus; recency decay. Provenance labels
 say "updated <date> · <source>" — never "verified" without a human. Community
@@ -118,8 +121,11 @@ incumbents. Reuse the Baat **rail**, not the Baat app.
 - brewdesk#7 community v1 — **P2, DO-NOT-BUILD pre-approval** (Apple 1.2 UGC surface)
 - brewdesk#8 listing v2 (AI-transparency positioning)
 - venue-engine#1 schema v2 · #2 scoring v2 · #3 Takeout seed import —
-  **built 2026-08-19 as PRs #5/#6/#7 (stacked on #5), CI green, awaiting
-  Bilal's review/merge.** Spec-gap decisions flagged in each PR body.
+  **merged 2026-08-19 (PRs #5/#6/#7).** brewdesk PR-level CI also merged
+  (brewdesk PR #9), so brewdesk tickets now pass the readiness gate.
+- Venue images (decided 2026-08-20): Google Places Photos via a
+  venue-engine proxy — place_id backfill, photos display-only with
+  attribution, API key server-side. Ticket to be filed.
 - venue-engine#4 agentic pipeline v0 (Supervised — needs source-whitelist
   sign-off)
 
@@ -143,7 +149,8 @@ assets, not because this work is queued.
   was installed and working; build 2 has not been on a device.
 - Google Takeout export of the ~top-30 saved cafés → input for venue-engine#3
 - Source-whitelist sign-off for venue-engine#4 — which public sources the
-  research agent may read (Google/Yelp content is out)
+  research agent may read (scraping Google/Yelp review content is out;
+  licensed Google APIs like Places Photos are fine — clarified 2026-08-20)
 - An exportable distribution `.p12` → unblocks the protected `production` GitHub
   environment. Both TestFlight builds used Xcode cloud-managed signing because
   Baat's EAS cert has no exportable private key on this Mac.
