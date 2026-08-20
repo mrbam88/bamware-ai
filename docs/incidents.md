@@ -74,6 +74,27 @@ report facts only about the repo they are working in; readiness checks moved
 to grooming (`definition-of-ready`), and the runner's abort list shrank to
 the three true safety stops (`standing-engineer`).
 
+## 2026-08-20 — context skipped because the topic "wasn't Bamware"
+
+A Cowork session in the bamware Project was asked for a GitHub security check
+(public vs private repos) while Bilal was applying to jobs. The agent judged
+the task "GitHub hygiene, not Bilal" and never invoked `bamware-context`. It
+then enumerated every `bamware-*` repo via the browser, called the GitHub
+connector "not available" (it was), and recommended making `bamware-ai`
+private — which would have broken the raw-URL bootstrap every runtime depends
+on. Three replies in before Bilal pointed out the context had not been read.
+
+Root cause: the `AGENTS.md` rules only load *after* the skill fires, and the
+skill's trigger was a topic list. A task framed as anything else slipped past
+it. The Project's custom-instructions field — the one thing that loads
+unconditionally — was empty.
+
+**Rules it produced:** `bamware-context` triggers on *every* session in the
+Project or touching an `mrbam88` repo, regardless of topic; the bamware Claude
+Project's instructions field now requires the `context:` / `write-path:`
+markers in the first reply; `bamware-ai` stays public by design — it is the
+bootstrap, and PII already lives elsewhere.
+
 ## The pattern
 
 Every one of these was a *copy* diverging from its source — or an agent

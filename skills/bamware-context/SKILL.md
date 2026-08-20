@@ -1,6 +1,6 @@
 ---
 name: bamware-context
-description: Entry point for all of Bilal Malik's context. Loads the bamware-ai repo, which is the single source of truth for his profile, resume, job applications, job-search guardrails, and every Bamware engineering convention. Use at the START of any session involving Bilal's job search, applications, resume, cover letters, recruiters, interviews, or any work in a Bamware repo — before answering from memory or from any other skill.
+description: Entry point for all of Bilal Malik's context. Loads the bamware-ai repo, which is the single source of truth for his profile, resume, job applications, job-search guardrails, and every Bamware engineering convention. Use at the START of EVERY session in the bamware project or that mentions Bilal, Bamware, or any mrbam88 repo — regardless of topic (a GitHub, security, or general question is still a Bamware session). Invoke it before answering from memory or from any other skill.
 ---
 
 # Bamware context — read the repo first
