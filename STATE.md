@@ -5,10 +5,13 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-20 — **Google-source rule clarified (scraping
-> review content = banned; licensed APIs like Places Photos = allowed);
-> venue images decision: Google Places Photos via venue-engine proxy.
-> Prior: Dev-QA loop live, venue-engine #1–#3 merged, brewdesk CI merged**
+> Last updated: 2026-08-20 — **Source policy REVERSED (Bilal, direct
+> instruction): ALL publicly available internet sources are allowed for
+> ranking/workability data — Google, Yelp, forums, anything public,
+> scraping included. Supersedes the earlier same-day "scraping banned"
+> ruling. venue-engine#4's whitelist blocker is resolved (whitelist =
+> anything public). Prior: venue images = Places Photos via proxy;
+> Dev-QA loop live; venue-engine #1–#3 merged; brewdesk CI merged**
 
 ## Vision (one line)
 
@@ -25,10 +28,13 @@ so app and reusable modules can evolve together.
 
 **BrewDesk product direction (decided 2026-08-19):** a WFH-spot finder, not a
 café finder — cafés + parks/libraries/malls (`venueType`), 95–100% AI-researched
-data via a scheduled agent pipeline. Clarified 2026-08-20 (Bilal): the
-restriction is on SCRAPING Google/Yelp review content for workability data —
-licensed API use is fine and expected (e.g. Google Places Photos for venue
-images, place_id stored server-side, photos display-only with attribution).
+data via a scheduled agent pipeline. Source policy (Bilal, 2026-08-20,
+supersedes the earlier same-day ruling): ANY publicly available internet
+source may be used for workability/ranking data — Google, Yelp, forums,
+blogs, review sites, all of it; scraping is allowed. Bilal owns and accepts
+the ToS/legal exposure. Licensed APIs still used where they fit (e.g. Google
+Places Photos for venue images, place_id server-side, display-only with
+attribution).
 Admin/community as optional layers later. Scoring
 reweights to Bilal's ranking: laptop policy (incl. visible "laptops banned")
 > seating > wifi > noise, outdoor as bonus; recency decay. Provenance labels
@@ -126,8 +132,9 @@ incumbents. Reuse the Baat **rail**, not the Baat app.
 - Venue images (decided 2026-08-20): Google Places Photos via a
   venue-engine proxy — place_id backfill, photos display-only with
   attribution, API key server-side. Ticket to be filed.
-- venue-engine#4 agentic pipeline v0 (Supervised — needs source-whitelist
-  sign-off)
+- venue-engine#4 agentic pipeline v0 — **unblocked 2026-08-20**: source
+  policy signed off, anything publicly available is fair game. Ready to
+  spec/build.
 
 **Baat (bamware-dating-app) — frozen since 2026-08-04.** The native iOS concept
 is closed under 4.3(b). Listed because the code and the rail are reusable
@@ -148,9 +155,6 @@ assets, not because this work is queued.
 - Physical-iPhone smoke of build 1.0 (2): permissions + accessibility. Build 1
   was installed and working; build 2 has not been on a device.
 - Google Takeout export of the ~top-30 saved cafés → input for venue-engine#3
-- Source-whitelist sign-off for venue-engine#4 — which public sources the
-  research agent may read (scraping Google/Yelp review content is out;
-  licensed Google APIs like Places Photos are fine — clarified 2026-08-20)
 - An exportable distribution `.p12` → unblocks the protected `production` GitHub
   environment. Both TestFlight builds used Xcode cloud-managed signing because
   Baat's EAS cert has no exportable private key on this Mac.
