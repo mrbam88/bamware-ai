@@ -103,6 +103,16 @@ fi
 say "claude code session-start hook"
 "$SCRIPT_DIR/install-session-hook.sh" || echo "  warn: install-session-hook.sh failed — install manually per script header"
 
+# --- secrets (vault pull) --------------------------------------------------
+# One vault: AWS SSM Parameter Store (docs/secrets.md). Needs the deployer
+# profile configured once: aws configure --profile bamware
+if aws --profile "${BAMWARE_AWS_PROFILE:-bamware}" sts get-caller-identity >/dev/null 2>&1; then
+  say "secrets (vault -> canonical paths)"
+  bash "$(dirname "$0")/secrets-pull.sh"
+else
+  say "secrets SKIPPED — run: aws configure --profile bamware, then scripts/secrets-pull.sh"
+fi
+
 say "done"
 echo "Optional, per machine:"
 echo "  - ollama pull qwen3.6:35b-a3b   (local model advertised in opencode config)"
