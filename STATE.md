@@ -221,3 +221,18 @@ assets, not because this work is queued.
 - `bamware-workspace` submodule pins stale (May-era)
 - SDK-56/54 package drift fixed by pinning — run `npx expo install --fix` check on SDK upgrades
 - Baat jest teardown leak (worker force-exit warning)
+
+## 2026-08-21 (day) — backlog cleared, vault shipped
+22 coding tickets merged across 5 repos in one day fleet (community epic:
+capture UX, tenant uploads, AI vet queue ticket, observations backend+form,
+compliance pack #48, bylines; data epic: OSM business info live in prod
+incl. email + locale hours; map perf/clustering #54+#61; UI review #55 →
+paint layer #62; drift check, research-pipeline skeleton, client-core
+retired, OSS hygiene+READMEs, secrets audit). TestFlight 1.0(5) and 1.0(6)
+uploaded FREE via the local Xcode cloud-signing rail (skill updated).
+One-key vault live: SSM Parameter Store holds all secrets (docs/secrets.md),
+bamware-deployer profile on this Mac, infra PR #6 open for prod tf.
+Incidents: ~40min venue-engine outage (ESM require, hotfixed, deploy-path
+rule added to qa-engineer skill); one semantic merge collision (#61×#57)
+caught by post-merge certification. Bilal still owes: root-key deactivation,
+ASC key regen, category/#32/#33 submission path. Spend: $0.
