@@ -45,7 +45,7 @@ empties the map — found 2026-08-19, blocks submission).
 go-live item 1 closed — Vercel Runtime Logs keep Search Params 1 h on Hobby;
 anchor-when-denied kept by decision; follow-up venue-engine#16 moves viewport
 coords out of the query string; venue-engine#19 Human-only parks the Vercel
-evidence paste + six observability holes for triage). **All three merged 2026-08-21 (~04:00Z); board #26/#27 QA Passed, #29 Ready for QA.** Next pick: brewdesk#34 (stat strip never rendered — bugs first) → PR #40, Ready for QA 2026-08-21; flags: `ProvenanceStamp` renders `seededAt` a day early (Aug 3 UTC → "Aug 2"), map strip legible only off-pin — both #30 screenshot concerns. Remaining Agent-ready: #28, #30, #36, #37; venue-engine#16.
+evidence paste + six observability holes for triage). **All three merged 2026-08-21 (~04:00Z); board #26/#27 QA Passed, #29 Ready for QA.** Next pick: brewdesk#34 (stat strip never rendered — bugs first) → PR #40, Ready for QA 2026-08-21; flags: `ProvenanceStamp` renders `seededAt` a day early (Aug 3 UTC → "Aug 2"), map strip legible only off-pin — both #30 screenshot concerns. **brewdesk#28 cold-start → PR #43 Ready for QA (2026-08-21):** bundled 50-venue snapshot (`BrewDesk/Resources/VenueSnapshot.json`, refresh via `scripts/refresh-venue-snapshot.sh`) paints first; `-UITestSeedSnapshot` + `offlineThenRecovers` scenario; auto-retry on reconnect needs a device airplane-mode check (QA). Remaining Agent-ready: #30, #36, #37; venue-engine#16.
 #28/#30 unblock when #35/#38 merge.
 
 **Baat track: 🔴 REJECTED 2026-08-04 — Guideline 4.3(b), spam / saturated
@@ -136,7 +136,7 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 ## In flight 🔨
 
 **BrewDesk approval lane (#26–33)** — #26 (PR #35), #27 (PR #38), #29 (PR #39) all
-**merged 2026-08-21**; #34 stat-strip bug → **PR #40 Ready for QA** (2026-08-21). #28/#30
+**merged 2026-08-21**; #34 → PR #40 **merged**; #28 cold-start → **PR #43 Ready for QA** (2026-08-21). #30
 Todo + Agent-ready (use the `-UITestScenario` seam from #27; #30 after #34/#36 land so
 screenshots show the fixed UI); #31 Human-only; #32/#33 Supervised, #33 last. Follow-ups
 #36 (a11y) + #37 (test drift) Todo/Agent-ready. venue-engine#16 (coords out of query
