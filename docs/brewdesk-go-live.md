@@ -50,6 +50,12 @@
   Xcode cloud-managed distribution signing. App Store Connect reports `VALID`
   and `IN_BETA_TESTING` for internal testers.
 
+## Submission documents (drafted 2026-08-21, awaiting Bilal sign-off)
+
+- Rejection responses (brewdesk#32): [rejection-response-pack.md](rejection-response-pack.md)
+- Category recommendation (brewdesk#31): [brewdesk-category-memo.md](brewdesk-category-memo.md)
+- Runbook to Submitted (brewdesk#33): [brewdesk-submission-runbook.md](brewdesk-submission-runbook.md)
+
 ## App Store work remaining
 
 1. ~~Reconfirm production logs do not retain coordinate query strings before
