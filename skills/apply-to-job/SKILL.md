@@ -20,6 +20,18 @@ Thin orchestration. Each step delegates to the skill that owns it.
 
 Read `job-guardrails`. Blocked or uncertain → do not apply, flag it for Bilal.
 
+## 1b. Path check — easy path only (Bilal, 2026-08-21)
+
+- **Do:** single-page forms. Land on one page, attach a resume, answer a few
+  questions, submit. Ashby, Greenhouse, Lever, and custom career sites built on
+  them.
+- **Skip:** anything that requires creating an account, logging in, or walking
+  a multi-step Next/Next/Submit wizard (Workday, iCIMS, Taleo, SuccessFactors,
+  SmartRecruiters behind a login, AI-training marketplaces). List them in the
+  summary as skipped; Bilal applies by hand if he wants them.
+- Triage the whole batch first (resolve the real apply URL, identify the ATS,
+  classify), then fill. Do not start a complicated one "just to see".
+
 ## 2. Capture the posting
 
 Record company, role, location, comp if listed, URL, key requirements, and the
@@ -88,6 +100,11 @@ CI regenerates it from these files.
 
 Status vocabulary: Researching → Applied → Screen → Interviewing → Offer →
 Rejected → Withdrawn.
+
+Saving progress mid-batch (forms filled, Bilal has not submitted yet): create
+the file with `status: Researching` and a first Notes line "Form filled
+<date>, pending Bilal's resume upload and submit", plus the open questions.
+Flip to Applied when he confirms. A filled form is not an application.
 
 ## 9. Blockers
 
