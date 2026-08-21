@@ -64,9 +64,11 @@
    California), the device coordinate only when granted inside coverage.
    Asserted (brewdesk PR #39) by `PrivacyRequestAuditTests`, `VenuesModelPrivacyTests`, and the
    Release-suite `PrivacyClaimTests`; inventory in brewdesk
-   `docs/PRIVACY-AUDIT.md`. _Evidence slot (Bilal): paste one Vercel
-   dashboard / `npx vercel logs --since 1h` row for `/v1/venues` here showing
-   the retention window on the current plan._ Follow-up venue-engine#16: move the
+   `docs/PRIVACY-AUDIT.md`. _Evidence slot (Bilal, parked as
+   venue-engine#19 — Human-only): paste one Vercel dashboard /
+   `npx vercel logs --since 1h` row for `/v1/venues` here showing the
+   retention window on the current plan. #19 also holds the six
+   observability/verification holes #29 surfaced, for triage._ Follow-up venue-engine#16: move the
    viewport coordinate out of the query string (header/POST) once brewdesk#27's
    `VenueAPI` changes merge — Vercel request logs do not retain headers or
    bodies.

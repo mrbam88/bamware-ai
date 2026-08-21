@@ -44,8 +44,9 @@ empties the map — found 2026-08-19, blocks submission).
 #29 → PR #39 (privacy-claim verifier: request audit + Release manifest tests;
 go-live item 1 closed — Vercel Runtime Logs keep Search Params 1 h on Hobby;
 anchor-when-denied kept by decision; follow-up venue-engine#16 moves viewport
-coords out of the query string). All three Ready for QA. #28/#30 unblock when
-#35/#38 merge.
+coords out of the query string; venue-engine#19 Human-only parks the Vercel
+evidence paste + six observability holes for triage). All three Ready for QA.
+#28/#30 unblock when #35/#38 merge.
 
 **Baat track: 🔴 REJECTED 2026-08-04 — Guideline 4.3(b), spam / saturated
 category.** Verbatim text: the 2026-08-04 log entry below.
