@@ -97,6 +97,12 @@ else
   render_oc | diff - "$OC" || true
 fi
 
+# --- Claude Code session-start hook ----------------------------------------
+# Installs a SessionStart hook that runs preflight.sh on every new Claude
+# session, injecting a drift report as context. Advisory only (never blocks).
+say "claude code session-start hook"
+"$SCRIPT_DIR/install-session-hook.sh" || echo "  warn: install-session-hook.sh failed — install manually per script header"
+
 say "done"
 echo "Optional, per machine:"
 echo "  - ollama pull qwen3.6:35b-a3b   (local model advertised in opencode config)"
