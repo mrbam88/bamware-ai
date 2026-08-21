@@ -92,3 +92,12 @@ history, stop. Bilal decides.
   QA edits the branch, nobody is verifying the verifier.
 - It does not file feature requests. Gaps it notices outside the ticket's
   scope go in a PR comment for Bilal, not the backlog.
+
+## Deploy-path rule (incident 2026-08-21)
+
+A PASS on a change that touches a deployed serving path (anything under
+`api/`, `vercel.json`, cold-start init) is not complete until ONE live
+request against the deployed instance succeeds after merge. Local tests
+lie about runtimes: vitest tolerated a CJS `require()` that Vercel's ESM
+runtime crashed on at cold start — every route 500'd for ~40 minutes.
+Verify with a single curl (no polling storms), then move on.
