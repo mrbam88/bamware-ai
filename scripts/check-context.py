@@ -20,7 +20,10 @@ fail = []
 def bad(msg): fail.append(msg)
 
 # --- discover -------------------------------------------------------------
-dirs = sorted(p.name for p in SKILLS.iterdir() if p.is_dir())
+# First-party skills are real dirs. Third-party skills installed by the `skills`
+# CLI are symlinks (skills/<x> -> .agents/skills/<x>, manifest skills-lock.json)
+# and are neither INDEX'd nor cross-ref checked — upstream prose is not ours.
+dirs = sorted(p.name for p in SKILLS.iterdir() if p.is_dir() and not p.is_symlink())
 if not dirs:
     bad("no skills found under skills/")
 

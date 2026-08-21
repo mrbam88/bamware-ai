@@ -73,6 +73,17 @@ status flow. Roles will grow (Architect, Product) as the team builds up.
 |---|---|
 | `bamware-context` | The vendor-account bootstrap pointer. Contains no facts. Exported to assistants that support account-level skills. |
 
+## Third-party (vendored)
+
+Installed with the vercel-labs `skills` CLI from the repo root (`npx skills add
+<owner/repo> -s <name>`, remove with `npx skills remove <name>`). Real copies
+live in `.agents/skills/`; `skills/<name>` (read by opencode) and
+`.claude/skills/<name>` (read by Claude Code) are symlinks into it. Manifest:
+`skills-lock.json` (source repo + hash per skill). They are not listed in the
+tables above and `scripts/check-context.py` skips symlinked entries — upstream
+prose is not ours to gate. Raw-HTTPS fetches of these paths do not resolve
+symlinks, so vendor-hosted runtimes (Cowork) do not see them; only CLI runtimes do.
+
 ## Rules
 
 - Each fact has exactly one home. Skills reference each other; they never copy values.
