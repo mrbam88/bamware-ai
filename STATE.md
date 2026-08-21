@@ -5,9 +5,9 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-20 — **AI photo pipeline live (galleries + rating
-> evidence), pipeline economics plan decided ($10/mo cap), approval lane
-> groomed: brewdesk#26–33 are the only path to Submit**
+> Last updated: 2026-08-20 (late) — **approval lane started: brewdesk#27
+> (degraded states) in Ready for QA as PR #38; fixture seam now exists for
+> #26/#28; 32 third-party skills vendored into this repo**
 
 ## Vision (one line)
 
@@ -96,6 +96,7 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 
 | Date | What |
 |---|---|
+| 2026-08-20 (late) | **Approval lane opened — brewdesk#27 empty/error-state audit → PR #38, Ready for QA.** Every screen (Map/List/Detail/Saved/Import/Methodology) now has an intentional state under engine 500, empty, offline, photo failures, slow, location denied; 18 fixture-driven `DegradedStateTests` green in Release on iPhone + iPad. The ticket's premise "stub listing injectable already" was false — `RootView` ignored injection under DEBUG — so a launch-arg seam was added: `-UITestScenario <fixtureOK|engineDown|offline|emptyVenues|photosEmpty|photosFail|slow>` + `-UITestLocationDenied` (`ScenarioVenueService` in VenueKit). **#26 and #28 should build on it.** Also: `VenueAPI` 15 s request timeout (was 60), Import no longer blames the file for an engine failure, Saved surfaces partial hydration failures. Full Release suite found 3 pre-existing failures, filed: brewdesk#36 (methodology link fails a11y audit: hit area + contrast) and #37 (live-data tests hardcode "Gregorys Coffee", now rank 12 after the day's rescoring → `testSaveCafeFromDetails` + screenshot rig fail; overlaps #30). Board hygiene: brewdesk#1–6, #8 were already merged (PR #17/#23/#24) but sat in Ready for QA → moved to Done. **Tooling:** 32 third-party skills installed with the `skills` CLI are now committed here (`.agents/skills/` real copies, `skills/`+`.claude/skills/` symlinks, `skills-lock.json`); `check-context.py` skips symlinked entries (see skills/INDEX.md "Third-party"). |
 | 2026-08-20 | **Approval lane: reviewer simulation shipped (brewdesk#26 → PR #35, Ready for QA).** One scripted Release XCUITest replays App Review's first 10 minutes (fresh install → decline location → browse/filter/search → detail → methodology → grant location simulated at Cupertino → relaunch), asserts visible content per step, attaches 12 screenshots; passes on iPhone 17 Pro Max (69.5s) + iPad Pro 13-inch (M5) (78.0s). New `reviewer-sim.yml` uploads both xcresults + flat PNGs as `reviewer-simulation-evidence` on PR/main/manual (macOS minutes ×10 on a private repo — trim to main+manual if quota bites). **Defect found by the run → brewdesk#34:** the dataset stat strip never renders (`.task { loadHealth() }` on an empty `Group`; `/v1/health` is fine; PR #12 was verified by package tests + build only) — P1/S/Agent-ready. Offline step pending on #27's `-UITestScenario offline` seam (interface pinned in #27's body). First parallel-session run: two Claude Code sessions on #26/#27 with an explicit file fence negotiated via SendMessage — learnings in skills/agent-fanout. |
 | 2026-08-20 | **AI data day — photos live, evidence rail built, economics disciplined.** Google Places photo rail shipped end-to-end (place-id backfill 2,174/2,180, proxy `/photos`, app gallery with tap-to-expand attribution). Photo classifier (workspace/food/other; measured: ~50% of Google café photos are food) filters galleries tables-first; labels keyed `placeId#index` after discovering photo NAMES rotate per session (~\$10 of labels lost to that bug, owned + fixed). Venue-level vision analysis (`analyze-venues.ts` + `photo-evidence.ts`) turns photos into conservative scoring evidence — seating/laptops/outdoor claims (`source: agent`, capped confidence, human data never overwritten) + retail-counter flags for review; smoke-proven (Gregorys → seating: scarce). Cost overrun forced discipline: **spend rule (quote-and-confirm before any paid run) + `docs/ai-data-pipeline-plan.md` with decided \$10/mo cap, Haiku relabel (~4.3k/10k done), post-approval evidence gate (50-venue sample must move rankings)**. Business-info ticket (ve#15, OSM-first — Google Enterprise fields would blow the budget) + community epic (bd#25, supersedes bd#7; reuses Baat upload/auth rails). **Approval lane groomed: brewdesk#26–33** (reviewer simulation, empty-state audit, cold-start, privacy-claim verifier, screenshots sans Google photos, metadata finals, rejection response pack, submission runbook → 1.0(3) → Submit). Goal restated by Bilal: Apple approval, nothing else. |
 | 2026-08-19 | **BrewDesk pivot + approval sprint specced.** Product redefined as AI-researched WFH-spot finder (see Now building). 12 tickets filed and fielded on the board: brewdesk#1 out-of-coverage location fallback (P0 — reviewer in CA gets an empty map today, `CafeMapScreen`/`VenuesModel` query 2.5km around user), #2 provenance stamps ("updated <date> · source"), #3 dataset stat strip, #4 methodology screen, #5 laptop-policy chips incl. Banned + venueType, #6 Google Takeout saved-places import (on-device, Apple Maps has no export), #7 community v1 (P2, DO-NOT-BUILD pre-approval), #8 listing v2 (AI-transparency positioning); venue-engine#1 schema v2 (seating/venueType/outdoor/photos/source enum), #2 scoring v2 (reweight+decay), #3 Takeout seed import script, #4 agentic pipeline v0 (Supervised, needs source whitelist sign-off). Also: `docs/app-store-rejections.md` removed (asserted unverified "account flagged" as fact) → replaced by sourced `docs/app-review-field-notes.md`; Atly teardown updated with 2026-08-19 capture (price doubled to $69.99, still zero provenance). Bilal's Takeout export of ~top-30 saved cafés = pending input for engine#3. |
@@ -126,7 +127,11 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 
 ## In flight 🔨
 
-**BrewDesk approval sprint** — 12 tickets, filed and fielded 2026-08-19:
+**BrewDesk approval lane (#26–33)** — #27 in **Ready for QA** (PR #38, 2026-08-20 late);
+#26/#28/#29/#30 Todo + Agent-ready, use the `-UITestScenario` seam; #31 Human-only;
+#32/#33 Supervised, #33 last. Follow-ups #36 (a11y) + #37 (test drift) filed, Agent-ready.
+
+**BrewDesk transparency set (#1–8)** — all merged; board moved to Done 2026-08-20:
 
 - brewdesk#1 out-of-coverage location fallback — **P0, blocks submission.** A
   reviewer in California gets an empty map; `CafeMapScreen`/`VenuesModel` query
