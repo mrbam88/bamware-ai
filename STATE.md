@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-20 (late) — **approval lane started: brewdesk#27
+> Last updated: 2026-08-21 — **approval lane started: brewdesk#27
 > (degraded states) in Ready for QA as PR #38; fixture seam now exists for
 > #26/#28; 32 third-party skills vendored into this repo**
 
@@ -45,7 +45,7 @@ empties the map — found 2026-08-19, blocks submission).
 go-live item 1 closed — Vercel Runtime Logs keep Search Params 1 h on Hobby;
 anchor-when-denied kept by decision; follow-up venue-engine#16 moves viewport
 coords out of the query string; venue-engine#19 Human-only parks the Vercel
-evidence paste + six observability holes for triage). All three Ready for QA.
+evidence paste + six observability holes for triage). **All three merged 2026-08-21 (~04:00Z); board #26/#27 QA Passed, #29 Ready for QA.** Next pick: brewdesk#34 (stat strip never rendered — bugs first) → PR #40, Ready for QA 2026-08-21; flags: `ProvenanceStamp` renders `seededAt` a day early (Aug 3 UTC → "Aug 2"), map strip legible only off-pin — both #30 screenshot concerns. Remaining Agent-ready: #28, #30, #36, #37; venue-engine#16.
 #28/#30 unblock when #35/#38 merge.
 
 **Baat track: 🔴 REJECTED 2026-08-04 — Guideline 4.3(b), spam / saturated
@@ -134,11 +134,12 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 
 ## In flight 🔨
 
-**BrewDesk approval lane (#26–33)** — #26 **Ready for QA** (PR #35, reviewer simulation)
-and #27 **Ready for QA** (PR #38, degraded states), both 2026-08-20 late, built in parallel
-sessions — QA/merge order matters: both touch `BrewDeskUITests/` and `docs/TESTING.md`.
-#28/#29/#30 Todo + Agent-ready (use the `-UITestScenario` seam from #27); #31 Human-only;
-#32/#33 Supervised, #33 last. Follow-ups #36 (a11y) + #37 (test drift) filed, Todo/Agent-ready.
+**BrewDesk approval lane (#26–33)** — #26 (PR #35), #27 (PR #38), #29 (PR #39) all
+**merged 2026-08-21**; #34 stat-strip bug → **PR #40 Ready for QA** (2026-08-21). #28/#30
+Todo + Agent-ready (use the `-UITestScenario` seam from #27; #30 after #34/#36 land so
+screenshots show the fixed UI); #31 Human-only; #32/#33 Supervised, #33 last. Follow-ups
+#36 (a11y) + #37 (test drift) Todo/Agent-ready. venue-engine#16 (coords out of query
+string) Agent-ready; #19 Human-only (Vercel evidence + holes triage).
 
 **BrewDesk transparency set (#1–8)** — all merged; board moved to Done 2026-08-20:
 
