@@ -99,3 +99,36 @@ assigned. What worked:
 - `XCTExpectFailure` honours `continueAfterFailure = false` and ends the
   test early as "passed" — check the attachment count, not the verdict.
   Allow continuation around that one assertion only.
+
+## Session hygiene = token cost (2026-08-21)
+
+Measured from the local transcripts (`~/.claude/projects/*/*.jsonl`, usage
+fields summed per assistant message), Aug 18–21, all Fable 5: **422M
+cache-read tokens, 5M cache-write, 1.1M output ≈ $800 API-equivalent.** One
+session — a 1-day-old terminal kept alive as a "QA agent" — was **$650 of
+it (80%)**; four ticket sessions were $40–56 each. 99% of volume is cache
+reads: a session re-reads its entire context every turn, so cost scales
+with context size × turns, not with work done. Bilal is on Claude Max 20x
+with **extra-usage overage turned OFF (decided 2026-08-21)** — when the
+quota bar fills, the CLI pauses; there is no paid fallback, by design.
+
+Rules:
+
+- **One session per ticket, then exit.** Never keep a terminal alive as a
+  standing QA/board agent — spawn a fresh session per QA pass or wake
+  (`standing-engineer` is one wake, one ticket, one PR for this reason).
+- **`/compact` past ~2–3 hours** or after any big evidence dump; a session
+  that survived a compaction should grep, not re-read.
+- **Never cat whole files or logs into context.** `grep … | tail`, `sed -n`
+  ranges, `wc -l` first. Test output: quote the summary lines, keep the
+  full log in the scratchpad and point to it. (#28's turns were ~⅓ the
+  size of #29's for the same kind of work, purely from this.)
+- **Sonnet for mechanical turns** (board hygiene, QA re-runs, digest
+  reads) via `/model`; Fable/Opus for design and debugging only.
+- **Before a fan-out, say how many sessions and how long.** Four parallel
+  sessions at 20M cached tokens each is exactly the pattern that hits the
+  5-hour cap; stagger instead of all-at-once.
+- Check spend the same way this was measured — sum the transcripts — not
+  from memory. `/usage` in the CLI shows the quota bars and whether any
+  dollar figure is *extra usage* (billed) or *equivalent* (informational).
+

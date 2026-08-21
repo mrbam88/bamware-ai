@@ -63,7 +63,12 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   quote-and-confirm with a cheapest-option offer. Always prefer free:
   local Mac builds over GitHub Actions macOS runners (Actions is BACKUP
   only for mobile builds/uploads, decided 2026-08-21), OpenStreetMap over
-  Google, Haiku over Opus for mechanical jobs.
+  Google, Haiku over Opus for mechanical jobs. **Claude usage itself is
+  budgeted too:** Bilal is on Claude Max 20x with extra-usage overage OFF
+  (2026-08-21) — sessions cost quota, long-lived sessions cost the most
+  (one day-old session ≈ $650 API-equivalent of an $800 week). One session
+  per ticket, `/compact` early, never cat whole files/logs into context;
+  see skills/agent-fanout "Session hygiene = token cost".
 - Machines, models, and harnesses are interchangeable caches — Bilal
   switches laptops and AI tools constantly, always experimenting. Never
   create anything that only works on one machine, model, or harness;
