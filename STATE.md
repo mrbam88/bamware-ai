@@ -127,9 +127,11 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 
 ## In flight 🔨
 
-**BrewDesk approval lane (#26–33)** — #27 in **Ready for QA** (PR #38, 2026-08-20 late);
-#26/#28/#29/#30 Todo + Agent-ready, use the `-UITestScenario` seam; #31 Human-only;
-#32/#33 Supervised, #33 last. Follow-ups #36 (a11y) + #37 (test drift) filed, Agent-ready.
+**BrewDesk approval lane (#26–33)** — #26 **Ready for QA** (PR #35, reviewer simulation)
+and #27 **Ready for QA** (PR #38, degraded states), both 2026-08-20 late, built in parallel
+sessions — QA/merge order matters: both touch `BrewDeskUITests/` and `docs/TESTING.md`.
+#28/#29/#30 Todo + Agent-ready (use the `-UITestScenario` seam from #27); #31 Human-only;
+#32/#33 Supervised, #33 last. Follow-ups #36 (a11y) + #37 (test drift) filed, Todo/Agent-ready.
 
 **BrewDesk transparency set (#1–8)** — all merged; board moved to Done 2026-08-20:
 
