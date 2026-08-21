@@ -78,3 +78,24 @@ cd ~/code/<repo> && git worktree add <scratch>/wt-issueN -b feat/N-slug origin/m
   deploy. Match the run's headSha to your merge commit before probing.
 - Agents' spec-gap decision lists are gold — several became new board
   tickets (matchedName enrichment, prompt catalogs, legal URLs).
+
+## Parallel interactive sessions (2026-08-20)
+
+Two Claude Code terminals on one machine, each owning a ticket (brewdesk#26
+and #27), is a fan-out too — the fence just has to be negotiated instead of
+assigned. What worked:
+
+- Build the collision map BEFORE picking: `ListAgents` for live peers, their
+  plan files under `~/.claude/plans/`, and `git branch -r` — not the board
+  alone (it was stale: merged tickets still sat in Ready for QA).
+- Pick the ticket with zero file overlap; declare the fence to the peer via
+  `SendMessage` (mine / do-not-touch / interfaces I will consume). The peer
+  pinned the shared interface (`-UITestScenario offline`, ids) in the
+  ticket body so it survives whichever session implements it.
+- New files only beats shared-file edits: a second workflow file instead of
+  editing `ci.yml`; a new doc instead of the one doc both tickets touch.
+- Xcode: synchronized folders mean new test files need no pbxproj edit —
+  the one file two iOS agents would always conflict on.
+- `XCTExpectFailure` honours `continueAfterFailure = false` and ends the
+  test early as "passed" — check the attachment count, not the verdict.
+  Allow continuation around that one assertion only.
