@@ -55,6 +55,19 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - Merging agent PRs? QA merges after CI green + evidenced QA pass
   (adopted 2026-08-21). Bilal-only gates: store submission, spend,
   CI/signing/deploy config, cross-repo contracts. See skills/qa-engineer.
+- **HARD SPEND RULE (Bilal, 2026-08-21 — "probs the most important rule
+  ever"):** Bilal is severely budget-constrained. Anything that could cost
+  more than **$20** — a run, a service tier, accumulated CI minutes — is an
+  automatic STOP: quit the work immediately and get his explicit permission
+  first, even mid-task. Below $20, paid runs still need a prior
+  quote-and-confirm with a cheapest-option offer. Always prefer free:
+  local Mac builds over GitHub Actions macOS runners (Actions is BACKUP
+  only for mobile builds/uploads, decided 2026-08-21), OpenStreetMap over
+  Google, Haiku over Opus for mechanical jobs.
+- Machines, models, and harnesses are interchangeable caches — Bilal
+  switches laptops and AI tools constantly, always experimenting. Never
+  create anything that only works on one machine, model, or harness;
+  durable facts and procedures go in this repo.
 
 ## Table of contents — read on demand
 
