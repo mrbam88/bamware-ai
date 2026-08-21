@@ -34,14 +34,14 @@ quote-and-confirm from Bilal**, cheap-model option always offered._
 Steady state if everything ran quarterly on cheap models: **~$15–35/quarter.**
 The scary number was never the steady state — it was unplanned runs.
 
-## Decisions (Bilal, 2026-08-20)
+## Decisions (Bilal, 2026-08-20 — DECIDED)
 
-1. **Monthly data budget cap:** $______ (hard ceiling; console caps set to match)
-2. **Finish the photo relabel now?** yes / hold (2,540 done; ~$3 remains)
-3. **Post-approval gate for evidence-at-scale:** run a ~50-venue Sonnet
-   sample (~$1) first; ship the full analysis run only if it materially
-   moves rankings (≥15% of sampled venues change score by ≥5 points).
-   agreed / revise
+1. **Monthly data budget cap: $10/month** (hard ceiling; Bilal to set the
+   Anthropic monthly limit + Google Places quota to match). Today's ~$13
+   predates the cap; the cap governs from 2026-09 onward.
+2. **Photo relabel: finish now** (~$3, closes out P0).
+3. **Evidence gate: agreed** — 50-venue Sonnet sample (~$1) post-approval;
+   full run only if ≥15% of sampled venues move ≥5 score points.
 
 ## Phasing (proposed)
 
