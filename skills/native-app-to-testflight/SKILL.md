@@ -18,6 +18,24 @@ Read these first:
 Use `references/brewdesk-proof.md` when diagnosing signing or deciding whether
 a checkpoint is truly equivalent to the proven BrewDesk run.
 
+## Free local upload rail (PROVEN 2026-08-21 — use this FIRST)
+
+No `.p12`, no API key file, no CI minutes. Requirements: the Mac has the
+team's Apple ID signed into Xcode (check `security find-identity` shows the
+Development cert; Accounts session reasonably fresh).
+
+```
+xcodebuild archive -project <App>.xcodeproj -scheme <App>   -destination 'generic/platform=iOS' -archivePath /tmp/<app>.xcarchive   -allowProvisioningUpdates CURRENT_PROJECT_VERSION=<n>
+xcodebuild -exportArchive -archivePath /tmp/<app>.xcarchive   -exportOptionsPlist upload.plist -allowProvisioningUpdates
+# upload.plist: method=app-store-connect, destination=upload,
+# signingStyle=automatic, teamID=<team>, manageAppVersionAndBuildNumber=false
+```
+
+Cloud-managed distribution signing mints the cert/profile server-side.
+"Account credentials have expired" as a *warning* after "Upload succeeded"
+only skips post-upload validation — the build still lands. GitHub Actions
+is the BACKUP rail (Bilal 2026-08-21: Actions too expensive for Mac builds).
+
 ## Runtime routing
 
 - Sol/opencode owns SwiftUI, client packages, simulator tests, metadata, and
