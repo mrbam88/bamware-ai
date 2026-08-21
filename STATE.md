@@ -40,6 +40,12 @@ features are post-approval only (Apple 1.2 UGC surface). Approval plan: submit
 `docs/app-review-field-notes.md`. Tickets: brewdesk#1–8 + venue-engine#1–4,
 all boarded/fielded; brewdesk#1 is P0 (reviewer-in-California location bug
 empties the map — found 2026-08-19, blocks submission).
+**Approval lane status (2026-08-21):** brewdesk#26 → PR #35, #27 → PR #38,
+#29 → PR #39 (privacy-claim verifier: request audit + Release manifest tests;
+go-live item 1 closed — Vercel Runtime Logs keep Search Params 1 h on Hobby;
+anchor-when-denied kept by decision; follow-up venue-engine#16 moves viewport
+coords out of the query string). All three Ready for QA. #28/#30 unblock when
+#35/#38 merge.
 
 **Baat track: 🔴 REJECTED 2026-08-04 — Guideline 4.3(b), spam / saturated
 category.** Verbatim text: the 2026-08-04 log entry below.

@@ -1,6 +1,6 @@
 # BrewDesk go-live
 
-**Updated:** 2026-08-19
+**Updated:** 2026-08-21
 
 ## Locked v1
 
@@ -52,8 +52,24 @@
 
 ## App Store work remaining
 
-1. Reconfirm production logs do not retain coordinate query strings before
-   retaining App Privacy as Data Not Collected.
+1. ~~Reconfirm production logs do not retain coordinate query strings before
+   retaining App Privacy as Data Not Collected.~~ **Closed 2026-08-21
+   (brewdesk#29).** Finding: the engine itself logs nothing per request and
+   stores no location history; the only retention is Vercel Runtime Logs,
+   whose request rows include *Search Params* (Vercel docs, Runtime Logs →
+   Log details, updated 2026-08-03) for **1 h on Hobby / 1 day on Pro /
+   30 days with Observability Plus**; no log drain is configured. The only
+   coordinate on the wire is the map-query centre: Union Square for every
+   user who denies location or is outside NYC (incl. App Review in
+   California), the device coordinate only when granted inside coverage.
+   Asserted (brewdesk PR #39) by `PrivacyRequestAuditTests`, `VenuesModelPrivacyTests`, and the
+   Release-suite `PrivacyClaimTests`; inventory in brewdesk
+   `docs/PRIVACY-AUDIT.md`. _Evidence slot (Bilal): paste one Vercel
+   dashboard / `npx vercel logs --since 1h` row for `/v1/venues` here showing
+   the retention window on the current plan._ Follow-up venue-engine#16: move the
+   viewport coordinate out of the query string (header/POST) once brewdesk#27's
+   `VenueAPI` changes merge — Vercel request logs do not retain headers or
+   bodies.
 2. Test allow, deny, restricted, and previously-granted location states on a
    physical iPhone.
 3. Smoke-test TestFlight build 1.0 (2). Add an exportable distribution `.p12`
@@ -78,5 +94,14 @@ subscriptions in v1 metadata.
 The Venue Engine uses coordinates transiently to rank a request and stores no
 location history or user identity. This supports Data Not Collected under
 Apple's real-time-processing definition only while infrastructure logging does
-not retain query strings. Any analytics, crash reporting, or retained location
-logging requires reassessment before submission.
+not retain query strings beyond a transient window (today: Vercel Runtime Logs,
+1 h on Hobby — see item 1 above). Any analytics, crash reporting, or retained
+location logging requires reassessment before submission.
+
+Decided 2026-08-21 (brewdesk#29): the app keeps sending the Union Square
+anchor when location is denied rather than omitting `lat`/`lng`. A hardcoded
+public landmark is not user Location data, and omitting coordinates would turn
+the reviewer's anchor path (App Review sits outside NYC) from ~100 pins in the
+Union Square viewport into ~38 citywide-top-100 pins with no distances — a
+brewdesk#1-class first-impression regression for zero privacy-label gain. The
+tests prove the anchor is the only value sent in that state.
