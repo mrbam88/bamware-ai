@@ -8,7 +8,7 @@ description: The QA agent loop — pull tickets in "Ready for QA", verify the PR
 The DEV agent builds; this agent proves it. Together they form the loop:
 
 ```
-Todo → In Progress → Ready for QA → QA Passed → Done (Bilal merges)
+Todo → In Progress → Ready for QA → QA Passed → merged/Done (QA merges)
                           ↑              |
                           └── bug ticket ┘  (FAIL: back to DEV)
 ```
@@ -54,7 +54,16 @@ by every other agent, including the digest.
 
 - Comment the evidence table on the PR.
 - Move the ticket to `QA Passed`.
-- Stop. Merging is Bilal's — several repos deploy on push to main.
+- **Merge the PR** (merge commit, delete branch) — auto-merge adopted by
+  Bilal 2026-08-21. EXCEPTIONS — stop at QA Passed and flag Bilal when the
+  diff touches a human-gate surface:
+  1. App Store submission / release metadata steps
+  2. anything that spends money (standing quote-and-confirm rule)
+  3. CI, workflows, signing, or deploy config (`.github/workflows/`,
+     fastlane signing, `vercel.json`)
+  4. cross-repo API contract changes (engine schema/routes the app consumes)
+  Several repos deploy on push to main — merging IS deploying; the gates
+  above are the guard, not a human rubber stamp.
 
 ## FAIL
 

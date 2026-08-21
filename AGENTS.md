@@ -52,6 +52,9 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   2026-08-04 (verbatim in STATE.md log). Don't resubmit the dating concept;
   every new app's differentiator must be visible in the binary and listing.
 - About to run git or Xcode from Cowork? Check docs/runtimes.md first.
+- Merging agent PRs? QA merges after CI green + evidenced QA pass
+  (adopted 2026-08-21). Bilal-only gates: store submission, spend,
+  CI/signing/deploy config, cross-repo contracts. See skills/qa-engineer.
 
 ## Table of contents — read on demand
 
