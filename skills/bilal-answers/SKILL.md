@@ -62,6 +62,33 @@ full EEO self-identification set.
 See the private repo. Do not guess a number, and never volunteer his floor or
 current figure in a form field.
 
+- Posted range below target but at or above the floor, and the form asks
+  whether it works or what he expects: "The posted range of $X to $Y works for
+  me. Given 15+ years of experience and prior engineering management
+  experience, I would target the top of it." (Used 2026-08-21 on Ro and
+  MyFitnessPal.) Compare against the private repo's numbers every time.
+
+## Content rule: Bamware apps (Bilal, 2026-08-21)
+
+**Never name an unreleased Bamware app in any application material.** That
+means Baat and BrewDesk, in forms, letters, short answers, and chat drafts.
+They are not in production. Describe the studio generically ("a multi-agent
+mobile app studio", "working mobile software, React Native and Expo clients
+to SwiftUI, with automated release pipelines through to TestFlight") and
+never imply a product is live. Proof points come from the resume's employers
+instead: Photobucket native modules, FreedomCare platform replacement, VPG
+clinical research, Allscripts PHR, NuvoAir devices. Open item: the 2026
+resume PDF's projects section still names Baat; Bilal decides whether to
+revise it.
+
+## More standard answers
+
+- "Have you previously worked for <company>, a subsidiary, or as a
+  contractor?" → **No**, unless the resume says otherwise.
+- "Are you over 18?" → Yes.
+- Preferred first name → Bilal.
+- Current employer fields after VPG ended → see the open list below.
+
 ## Quick numbers
 
 - Total experience: ~15 years
@@ -72,6 +99,9 @@ current figure in a form field.
 
 ## Why this company (short form)
 
+Preferred shape and Bilal's canonical example live in `bilal-cover-letter`
+("Letter or short answer?"). Fallback template when nothing specific is known:
+
 > I'm drawn to {COMPANY} because {SPECIFIC_REASON}. After 15+ years shipping
 > mobile and full-stack products, and building AI-first with Claude Code, Cursor,
 > and multi-agent workflows, I'm looking for a team that's all-in on AI, and
@@ -79,6 +109,23 @@ current figure in a form field.
 
 Replace every brace with real specifics before submitting. For full letters use
 `bilal-cover-letter`.
+
+## Still unanswered — ask Bilal before filling
+
+Non-sensitive questions that came up without a standard answer. Write the
+answer here once he gives it.
+
+- "Are you bound by any restrictive covenants (non-compete,
+  non-solicitation)?" (Fanatics, 2026-08-21)
+- "Before applying, how familiar were you with <company>?" (Upstart,
+  2026-08-21; options ranged from "already familiar" to "learned about it from
+  this posting"). Company-specific; ask each time.
+- "Have you used our product in the last six months?" and "favorite aspect of
+  our platform" (Kraken, 2026-08-21). Company-specific; ask each time.
+- Current company / current employer after VPG ended. Candidate answer used
+  on Ro 2026-08-21, pending his confirmation: "Bamware (founder)".
+- Diversity-survey age bracket and "communities you belong to" are demographic;
+  they are tracked in the private repo's unanswered list, not here.
 
 ## Voluntary self-identification
 
