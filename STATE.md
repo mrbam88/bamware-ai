@@ -236,3 +236,14 @@ Incidents: ~40min venue-engine outage (ESM require, hotfixed, deploy-path
 rule added to qa-engineer skill); one semantic merge collision (#61×#57)
 caught by post-merge certification. Bilal still owes: root-key deactivation,
 ASC key regen, category/#32/#33 submission path. Spend: $0.
+
+## 2026-08-21 (night 2) — community core complete, TF 1.0(7)
+Night fleet (post-22:08 limit reset): store-surface gate #67 merged
+(STORE_SURFACE_GATED=YES flips accounts/report/block/observation OFF for
+store submissions — the accountless-v1 strategy is one build flag away);
+reports endpoint + moderation queue ve#30+#21 merged and live (ADMIN_KEY
+env needed in Vercel before moderation usable, fail-closed until then);
+capture→upload wiring #71 merged (QA fixed the intake seam to ve#21 as
+shipped); live block filter #66 closed. TF 1.0(7) uploaded via local rail.
+Pre-submission risk tickets #68-70 parked per Bilal (submission-process
+work waits). Spend: $0.
