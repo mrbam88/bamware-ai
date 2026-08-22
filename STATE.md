@@ -5,9 +5,9 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-21 — **approval lane started: brewdesk#27
-> (degraded states) in Ready for QA as PR #38; fixture seam now exists for
-> #26/#28; 32 third-party skills vendored into this repo**
+> Last updated: 2026-08-22 — **Saturday feedback batch merged (bd#76-79):
+> bottom sheet, filter fix, search-as-you-type, Wi-Fi question live in prod;
+> token policy: Sonnet-first subagents, short supervisors**
 
 ## Vision (one line)
 
@@ -247,3 +247,23 @@ capture→upload wiring #71 merged (QA fixed the intake seam to ve#21 as
 shipped); live block filter #66 closed. TF 1.0(7) uploaded via local rail.
 Pre-submission risk tickets #68-70 parked per Bilal (submission-process
 work waits). Spend: $0.
+
+## 2026-08-22 (Sat PM) — Saturday feedback batch shipped, token policy enacted
+All four of Bilal's Saturday feedback tickets merged to brewdesk main after
+supervisor QA (premerged worktrees, iPhone 17 Pro, Release):
+- bd#76 bottom card is a real draggable sheet (peek/medium/full detents,
+  session memory, tab bar stays reachable) — PR #83.
+- bd#77 all-filters-zero bug: client-side inclusive filtering (unknown
+  attribute values are not evidence against a venue) — PR #82.
+- bd#78 search-as-you-type: debounced local matching — PR #86 (replaced
+  #85, which GitHub closed when its stacked base #82 was squash-merged;
+  lesson: don't stack PRs when the base will squash-merge).
+- bd#79 Wi-Fi question in Rate-this-visit, both halves: ve#33 merged +
+  verified live in prod (wifiQuality → wifi claim, user_report/0.7);
+  app PR #84 merged (17e audit contrast failure reproduced on unmodified
+  main = pre-existing #60 noise, not a regression).
+Token policy (12%-weekly-by-Saturday scare): subagents default Sonnet
+(docs → Haiku), frontier only for QA verdicts/design judgment, no idle
+polling, supervisors short-lived — codified in AGENTS.md. UI round 2
+(bd#75) cron deleted; awaiting Bilal ("run it lean" = single Sonnet
+agent). Fleet-worktree litter cleaned from both repos. Spend: $0.
