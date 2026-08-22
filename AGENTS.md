@@ -68,7 +68,11 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   (2026-08-21) — sessions cost quota, long-lived sessions cost the most
   (one day-old session ≈ $650 API-equivalent of an $800 week). One session
   per ticket, `/compact` early, never cat whole files/logs into context;
-  see skills/agent-fanout "Session hygiene = token cost".
+  see skills/agent-fanout "Session hygiene = token cost". Subagent model
+  policy (2026-08-22, after 12%-by-Saturday burn): mechanical/well-specified
+  tickets run on SONNET, docs drafting on HAIKU; the frontier model is for
+  QA verdicts, design judgment, and ambiguous work only. No idle polling
+  loops — event notifications only. Supervisor sessions stay short-lived.
 - Machines, models, and harnesses are interchangeable caches — Bilal
   switches laptops and AI tools constantly, always experimenting. Never
   create anything that only works on one machine, model, or harness;
