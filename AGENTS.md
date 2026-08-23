@@ -74,7 +74,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   QA verdicts, design judgment, and ambiguous work only. No idle polling
   loops — event notifications only. Supervisor sessions stay short-lived.
   Full policy, measured costs, levers, per-ticket budgets, and rate-limit
-  rule of thumb: see docs/token-diet.md.
+  rule of thumb: see docs/token-diet.md. Overnight queue: label a ticket
+  `night`, run `scripts/night-queue.sh` — see skills/night-supervisor.
 - Machines, models, and harnesses are interchangeable caches — Bilal
   switches laptops and AI tools constantly, always experimenting. Never
   create anything that only works on one machine, model, or harness;
