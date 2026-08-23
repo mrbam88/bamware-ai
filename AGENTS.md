@@ -73,6 +73,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   tickets run on SONNET, docs drafting on HAIKU; the frontier model is for
   QA verdicts, design judgment, and ambiguous work only. No idle polling
   loops — event notifications only. Supervisor sessions stay short-lived.
+  Full policy, measured costs, levers, per-ticket budgets, and rate-limit
+  rule of thumb: see docs/token-diet.md.
 - Machines, models, and harnesses are interchangeable caches — Bilal
   switches laptops and AI tools constantly, always experimenting. Never
   create anything that only works on one machine, model, or harness;
