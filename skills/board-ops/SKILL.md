@@ -52,6 +52,40 @@ Merging is always Bilal's. Several repos deploy on push to main.
 - "Closes #N" in the PR auto-closes the issue → ticket to Done (the
   built-in "item closed → Done" workflow, board Settings → UI-only).
 
+## Claim protocol (live source of truth)
+
+The board is the **live** source of truth for what is happening now — not a
+soft journal. Primary audience: Bilal switching harnesses + other agents
+(anti-collision). QA still consumes Ready for QA + the PR.
+
+**Claim-first.** Before the first model token on a ticket:
+
+1. Set Status → **In Progress** (agent may write this; no human gate).
+2. Post an issue comment: harness + UTC start time + working branch name.
+
+Minimum claim = Status + comment. Assignee is optional (solo + multi-harness
+makes everything look like Bilal). Do not wait for a PR to claim.
+
+**Epic + leaf.** Claim the leaf ticket. Also set the parent epic
+**In Progress** when any child is active. Sibling leaves stay Todo until
+claimed. Epic → Done only when all children are Done.
+
+**Mid-flight.** Branch name in the claim comment is enough; draft PRs are
+not required for transparency. Bilal waits on PRs — he does not poll agents.
+
+**Ready for QA.** The moment a **non-draft** PR opens that links the issue,
+move Status → **Ready for QA**. CI green is a PR check, not a board gate.
+
+**Abandon / unclaim.** Status → **Todo** + comment `unclaimed: <reason>`.
+Never leave a stale In Progress with no worker.
+
+**God-mode.** Bilal can override any Status, restrip a claim, or steal a
+ticket at any time. Agent claim ≠ agent ownership.
+
+**Backfill.** Open tickets with no Status → Todo (or In Progress if truly
+in flight). Closed issues still not Done → Done. Dirty boards teach agents
+the wrong habit.
+
 ## Commands
 
 ```bash
