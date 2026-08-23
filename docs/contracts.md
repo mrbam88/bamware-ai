@@ -23,3 +23,16 @@ Chat was broken for six weeks. Nothing failed in CI on either side.
 
 A shared contract package is the real answer — that decision is parked in
 `bamware-dating-app` issue #6 (contract-layer ADR, needs Bilal's call).
+
+## Recent contract changes
+
+- **2026-08-23 (venue-engine#46, additive):** `GET /v1/venues` and
+  `POST /v1/venues/search` responses gain `meta.coverage` and a `tier` field
+  per venue — Tier-0 US-wide OSM baseline coverage outside NYC (epic:
+  brewdesk#107). Full shape in `docs/brewdesk-mvp-contract.md`'s API contract
+  section. Existing NYC fields/values are unchanged — verified with a
+  byte-level regression snapshot in venue-engine
+  (`tests/nyc-real-data.test.ts`). No BrewDesk app PR was required for this
+  slice (client-side "real viewport + honest banner" work is a separate
+  child ticket in the same epic); the app can ignore the new fields safely
+  since they're additive.

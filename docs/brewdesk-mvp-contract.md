@@ -1,6 +1,6 @@
 # BrewDesk v1 contract
 
-**Updated:** 2026-08-18
+**Updated:** 2026-08-23
 
 ## Product
 
@@ -26,7 +26,22 @@ Base URL is `http://localhost:3000` in Debug and
 
 - `GET /v1/health` returns `{ ok, venueCount, seededAt }`.
 - `GET /v1/venues` supports geo, work-fit filters, search, sorting, and limit;
-  returns `{ count, venues[] }`.
+  returns `{ count, venues[], meta }` (venue-engine#46, 2026-08-23 — additive).
+  `POST /v1/venues/search` (#16 privacy channel, same query semantics via JSON
+  body) returns the identical shape.
+  - `meta.coverage`: `"researched" | "baseline" | "none"` — whether the
+    viewport's results include any NYC-researched venue, only OSM-baseline
+    venues, or nothing at all.
+  - Every venue now carries `tier: "researched" | "osm-baseline"`.
+    `"researched"` is the existing NYC hand-researched/curated data,
+    unchanged. `"osm-baseline"` is US-wide free OSM data (any US viewport,
+    imported ahead of time per-metro or fetched live from Overpass on a
+    sparse viewport) — name/location/category only; workability attributes
+    (wifi, outlets, laptop policy, noise, seating) are honestly `"unknown"`
+    (confidence 0) rather than guessed, so `workScore` sits at the neutral
+    50 baseline until someone researches or reports on the venue.
+  - Existing NYC responses are unchanged apart from these two additions
+    (verified with a byte-level regression snapshot in venue-engine).
 - `GET /v1/venues/:id` returns `{ venue, observations[] }`.
 - `GET /v1/neighborhoods` returns `{ neighborhoods[] }`.
 - `POST /v1/observations` exists in the engine but has no v1 app consumer.
