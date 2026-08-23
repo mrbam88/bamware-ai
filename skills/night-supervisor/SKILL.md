@@ -118,3 +118,13 @@ STATE.md.
 Remove every worktree created tonight (`git worktree remove --force`), no
 stray branches for merged tickets, simulators shut down — a leftover
 worktree or hot simulator blocks tomorrow's queue.
+
+## Mac concurrency trap (measured 2026-08-23)
+
+Two agents running `xcodebuild` in different worktrees share the default
+DerivedData and block on each other's lock at 0% CPU for 20+ minutes —
+it looks like a hang and costs a supervisor nudge each time. Rule: every
+agent prompt that runs xcodebuild MUST pass `-derivedDataPath
+/private/tmp/<worktree>-dd`, run gates in the foreground with `timeout`,
+and never `xcrun simctl shutdown all`. Verify a "waiting" agent with
+`ps -o etime=,pcpu= -p $(pgrep -f xcodebuild)` — 0.0 CPU after 5 min = stuck.
