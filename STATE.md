@@ -312,3 +312,31 @@ went from filed to live in one day.
   finals; bd#70 one-line vercel.json choice; APNs key (infra#7); ve#19;
   physical-device check of the new TF build (incl. a Directions-tap visit
   reminder ~2h later). Spend: $0.
+
+## 2026-08-23 (Sunday evening) — WFH-spots slice, serving fixed for real, parallel harnesses
+- **WFH-spot positioning shipped pre-submission (Bilal's call):** ve#54 — NYC
+  dataset 2,172 → 2,783 (416 parks, 112 libraries, 29 coworking, broader cafe
+  tags; Housing Works finally matched, 127m, sim 1.00; caught seed.ts
+  re-scoring baseline venues past the band). bd#113 — 21 copy keys "work
+  cafés"→"work spots" en+es, a11y fix, screenshots re-shot (café-only frames:
+  score-sorted top-50 is cafés by design; optional "library filter" frame is
+  Bilal's call). Closes the ve#40 tag-broadening too.
+- **Outside-NYC serving actually fixed (deploy-path lesson, again):** the 50
+  metro shards never served in prod — first-hit anywhere = "none" in 0.1s,
+  retries worked only via the flaky live-Overpass fallback, which also CACHED
+  empty results (per-instance bbox poisoning). Fixes: vercel.json
+  `includeFiles: data/**` (Bilal-approved, PR #53), /v1/health now reports
+  `baseline:{metros,readableShards,failedParse}` (PR #55), empty pulls no
+  longer cached, shard parse failures degrade instead of 500ing. Verified
+  live: health 50/50/0; Portland first-hit = 50 baseline venues instantly.
+  Lesson recorded: my own post-#48 "Cupertino works" live check was actually
+  the fallback, not the shards — a green curl is not proof the intended path
+  served it; check the diagnostic, not the symptom.
+- **Parallel-harness workflow started:** Bilal runs Cursor on bamware-web
+  with a supervisor-authored prompt (fenced, evidence-required, no
+  self-merge). First PR (#15 member-pages retheme) QA-merged + live-checked
+  (sign-up/reset/verify 200). web#13/#14 (lint, favicon/OG) also live.
+- **TestFlight:** WFH-spots build uploaded (Xcode-managed number) — includes
+  theme, outside-NYC, work-spots copy, all week's fixes.
+- Still Bilal: Actions billing · bd#31 · APNs key · ve#19 · ve#41 notes ·
+  device smoke. Then bd#69 dry-run → bd#33 → Submit. Spend: $0.
