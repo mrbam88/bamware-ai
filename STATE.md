@@ -5,9 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-22 — **Saturday feedback batch merged (bd#76-79):
-> bottom sheet, filter fix, search-as-you-type, Wi-Fi question live in prod;
-> token policy: Sonnet-first subagents, short supervisors**
+> Last updated: 2026-08-23 — **Outside-NYC epic shipped end-to-end (engine +
+> app + TF build), Warm Utilitarian theme live, night-queue workflow adopted**
 
 ## Vision (one line)
 
@@ -267,3 +266,49 @@ Token policy (12%-weekly-by-Saturday scare): subagents default Sonnet
 polling, supervisors short-lived — codified in AGENTS.md. UI round 2
 (bd#75) cron deleted; awaiting Bilal ("run it lean" = single Sonnet
 agent). Fleet-worktree litter cleaned from both repos. Spend: $0.
+
+## 2026-08-23 (overnight + Sunday) — Outside NYC shipped, theme shipped, night shift proven
+Bilal's brief: churn the backlog overnight, efficiency over speed; then "the
+app will not pass Apple approval without outside-NYC" — that epic (bd#107)
+went from filed to live in one day.
+- **Outside NYC (P0, closed):** ve#48 any-viewport serving — 50 US metros OSM
+  baseline (26,309 venues, 1.6MB gz, lazy shards), Overpass live fallback,
+  additive contract fields `tier`/`coverage` (ai PR #20, Bilal-approved);
+  ve#49 baseline scoring band + provenance; ve#51 estimate-claims fix.
+  Live: Cupertino → 30 real venues, `coverage: baseline`; NYC byte-identical.
+  App PR #110: real-viewport queries (NYC fallback removed), honest banner,
+  provenance "OSM baseline · updated <date>", Cupertino reviewer-sim
+  assertion. QA found a real decode bug (engine sends `meta.coverage`, app
+  read top-level) and a hanging unit test.
+- **Warm Utilitarian theme (bd#98 → PR #109):** Bilal's board: #2D5A4C green /
+  sand / sage / #FAF9F6, Hanken Grotesk + Manrope + JetBrains Mono bundled,
+  4 button styles, tab tint; 50/50 UI tests light AND dark; capture test
+  caught a real Swift 6 actor-isolation crash in iOS 26 async render.
+- **Also merged:** bd#95 (UI round 2, closes #75), #96 (shelf flash root
+  cause: nil<->value height animation), #99 (visit reminders, Phase A local
+  push), #100 (search keyboard dismiss), #103 (LaunchEnvironment — 13
+  ProcessInfo greps → 1, CONTEXT.md added), #105 (dark red text tokens),
+  #91 (odds audit #90 + rejection pack #32); ve#37 root route, #38/#42
+  research spikes, #45 seed matcher (8 ghost duplicates removed, 2172
+  venues), ai#18 token-diet policy, ai#19 night-queue skill + `night`
+  labels + script; web#13 lint, #14 favicon/OG (live on bamware.io).
+- **TestFlight:** three builds uploaded via the free local rail (post-#95;
+  post-batch-2; post-#110 with theme + outside-NYC). Build numbers are
+  Xcode-managed now (8 was already taken — use manageAppVersionAndBuildNumber
+  =true, recorded).
+- **Filed:** push epic bd#92 (+#93 done, #94, ve#34, infra#7), bathroom codes
+  bd#97 (post-approval), theme #98 (done), architecture C2 backlog, bd#104
+  AccountFlow hang (pre-existing), ve#40/#41/#44/#50(done)/ve research
+  follow-ups, web#11 BrewDesk-on-web epic, web#12 AI-usage dashboard,
+  ai#16 (done)/#17 (done) — board has them all; per-ticket board FIELDS not
+  set (Priority/Area/Size) — grooming debt.
+- **Night-shift lessons (in skills/night-supervisor):** shared DerivedData
+  deadlocks parallel xcodebuild (0% CPU "hangs"); duplicate-named booted
+  sims wedge destination resolution — use UDIDs; macOS has no `timeout`;
+  agents idling "waiting for background gates" cost supervisor nudges —
+  foreground gates; one agent hit 297k tokens and was taken over (its work
+  merged after supervisor QA found 2 real bugs).
+- **Needs Bilal:** GitHub Actions billing (all CI down); bd#31 metadata
+  finals; bd#70 one-line vercel.json choice; APNs key (infra#7); ve#19;
+  physical-device check of the new TF build (incl. a Directions-tap visit
+  reminder ~2h later). Spend: $0.
