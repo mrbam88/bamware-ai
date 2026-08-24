@@ -340,3 +340,11 @@ went from filed to live in one day.
   theme, outside-NYC, work-spots copy, all week's fixes.
 - Still Bilal: Actions billing · bd#31 · APNs key · ve#19 · ve#41 notes ·
   device smoke. Then bd#69 dry-run → bd#33 → Submit. Spend: $0.
+
+## 2026-08-23 (late) — merge queue cleared
+web#16 (legal/admin retheme, Cursor) + web#17 (BrewDesk privacy: Google
+Places attribution + work-spots wording) merged and live-verified;
+brewdesk#114 merged → #70 CLOSED (reviewer notes cite /v1/health,
+copyright.txt added). web#11 groomed by Cursor (4 child tickets 11a-11d,
+CORS+shell → map/list → detail → saved) — awaiting Bilal approval to file.
+Remaining before Submit: bd#31, Actions billing, device smoke → #69 → #33.
