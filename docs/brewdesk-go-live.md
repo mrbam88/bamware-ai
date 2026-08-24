@@ -1,6 +1,6 @@
 # BrewDesk go-live
 
-**Updated:** 2026-08-21
+**Updated:** 2026-08-24
 
 ## Locked v1
 
@@ -80,10 +80,19 @@
    bodies.
 2. Test allow, deny, restricted, and previously-granted location states on a
    physical iPhone.
-3. Smoke-test TestFlight build 1.0 (2). Add an exportable distribution `.p12`
-   to the protected `production` environment later to enable unattended CI.
-4. Complete category, copyright, age-rating, and content-rights fields.
-5. Submit the tested build.
+3. Smoke-test the **latest** TestFlight build cut from current main (post–WFH
+   spots + outside-NYC + theme + listing-metadata fixes). Add an exportable
+   distribution `.p12` to the protected `production` environment later to
+   enable unattended CI.
+4. ~~Listing URLs + privacy/support liveness (brewdesk#70).~~ **Closed
+   2026-08-24.** Live `bamware.io/brewdesk/{privacy,support}` verified; Google
+   Places photo attribution on privacy (web#17); reviewer notes cite
+   `/v1/health` not bare engine root (brewdesk#114); `copyright.txt` =
+   `2026 Bamware` in fastlane metadata. Remaining ASC entry (brewdesk#31,
+   Human-only): primary/secondary category per
+   [brewdesk-category-memo.md](brewdesk-category-memo.md), age rating,
+   content-rights declaration.
+5. Submit the tested build (brewdesk#33 runbook; Submit click Bilal-only).
 
 ## Review positioning
 

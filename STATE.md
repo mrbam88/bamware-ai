@@ -5,8 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-23 — **Outside-NYC epic shipped end-to-end (engine +
-> app + TF build), Warm Utilitarian theme live, night-queue workflow adopted**
+> Last updated: 2026-08-24 — **Listing metadata liveness closed; parallel
+> Cursor harness on web; submission lane = #69 → #33 (Bilal Submit)**
 
 ## Vision (one line)
 
@@ -345,6 +345,44 @@ went from filed to live in one day.
 web#16 (legal/admin retheme, Cursor) + web#17 (BrewDesk privacy: Google
 Places attribution + work-spots wording) merged and live-verified;
 brewdesk#114 merged → #70 CLOSED (reviewer notes cite /v1/health,
-copyright.txt added). web#11 groomed by Cursor (4 child tickets 11a-11d,
-CORS+shell → map/list → detail → saved) — awaiting Bilal approval to file.
-Remaining before Submit: bd#31, Actions billing, device smoke → #69 → #33.
+copyright.txt added). web#11 groomed by Cursor (5 child tickets 11a–11e:
+CORS+shell → map/list → detail → saved → deploy gate) — comment on web#11,
+awaiting Bilal approval to file issues.
+
+## 2026-08-23 (session handoff) — parallel harness + grill decisions
+**Workflow:** Bilal runs a **Cursor web harness** (bamware-web only; quoted
+lint/tsc/build; no self-merge) in parallel with a **brewdesk submission lane**
+in the main Cursor session. Merging either repo deploys live — Bilal
+QA-merges only.
+
+**Grill settled (2026-08-23):**
+- Merge web privacy before ASC submit (Google attribution was the gate — now
+  live via web#17).
+- brewdesk#70 root-500 fork: **reviewer notes → `/v1/health`**, not
+  `vercel.json` (deploy-config Bilal gate).
+- brewdesk#31 category: accept memo — **Productivity primary / Food & Drink
+  secondary**; Bilal types into ASC (Human-only).
+- Submission candidate: **recut TF from current main**, then bd#69 reviewer
+  sim, then bd#33 runbook; do not submit an older TF build.
+- web#12 (AI usage dashboard): **hold** — needs secrets/ingest design;
+  supervised session later.
+
+**Harness note:** background web subagent died mid-run with
+`WritableIterable is closed` (Cursor harness stream closed — **not** Claude
+rate/spend limit). #4/#5 landed via PR #15/#16 anyway; #17 + brewdesk#114
+merged in a later pass.
+
+**Next session picks (ordered):**
+1. **bd#69** — `ReviewerSimulationTests` Release on iPhone 17 Pro Max against
+   latest TF build from main; archive evidence for bd#33.
+2. **bd#31** — Bilal ASC: category, age rating, copyright (2026 Bamware),
+   content-rights (OSM + Google Places photos).
+3. **bd#33** — cut/upload build, device smoke matrix, deliver dry-run; Submit
+   click is Bilal's.
+4. **web#7** — `/work/baat` case study (only open web ticket from the batch;
+   #4/#5 done; #11 groom-only done).
+5. File web#11a–11e as issues after Bilal approves the grooming comment.
+
+**Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
+quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
+Physical-device smoke + visit-reminder check. Spend: $0.
