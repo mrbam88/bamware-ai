@@ -386,3 +386,12 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-08-24 (overnight) — UI round 3 shipped end-to-end
+- Bilal's Claude Design spec (BrewDeskDesignSpecv1.pdf) implemented: tabs collapsed to Spots · Saved · You (bd#117/PR122 trunk), search rebuilt + anchored WorkFitFilterMenu with tier legend (bd#118/PR124), venue detail name-as-title + card-level provenance (bd#119/PR123). All merged to main (a84fed0). #117/#118/#119 closed.
+- Visit reminders CUT from v1 (Bilal-approved): zero notification permission requests in the binary; scheduling code stays in the package, unwired.
+- Accounts/SSO/Plus paywall split to deferred epic bd#120 — do not build until Bilal green-lights (pre- vs post-approval undecided).
+- Testing mode changed BY BILAL's instruction: UI-first, no red-green loops; one stabilization pass + screenshot re-shoot (bd#121) after he approves the look on device. Known deferred: 2 UI tests referencing removed search-done/chip-rail elements; full matrix not run on the merged stack (compile gate + boot smokes only).
+- TestFlight: TWO uploads — 23:59 build is STALE (pre-merge main; gh pr merge 122 failed silently first try), 00:01 build is the real UI3. Bilal: use the newest processing build.
+- Landmine found: DebugEnvironmentStore defaults to .localhost on fresh containers → "ENV: Localhost" badge + dead data in debug builds. Live UI tests now pin -brewdesk.debug.environment production. Not changed in product (historical behavior); decide later.
+- Sheet lesson: .presentationContentInteraction(.scrolls) makes swipe-dismiss unreliable → detail sheet has an explicit Close button (detail-close); tests dismiss via it.
