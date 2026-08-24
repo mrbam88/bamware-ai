@@ -1,18 +1,23 @@
 # BrewDesk v1 contract
 
-**Updated:** 2026-08-23
+**Updated:** 2026-08-24
 
 ## Product
 
-- Free, accountless, iPhone-only NYC work-cafe discovery.
-- Flow: onboarding, optional location, map/list discovery, venue details.
+- Free, accountless work-spot discovery: SwiftUI/iPhone and Flutter/Android.
+- Flow: SwiftUI onboarding or direct Flutter Spots tab, optional location,
+  map/list discovery, venue details.
 - No auth, purchases, subscriptions, analytics, advertising, or user submissions.
-- Canonical app identity: `BrewDesk`; bundle `io.bamware.brewdesk`.
-- Client repo: `bamware-brewdesk`; feature package: `Packages/BrewDeskKit`.
+- Canonical app identity: `BrewDesk`; Apple bundle / Android application id
+  `io.bamware.brewdesk`.
+- Client repos: `bamware-brewdesk` (SwiftUI; feature package
+  `Packages/BrewDeskKit`) and `bamware-brewdesk-flutter` (Flutter/Android).
 
 ## Repository boundaries
 
 - `bamware-brewdesk`: app composition, BrewDesk UI, and VenueKit client.
+- `bamware-brewdesk-flutter`: Android composition, Material UI, and Dart API
+  client; shares the wire contract and vocabulary, never Swift UI code.
 - `bamware-ios`: reusable BamwareCore, BamwareUI, and BamwareMessaging products.
 - `bamware-venue-engine`: Express/Zod venue API and contract source.
 
@@ -21,8 +26,8 @@ Shared modules never import BrewDesk.
 
 ## API contract
 
-Base URL is `http://localhost:3000` in Debug and
-`https://venuekit-ashen.vercel.app` in Release.
+SwiftUI uses `http://localhost:3000` in Debug and production in Release. The
+Flutter MVP uses `https://venuekit-ashen.vercel.app` in all configurations.
 
 - `GET /v1/health` returns `{ ok, venueCount, seededAt }`.
 - `GET /v1/venues` supports geo, work-fit filters, search, sorting, and limit;
@@ -58,7 +63,8 @@ Base URL is `http://localhost:3000` in Debug and
 
 JSON is camelCase except `distance_m` on geo responses. Attribute claims carry
 `value`, optional detail/range/window, `source`, `confidence`, and `observedAt`.
-Swift models in `Packages/BrewDeskKit/Sources/VenueKit` match the service.
+Swift models in `Packages/BrewDeskKit/Sources/VenueKit` and Dart models in
+`bamware-brewdesk-flutter/lib/domain/models` match the service.
 
 ## Privacy
 
@@ -67,6 +73,8 @@ Swift models in `Packages/BrewDeskKit/Sources/VenueKit` match the service.
 - App Store privacy answer remains Data Not Collected while query strings are
   not retained and no analytics/crash SDK is added.
 - `PrivacyInfo.xcprivacy` declares app-local UserDefaults reason `CA92.1`.
+- Android requests coarse/fine location only for the nearby query and persists
+  saved venue IDs locally with SharedPreferences; neither is sent as identity.
 
 ## Validation
 
@@ -82,3 +90,12 @@ xcodebuild -workspace BrewDeskDevelopment.xcworkspace -scheme BrewDesk \
 
 Before App Store submission, build a device archive and inspect its app name,
 bundle ID, privacy manifest, linked frameworks, and embedded strings.
+
+Flutter/Android gate:
+
+```bash
+cd ~/code/bamware-brewdesk-flutter
+flutter analyze
+flutter test
+flutter build apk --debug
+```

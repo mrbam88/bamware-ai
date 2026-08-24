@@ -16,8 +16,10 @@ Chat was broken for six weeks. Nothing failed in CI on either side.
   PRs reference each other.
 - **App-side, never trust the declared type.** Verify against the service's
   `src/schemas/*.ts` on its CURRENT main before building on it.
-- The same discipline applies to any future client/service pair (BrewDesk ↔
-  venue-engine: contract in `docs/brewdesk-mvp-contract.md`).
+- The same discipline applies to BrewDesk ↔ venue-engine: the two hand-declared
+  clients are SwiftUI `bamware-brewdesk` and Flutter
+  `bamware-brewdesk-flutter`; contract in `docs/brewdesk-mvp-contract.md`.
+  A service shape change must update and test both clients in coordinated PRs.
 
 ## Long-term fix
 

@@ -5,8 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-24 — **Listing metadata liveness closed; parallel
-> Cursor harness on web; submission lane = #69 → #33 (Bilal Submit)**
+> Last updated: 2026-08-24 — **Flutter/Android BrewDesk MVP booted and
+> published; SwiftUI submission lane remains #69 → #33 (Bilal Submit)**
 
 ## Vision (one line)
 
@@ -20,6 +20,15 @@ First product: **Baat**, Pan-South Asian dating app.
 `bamware-ios`; `bamware-venue-engine` is the companion local Express API.
 The Xcode development workspace substitutes the sibling shared-package checkout
 so app and reusable modules can evolve together.
+
+**Flutter/Android track (decided + booted 2026-08-24):** private
+`mrbam88/bamware-brewdesk-flutter` is the Android-first BrewDesk client, not a
+shared-code rewrite. MVP at `623bda5`: Spots map/shelf, location with Manhattan
+fallback, search/filters, claim-level provenance, photos, directions, local
+accountless saves, Material 3 light/dark, production Venue Engine. Pixel 10
+boot/detail/save flow passed; analyzer + 3 tests + debug APK + gitleaks green.
+Epic flutter#1; Agent-ready #2–4; Human-only Play bootstrap/signing #5. Fan-out
+held because private-repo Actions billing still prevents CI jobs from starting.
 
 **BrewDesk product direction (decided 2026-08-19):** a WFH-spot finder, not a
 café finder — cafés + parks/libraries/malls (`venueType`), 95–100% AI-researched
@@ -395,3 +404,19 @@ Physical-device smoke + visit-reminder check. Spend: $0.
 - TestFlight: TWO uploads — 23:59 build is STALE (pre-merge main; gh pr merge 122 failed silently first try), 00:01 build is the real UI3. Bilal: use the newest processing build.
 - Landmine found: DebugEnvironmentStore defaults to .localhost on fresh containers → "ENV: Localhost" badge + dead data in debug builds. Live UI tests now pin -brewdesk.debug.environment production. Not changed in product (historical behavior); decide later.
 - Sheet lesson: .presentationContentInteraction(.scrolls) makes swipe-dismiss unreliable → detail sheet has an explicit Close button (detail-close); tests dismiss via it.
+
+## 2026-08-24 — Flutter/Android MVP booted
+- Bilal chose Flutter for BrewDesk on Android. New private repo
+  `mrbam88/bamware-brewdesk-flutter` published at `623bda5`; canonical design
+  PDF is committed in-repo, app id `io.bamware.brewdesk`.
+- Live vertical slice: Spots map + draggable shelf, privacy-safe POST search,
+  filters, detail/provenance/photos/directions, Saved, You, location fallback.
+  Strict MVVM/service/repository layers; OSM tiles avoid API-key spend.
+- Evidence: production search decoded; `flutter analyze` clean; 3/3 tests;
+  debug APK built; Pixel 10 permission-denied → 100 venues → detail → save →
+  Saved passed; gitleaks no findings. Spend: $0.
+- GitHub setup: PR-only Flutter CI + secrets tripwire, engineering-skill docs,
+  default triage labels, epic #1 with fielded children #2–5. No fan-out launched:
+  Actions billing means PR gates cannot start; do not trigger paid minutes
+  without quote-and-confirm. Next: restore CI, fan out #2/#3/#4, then Human-only
+  Play Console/signing/internal-test #5.

@@ -62,6 +62,7 @@ REPOS=(
   bamware-web
   bamware-ios
   bamware-brewdesk
+  bamware-brewdesk-flutter
   bamware-venue-engine
   bamware-mcp
   interviews

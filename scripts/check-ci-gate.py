@@ -41,7 +41,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 TEST_RE = re.compile(
     r"(npm (run )?(test|typecheck)|vitest|jest|pytest|swift test|xcodebuild"
-    r"|go test|cargo test|fastlane .*test)", re.I)
+    r"|go test|cargo test|flutter (test|build)|fastlane .*test)", re.I)
 
 
 def api(path: str):

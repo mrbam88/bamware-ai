@@ -14,6 +14,7 @@ set -uo pipefail
 OWNER="mrbam88"
 REPOS=(
   bamware-brewdesk
+  bamware-brewdesk-flutter
   bamware-venue-engine
   bamware-infra
   bamware-ai
