@@ -1,6 +1,6 @@
 # Interview prep — index
 
-15 docs, ~39,500 words. This file is the map: what each one is for, which are
+20 docs, ~63,000 words. This file is the map: what each one is for, which are
 evergreen, which are dead, and what to actually run before an interview.
 
 **Filenames lie about value.** Seven docs are named after Betterment and Medal.
@@ -68,6 +68,21 @@ for a new company.
 
 ---
 
+## Take-home assessments — new category (added 2026-08-25)
+
+A timed build-it-yourself round is a different animal from a live round: the
+artifact is a repo, graded in 5–20 minutes by peer engineers who run it first.
+The **procedure** is the `take-home-assessment` skill (agents execute it, and it
+ships a run-prompt template for Claude Code). The **study material** is here.
+
+| Doc | What it's for | Size |
+|---|---|---|
+| [`ai-basics-for-mobile-devs.md`](ai-basics-for-mobile-devs.md) | **Evergreen.** The modern AI-app stack in plain words — model, prompts, tool calling and agents, RAG vs tools, guardrails, evals, model routing — with an RN/Node analogy per piece and a table of what a 4-hour build actually needs. The one exception to "the bank is closed": no existing doc covered the topic, and the AI-native pivot depends on it. | 2.3k words |
+| [`instalily-case-study-playbook.md`](instalily-case-study-playbook.md) | Company archive, ~80% reusable. Plain-English guide to a 4-hour agent take-home: the assessment as candidates received it, the four grading criteria, what a great answer looks like, the traps (the trick question), an hour-by-hour reconstruction of a real timed build, verified seed data, the 4-hour plan, the mobile twist, the presentation round. | 5.5k words |
+| [`instalily-case-study-research.md`](instalily-case-study-research.md) | The raw research behind the playbook: 14 public solutions mined, Glassdoor accounts, Instalily's own vocabulary (contracts, capabilities, eval gate), reviewer profiles, take-home craft sources. Read when you need a citation, not to study. | 6k words |
+| [`instalily-mock-a-partselect.md`](instalily-mock-a-partselect.md) | Practice assessment A (PartSelect chat agent — the most likely real shape) + grader packet + a full Claude Code prompt with real seed data. | 5k words |
+| [`instalily-mock-b-field-tech.md`](instalily-mock-b-field-tech.md) | Practice assessment B (Expo field-technician assistant, offline-first, confirm-gated action) + grader packet + Claude Code prompt. | 5k words |
+
 ## Routes — what to run, when
 
 **Any interview, morning of** → the ritual at the top of
@@ -87,6 +102,10 @@ predicting out loud before reading → system design script → one mock.
 **System design round** → the cheatsheet's Part 1 script, then run Part 2's
 worked prompt, then do an unseen prompt cold.
 
+**Timed take-home, any company** → playbook "Your 4 hours" and "The traps" →
+the `take-home-assessment` skill procedure → fill its run-prompt template →
+practice once on mock A with a real timer before the real link is opened.
+
 **Live, in the room** → Vol. 1 Appendix A (the 5-step routine + stalling lines
 that still sound senior) and the refresher's §10 checklist.
 
@@ -100,5 +119,6 @@ that still sound senior) and the refresher's §10 checklist.
   lesson lifted up into the evergreen docs and this index.
 - **After every real interview, write the debrief** — what they asked, the answer
   you want next time, the process fix. `medal-deepdive-debrief.md` is the template.
-- Application history lives in `mrbam88/interviews` → `tracker/applications.md`,
-  not here. This folder is study material only.
+- Application history lives in `mrbam88/interviews` → `tracker/applications/`
+  (one file per application; `tracker/INDEX.md` is generated), not here. This
+  folder is study material only.

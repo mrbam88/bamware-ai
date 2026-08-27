@@ -19,6 +19,7 @@ https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/<name>/SKILL.md
 | `apply-to-job` | The application procedure, thin orchestration over the above. |
 | `ats-playbooks` | Per-ATS quirks: Greenhouse, Lever, Ashby, Workday, SmartRecruiters, LinkedIn. |
 | `form-verify` | Proving a web form is actually filled before submitting. |
+| `take-home-assessment` | Timed take-home / case-study builds with Claude Code as pair: pre-clock setup, build order, design defaults graders reward, documentation standard, evals, README order, submission, presentation round. |
 
 Interview prep is **docs, not skills** — study material, indexed at
 [`docs/interview-prep/README.md`](../docs/interview-prep/README.md). Read that
