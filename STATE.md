@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-24 — **Flutter/Android BrewDesk MVP booted and
+> Last updated: 2026-08-28 — **Shelf animation rebuilt + TF build up; Flutter/Android BrewDesk MVP booted and
 > published; SwiftUI submission lane remains #69 → #33 (Bilal Submit)**
 
 ## Vision (one line)
@@ -395,6 +395,24 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-08-28 — shelf detent animation rebuilt, TF build up
+Bilal's report: bottom card flashes on expand/minimize and sits under the tab
+bar at peek. Frame-by-frame sim captures found three causes: offset-based drag
+slid the card beneath the tab bar; peek ended square-cut at the safe-area line
+over raw map; the rail/list swap laid out as VStack siblings, pushing the
+outgoing view out of the clip (the flash). Fix (bd#125 -> PR #127, merged under
+the Actions-billing waiver): height-driven 1:1 resize drag with rubber-banding,
+glass bleeds under the floating tab bar (design-spec mockup 01 look,
+hit-testing off), concrete-height settles (#88's pin generalized), ZStack
+crossfade. MapShelfDetentUITests 5/5 (incl. the stale-chips peek test, fixed),
+unit suites green, Release boot vs production verified. **TestFlight build
+uploaded from main 1112b8d via the free local rail (Xcode-managed build
+number); Bilal: device-smoke the newest processing build.** Found + filed
+bd#126: ReviewerSimulationTests drifted post-UI3 (asserts removed "100 work
+spots" text) — gates bd#69, part of #121 stabilization. Test-infra lesson in
+MapShelfDetentUITests: the grabber's a11y frame spans the whole card, so drags
+must press the shelf's top 12pt or the full-detent list eats them. Spend: $0.
 
 ## 2026-08-24 (overnight) — UI round 3 shipped end-to-end
 - Bilal's Claude Design spec (BrewDeskDesignSpecv1.pdf) implemented: tabs collapsed to Spots · Saved · You (bd#117/PR122 trunk), search rebuilt + anchored WorkFitFilterMenu with tier legend (bd#118/PR124), venue detail name-as-title + card-level provenance (bd#119/PR123). All merged to main (a84fed0). #117/#118/#119 closed.
