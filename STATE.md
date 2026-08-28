@@ -396,6 +396,16 @@ merged in a later pass.
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
 
+## 2026-08-28 (follow-up) — map now pixel-still under the shelf
+Bilal on the #125 build: better, but the MAP resizes/flashes with the card.
+Cause: shelfClearance switched on detent, so peek<->medium changed the map's
+bottom safeAreaPadding ~150pt and Map re-fit its camera every hop. Fix
+(bd#128 -> PR #129, merged): clearance is now CONSTANT (sized for the medium
+card) — the map's layout never changes with the shelf. Quantified: map-band
+pixel diff through a medium->peek settle, 17 grey-levels max before -> 0
+after. Shelf suite 5/5 + units green. **Second TestFlight build uploaded from
+main 9584400 — Bilal: smoke the NEWEST processing build.** Spend: $0.
+
 ## 2026-08-28 — shelf detent animation rebuilt, TF build up
 Bilal's report: bottom card flashes on expand/minimize and sits under the tab
 bar at peek. Frame-by-frame sim captures found three causes: offset-based drag
