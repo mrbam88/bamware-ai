@@ -396,6 +396,38 @@ merged in a later pass.
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
 
+## 2026-08-28 (night) — Flutter parity wave: 12/12 merged, Play prep done
+Bilal's brief: 100%% feature parity for the Flutter app tonight, consider Play
+submission. Full throttle pre-reset (6 parallel Sonnet DEV agents), then
+conservative sequential.
+- **Merged (bamware-brewdesk-flutter #2,3,4,7,8,9,10,11,12,13,14,15 — PRs
+  #16–27, supervisor QA on every one):** Work Fit filter menu (tri-state +
+  tier legend + reset), detail parity (name title, claim-level provenance,
+  Share), methodology + You/About (support/privacy/terms/licenses/version),
+  onboarding + location intro (Union Square path never prompts), degraded
+  states + BREWDESK_SCENARIO seam, cold-start snapshot (50 venues, 58KB),
+  on-device Takeout import, marker planning, 27 contract-parity tests,
+  launcher icon + branded launch, en+es l10n (zero literal UI strings),
+  Play prep (release AAB config, data-safety/content-rating/listing docs,
+  submission runbook).
+- **Certified on merged main:** analyze clean, 94/94 tests, debug APK, and a
+  live Pixel-emulator walkthrough: onboarding → Union Square → 100 production
+  venues, tier-colored markers, filters, shelf, all tabs.
+- **Play submission now = flutter#5 only (Bilal, Human-only):** Console
+  registration ($25 — over the spend rule, needs his explicit OK), keystore,
+  upload. Runbook: docs/play/SUBMISSION-RUNBOOK.md. His listing decisions
+  parked in the docs: category, contact email, data-safety location wording,
+  distribution regions.
+- **iOS lane:** brewdesk#126 drift fixes merged (PR #130); found + filed
+  brewdesk#131 (tab buttons expose no a11y identifier for seconds after
+  launch — test-plumbing, not user-facing; the only remaining reviewer-sim
+  red; gates #126 → #69). Supervised.
+- **Incidents:** one DEV agent hung on real file I/O inside testWidgets'
+  FakeAsync zone (fix: sync fixture reads — lesson now in every later brief);
+  two agents parked on background gate monitors (nudged/taken over —
+  foreground-gates rule re-proven). Stale local WIP in the flutter checkout
+  stashed, not deleted. Spend: $0.
+
 ## 2026-08-28 (follow-up) — map now pixel-still under the shelf
 Bilal on the #125 build: better, but the MAP resizes/flashes with the card.
 Cause: shelfClearance switched on detent, so peek<->medium changed the map's
