@@ -396,6 +396,41 @@ merged in a later pass.
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
 
+## 2026-08-30 — reviewer sim green, glass + polish, feedback batch: 5/5 shipped
+**iOS lane:** ReviewerSimulationTests fully green in Release vs production for
+the first time since UI3 — bd#131 (tab a11y identifiers attach seconds late on
+the iOS 26 floating bar; ruling: label-match in tests, zero binary change) +
+a #37-violating pin-count assert fixed (PR #132); #126 closed. bd#133 branded
+launch screen merged (PR #134, brand green + mark, no white flash; rides the
+next TF cut). Lane is now purely: Bilal device-smoke → #121 screenshots →
+#69 full-matrix dry-run → #31 ASC → #33 Submit.
+**Flutter:** UI polish round 1 (bd#28 → PR #29: mockup-faithful circular pins,
+unified header card, search list above keyboard + Cancel, iOS-style score
+tiles + provenance, anchored menu, humanized dates, parsed hours). Glass
+surfaces (bd#30 → PR #31: GlassSurface BackdropFilter on header/shelf/dock/
+menu/tab bar, extendBody; perf rule: standing chrome only). You-tab About
+detail nav, Atly-style (bd#32 → PR #34). Branded loading state (bd#33 →
+PR #35; agent correctly refused coldStart() wiring that would mask degraded
+states — endorsed).
+**Bilal's 2026-08-30 feedback batch — all five resolved:**
+1. "Saved should require account" → pushed back (recorded accountless
+   strategy, 4.3(b) + Data-Not-Collected); Bilal AGREED. Account card stays
+   #120 post-approval.
+2. Splash screens → shipped both apps (bd#133, flutter#33).
+3. "I don't see photos" → REAL P0 find: photo rail dead in prod since the
+   Aug 23 reseed orphaned the placeId join. ve#56 → PR #57: relinked
+   2,144/2,174 (98.6%) via matcher, $0 spent; health now reports
+   photos.venuesWithPhotos so it can't silently break again. Live-verified
+   end-to-end incl. app gallery + bylines. 30 venues need a paid backfill
+   (quote first).
+4. Marketing site → **bamware.io/brewdesk LIVE** (web#18 → PR #19):
+   Atly-countering transparency positioning, real app screenshots (re-cut at
+   bd#121), store CTAs as coming-soon config. QA fixes: honest source labels
+   (curated/user report), eager-load CTA frame (lazy-load artifact).
+5. About-info tucked behind detail nav → Flutter shipped (#32); iOS held
+   pre-approval (gated You tab needs the content or it reads half-empty).
+Spend: $0. All supervisor QA'd with visual evidence; worktrees cleaned.
+
 ## 2026-08-28 (night) — Flutter parity wave: 12/12 merged, Play prep done
 Bilal's brief: 100%% feature parity for the Flutter app tonight, consider Play
 submission. Full throttle pre-reset (6 parallel Sonnet DEV agents), then
