@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-28 — **Shelf animation rebuilt + TF build up; Flutter/Android BrewDesk MVP booted and
+> Last updated: 2026-08-31 — **BrewDesk SUBMITTED to the App Store (1.0 build 18); Flutter/Android BrewDesk MVP booted and
 > published; SwiftUI submission lane remains #69 → #33 (Bilal Submit)**
 
 ## Vision (one line)
@@ -395,6 +395,18 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-08-31 — 🚀 BREWDESK SUBMITTED TO THE APP STORE
+**Version 1.0, build 18, submitted by Bilal 2026-08-31.** From release/1.0.3
+(committed gate flip, tagged store/1.0-build18). Final pre-click fixes: ASC
+review-contact fields (the + phone format), reviewer notes updated for UI3
+navigation + the outside-NYC baseline reality (old notes pointed at deleted
+tabs and pre-baseline behavior). bd#33 closed. Odds assessment on record:
+~60-70% first pass, ~90%+ within two rounds; the only untestable risk is
+4.3(b), and the Resolution Center reply (#32 pack) is pre-written.
+**While waiting:** Play side is ready to start its 14-day closed-testing
+clock the moment Bilal does Console registration ($25 gate) + keystore +
+AAB upload (flutter#5, runbook in docs/play/). Spend: $0.
 
 ## 2026-08-31 — SUBMISSION READY: store build uploaded, everything but the click
 Bilal device-smoked TF (passed), entered ASC metadata + screenshots himself.
