@@ -396,6 +396,12 @@ merged in a later pass.
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
 
+## 2026-08-31 — 🚀 ANDROID SUBMITTED TOO (same day)
+Bilal completed flutter#5 himself: Play Console registration, keystore,
+signed AAB build 8 uploaded and submitted. If the account is a new personal
+one, production publishing unlocks after Google's 12-tester × 14-day closed
+test. Both stores now in review on the same day. flutter#5 closed.
+
 ## 2026-08-31 — 🚀 BREWDESK SUBMITTED TO THE APP STORE
 **Version 1.0, build 18, submitted by Bilal 2026-08-31.** From release/1.0.3
 (committed gate flip, tagged store/1.0-build18). Final pre-click fixes: ASC
