@@ -396,6 +396,32 @@ merged in a later pass.
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
 
+## 2026-08-31 — SUBMISSION READY: store build uploaded, everything but the click
+Bilal device-smoked TF (passed), entered ASC metadata + screenshots himself.
+- **bd#121 closed:** UI3 store set via new `fastlane ios store_screenshots`
+  lane (light-pinned, Release, store-gated, en+es, composes + assembles
+  `submission/<version>/` pack — the reusable pattern Bilal asked for).
+  Caught en route: missing es count-line translation, stale "cafes" captions,
+  ASC 6.5-inch slot needs 1284x2778 → lane now derives that set too.
+- **bd#69 closed:** dry-run on the REAL release cut — ReviewerSimulation +
+  gated-surface checks PASS on iPhone 17 Pro Max AND iPad Pro 13-inch,
+  Release, live engine. Evidence in submission/1.0.3/evidence/.
+- **Release-branch git flow (Bilal's call, codified in RELEASING.md +
+  #33):** store archives ONLY from release/x.y.z with the
+  STORE_SURFACE_GATED flip as a committed change, tagged store/x.y-buildN;
+  CLI overrides + long-lived store branches forbidden. First use:
+  release/1.0.3 cut, flip committed, archive plist-verified gated,
+  **UPLOADED to ASC** ("Upload succeeded").
+- Also: bd#104 closed (AccountFlow green ×3 — the old hang morphed into the
+  #131 tab-identifier bug; live auth round-trip 201/200 proven);
+  accounts-require-decision settled (gate stays; option-3 risks ticketed:
+  auth#7 cold starts, auth#8 token refresh, bd#139 review readiness);
+  bd#142 filed (detail name-dupe + ISO dates, non-blocking).
+- **Remaining for submission: Bilal only** — read the ASC build number when
+  processing finishes (I tag store/1.0-buildN), select the build, click
+  Submit, then bd#32's Resolution-Center pack stands ready if needed.
+  Spend: $0 (brew-installed fastlane; local rail throughout).
+
 ## 2026-08-30 — reviewer sim green, glass + polish, feedback batch: 5/5 shipped
 **iOS lane:** ReviewerSimulationTests fully green in Release vs production for
 the first time since UI3 — bd#131 (tab a11y identifiers attach seconds late on
