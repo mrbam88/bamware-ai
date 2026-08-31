@@ -431,6 +431,23 @@ states — endorsed).
    pre-approval (gated You tab needs the content or it reads half-empty).
 Spend: $0. All supervisor QA'd with visual evidence; worktrees cleaned.
 
+## 2026-08-30 (late) — web backlog approved + boarded, prod redeployed
+- **Bilal approved the web#11 grooming** → children filed as bamware-web
+  **#20–24** (11a CORS+shell → 11b map/list → 11c detail → 11d saved →
+  11e deploy gate), all boarded + fully fielded (Todo / P2 / Backend;
+  11a–11d Agent-ready, 11e Supervised — deploy-config gate). Board note:
+  Area has no "Web" option (option-set mutation wipes statuses, 2026-08-19
+  incident), so web tickets use **Backend**. Backfill: epic #11 + #12 →
+  Todo; web#7 + #3 added to board (were never on it).
+- **bamware-web prod redeployed fresh** via `npx vercel redeploy` (CLI auth
+  already on this Mac; the Vercel MCP connector is scoped off this project —
+  403s, empty project list — don't burn time on it). New deployment Ready in
+  45s, aliased to bamware.io. Live-verified 200: `/`, `/brewdesk`,
+  `/brewdesk/privacy|support|terms`, `/sign-up`, `/baat`, `/admin/login`.
+- **Web queue now:** 0 open PRs; next picks web#7 (Baat case study) then
+  #20 (11a). web#12 still held (secrets/ingest design). web#3 (waitlist
+  keep-or-kill) needs a 1-min Bilal call. Spend: $0.
+
 ## 2026-08-28 (night) — Flutter parity wave: 12/12 merged, Play prep done
 Bilal's brief: 100%% feature parity for the Flutter app tonight, consider Play
 submission. Full throttle pre-reset (6 parallel Sonnet DEV agents), then
