@@ -68,3 +68,50 @@ five in writing before starting a submission run. Any weak answer stops the run.
   history: Match.com). See environments.md account tiers.
 - OTA (EAS Update) may fix JS between submission and review — the
   production channel reaches the submitted binary.
+
+## BrewDesk 2026-08-31 additions (proven on the first post-4.3(b) submission)
+
+**Release-branch git flow (Bilal's rule, REQUIRED).** Store archives come
+only from `release/x.y.z` cut off main: the feature-gate flip
+(`STORE_SURFACE_GATED=YES` or equivalent) is a COMMITTED one-line change on
+the branch, archived with zero CLI overrides, and the archived commit is
+tagged `store/x.y-buildN` once ASC assigns the build number.
+`git diff main..store/x.y-buildN` must show exactly what the reviewer got.
+Forbidden: CLI build-setting overrides (invisible to history) and long-lived
+store branches (drift). Full flow: brewdesk `docs/RELEASING.md`.
+
+**Screenshots: `fastlane ios store_screenshots version:X.Y.Z`** (pattern
+repo: bamware-brewdesk). One lane that: pins sim appearance LIGHT (a
+dark-mode sim silently produces a dark store set), builds Release
+store-gated, captures en+es via the capture UI test, exports xcresult
+attachments, composes captioned sets, derives BOTH sizes ASC wants —
+6.9" 1320×2868 primary AND 6.5" 1284×2778 (ASC's 6.5 slot hard-rejects 6.9
+files) — and assembles `submission/<version>/` (screenshots + metadata +
+review notes + evidence + provenance README). The capture test pins every
+localized string it walks through, so it catches missing translations and
+stale marketing copy before Apple does (found two on BrewDesk).
+
+**ASC submit-page gotchas (hit live 2026-08-31):**
+- App Review contact fields (name/email/phone) are required and NOT part of
+  deliver metadata; phone must be `+<country><number>`, no separators. PII
+  stays out of repos — Bilal types these.
+- Review notes rot: before every submission, re-read them against the
+  CURRENT UI. BrewDesk's notes still pointed at tabs deleted by a redesign
+  and described superseded out-of-coverage behavior. Stale notes send the
+  reviewer somewhere that does not exist.
+
+**iOS 26 UI-test rule (the #131 class — it broke THREE suites):** floating
+tab-bar buttons expose their `.tabItem` accessibility identifiers only
+seconds after a fresh launch; visible labels exist from frame one. Any test
+touching a tab right after launch matches by label (force English via
+`-AppleLanguages`), identifier accepted as fallback. Never assert exact
+pin/venue counts — annotation planners cluster; assert the count-line's
+shape by identifier + regex (`MATCHES`, not `CONTAINS` — CONTAINS is
+literal).
+
+**Data-join health rule (from the silent photo-rail death):** any feature
+built on a data join (photos ↔ placeIds) must surface a counter in
+`/v1/health` (`photos.venuesWithPhotos`). BrewDesk's photo rail returned
+`[]` for a week after a reseed changed venue ids and NOTHING alarmed —
+both apps "gracefully degraded" the feature out of existence. Graceful
+degradation without a health counter is silent data loss.
