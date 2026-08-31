@@ -5,8 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-31 — **BrewDesk SUBMITTED to the App Store (1.0 build 18); Flutter/Android BrewDesk MVP booted and
-> published; SwiftUI submission lane remains #69 → #33 (Bilal Submit)**
+> Last updated: 2026-08-31 — **BrewDesk hit a 2.1 Information Needed (NOT 4.3(b));
+> reply pack drafted, Bilal records device video + replies in ASC**
 
 ## Vision (one line)
 
@@ -397,6 +397,25 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-08-31 — 🟡 BREWDESK: Guideline 2.1 "Information Needed" (recoverable)
+
+Apple's response to 1.0 build 18 is a **2.1 Information Needed — NOT 4.3(b)**.
+No guideline violation cited; the reviewer wants 7 items answered in a
+Resolution Center reply before reviewing: (1) a screen recording captured on a
+**physical device** walking the core flow incl. any permission prompts,
+(2) devices/OS tested, (3) functions + target audience, (4) setup/access
+instructions, (5) external services (data providers, auth, payments, AI),
+(6) regional differences, (7) regulated-industry credentials. Items 2–7 also
+go into App Review Information → Notes for future submissions.
+
+Paste-ready reply + recording shot list drafted:
+`bamware-brewdesk` `submission/1.0.3/review_information/2.1-info-reply.md`.
+Everything is answerable from existing evidence (accountless build, no IAP/UGC,
+dry-run device matrix, engine/OSM/Google-Places/AI-pipeline disclosure,
+baseline-coverage regional story). **Bilal only:** fill in his physical iPhone
+model/iOS, record the ~2–3 min video per shot list, paste + attach in ASC.
+This is a reply, not a resubmission — do not touch the build.
 
 ## 2026-08-31 — 🚀 ANDROID SUBMITTED TOO (same day)
 Bilal completed flutter#5 himself: Play Console registration, keystore,
