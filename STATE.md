@@ -202,7 +202,11 @@ assets, not because this work is queued.
 verification. Register `io.bamware.brewdesk` + its signing key in Play Console
 ("Register your apps and signing keys"); Play-distributed apps are pre-filled,
 Bilal reviews + confirms. Unregistered apps are removed from Play globally after
-2026-09-30. Final-reminder mail 2026-08-31. No Play review-outcome email has
+2026-09-30. Final-reminder mail 2026-08-31.
+**Play production gate confirmed 2026-09-08:** personal account → closed test
+with ≥12 opted-in testers for ≥14 consecutive days, then "Apply for access to
+production" questionnaire. Status: 0 testers opted in. Clock has NOT started.
+Earliest production ≈ 14 days after the 12th tester opts in. No Play review-outcome email has
 arrived since the 2026-08-31 submission (checked 2026-09-08).
 
 **Infra / credentials — not blocking BrewDesk:**
