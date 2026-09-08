@@ -85,3 +85,7 @@ log entry._
 - Reading: a first-app boilerplate information request, not a judgment on the
   concept. Reply pack + notes template: `bamware-brewdesk/submission/1.0.3/resolution-center/`.
 - Cost of not watching the inbox: 8 days of review time lost.
+- **iOS screen recording hides the location permission alert** (iPhone 15 Pro,
+  2026-09-08, three takes). The app requested it every time; the recording
+  never showed it. Do not chase this as an app bug or a permission-reset
+  problem. Say so in the reply, or film the phone with a second camera.

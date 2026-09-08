@@ -127,3 +127,5 @@ degradation without a health counter is silent data loss.
   `bamware-brewdesk/fastlane/review_information/notes.txt`, ≤4000 chars).
 - Reply pack pattern: `submission/<version>/resolution-center/<date>-<guideline>.md`
   with Apple's text verbatim, the reply, and the human shot list.
+- The 2.1 video: iOS strips the system location alert from screen
+  recordings. Tell the reviewer in one sentence; don't re-record.

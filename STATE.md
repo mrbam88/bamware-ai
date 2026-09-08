@@ -436,6 +436,14 @@ alert (learned today, twice).
 Process correction (Bilal, 2026-09-08): I wrongly asked him to merge #150.
 Agents QA-merge after green + evidence (AGENTS.md, 2026-08-21); the old
 "merging stays with Bilal" line in the 08-19 entry below is superseded.
+Build 19 processed 14:54 local, tagged `store/1.0-build19`. Bilal recorded
+take 3 on it (iPhone 15 Pro, 2:03, launch from Home screen, banner tap,
+full tour). **iOS omits the system location-permission alert from screen
+recordings** — that, not the app and not iOS retaining grants, is why every
+take lacked the prompt (the app asked each time). Reply text finalized
+(PR #148 merged): recorded on build 19, one sentence explaining the missing
+alert. **Bilal next: in ASC select build 1.0 (19) for version 1.0, paste
+the reply, attach take 3, send.** Real-CoreLocation UI test landed (#151).
 Spend: $0.
 
 ## 2026-09-08 — ⏸️ Apple paused the review: Guideline 2.1 Information Needed (since 2026-08-31)
