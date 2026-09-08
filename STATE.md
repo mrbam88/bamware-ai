@@ -198,6 +198,13 @@ assets, not because this work is queued.
 - Remaining App Store gates: physical location states, production logging
   confirmation, questionnaires, submission
 
+**Google Play — deadline 2026-09-30 (Human-only, ~5 min):** Android developer
+verification. Register `io.bamware.brewdesk` + its signing key in Play Console
+("Register your apps and signing keys"); Play-distributed apps are pre-filled,
+Bilal reviews + confirms. Unregistered apps are removed from Play globally after
+2026-09-30. Final-reminder mail 2026-08-31. No Play review-outcome email has
+arrived since the 2026-08-31 submission (checked 2026-09-08).
+
 **Infra / credentials — not blocking BrewDesk:**
 
 - 🔴 **A plaintext password was committed to this public repo** and sat in this
