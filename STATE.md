@@ -5,8 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-08-31 — **BrewDesk SUBMITTED to the App Store (1.0 build 18); Flutter/Android BrewDesk MVP booted and
-> published; SwiftUI submission lane remains #69 → #33 (Bilal Submit)**
+> Last updated: 2026-09-08 — **Apple paused the BrewDesk 1.0 (18) review on 2026-08-31 with Guideline 2.1
+> Information Needed (NOT a rejection). Reply pack ready in brewdesk PR #148; Bilal records the video + replies.**
 
 ## Vision (one line)
 
@@ -397,6 +397,32 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-09-08 — ⏸️ Apple paused the review: Guideline 2.1 Information Needed (since 2026-08-31)
+Apple's App Store Connect mail "There's an issue with your BrewDesk submission"
+landed 2026-08-31 22:29Z, 39 s before the "In Review" status mail, and sat
+unread for 8 days. The email body carries NO guideline text — only the App
+Review page in ASC does. Status never went to Rejected; the review is paused
+on us. Message: **Guideline 2.1 – Information Needed – New App Submission**,
+seven items: (1) physical-device screen recording starting at launch, showing
+the location prompt; (2) devices/OS tested; (3) function + audience; (4) setup
+instructions; (5) external services; (6) regional differences; (7) regulated
+industry / third-party material. Not 4.3(b), not a concept ruling, no new
+binary needed.
+- **Done:** reply text for all 7 items + recording shot list in
+  `bamware-brewdesk/submission/1.0.3/resolution-center/2026-08-31-guideline-2.1-info-needed.md`;
+  reviewer notes (`fastlane/review_information/notes.txt`) now carry items 2–7
+  for future submissions (2627/4000 chars). brewdesk PR #148, docs only.
+- **Bilal (Human-only):** fill the iPhone model + iOS version placeholders,
+  record the 2–3 min video on the physical iPhone per the shot list, paste the
+  reply + attach the video on the ASC App Review page, then merge PR #148.
+- **Lesson (→ store-submission skill):** after Submit, watch the inbox daily;
+  an "issue with your submission" mail means open the App Review page — the
+  mail itself says nothing. Submission ID b887aaff-336d-4873-9c6a-cce862677d4e.
+- Verified stale: brewdesk#135 (notification prompt) — #117 unwired every
+  reminder call site; release/1.0.3 has zero references outside the package.
+  Still true: en-US description says "cafés in New York City" (#136 partial).
+Spend: $0.
 
 ## 2026-08-31 — 🚀 ANDROID SUBMITTED TOO (same day)
 Bilal completed flutter#5 himself: Play Console registration, keystore,

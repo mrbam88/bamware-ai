@@ -72,3 +72,16 @@ log entry._
 - **If rejected:** reply in the Resolution Center first with the evidence
   story, then appeal. Prepare that story before submitting, not after.
 - The `skills/store-submission` 4.3(b) pre-flight questions remain in force.
+
+## 2026-08-31 — BrewDesk 1.0 (18): Guideline 2.1 "Information Needed" (first-hand)
+
+- Arrived 39 s before the "In Review" status email; no "Rejected" status mail
+  ever came. The email body says only "we noticed an issue" — the guideline and
+  the seven requested items are visible only on the ASC App Review page.
+- Requested: physical-device screen recording from launch (must show every
+  permission prompt), devices/OS tested, function + audience, setup steps,
+  external services, regional differences, regulated/third-party material.
+  Apple asks that all of it live in the Review Notes "for future submissions".
+- Reading: a first-app boilerplate information request, not a judgment on the
+  concept. Reply pack + notes template: `bamware-brewdesk/submission/1.0.3/resolution-center/`.
+- Cost of not watching the inbox: 8 days of review time lost.

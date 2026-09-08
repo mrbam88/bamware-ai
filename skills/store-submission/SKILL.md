@@ -115,3 +115,15 @@ built on a data join (photos ↔ placeIds) must surface a counter in
 `[]` for a week after a reseed changed venue ids and NOTHING alarmed —
 both apps "gracefully degraded" the feature out of existence. Graceful
 degradation without a health counter is silent data loss.
+
+## After you click Submit (learned 2026-09-08, cost 8 days)
+
+- Watch the inbox daily. "There's an issue with your <app> submission" from
+  App Store Connect carries NO detail; open the ASC App Review page.
+- Expect **Guideline 2.1 – Information Needed** on a first app: physical-device
+  screen recording from launch showing every permission prompt, devices/OS
+  tested, function + audience, setup, external services, regions, third-party
+  material. Pre-empt it: keep all seven in the Review Notes (template in
+  `bamware-brewdesk/fastlane/review_information/notes.txt`, ≤4000 chars).
+- Reply pack pattern: `submission/<version>/resolution-center/<date>-<guideline>.md`
+  with Apple's text verbatim, the reply, and the human shot list.
