@@ -413,6 +413,31 @@ merged in a later pass.
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
 
+## 2026-09-08 (PM) — brewdesk#149 fixed, release/1.0.4 uploaded for the 2.1 video
+Recording the 2.1 video exposed a real bug: `LocationPermissionView` was the
+ONLY caller of `requestAccess()`, so after the intro ("Use Union Square
+instead", or a Settings reset to "Ask Next Time") nothing in the app could
+ever trigger the iOS permission alert. Fix (PR #150, QA-merged): Spots map
+header shows `LocationUndeterminedBanner` ("Location is off — showing NYC." +
+"Use my location") whenever status is `.notDetermined`; new
+`-UITestLocationUndetermined` seam. Evidence: 3/3 location UI tests +
+ReviewerSimulation 2/2 (Release, live engine) + VenueKit 24/24. Also fixed
+two denied-location tests that were already red on main (stale "3 work
+spots" literal → header card + fixture pin, #37).
+**release/1.0.4** cut from main `6b762ca`, gate flip committed (`df6e982`),
+archive plist-verified `BDStoreSurfaceGated = YES`, **uploaded to ASC via the
+free local rail 14:52 local ("Upload succeeded")**. Build number is
+Xcode-managed — tag `store/1.0-buildN` once processing mail names it.
+Bilal's video plan: install the new TF build → Settings → Location → BrewDesk
+→ "Ask Next Time" → record from Home screen → tap the map banner's "Use my
+location" → iOS alert appears. iOS retains location grants across a
+delete+reinstall, so deletion alone is NOT a reliable way to re-trigger the
+alert (learned today, twice).
+Process correction (Bilal, 2026-09-08): I wrongly asked him to merge #150.
+Agents QA-merge after green + evidence (AGENTS.md, 2026-08-21); the old
+"merging stays with Bilal" line in the 08-19 entry below is superseded.
+Spend: $0.
+
 ## 2026-09-08 — ⏸️ Apple paused the review: Guideline 2.1 Information Needed (since 2026-08-31)
 Apple's App Store Connect mail "There's an issue with your BrewDesk submission"
 landed 2026-08-31 22:29Z, 39 s before the "In Review" status mail, and sat
