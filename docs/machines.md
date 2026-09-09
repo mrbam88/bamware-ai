@@ -48,12 +48,34 @@ Good for:
 - Long research and bulk reads
 
 Installed: `adb`, OpenJDK 17, Android SDK at `~/Android/Sdk`, node 20, docker,
-aws-cli 2, `rg`, `gh`, `git`.
-Not installed: `flutter`, `dart`, `vercel`, `fd`, `fzf`, `lazygit`.
+aws-cli 2, `gh`, `git`, plus a user-local toolchain in `~/.local/bin` (see below).
+Not installed: `flutter`, `dart`, `vercel`.
 `ANDROID_HOME` is unset even though the SDK directory exists.
-Editor: neovim config is `mrbam88/nvim` → `~/.config/nvim`; Ubuntu's apt
-neovim is 0.6.1 and **too old for LazyVim** (needs ≥0.9) — install a current
-build separately.
+
+**No passwordless sudo.** `apt` and `snap` both prompt for a password, so an
+unattended agent cannot install system packages here. Install user-local
+instead: `~/.local/bin` is already on `PATH`, and upstream release binaries
+land there without sudo. Everything below was installed that way.
+
+### Editor (set up 2026-09-08)
+
+Config is `mrbam88/nvim` (LazyVim) at `~/.config/nvim`. Neovim **v0.12.5** in
+`~/.local/opt/nvim-linux-x86_64`, symlinked to `~/.local/bin/nvim`. Ubuntu's apt
+neovim is 0.6.1 — below LazyVim's 0.9 floor — which is why the tarball is used.
+Also user-local for LazyVim: `rg` 15.2, `fd` 10.5, `fzf` 0.74, `lazygit` 0.65,
+`tree-sitter` 0.25.10. 24 treesitter parsers built; `lua_ls` attaches.
+
+**glibc ceiling — this will bite again.** Ubuntu 22.04 ships glibc 2.35.
+tree-sitter CLI ≥0.26 is built against glibc 2.39 and dies with
+``version `GLIBC_2.39' not found``. **0.25.10 is the newest that runs here.**
+Expect the same class of failure from any recent Rust/Go release binary; check
+`ldd --version` before assuming "latest" is installable.
+
+**`rg` was a false positive, twice.** Claude Code's shell snapshot defines `rg`
+as a *shell function*, so `command -v rg` succeeds in an agent shell while no
+`rg` binary exists — nvim's `checkhealth` then reports it missing and the
+picker's grep is dead. When auditing what is installed on a machine, verify
+with `ls -la "$(command -v X)"` or `type X`, not `command -v X` alone.
 
 ## Rules
 
