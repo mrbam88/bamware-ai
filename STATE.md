@@ -5,8 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-08 — **Apple paused the BrewDesk 1.0 (18) review on 2026-08-31 with Guideline 2.1
-> Information Needed (NOT a rejection). Reply pack ready in brewdesk PR #148; Bilal records the video + replies.**
+> Last updated: 2026-09-09 — **2.1 Information Needed reply SENT to App Review (build 19 selected, video attached).
+> Waiting on Apple. Android parked.**
 
 ## Vision (one line)
 
@@ -412,6 +412,21 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-09-09 — ✉️ 2.1 reply SENT; waiting on Apple
+Bilal sent the Resolution Center reply (3,435 chars; ASC caps replies at
+4,000 — the long draft had to be cut) with take 3 attached, selected build
+1.0 (19) for the version, and entered the ASC finals: Productivity / Food &
+Drink, 4+, © 2026 Bamware, content rights, App Privacy "Data Not Collected",
+description (fixed by brewdesk#152 — it still claimed NYC-only cafés and
+"outside NY you see the full dataset") and Review Notes pasted from the repo.
+Closed brewdesk#31, #136. Final text + ASC state recorded in
+`bamware-brewdesk/submission/1.0.3/resolution-center/`.
+**Next:** Apple usually answers in 1–3 business days. Bilal checks the ASC
+App Review page (agents do NOT read his inbox — his rule, 2026-09-09). If
+4.3(b): send Reply 1 from `docs/rejection-response-pack.md`. If approved:
+retire release/1.0.4, flip bamware.io/brewdesk store CTA live (web), then
+unpark Android. Spend: $0.
 
 ## 2026-09-08 (PM) — brewdesk#149 fixed, release/1.0.4 uploaded for the 2.1 video
 Recording the 2.1 video exposed a real bug: `LocationPermissionView` was the
