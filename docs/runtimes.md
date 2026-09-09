@@ -4,18 +4,25 @@ Agents differ by RUNTIME, not just by skill. A job handed to the wrong runtime
 doesn't fail loudly — it half-completes and leaves debris. Check this table
 before assigning or accepting work.
 
+**Runtime is only half the answer — check the MACHINE too**
+(`docs/machines.md`). The CLI column below assumes the Mac. The same CLI on the
+ThinkPad (Ubuntu) has no Xcode, no simulators, no fastlane and no signing, so
+every row marked *Mac only* is unavailable there regardless of runtime.
+
 ## Capability matrix
 
-| Capability | Claude Code CLI | Sol / opencode | Claude Cowork (cloud) |
-|---|---|---|---|
-| `git push` / release tags | ✅ owns it | ✅ | ✅ API connector; container git needs repo authorized |
-| Repo read/write via GitHub API | ✅ | ✅ | ✅ owns it — no checkout, no lock cruft |
-| Xcode, simulators, `xcodebuild` | ✅ owns it | ✅ | ❌ no macOS |
-| fastlane, App Store Connect, signing | ✅ owns it | — | ❌ |
-| Credential-bearing ops (EAS, AWS, Vercel) | ✅ owns it | — | ⚠️ connector-based only |
-| SwiftUI / client feature work | ❌ reads only | ✅ owns it | ❌ |
-| Backend / API / data work | ✅ owns it | ❌ reads only | ✅ scratch + research |
-| Long unattended runs, bulk research | ⚠️ rate-limited | ⚠️ | ✅ owns it |
+| Capability | Machine | Claude Code CLI | Sol / opencode | Claude Cowork (cloud) |
+|---|---|---|---|---|
+| `git push` / release tags | any | ✅ owns it | ✅ | ✅ API connector; container git needs repo authorized |
+| Repo read/write via GitHub API | any | ✅ | ✅ | ✅ owns it — no checkout, no lock cruft |
+| Xcode, simulators, `xcodebuild` | **Mac only** | ✅ owns it | ✅ | ❌ no macOS |
+| fastlane, App Store Connect, signing | **Mac only** | ✅ owns it | — | ❌ |
+| Physical iPhone install / screen recording | **Mac only** | ✅ owns it | — | ❌ |
+| Credential-bearing ops (EAS, AWS, Vercel) | any | ✅ owns it | — | ⚠️ connector-based only |
+| SwiftUI / client feature work | **Mac only** | ❌ reads only | ✅ owns it | ❌ |
+| Backend / API / data work | any | ✅ owns it | ❌ reads only | ✅ scratch + research |
+| Flutter / Android build | Mac or ThinkPad | ✅ | — | ❌ |
+| Long unattended runs, bulk research | any | ⚠️ rate-limited | ⚠️ | ✅ owns it |
 
 ## Ownership rules
 
@@ -24,6 +31,8 @@ before assigning or accepting work.
 - Credentials never move to close a capability gap. Reassign the job instead.
 - Hand off through files in a repo, never chat.
 - Builds, tags, releases, signing stay native (CLI on the Mac).
+- A *Mac only* row is a hard stop on the ThinkPad, not a slow path. Reassign
+  the ticket to the Mac runner; never improvise a substitute.
 
 ## Cowork and git — the details
 
