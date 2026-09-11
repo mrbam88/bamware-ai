@@ -88,3 +88,12 @@ with `ls -la "$(command -v X)"` or `type X`, not `command -v X` alone.
   vendor logins (`claude login`, `opencode auth`), `~/.oh-my-zsh`.
 - Shell/editor config syncs through `mrbam88/dotfiles` (`dots-pull` /
   `dots-push`); nvim through `mrbam88/nvim`. Both are separate from this repo.
+- **Terminal look (set 2026-09-11):** Tokyo Night Storm, ~4% transparency,
+  JetBrainsMono Nerd Font 14, matched to nvim's `tokyonight-storm`
+  (transparent bg, `lua/plugins/theme.lua`). Mac: iTerm2 dynamic profile
+  `dotfiles/iterm2/tokyonight-storm-glass.json` (iTerm writes GUI tweaks back
+  into that file — commit them). ThinkPad: `dotfiles/linux/` scripts create the
+  same GNOME Terminal profile via dconf + install the font user-local;
+  `install.sh` runs both on Linux and pulls the nvim repo. Bilal is red-green
+  colorblind — the nvim config also carries colorblind-safe alternates
+  (`colorschemes-colorblind.lua`); prefer blue/orange over red/green in any UI.
