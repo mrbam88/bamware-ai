@@ -5,8 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-09 — **2.1 Information Needed reply SENT to App Review (build 19 selected, video attached).
-> Waiting on Apple. Android parked.**
+> Last updated: 2026-09-12 — **🎉 BREWDESK 1.0 IS LIVE ON THE APP STORE (approved 2026-09-12).
+> Post-approval steps done: release branches retired, bamware.io store links LIVE (web PR #36 merged). Android unparked — next.**
 
 ## Vision (one line)
 
@@ -112,6 +112,7 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 
 | Date | What |
 |---|---|
+| 2026-09-12 | **🎉 BrewDesk 1.0 (build 19) APPROVED and LIVE on the App Store** — Apple ID 6802930990, https://apps.apple.com/us/app/id6802930990. Cleared Guideline 2.1 Information Needed (reply sent 2026-09-09) with no 4.3(b) ruling. Release branches retired, bamware.io store links live (web PR #36), Android unparked. |
 | 2026-08-31 | **Baat open-sourced → `mrbam88/bamware-baat` (public, MIT) + profile visibility sweep.** Ticket #5 executed: fresh-history export of `bamware-dating-app@main` (fa0d148), single commit, CI green on it (typecheck + 231 Jest tests + secret tripwire), gitleaks clean. Name `bamware-baat` per Bilal (ticket said `baat-rn`). Per audit #4 "not-secret" findings, `fastlane/` (certs excluded), `.maestro/`, `docs/RELEASING.md`, Gemfile were KEPT as showcase exhibits (README #7 links them) with identifiers placeholdered: bundle → `com.example.baat`, team id / apple id / EAS projectId stripped. `src/config/tenant.ts` → `app.config.ts` (`AppConfig`), tenantId `baat`, endpoints env-ified (`EXPO_PUBLIC_AUTH_URL` / `EXPO_PUBLIC_DATING_URL`). `client-core` / dating-service names survive only as prose in README + ADR 0001. Unverified criterion: simulator boot smoke. **Visibility sweep (executed per Bilal live; supersedes #8's list):** 23 public → 7: bamware-ai, kinesis, bamware-ios (kept — public bamware-brewdesk's packages), brewdesk-web, bamware-brewdesk, bamware-brewdesk-flutter, bamware-baat. Other 17 now private (incl. DSA-Practice, contra #8; PeopleCRM fork flipped fine). Every flipped-public repo history-scanned with gitleaks first. `bamware-dating-app` stays private (tainted history), unrenamed. |
 | 2026-08-21 | **bd#37 shipped → PR #42 (Ready for QA):** live-data UI tests are rank-independent — new `BrewDeskUITests/UITestHelpers.swift` (`mapPins`/`venueRows`/`firstVenueRow`, match element shape not venue name); `testSaveCafeFromDetails` opens the top-ranked row and carries its name; two venue-detail a11y tests navigate the same way; screenshot rig swaps its two rank-dependent asserts only (composition left for #30). Release on iPhone 17 Pro Max against production: all BrewDeskUITests green except `testVenueDetailAccessibilityAudit`, which now navigates and fails on audit content (hero link hit-area/contrast = bd#36). Found: a cross-test interaction (an earlier save flips "Save"→"Saved" on the top venue) — fixed with `-brewdesk.saved-venue-ids ""`. Overnight supervisor session QA-merges under the Actions-billing waiver; #30 handed to it. |
 | 2026-08-20 (late) | **Approval lane opened — brewdesk#27 empty/error-state audit → PR #38, Ready for QA.** Every screen (Map/List/Detail/Saved/Import/Methodology) now has an intentional state under engine 500, empty, offline, photo failures, slow, location denied; 18 fixture-driven `DegradedStateTests` green in Release on iPhone + iPad. The ticket's premise "stub listing injectable already" was false — `RootView` ignored injection under DEBUG — so a launch-arg seam was added: `-UITestScenario <fixtureOK|engineDown|offline|emptyVenues|photosEmpty|photosFail|slow>` + `-UITestLocationDenied` (`ScenarioVenueService` in VenueKit). **#26 and #28 should build on it.** Also: `VenueAPI` 15 s request timeout (was 60), Import no longer blames the file for an engine failure, Saved surfaces partial hydration failures. Full Release suite found 3 pre-existing failures, filed: brewdesk#36 (methodology link fails a11y audit: hit area + contrast) and #37 (live-data tests hardcode "Gregorys Coffee", now rank 12 after the day's rescoring → `testSaveCafeFromDetails` + screenshot rig fail; overlaps #30). Board hygiene: brewdesk#1–6, #8 were already merged (PR #17/#23/#24) but sat in Ready for QA → moved to Done. **Tooling:** 32 third-party skills installed with the `skills` CLI are now committed here (`.agents/skills/` real copies, `skills/`+`.claude/skills/` symlinks, `skills-lock.json`); `check-context.py` skips symlinked entries (see skills/INDEX.md "Third-party"). |
@@ -412,6 +413,34 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-09-12 — 🎉 APPROVED. BrewDesk 1.0 is live on the App Store
+Apple approved version 1.0 (build 19) three business days after the 2.1
+reply. Public listing verified via the iTunes lookup API: "BrewDesk — WFH
+Cafés", released 2026-09-12T11:07Z, Productivity / Food & Drink, Apple ID
+6802930990 → https://apps.apple.com/us/app/id6802930990. First Bamware app
+to clear App Review; the 4.3(b) exposure flagged since Baat's rejection did
+not materialize (AI-transparency positioning + evidence-first notes held).
+**Post-approval steps executed the same day:**
+- `release/1.0.3` + `release/1.0.4` deleted on origin (tips preserved by
+  tags `store/1.0-build18` / `store/1.0-build19`, per docs/RELEASING.md).
+- bamware-web PR #36 **merged → bamware.io + bamware.io/brewdesk verified
+  live** with the App Store link (TestFlight button hidden once a store link
+  exists; Google Play stays coming-soon). Lint + build + 11/11 tests green.
+  Found: bamware-web CI `check` has failed on EVERY run since 2026-08-30
+  (Node 20 can't load the .ts test) → web#37, boarded P2/Infra/S/Human-only.
+  The Node-24 patch is in the ticket; pushing workflow files needs
+  `gh auth refresh -h github.com -s workflow` once on the Mac (agent tokens
+  lack the `workflow` scope — learned today).
+- Board hygiene: brewdesk#31/#33/#68/#69/#70/#87/#89 were closed but not
+  Done → Done. Draft PR brewdesk#147 closed (superseded by #148).
+**Android UNPARKED** (the 2026-09-08 decision said "revisit after Apple
+approves"). Still true: personal Play account needs 12 opted-in testers for
+14 days before production; Play package/key registration deadline 2026-09-30
+(Human-only). Next Android moves need Bilal's call on the tester route.
+**Still open:** venue-engine PR #59 (CORS allowlist for brewdesk-web) looks
+mergeable; 30 venues need the paid photo backfill (quote first).
+Spend: $0.
 
 ## 2026-09-09 — ✉️ 2.1 reply SENT; waiting on Apple
 Bilal sent the Resolution Center reply (3,435 chars; ASC caps replies at
