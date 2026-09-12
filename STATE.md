@@ -28,6 +28,19 @@ accounts, community photos/observations, report/block, bylines (bd#67) —
 turning them on is a small release. Scoreboard for later: App Store Connect
 analytics (free, keeps "Data Not Collected").
 
+**NYC data spike (2026-09-12, Bilal: "dominate NYC, cheap, no wasted ideas") →
+`bamware-venue-engine/docs/research/nyc-data-improvement-2026-09.md` (PR #62).**
+No paid API has a laptop-friendly field; Google/Foursquare cheap but forbid
+storing content; Yelp ~$50/mo via its 24 h cache rule (rejected again). Free
+signal we don't use: OSM `internet_access` on 492 NYC cafés, `outdoor_seating`
+on 876, `laptop=*` on 5 (Overpass counts verified live). NYC open data (NYPL/
+BPL/QPL branches, LinkNYC, Wi-Fi hotspots, POPS) = thousands of storable pins
+for $0. Cheapest LLM research: Perplexity Sonar base ~$5.40/300 venues; the
+ve#4 pipeline has NO web search wired, so its quotes can't be trusted yet.
+**Plan: $0 this week** — ship ve#39/#40/#41 (still open since August), OSM
+re-import with the proven tags, open-data ingest, laptopfriendly.co scrape
+(92 NYC venues); then a gated $0–2/mo Sonar batch. Awaiting Bilal's go.
+
 **Approval-day critique (2026-09-12) → `bamware-brewdesk/docs/product-critique-2026-09-12.md`**
 (PR #153; visual version with screenshots:
 https://claude.ai/code/artifact/4d4f88d3-b670-466d-b256-9bdb3cdedcc6).
