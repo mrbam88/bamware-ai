@@ -6,7 +6,7 @@
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
 > Last updated: 2026-09-12 — **🎉 BREWDESK 1.0 IS LIVE ON THE APP STORE (approved 2026-09-12).
-> Post-approval steps done: release branches retired, bamware.io store links LIVE (web PR #36 merged). Android unparked — next.**
+> Post-approval steps done. Direction (Bilal, 2026-09-12): PRODUCT POLISH FIRST — the MVP got through Apple, now make it an app he's happy with. Marketing second. Money third.**
 
 ## Vision (one line)
 
@@ -15,6 +15,18 @@ SaaS, dedicated instances, full buyouts, + consulting (docs/business-models.md).
 First product: **Baat**, Pan-South Asian dating app.
 
 ## Now building
+
+**Post-approval direction (decided by Bilal, 2026-09-12):** the 1.0 binary
+was the MVP that got through App Review; Bilal does not consider it a great
+product yet. Order of work: **(1) product polish** until Bilal is happy with
+the app — "polish the doorknob"; **(2) marketing campaign** (launch posts,
+listing keywords, web city pages); **(3) monetization** — BrewDesk Plus per
+brewdesk#120's rule (local saves free forever; Plus sells server-backed
+sync/alerts/speed tests). No ads spend, no paid venue placement (would break
+the "every score shows its work" positioning). Already built but gated OFF:
+accounts, community photos/observations, report/block, bylines (bd#67) —
+turning them on is a small release. Scoreboard for later: App Store Connect
+analytics (free, keeps "Data Not Collected").
 
 **Native platform track:** `bamware-brewdesk` is the SwiftUI proving ground for
 `bamware-ios`; `bamware-venue-engine` is the companion local Express API.
