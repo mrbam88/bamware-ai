@@ -429,9 +429,9 @@ not materialize (AI-transparency positioning + evidence-first notes held).
   exists; Google Play stays coming-soon). Lint + build + 11/11 tests green.
   Found: bamware-web CI `check` has failed on EVERY run since 2026-08-30
   (Node 20 can't load the .ts test) → web#37, boarded P2/Infra/S/Human-only.
-  The Node-24 patch is in the ticket; pushing workflow files needs
-  `gh auth refresh -h github.com -s workflow` once on the Mac (agent tokens
-  lack the `workflow` scope — learned today).
+  Bilal ran `gh auth refresh -s workflow` → PR #38 merged, CI green
+  (11/11) for the first time since 08-30, web#37 closed. Lesson: agent
+  tokens need the `workflow` scope to touch `.github/workflows/`.
 - Board hygiene: brewdesk#31/#33/#68/#69/#70/#87/#89 were closed but not
   Done → Done. Draft PR brewdesk#147 closed (superseded by #148).
 **Android UNPARKED** (the 2026-09-08 decision said "revisit after Apple
