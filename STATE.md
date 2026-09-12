@@ -28,6 +28,21 @@ accounts, community photos/observations, report/block, bylines (bd#67) —
 turning them on is a small release. Scoreboard for later: App Store Connect
 analytics (free, keeps "Data Not Collected").
 
+**Approval-day critique (2026-09-12) → `bamware-brewdesk/docs/product-critique-2026-09-12.md`**
+(PR #153; visual version with screenshots:
+https://claude.ai/code/artifact/4d4f88d3-b670-466d-b256-9bdb3cdedcc6).
+Verdict: the promise is stronger than the data. Measured live: 21 of the top
+200 NYC venues have researched claims (179 estimates), seating unknown on all;
+outside NYC 0 venues know laptop policy/seating/outlets and every score is
+50–55, so ranking is meaningless. Four real bugs found: pins vanish after
+clearing search, search text persists + appends across relaunch, search does
+not pan the map, blank tiles on the "Use Union Square" path. Polish sprint
+order recommended: bugs → unknown-experience rework (no score at 0%
+confidence, estimates visibly "not checked yet") → distance + open-now on
+cards + plain-English verdict → colorblind-safe pins + dark mode → open the
+community gate → research depth (top 30 in 5 metros) before breadth.
+Awaiting Bilal's cut before tickets are filed.
+
 **Native platform track:** `bamware-brewdesk` is the SwiftUI proving ground for
 `bamware-ios`; `bamware-venue-engine` is the companion local Express API.
 The Xcode development workspace substitutes the sibling shared-package checkout
