@@ -12,7 +12,10 @@
 
 White-label mobile-first software business, ALL altitudes: multi-tenant
 SaaS, dedicated instances, full buyouts, + consulting (docs/business-models.md).
-First product: **Baat**, Pan-South Asian dating app.
+First SHIPPED product: **BrewDesk** (App Store, 2026-09-12 —
+https://apps.apple.com/us/app/id6802930990). Baat (dating) was the first
+build; its native iOS track is closed under 4.3(b) and it lives on as an
+open-source showcase.
 
 ## Now building
 

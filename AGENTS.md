@@ -51,6 +51,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - Submitting anything to the App Store? Baat was rejected under 4.3(b) on
   2026-08-04 (verbatim in STATE.md log). Don't resubmit the dating concept;
   every new app's differentiator must be visible in the binary and listing.
+  BrewDesk was approved 2026-09-12 with that recipe — the template lives in
+  docs/app-review-field-notes.md.
 - About to run git or Xcode from Cowork? Check docs/runtimes.md first.
 - Merging agent PRs? QA merges after CI green + evidenced QA pass
   (adopted 2026-08-21). Bilal-only gates: store submission, spend,

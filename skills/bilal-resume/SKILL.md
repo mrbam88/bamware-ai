@@ -58,7 +58,9 @@ Earlier: Computer Software Inc. (Mar 2015 – Oct 2016), WM Robots
 studio coordinating specialist AI agents across design, mobile, cloud, and QA,
 governed by guardrails, evaluations, and automated review gates. Built Baat, a
 branded dating app with auth, discovery, profiles, real-time messaging, and
-conversational bots on React Native and Expo.
+conversational bots on React Native and Expo. Shipped BrewDesk, a SwiftUI
+iOS app on the App Store that helps remote workers find laptop-friendly
+cafés using AI-researched data (Bilal's wording, 2026-09-12).
 
 ## Notes
 

@@ -129,3 +129,16 @@ degradation without a health counter is silent data loss.
   with Apple's text verbatim, the reply, and the human shot list.
 - The 2.1 video: iOS strips the system location alert from screen
   recordings. Tell the reviewer in one sentence; don't re-record.
+- Outcome on BrewDesk: approved 3 business days after the 2.1 reply
+  (2026-09-12). Confirm a listing is live with the free iTunes lookup API
+  (`https://itunes.apple.com/lookup?id=<appleId>`), not the inbox.
+
+## After approval (executed 2026-09-12)
+
+1. Delete `release/<ver>` on origin — the `store/<ver>-buildN` tag keeps
+   the exact reviewed commit; the branch is never merged back.
+2. Flip the marketing site's store button to the real URL
+   (`https://apps.apple.com/us/app/id<appleId>`) via PR; verify prod.
+3. Board hygiene: closed tickets → Done, stale draft PRs closed.
+4. Record the approval and the post-approval direction in STATE.md and
+   in `docs/app-review-field-notes.md` (what worked, for the next app).

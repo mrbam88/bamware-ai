@@ -12,6 +12,12 @@ Registered 2026-09-08. Two devices, both Bilal's.
 
 **The only machine that can ship.** Everything Apple lives here and nowhere else.
 
+- `gh` token on this Mac carries the `workflow` scope (refreshed by Bilal
+  2026-09-12 via `gh auth refresh -h github.com -s workflow`). Without it
+  GitHub rejects any push touching `.github/workflows/` ("refusing to allow
+  an OAuth App to create or update workflow"). If a push fails that way on
+  another machine, that one-liner is the fix — not a code change.
+
 - Xcode, simulators, `xcodebuild`, XCUITest
 - fastlane, App Store Connect upload, signing — the **free local rail** that
   replaces GitHub Actions macOS runners (Actions is BACKUP only, 2026-08-21;

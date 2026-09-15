@@ -97,6 +97,8 @@ Terraform, Vercel
   design, mobile development, cloud infrastructure, and quality assurance.
 - Designed the workflow around guardrails, evaluations, automated review gates,
   and hands-on technical oversight.
+- Shipped BrewDesk, a SwiftUI iOS app on the App Store that helps remote
+  workers find laptop-friendly cafés using AI-researched data.
 - Developed Baat, a fully branded dating application with authentication,
   discovery, profiles, real-time messaging, and conversational bots using React
   Native and Expo.

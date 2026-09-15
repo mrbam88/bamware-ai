@@ -1,4 +1,4 @@
-# App Review field notes — 4.3(b) evidence base (as of 2026-08-19)
+# App Review field notes — 4.3(b) evidence base (as of 2026-09-12)
 
 _Replaces the removed `app-store-rejections.md`, which asserted an unverified
 "account is flagged" claim as fact. This file is facts + sourced community
@@ -89,3 +89,22 @@ log entry._
   2026-09-08, three takes). The app requested it every time; the recording
   never showed it. Do not chase this as an app bug or a permission-reset
   problem. Say so in the reply, or film the phone with a second camera.
+
+## 2026-09-12 — BrewDesk 1.0 (19) APPROVED (first-hand) — the template that worked
+
+- Timeline: submitted 2026-08-31 → 2.1 Information Needed the same night
+  (unread 8 days) → reply + video sent 2026-09-09 → **approved 2026-09-12**,
+  three business days later. Released 11:07Z; public via the iTunes lookup
+  API (`https://itunes.apple.com/lookup?id=6802930990`, free, no auth — the
+  fastest way for an agent to confirm a listing is live).
+- No 4.3(b) ruling despite a saturated "café finder" category. What we
+  believe carried it: the differentiator was IN the binary and the listing
+  (evidence-labeled claims, published scoring formula, "AI-researched"
+  positioning), Data Not Collected privacy, no accounts/UGC/IAP in v1
+  (store-surface gate), and Review Notes that pre-answered items 2–7 of
+  the 2.1 list. Same reviewer-facing honesty is what Baat lacked.
+- Post-approval checklist executed the same day: retire the release
+  branch (tags keep the tip), flip the marketing-site store button, board
+  hygiene, record in STATE.md. Then the founder's call: product polish
+  before marketing before money.
+

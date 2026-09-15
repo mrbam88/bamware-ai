@@ -13,8 +13,8 @@ this when you are about to work in a repo, not at session start.
 | `bamware-workspace` | Meta-repo: submodules pinning known-good SHAs across repos + ops docs (RUNBOOK, HANDOFF). NOT a dev checkout — never run dev servers from it. | n/a |
 | `bamware-web` | Marketing site + web auth targets (terms/privacy, reset-password, verify-email, member sign-up, universal-links well-known files). Next.js. | Vercel (build breaks block deploy) |
 | `bamware-ios` | Reusable Swift package products: Core, UI, Messaging. Tenant-aware native foundation. | Swift Package |
-| `bamware-brewdesk` | BrewDesk native SwiftUI app. Uses local BrewDeskKit/VenueKit and the shared iOS package. | Local/TestFlight |
-| `bamware-brewdesk-flutter` | BrewDesk Flutter/Android client. Material 3, MVVM/repositories, OpenStreetMap map, local accountless saves; consumes the same Venue Engine contract as SwiftUI. | Local/Google Play (internal-testing rail pending) |
+| `bamware-brewdesk` | BrewDesk native SwiftUI app. Uses local BrewDeskKit/VenueKit and the shared iOS package. | **App Store — LIVE since 2026-09-12** (Apple ID 6802930990, `io.bamware.brewdesk`); store builds cut from `release/<ver>` branches, tagged `store/<ver>-buildN` |
+| `bamware-brewdesk-flutter` | BrewDesk Flutter/Android client. Material 3, MVVM/repositories, OpenStreetMap map, local accountless saves; consumes the same Venue Engine contract as SwiftUI. | Google Play — submitted 2026-08-31 (build 8); production gated on a 12-tester × 14-day closed test; unparked 2026-09-12, no work started |
 | `bamware-venue-engine` | Express/Zod venue API with committed NYC cafe seed data. Backend partner for BrewDesk. | Vercel (`venuekit-ashen.vercel.app`) |
 | `bamware-mcp` | MCP server exposing platform ops as agent tools: `create_tenant`, `seed_demo_data`, `board_ops`, `provision_dedicated` (renders Terraform + opens PR; `apply` stays human-gated). GitHub auth rides on `gh` CLI; never handles tokens. pnpm, tsup, vitest. | local (any MCP harness) |
 | `interviews` | Private. Job-search tracker (one file per application) plus PII, EEO, and compensation answers. | n/a |
