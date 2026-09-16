@@ -68,18 +68,17 @@ current figure in a form field.
   experience, I would target the top of it." (Used 2026-08-21 on Ro and
   MyFitnessPal.) Compare against the private repo's numbers every time.
 
-## Content rule: Bamware apps (Bilal, 2026-08-21)
+## Content rule: Bamware apps (updated 2026-09-16)
 
-**Never name an unreleased Bamware app in any application material.** That
-means Baat and BrewDesk, in forms, letters, short answers, and chat drafts.
-They are not in production. Describe the studio generically ("a multi-agent
-mobile app studio", "working mobile software, React Native and Expo clients
-to SwiftUI, with automated release pipelines through to TestFlight") and
-never imply a product is live. Proof points come from the resume's employers
-instead: Photobucket native modules, FreedomCare platform replacement, VPG
-clinical research, Allscripts PHR, NuvoAir devices. Open item: the 2026
-resume PDF's projects section still names Baat; Bilal decides whether to
-revise it.
+**Never name an unreleased Bamware app in application material or imply it is
+in production.** This still applies to Baat, which is removed from Bilal's
+current resume. BrewDesk is released and is the featured project in the PDF
+Bilal supplied on 2026-09-16; it may be named. Use the current wording in
+`bilal-resume` for BrewDesk and the studio.
+
+Employer proof points remain Photobucket native modules, FreedomCare mobile
+team and platform modernization, VPG clinical research, Allscripts PHR, and
+NuvoAir devices. Use the current resume's ownership wording.
 
 ## More standard answers
 

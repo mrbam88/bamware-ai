@@ -1,26 +1,27 @@
 BILAL MALIK
 Lead Mobile Engineer, AI-Native
 
-bmalik.ee@gmail.com | (607) 207-8048 | New York, NY
-bamware.io | github.com/mrbam88 | linkedin.com/in/bilal-malik-797abb35
+bmalik.ee@gmail.com | New York, NY
+bamware.io | github.com/mrbam88
 
 SUMMARY
 
-Lead mobile engineer and former engineering manager with 15+ years delivering
-production applications across healthcare, clinical research, cloud media,
-government, and robotics. Built products serving 1M+ patients and 25,000+ daily
-homecare users while leading teams and owning mobile, backend, and cloud
-architecture. Recently adopting best AI-native engineering practices to ship
-faster without compromising quality.
+Mobile engineering leader with 15+ years shipping production applications across
+healthcare, clinical research, consumer media, government, and robotics. Led a
+major redesign of a health records app used by over one million patients. Built
+and led the mobile team behind a homecare app serving 25,000+ daily users. Owned
+architecture across mobile, backend, and cloud. Integrates AI tools and agent
+workflows into development, supported by automated reviews and direct technical
+oversight.
 
 SKILLS
 
 Mobile: Swift, SwiftUI, UIKit, Combine, Objective-C, React Native, TypeScript,
 Expo, Kotlin, Jetpack Compose, Flutter, HealthKit, ResearchKit, CareKit, Bluetooth
 
-AI Engineering: Cursor, Claude Code, Codex, OpenCode; Multi-Agent Orchestration,
-MCP, Skills-Based Workflows; Skills-Based Guardrails, Context Engineering,
-Automated Review Gates, Human Oversight
+AI Engineering: AI-Assisted Development: Cursor, Claude Code, Codex, OpenCode |
+Agentic Workflows: Multi-Agent Orchestration, MCP, Reusable Skills |
+Quality Controls: Context Engineering, Automated Reviews, Human Oversight
 
 Cloud & Backend: AWS, GCP, Azure, Firebase, Vercel, Terraform, Serverless, REST,
 GraphQL, Node.js, Express, Django, DynamoDB, PostgreSQL, MongoDB
@@ -33,10 +34,10 @@ EXPERIENCE
 Lead Mobile Developer - Vector Psychometric Group, LLC, Remote
 Apr 2025 - Jul 2026
 Stack: React Native, TypeScript, Azure, Django, Claude Code, Cursor
-- Served as the sole mobile engineer for a React Native platform delivering
-  electronic clinical outcome assessments for regulated clinical research.
-- Rebuilt survey rendering, authentication, and API integration as configurable,
-  reusable workflows supporting study-specific requirements.
+- Owned React Native development as the sole mobile engineer for a platform
+  delivering electronic clinical outcome assessments for regulated clinical research.
+- Designed and built a configurable survey engine supporting assessment workflows
+  tailored to individual studies.
 
 Lead Mobile Developer - Photobucket Inc., Remote
 Jan 2024 - Dec 2024
@@ -57,16 +58,12 @@ Stack: SwiftUI, Core Bluetooth, BLE medical devices, Fastlane
 Mobile Engineering Manager - FreedomCare LLC, New York, NY
 Mar 2021 - Feb 2023
 Stack: SwiftUI, Combine, Kotlin, Jetpack Compose, React Native, Node.js, AWS Serverless
-Homecare platform supporting more than 25,000 daily users, including caregivers
-serving elderly and disabled patients.
-- Built and led the mobile team: hired, managed, and mentored the developers
-  behind the company's apps.
-- Replaced legacy iOS and Android apps with modern SwiftUI, Kotlin, and React
-  Native implementations.
-- Stayed hands-on with architecture, code review, and production delivery while
-  managing the team.
+- Hired, managed and mentored the mobile team supporting a homecare platform
+  with more than 25,000 daily users.
+- Modernized legacy iOS and Android applications while remaining directly
+  involved in architecture, code review and production delivery.
 - Built APIs and microservices supporting the mobile platform using Node.js,
-  Express, AWS Serverless, PHP, and SQL.
+  Express, AWS Serverless, PHP and SQL.
 
 Senior Full Stack Developer - Cognosante Inc., Remote
 Mar 2018 - Nov 2020
@@ -90,18 +87,14 @@ patients and ranked fourth among free medical applications on the App Store.
 PROJECTS & OPEN SOURCE
 
 bamware - Multi-Agent AI Mobile App Studio (2024 - present)
-bamware.io | github.com/mrbam88
-Stack: Multi-agent systems, Claude Code, CrewAI, React Native, Expo, SwiftUI,
+bamware.io
+Stack: Multi-agent systems, Claude Code, Node, React Native, Expo, SwiftUI,
 Terraform, Vercel
-- Built an open-source app studio that coordinates specialized AI agents across
-  design, mobile development, cloud infrastructure, and quality assurance.
-- Designed the workflow around guardrails, evaluations, automated review gates,
-  and hands-on technical oversight.
-- Shipped BrewDesk, a SwiftUI iOS app on the App Store that helps remote
-  workers find laptop-friendly cafés using AI-researched data.
-- Developed Baat, a fully branded dating application with authentication,
-  discovery, profiles, real-time messaging, and conversational bots using React
-  Native and Expo.
+- Built an open source studio coordinating specialized AI agents across design,
+  mobile development, cloud infrastructure and quality assurance, with automated
+  review gates and direct technical oversight.
+- Shipped BrewDesk, a SwiftUI iOS app on the App Store that helps remote workers
+  find cafés suitable for working on a laptop, using data researched with AI.
 
 EARLIER EXPERIENCE
 
