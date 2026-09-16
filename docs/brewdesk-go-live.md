@@ -65,26 +65,29 @@
    stores no location history; the only retention is Vercel Runtime Logs,
    whose request rows include *Search Params* (Vercel docs, Runtime Logs →
    Log details, updated 2026-08-03) for **1 h on Hobby / 1 day on Pro /
-   30 days with Observability Plus**; no log drain is configured. The only
-   coordinate on the wire is the map-query centre: Union Square for every
-   user who denies location or is outside NYC (incl. App Review in
-   California), the device coordinate only when granted inside coverage.
-   Asserted (brewdesk PR #39) by `PrivacyRequestAuditTests`, `VenuesModelPrivacyTests`, and the
+   30 days with Observability Plus**; no log drain is configured. Team
+   `bmalikee-8236s-projects` is on **Hobby** (Vercel `list_teams`, 2026-09-16).
+   The client still sends `GET /v1/venues?lat&lng`
+   ([brewdesk#154](https://github.com/mrbam88/bamware-brewdesk/issues/154));
+   engine header/POST channel shipped as
+   [venue-engine#16](https://github.com/mrbam88/bamware-venue-engine/issues/16)
+   but the app has not migrated. Denied location still sends the Union Square
+   anchor; granted location sends the device coordinate (bd#108: no
+   out-of-coverage substitution). Asserted (brewdesk PR #39) by
+   `PrivacyRequestAuditTests`, `VenuesModelPrivacyTests`, and the
    Release-suite `PrivacyClaimTests`; inventory in brewdesk
-   `docs/PRIVACY-AUDIT.md`. Follow-up venue-engine#16: move the
-   viewport coordinate out of the query string (header/POST) once brewdesk#27's
-   `VenueAPI` changes merge — Vercel request logs do not retain headers or
-   bodies.
+   `docs/PRIVACY-AUDIT.md`.
 
    **Privacy evidence is not complete until the Human paste below lands.**
-   Ticket: [venue-engine#19](https://github.com/mrbam88/bamware-venue-engine/issues/19).
+   Ticket: [venue-engine#19](https://github.com/mrbam88/bamware-venue-engine/issues/19)
+   stays **open**. Agents must not invent a log row.
 
    **Human-only. Needs Bilal's Vercel login for project `venuekit`
-   (team `bmalikee-8236s-projects`). Agents must not invent a log row.**
+   (team `bmalikee-8236s-projects`).** Dashboard → Logs → one production
+   `/v1/venues` row → Search Params (redact IP / User-Agent). Alternative:
+   `cd ~/code/bamware-venue-engine && npx vercel logs --since 1h`.
 
-   Capture: Vercel dashboard → `venuekit` → Logs → open one production
-   `GET /v1/venues` row → copy the **Search Params** panel (redact IP /
-   User-Agent). Alternative: `cd ~/code/bamware-venue-engine && npx vercel logs --since 1h`.
+   Bilal: paste one redacted /v1/venues Vercel log row here (Search Params + plan tier Hobby/Pro + capture date).
 
    | Field | Value |
    |---|---|
@@ -92,26 +95,31 @@
    | Plan tier (Hobby / Pro) | _empty — Bilal paste_ |
    | Capture date | _empty — Bilal paste_ |
 
-   **Vercel MCP connector-access decision (2026-09-16):** Agents do **not**
-   currently have working production privacy-log access. As of 2026-09-16:
-   other sessions hit an MCP discovery error; historically the connector
-   returned 403 / an empty project list. This session could list team
-   `bmalikee-8236s-projects` / project `venuekit` and `get_runtime_logs`
-   (path/status/cache only) — **not** the Runtime Logs Search Params panel,
-   so query-string retention cannot be re-verified from MCP. Decision:
-   evidence stays a Human paste. If we want agents to re-verify later,
-   Bilal should re-auth / grant team `bmalikee-8236s-projects` project
-   `venuekit` to the Vercel connector; Search Params proof remains
-   dashboard-only until MCP exposes it.
+   **Vercel MCP connector-access decision (2026-09-16, venue-engine#19):** Do
+   **not** claim agents can observe venuekit production logs today. Dev
+   observed Vercel MCP live tool discovery in **error** state (2026-09-16).
+   Historically: 403 / empty project list. **Bilal must re-auth / grant
+   project access** for team `bmalikee-8236s-projects` / project `venuekit`
+   before agents treat `get_runtime_logs` as a verification path
+   ([venue-engine#78](https://github.com/mrbam88/bamware-venue-engine/issues/78)).
+   One Cloud Agent session the same day listed the Hobby team and `venuekit`
+   and received runtime log *summaries* (path + status) — **not** the
+   dashboard Search Params panel. Intermittent MCP success is not durable
+   access. Search Params proof remains dashboard/CLI (Bilal's login) until
+   MCP exposes that panel.
 
-   **Six observability holes** from brewdesk#29 are being triaged on
+   **Six observability holes** from brewdesk#29, triaged 2026-09-16 on
    [venue-engine#19](https://github.com/mrbam88/bamware-venue-engine/issues/19)
-   (own ticket or explicit drop). Not closed here: (1) agents cannot observe
-   production Search Params; (2) privacy position is plan-dependent with no
-   upgrade guard; (3) CI/Release app-target test gaps; (4) out-of-band egress
-   (AsyncImage / MapKit) untestable in-app; (5) photo-URL comments diverge
-   from the production Google host; (6) Hobby proof row lives 1 h, no drain
-   or scheduled capture.
+   (fixes not built here):
+
+   | # | Hole | Decision |
+   |---|---|---|
+   | 1 | Agents cannot observe production | Ticket [venue-engine#78](https://github.com/mrbam88/bamware-venue-engine/issues/78) |
+   | 2 | Privacy position is plan-dependent with no guard | Ticket [brewdesk#154](https://github.com/mrbam88/bamware-brewdesk/issues/154) (engine #16 shipped; client still query-string) |
+   | 3 | CI/app-target tests / Release gaps | **Dropped** — brewdesk `ci.yml` already runs package tests + Release `BrewDeskTests` (PR #39). UI tests stay out of main CI on purpose (macOS-minute spend). |
+   | 4 | Out-of-band egress (AsyncImage / MapKit) | Ticket [brewdesk#155](https://github.com/mrbam88/bamware-brewdesk/issues/155) |
+   | 5 | Places-proxy comments vs `lh3.googleusercontent.com` | Ticket [brewdesk#156](https://github.com/mrbam88/bamware-brewdesk/issues/156) |
+   | 6 | Hobby evidence is 1 h; no auto capture | Ticket [venue-engine#79](https://github.com/mrbam88/bamware-venue-engine/issues/79) (paid drain = spend STOP) |
 2. Test allow, deny, restricted, and previously-granted location states on a
    physical iPhone.
 3. Smoke-test the **latest** TestFlight build cut from current main (post–WFH
@@ -148,8 +156,11 @@ Apple's real-time-processing definition only while infrastructure logging does
 not retain query strings beyond a transient window (today: Vercel Runtime Logs,
 1 h on Hobby — see item 1 above). **That window is still docs-derived; the
 item 1 Human paste has not landed, so privacy evidence is not complete.**
-Any analytics, crash reporting, or retained location logging requires
-reassessment before submission.
+The claim stays plan-dependent until brewdesk#154 stops putting `lat`/`lng` in
+the query string. Any analytics, crash reporting, retained location logging,
+or a Vercel plan/drain change requires reassessment before submission. Agents
+must not treat Vercel MCP as production-log proof until Bilal re-auths
+(item 1 connector decision).
 
 Decided 2026-08-21 (brewdesk#29): the app keeps sending the Union Square
 anchor when location is denied rather than omitting `lat`/`lng`. A hardcoded
