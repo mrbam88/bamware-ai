@@ -76,6 +76,7 @@ Expo, SwiftUI, Terraform, Vercel.
 
 - gRPC was dropped from the backend list in the 2026 resume. Do not re-add it.
 - VPG ended Jul 2026. See `bilal-answers` for the reason-for-leaving framing.
-- The current PDF removes Baat and replaces CrewAI with Node in the project stack.
+- Follow the standing project exclusion in `bilal-answers` for all career material.
+- The current PDF replaces CrewAI with Node in the project stack.
 - VPG emphasizes sole mobile ownership and a configurable survey engine.
 - FreedomCare emphasizes hiring, mentoring, modernization, and direct delivery.

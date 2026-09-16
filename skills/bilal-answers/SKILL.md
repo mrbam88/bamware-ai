@@ -70,11 +70,15 @@ current figure in a form field.
 
 ## Content rule: Bamware apps (updated 2026-09-16)
 
-**Never name an unreleased Bamware app in application material or imply it is
-in production.** This still applies to Baat, which is removed from Bilal's
-current resume. BrewDesk is released and is the featured project in the PDF
-Bilal supplied on 2026-09-16; it may be named. Use the current wording in
-`bilal-resume` for BrewDesk and the studio.
+**Never mention Baat** in responses, resumes, cover letters, applications,
+recruiter messages, interview answers, or portfolio pitches. Bilal explicitly
+excluded the failed project on 2026-09-16. This is a standing exclusion, not
+merely an unreleased-app restriction. Do not present it as a showcase or proof
+point. Historical engineering and application records are retained for accuracy;
+they do not authorize reusing the project in new material.
+
+BrewDesk and the Bamware studio are the current project proof points. Use
+`bilal-resume` for their wording. Do not imply any unreleased product is live.
 
 Employer proof points remain Photobucket native modules, FreedomCare mobile
 team and platform modernization, VPG clinical research, Allscripts PHR, and

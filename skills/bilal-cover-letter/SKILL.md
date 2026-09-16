@@ -15,8 +15,8 @@ Policy: **always include one, even when optional.** Bilal reviews it at the gate
 - Honest ownership. "Helped ship" for team products. Direct claims only where he
   genuinely led.
 - No placeholders left in the sent text. Replace every brace.
-- **Never name an unreleased Bamware app** and never imply one is in
-  production. Rule and wording in `bilal-answers`.
+- Follow the standing project exclusion and current Bamware app wording in
+  `bilal-answers`. Never imply an unreleased product is in production.
 
 ## Letter or short answer? (Bilal, 2026-08-21)
 
