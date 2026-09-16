@@ -194,7 +194,9 @@ Recommended flip date: App Store submission day, after brewdesk#1. All boarded.
 Todo + Agent-ready (use the `-UITestScenario` seam from #27; #30 after #34/#36 land so
 screenshots show the fixed UI); #31 Human-only; #32/#33 Supervised, #33 last. Follow-ups
 #36 (a11y) + #37 (test drift) Todo/Agent-ready. venue-engine#16 (coords out of query
-string) Agent-ready; #19 Human-only (Vercel evidence + holes triage).
+string) Agent-ready; #19 Human-only (Vercel evidence paste still empty
+2026-09-16 — Search Params slot in `docs/brewdesk-go-live.md`; MCP cannot
+supply that panel; six observability holes still triaged on #19).
 
 **BrewDesk transparency set (#1–8)** — all merged; board moved to Done 2026-08-20:
 
