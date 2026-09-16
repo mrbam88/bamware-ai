@@ -52,16 +52,26 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   `window.__Ashby.settings.jobPostingId`, then open
   `https://jobs.ashbyhq.com/{org}/{jobPostingId}/application` — the standalone
   form beats the iframe. (Proven on GovWell, 2026-08.)
-- Single page. Text inputs register through a JS native value setter plus
-  input and change events (check the __reactProps value afterwards). Yes/No
-  questions are two buttons with an aria-pressed attribute; click the button
-  via JS.
-  Radios and checkboxes take a plain JS click. The Location combobox: set the
-  input value via the native setter, dispatch input, wait for `role=option`,
-  click the option. Resume is required; a Cover Letter field, when present, is
-  file-only. An optional Diversity Survey (age bracket, transgender,
-  communities) sits above the EEO block; leave what `bilal-answers` does not
-  cover blank and flag it.
+- Single page, React with react-hook-form. **Script-set values do NOT register
+  (Rain, 2026-09-16).** A JS native-setter plus input/change events makes the
+  field LOOK filled, and `__reactProps.value` even matches, but submit still
+  reports "Missing entry for required field" for every such field. Same for
+  `radio.click()` from JS. What works: one real click on the field, select-all
+  (Cmd-A on Bilal's Mac), then real keystrokes; radios and the aria-pressed
+  Yes/No toggles need a real click at screenshot coordinates (ref clicks on the
+  toggles were also flaky). Textareas are uncontrolled and do accept a JS
+  setter, but retype them anyway when the form has already flagged errors.
+  The Location combobox: real click, type "New York", click the
+  "New York City, New York, United States" option. Ashby only validates on
+  submit, so after filling, Bilal clicks Submit and reads the red "Your form
+  needs corrections" banner; each listed field is one that was script-set.
+- Resume is required; a Cover Letter field, when present, is file-only. An
+  optional Diversity Survey (age bracket, transgender, communities) sits above
+  the EEO block; leave what `bilal-answers` does not cover blank and flag it.
+- Org slugs can contain spaces: Superhuman's board is
+  `jobs.ashbyhq.com/Superhuman%20Platform%20Inc/...`. `/superhuman/` and
+  `/grammarly/` both 404. Read `window.__Ashby.settings.ashbyBaseJobBoardUrl`
+  on the careers page to get the exact one.
 
 ## Workday
 
@@ -99,10 +109,19 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 
 - Never click an "Attach" button — it opens a native picker you cannot see. Use
   the file-upload tool on the input element.
-- **Cowork's Chrome extension (2026-08) has no file-upload tool**, and a file
-  input cannot be set from JS without the bytes in the page. Bilal drops the
-  resume PDF (and the cover letter PDF where the field is file-only) on each
-  form during his review pass. Fill everything else first; never block on it.
+- **File uploads stay with Bilal.** The Chrome extension's file-upload tool
+  (2026-09) only reads files on Bilal's own machine, so a PDF sitting in the
+  cloud session cannot be attached; a file input cannot be set from JS either.
+  Bilal drops the resume PDF (and the cover letter PDF where the field is
+  file-only) on each form during his review pass. Fill everything else first;
+  never block on it. On LinkedIn Easy Apply the resume picker defaults to the
+  last-uploaded PDF, so after Bilal uploads the new one once it is preselected
+  for the rest of the batch.
+- Ceipal candidate portals (OP/OrangePeople): plain single-page "Easy Apply"
+  form; country/state/city are searchable dropdowns and the city pick
+  auto-fills a wrong zip. Conrep portals (Technomax): the Apply button opens a
+  popup window outside the tab group; hand it to Bilal. iCIMS (Peraton) forces
+  account login; blocker.
 - Click coordinates are in the **screenshot's pixel frame**, not CSS pixels.
   Take a screenshot, read the pixel position off it, click that. Ref clicks
   work for plain inputs and radios but are unreliable for custom selects.
