@@ -32,6 +32,16 @@ accounts, community photos/observations, report/block, bylines (bd#67) —
 turning them on is a small release. Scoreboard for later: App Store Connect
 analytics (free, keeps "Data Not Collected").
 
+**1.0.1 "Trust fix" STARTED (Bilal: "go on 1.0.1", 2026-09-16).** Epic
+brewdesk#162; tickets #157 (pins vanish — root cause: `visibleRegion` only
+replans on finger gestures, so locate/search-clear/filters leave it stale; IN
+PROGRESS), #158 (search moves the map; after #157, same file), #159 (no score
+for unobserved venues, "Not checked yet", sorted last), #160 (rating prompt
+after 2nd save), #161 (snapshot refresh, last), plus #142/#154/#156. All
+boarded with fields. **Two critique "bugs" retracted after a code read:**
+sticky search text (no persistence exists; capture-tool artifact) and blank
+map tiles (MapKit tiles not loaded on the simulator; re-check on device).
+
 **Game plan (2026-09-16) → `docs/brewdesk-gameplan-2026-09.md`** — proposed,
 awaiting Bilal's cut, no tickets filed. Sequence: 1.0.1 "Trust fix" (4 critique
 bugs, no score for unobserved venues, snapshot refresh, review prompt) → 1.1
