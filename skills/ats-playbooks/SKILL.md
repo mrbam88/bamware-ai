@@ -73,6 +73,37 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   `/grammarly/` both 404. Read `window.__Ashby.settings.ashbyBaseJobBoardUrl`
   on the careers page to get the exact one.
 
+- **Upload the resume LAST (2026-09-16, six Ashby forms).** Ashby's "Autofill from
+  resume" parser fires on any resume upload, including the main Resume field, and when
+  it finishes it re-renders the form and wipes every typed field. Order that works: type
+  all text, click all toggles and radios, pick the date, then upload the resume, wait
+  ~8s, re-read every value. Typed values survive when the upload comes last.
+- **Ref clicks do not focus Ashby inputs from the Chrome extension.** The click lands,
+  the field shows focus, but keystrokes go nowhere. Use screenshot-frame coordinates.
+  Reliable recipe: JS `el.scrollIntoView({block:'center'})`, wait 1s (the scroll is
+  smooth; clicking immediately hits the old position), click at the element's rect
+  center scaled by `screenshotWidth / innerWidth`, then type. Fields near the top or
+  bottom of a short page cannot scroll to center, so read their rect after the wait.
+- Number-typed inputs (Comun's "Yearly gross salary expectation") reject anything but
+  digits; type `220000`, not "$220k, negotiable".
+- Date pickers: click the field, then use `find` for the day option
+  ("Choose Thursday, October 1st, 2026") and click it by ref. That one ref click works.
+
+## Workable
+
+- Standalone `apply.workable.com/{org}/j/{id}/apply/`. Plain React form: ref clicks and
+  typing work directly; file input takes the upload tool. Fuse Energy's form was name,
+  email, resume only. Decline the cookie banner first. Success appends `?success`.
+
+## Recruitee
+
+- Custom domains (`highroller-careers.com/o/{slug}`). The Apply tab is a tab, not a
+  page; click it at screenshot coordinates to reveal the form, then ref clicks work.
+  Phone field is a country select plus tel input; click at the end of the "+1" and type
+  the digits. Two file inputs (CV, cover letter) take the upload tool. Radios by
+  coordinate. Templated screening questions may not fit the role ("work permit for
+  Malta" on an NYC job); answer literally and note it. Success URL ends in `/applied`.
+
 ## Workday
 
 - Account creation is usually mandatory. That is a **blocker** — hand it to Bilal.
@@ -131,3 +162,16 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   hand off; never attempt to defeat them.
 - Grant "always allow" on the major ATS domains once, to avoid stopping on every
   page.
+- **The extension can only click, type, or screenshot in the tab Bilal is looking at.**
+  Background tabs allow `read_page`, `find`, and JS reads only. `tabs_create` makes the
+  new tab active, so the batch pattern is: new tab per application, fill it, move on. If
+  Bilal clicks another tab mid-fill, every action fails with "Tool failed in the
+  extension" until you open a fresh tab. Tell him to leave the browser alone during a
+  batch, and give a time estimate.
+- The extension's file-upload tool DID accept files from the cloud session's scratch
+  directory on 2026-09-16 (resume + cover letter on Ashby, Greenhouse, Workable,
+  Recruitee). The 2026-09 note above about uploads staying with Bilal is not always
+  true; try the upload tool first, hand off only if it errors.
+- Coordinate frame changes when the window is resized or a tab opens in a different
+  window. Always take one screenshot per tab to read the frame size before computing
+  click coordinates; never reuse a frame from another tab.

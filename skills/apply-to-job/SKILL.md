@@ -106,6 +106,28 @@ the file with `status: Researching` and a first Notes line "Form filled
 <date>, pending Bilal's resume upload and submit", plus the open questions.
 Flip to Applied when he confirms. A filled form is not an application.
 
+Also add the same application as a row in Notion: **Job Tracker 2026 → Applications**
+(data source `collection://5cb3530a-80eb-46dc-9e3c-f40a03e39839`; Company, Role, Status,
+Date applied, Job link, Notes). GitHub is the record; Notion is Bilal's daily view. Both,
+every time. (Missed on the 2026-09-16 batch of 11; Bilal had to ask.)
+
+## 8b. Batch mode (Bilal, 2026-09-16)
+
+- **Never stall a batch on Bilal.** Triage, then fill every form you can, each in its
+  own tab, and leave them filled. He submits in one pass at the end. If one form is
+  stuck, note it and move to the next. Do not stop at item two to ask a question.
+- Ashby, Greenhouse, Workable, and Recruitee all keep a filled, unsubmitted form alive
+  in its tab, so "fill everything, submit later" works.
+- Log every filled form to the GitHub tracker immediately as
+  `status: Filled - pending submit`, then flip to Applied as he confirms.
+- Detecting a submit from the page: Ashby says "Your application was successfully
+  submitted"; Greenhouse's tab title becomes "Thank you for applying"; Workable appends
+  `?success` and says "submitted successfully"; Recruitee's URL ends in `/applied`.
+  Check all four wordings, not just "thank you".
+- Content rules that bit this round: never mention Baat, never mention his neighborhood
+  or commute. See `bilal-answers`. Grep every filled textarea for "baat", "west village",
+  "manhattan", "commut" before handing off.
+
 ## 9. Blockers
 
 CAPTCHA, SSO, mandatory account creation, or anything needing his credentials →
