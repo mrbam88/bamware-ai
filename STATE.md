@@ -5,7 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-12 — **🎉 BREWDESK 1.0 IS LIVE ON THE APP STORE (approved 2026-09-12).
+> Last updated: 2026-09-16 — **NYC data depth sprint landed in venue-engine (09-15/16, Cursor agents, $0); app untouched since approval.**
+> 2026-09-12 — **🎉 BREWDESK 1.0 IS LIVE ON THE APP STORE (approved 2026-09-12).
 > Post-approval steps done. Direction (Bilal, 2026-09-12): PRODUCT POLISH FIRST — the MVP got through Apple, now make it an app he's happy with. Marketing second. Money third.**
 
 ## Vision (one line)
@@ -458,6 +459,34 @@ merged in a later pass.
 **Still Bilal / blocked:** GitHub Actions billing (CI down; local gates +
 quoted evidence in PRs). APNs key (infra#7). ve#19 Vercel log paste.
 Physical-device smoke + visit-reminder check. Spend: $0.
+
+## 2026-09-16 — NYC data depth sprint (venue-engine, Cursor agents; recorded by a later session)
+Nine commits on `bamware-venue-engine@main` 09-15/16, none logged here at the
+time. Epic ve#63 "NYC Work Fit is not useful enough to trust" closed with
+children #64–#68, #71, plus #41 and #44. What shipped:
+- **Estimates no longer drive the score** (ve#64): `estimate` claims and
+  anything under 0.4 confidence count as unobserved; the seed stopped
+  inventing unrestricted/plenty/quiet tiers.
+- **Curated overlay 32 → 57 cafés** with named public-source laptop, seating,
+  Wi-Fi, noise claims (ve#66); seating backfilled on 28/32 originals (#41/#65).
+- **Libraries + parks researched** (ve#68): seven NYPL branches + Bryant Park.
+- **Same-name twins collapsed** on the serve path unless addresses differ (ve#67).
+- **Market-research agent** (ve#71): NYT/Infatuation/Eater discovery, 0.75
+  confidence only with verbatim URLs, never overwrites curated rows.
+- **Seed-on-demand** (ve#44): coarse first-seen city ids, picker under the
+  $10/mo cap, weekly cron DRY-RUN only; live spend quoted (~$0.05/10 venues),
+  not run. **Spend: $0.**
+Measured live 2026-09-16 vs 2026-09-12 (top 200 by score, 5 km of Union Sq):
+researched laptop policy 21 → 59 (54 curated + 5 agent), seating known 0 → 56,
+top score 72 → 85, libraries/parks in the top 200: 0 → 8. Still true: every
+unobserved venue now sits at a flat 52 and the APP still prints that number;
+websites 0/200; outside NYC unchanged (0 laptop policies, scores 50–55).
+**App side untouched since approval** (0 commits on bamware-brewdesk): the four
+critique bugs, hiding scores for unobserved venues, distance/open-now on
+cards, colorblind pins are all still open; the bundled cold-start snapshot
+(`VenueSnapshot.json`) now predates the new rankings. New brewdesk tickets
+from the privacy triage: #154 (move listing fetch off query-string lat/lng),
+#155, #156. venue-engine PR #59 (CORS) still open since 08-31.
 
 ## 2026-09-12 — 🎉 APPROVED. BrewDesk 1.0 is live on the App Store
 Apple approved version 1.0 (build 19) three business days after the 2.1
