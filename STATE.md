@@ -32,6 +32,15 @@ accounts, community photos/observations, report/block, bylines (bd#67) —
 turning them on is a small release. Scoreboard for later: App Store Connect
 analytics (free, keeps "Data Not Collected").
 
+**Game plan (2026-09-16) → `docs/brewdesk-gameplan-2026-09.md`** — proposed,
+awaiting Bilal's cut, no tickets filed. Sequence: 1.0.1 "Trust fix" (4 critique
+bugs, no score for unobserved venues, snapshot refresh, review prompt) → 1.1
+"Useful every day" (distance/open-now, verdict hero, colorblind pins, business
+info, plus free NYC data work) → 1.2 "Community on" (open the store gate,
+one-tap speed test, account value prop) → NYC marketing → Plus. **Human-only
+deadline: Play key registration by 2026-09-30.** Open decision: photo-cost
+mitigation before any launch post. Board hygiene 09-16: 43 closed tickets → Done.
+
 **NYC data spike (2026-09-12, Bilal: "dominate NYC, cheap, no wasted ideas") →
 `bamware-venue-engine/docs/research/nyc-data-improvement-2026-09.md` (PR #62).**
 No paid API has a laptop-friendly field; Google/Foursquare cheap but forbid
