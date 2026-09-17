@@ -32,15 +32,25 @@ accounts, community photos/observations, report/block, bylines (bd#67) —
 turning them on is a small release. Scoreboard for later: App Store Connect
 analytics (free, keeps "Data Not Collected").
 
-**1.0.1 "Trust fix" STARTED (Bilal: "go on 1.0.1", 2026-09-16).** Epic
-brewdesk#162; tickets #157 (pins vanish — root cause: `visibleRegion` only
-replans on finger gestures, so locate/search-clear/filters leave it stale; IN
-PROGRESS), #158 (search moves the map; after #157, same file), #159 (no score
-for unobserved venues, "Not checked yet", sorted last), #160 (rating prompt
-after 2nd save), #161 (snapshot refresh, last), plus #142/#154/#156. All
-boarded with fields. **Two critique "bugs" retracted after a code read:**
-sticky search text (no persistence exists; capture-tool artifact) and blank
-map tiles (MapKit tiles not loaded on the simulator; re-check on device).
+**1.0.1 "Trust fix" — IN FLIGHT (epic brewdesk#162; Bilal: "go on 1.0.1", 2026-09-16).**
+Merged on `bamware-brewdesk@main` 2026-09-17, each QA'd locally in Release:
+#157 pins never vanish (PR #165 — root cause: `visibleRegion` only replanned on
+finger gestures; now also on settled camera + venue-list change, planner never
+returns an empty plan), #158 search moves the map to results (PR #168; whole
+SearchUITests green for the first time), #159 no Work Fit number for unobserved
+venues — "Not checked yet", grey "?" pin, observed-first ordering, VoiceOver and
+share text never speak the neutral number (PR #169), #166 tab helpers in all UI
+tests (PR #167), #154 lat/lng off the query string (PR #164, another agent).
+In progress: #160 rating prompt, #142 + #156 detail nits. Then #161 snapshot
+refresh LAST, then the release branch (submission is Bilal-only).
+**Lessons:** (1) CI runs no UI tests, so the Release UI suite must be run
+locally — it had rotted: raw `tab-*` lookups time out on iOS 26 sims, a centre
+tap on a SwiftUI Toggle hits the label and never flips it, and 7 tests are
+stale/failing on main (brewdesk#170). (2) Perf claims need a same-hour
+baseline: MAP-PERF hitch ratio on this Mac is 0.07–0.115 today vs 0.014–0.028
+in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
+test run and end their turn stall; tell them to run tests in the foreground.
+(4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
 **Game plan (2026-09-16) → `docs/brewdesk-gameplan-2026-09.md`** — proposed,
 awaiting Bilal's cut, no tickets filed. Sequence: 1.0.1 "Trust fix" (4 critique
