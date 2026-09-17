@@ -113,6 +113,16 @@ Preferred shape and Bilal's canonical example live in `bilal-cover-letter`
 Replace every brace with real specifics before submitting. For full letters use
 `bilal-cover-letter`.
 
+## Personal interests / hobbies (Bilal, 2026-09-16)
+
+Basketball, golf, running. Building his own apps through Bamware counts as a
+hobby too. Standard short answer, used on Superhuman:
+
+> Outside of work I play basketball and golf, and I run. Basketball keeps me
+> competitive and on a team, golf keeps me patient, and running is where I
+> clear my head. I also build my own apps through Bamware, which is part hobby
+> and part craft.
+
 ## Still unanswered — ask Bilal before filling
 
 Non-sensitive questions that came up without a standard answer. Write the
