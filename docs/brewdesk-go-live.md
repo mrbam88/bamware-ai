@@ -1,6 +1,6 @@
 # BrewDesk go-live
 
-**Updated:** 2026-09-16
+**Updated:** 2026-09-17
 
 ## Locked v1
 
@@ -67,11 +67,17 @@
    Log details, updated 2026-08-03) for **1 h on Hobby / 1 day on Pro /
    30 days with Observability Plus**; no log drain is configured. Team
    `bmalikee-8236s-projects` is on **Hobby** (Vercel `list_teams`, 2026-09-16).
-   The client still sends `GET /v1/venues?lat&lng`
-   ([brewdesk#154](https://github.com/mrbam88/bamware-brewdesk/issues/154));
-   engine header/POST channel shipped as
-   [venue-engine#16](https://github.com/mrbam88/bamware-venue-engine/issues/16)
-   but the app has not migrated. Denied location still sends the Union Square
+   The client migrated via
+   [brewdesk#154](https://github.com/mrbam88/bamware-brewdesk/issues/154)
+   ([PR #164](https://github.com/mrbam88/bamware-brewdesk/pull/164); treat as
+   landed) to `X-BrewDesk-Viewport: <lat>,<lng>` on `GET /v1/venues`. Filters
+   stay on the query string. Engine header channel already shipped as
+   [venue-engine#16](https://github.com/mrbam88/bamware-venue-engine/issues/16).
+   Older clients may still send query-string `lat`/`lng` until they upgrade.
+   After the App Store build that includes #154 ships, Search Params on listing
+   GETs should no longer show `lat`/`lng` (verify on that build). Hobby 1 h
+   retention still applies to whatever remains in Search Params / other fields.
+   Denied location still sends the Union Square
    anchor; granted location sends the device coordinate (bd#108: no
    out-of-coverage substitution). Asserted (brewdesk PR #39) by
    `PrivacyRequestAuditTests`, `VenuesModelPrivacyTests`, and the
@@ -115,7 +121,7 @@
    | # | Hole | Decision |
    |---|---|---|
    | 1 | Agents cannot observe production | Ticket [venue-engine#78](https://github.com/mrbam88/bamware-venue-engine/issues/78) |
-   | 2 | Privacy position is plan-dependent with no guard | Ticket [brewdesk#154](https://github.com/mrbam88/bamware-brewdesk/issues/154) (engine #16 shipped; client still query-string) |
+   | 2 | Privacy position is plan-dependent with no guard | Client shipped (header channel) via [brewdesk#154](https://github.com/mrbam88/bamware-brewdesk/issues/154) ([PR #164](https://github.com/mrbam88/bamware-brewdesk/pull/164)); engine #16 already accepts the header |
    | 3 | CI/app-target tests / Release gaps | **Dropped** — brewdesk `ci.yml` already runs package tests + Release `BrewDeskTests` (PR #39). UI tests stay out of main CI on purpose (macOS-minute spend). |
    | 4 | Out-of-band egress (AsyncImage / MapKit) | Ticket [brewdesk#155](https://github.com/mrbam88/bamware-brewdesk/issues/155) |
    | 5 | Places-proxy comments vs `lh3.googleusercontent.com` | Ticket [brewdesk#156](https://github.com/mrbam88/bamware-brewdesk/issues/156) |
@@ -156,11 +162,14 @@ Apple's real-time-processing definition only while infrastructure logging does
 not retain query strings beyond a transient window (today: Vercel Runtime Logs,
 1 h on Hobby — see item 1 above). **That window is still docs-derived; the
 item 1 Human paste has not landed, so privacy evidence is not complete.**
-The claim stays plan-dependent until brewdesk#154 stops putting `lat`/`lng` in
-the query string. Any analytics, crash reporting, retained location logging,
-or a Vercel plan/drain change requires reassessment before submission. Agents
-must not treat Vercel MCP as production-log proof until Bilal re-auths
-(item 1 connector decision).
+Evidence stays incomplete until Bilal pastes a redacted production
+`/v1/venues` Search Params row
+([venue-engine#19](https://github.com/mrbam88/bamware-venue-engine/issues/19)).
+After the #154 build is live in production traffic, that paste should show no
+`lat`/`lng` in Search Params for listing fetches. Any analytics, crash
+reporting, retained location logging, or a Vercel plan/drain change requires
+reassessment before submission. Agents must not treat Vercel MCP as
+production-log proof until Bilal re-auths (item 1 connector decision).
 
 Decided 2026-08-21 (brewdesk#29): the app keeps sending the Union Square
 anchor when location is denied rather than omitting `lat`/`lng`. A hardcoded
