@@ -49,4 +49,4 @@ Each fact has exactly one home. Never copy a value between skills — link inste
 
 `mrbam88/bamware-ai`, branch `main`. A vendor-synced copy of this skill is a
 cache and may be stale. If they disagree, the repo wins. Application history
-lives in `mrbam88/interviews` at `tracker/applications.md`.
+lives in `mrbam88/interviews` at `tracker/INDEX.md` (generated from `tracker/applications/*.md`; never hand-edit it).

@@ -48,7 +48,15 @@ Public, so no auth. You get every doc and skill in one call *and* you get
 were not in. A recap built from `STATE.md` alone is a paraphrase of whatever the
 last agent chose to write down; one built from history is evidence.
 
-Without a shell, use the raw URLs. The repo is **public**, so these three
+**Cowork: read through the Composio GitHub connector (`GITHUB_GET_REPOSITORY_CONTENT`
+on `mrbam88/bamware-ai`, ref `main`), not through the assistant's web-fetch tool.**
+Incident 2026-09-16: a Cowork session read `bilal-resume` and `bilal-answers` via
+web-fetch. That tool caches and summarizes; it returned a resume three weeks stale
+and dropped the "never mention Baat" rule entirely. Three applications were filled
+with the excluded project and had to be redone. The connector returns the exact
+bytes on `main`. Use it.
+
+Without a shell or connector, use the raw URLs as a last resort. The repo is **public**, so these three
 fetches need no credentials, no API key, and no connector — plain HTTPS from any
 agent.
 
@@ -100,5 +108,5 @@ advice. That is why Step 0 exists and why it comes before reading.
 
 ## Private companion
 
-Application history lives in `mrbam88/interviews` at `tracker/applications.md`
+Application history lives in `mrbam88/interviews` at `tracker/INDEX.md` (generated from `tracker/applications/*.md`; never hand-edit it)
 (private, needs a connector). That repo holds the tracker and nothing else.
