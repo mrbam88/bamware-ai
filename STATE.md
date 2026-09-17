@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-16 — **NYC data depth sprint landed in venue-engine (09-15/16, Cursor agents, $0); app untouched since approval.**
+> Last updated: 2026-09-17 — **1.0.1 "Trust fix" code complete on main (9 tickets, local Release QA); awaiting Bilal's go for the release branch + TestFlight.** NYC data sprint landed 09-15/16.
 > 2026-09-12 — **🎉 BREWDESK 1.0 IS LIVE ON THE APP STORE (approved 2026-09-12).
 > Post-approval steps done. Direction (Bilal, 2026-09-12): PRODUCT POLISH FIRST — the MVP got through Apple, now make it an app he's happy with. Marketing second. Money third.**
 
@@ -32,17 +32,20 @@ accounts, community photos/observations, report/block, bylines (bd#67) —
 turning them on is a small release. Scoreboard for later: App Store Connect
 analytics (free, keeps "Data Not Collected").
 
-**1.0.1 "Trust fix" — IN FLIGHT (epic brewdesk#162; Bilal: "go on 1.0.1", 2026-09-16).**
-Merged on `bamware-brewdesk@main` 2026-09-17, each QA'd locally in Release:
-#157 pins never vanish (PR #165 — root cause: `visibleRegion` only replanned on
-finger gestures; now also on settled camera + venue-list change, planner never
-returns an empty plan), #158 search moves the map to results (PR #168; whole
-SearchUITests green for the first time), #159 no Work Fit number for unobserved
-venues — "Not checked yet", grey "?" pin, observed-first ordering, VoiceOver and
-share text never speak the neutral number (PR #169), #166 tab helpers in all UI
-tests (PR #167), #154 lat/lng off the query string (PR #164, another agent).
-In progress: #160 rating prompt, #142 + #156 detail nits. Then #161 snapshot
-refresh LAST, then the release branch (submission is Bilal-only).
+**1.0.1 "Trust fix" — CODE COMPLETE on `bamware-brewdesk@main` (2026-09-17, epic brewdesk#162).**
+All nine tickets merged, each QA'd locally in Release: #157 pins never vanish
+(PR #165), #158 search moves the map (PR #168), #159 no Work Fit number for
+unobserved venues — "Not checked yet", grey "?" pin, observed-first order,
+VoiceOver/share never speak the neutral number (PR #169), #160 rating prompt
+after the 2nd save, once per version, never on first-launch day (PR #171),
+#142/#156 name once + friendly dates + the card-stamp time-zone off-by-one
+("Updated Jul 31" for Aug 1 in New York) fixed (PR #172), #161 snapshot
+refreshed (PR #173), #166 tab helpers (PR #167), #154 (PR #164, other agent).
+**Full Release UI suite on main: 90 run / 80 pass**; the 9 distinct failures
+are pre-existing and off the changed paths (5 stale/contrast + 4 Debug-only
+capture tests → brewdesk#170). **NOT done (needs Bilal's go):** version bump
+to 1.0.1, `release/1.0.1` + gate flip, archive, TestFlight upload, physical
+iPhone smoke (checklist on epic #162), "What's New", submission (Bilal-only).
 **Lessons:** (1) CI runs no UI tests, so the Release UI suite must be run
 locally — it had rotted: raw `tab-*` lookups time out on iOS 26 sims, a centre
 tap on a SwiftUI Toggle hits the label and never flips it, and 7 tests are
