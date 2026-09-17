@@ -77,6 +77,13 @@ merely an unreleased-app restriction. Do not present it as a showcase or proof
 point. Historical engineering and application records are retained for accuracy;
 they do not authorize reusing the project in new material.
 
+**Never mention his neighborhood or his commute** (no "West Village", no
+"Manhattan", no "easy commute", no "short trip to the office") in any application,
+essay, cover letter, or recruiter message. Location is "New York, NY" or "based in
+New York", full stop. Bilal excluded this on 2026-09-17 after three essays cited it.
+The street address and neighborhood in the private repo and `bilal-profile` exist
+for form fields that require them, not for prose.
+
 BrewDesk and the Bamware studio are the current project proof points. Use
 `bilal-resume` for their wording. Do not imply any unreleased product is live.
 
