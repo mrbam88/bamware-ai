@@ -54,6 +54,17 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+## 2026-09-18 evening — TestFlight 1.1 (20) uploaded
+Release branch `release/1.1.0` cut from main (a62d420), MARKETING_VERSION 1.1,
+build 20 (last was 19). Archived + exported via the free local rail (cloud-
+managed distribution signing, `~/.appstoreconnect` key on the Mac): "Upload
+succeeded", tag `store/1.1-build20`. Archive verified: CFBundleVersion 20,
+GIDClientID present, `com.apple.developer.applesignin` entitlement present.
+Contents: shared Bamware account packages, Apple + Google sign-in, saved-spot
+sync, last week's trust fixes, no store-surface gate. **Bilal: install from
+TestFlight once Apple finishes processing and test Apple + Google sign-in.**
+Spend: $0.
+
 ## 2026-09-19 (day) — keys done, Google wired, push stack applied
 - **Keys:** Bilal ran `scripts/keys-wizard.sh` (new; with `scripts/secrets-status.sh`
   and docs/secrets.md "Day-to-day"). Vault now holds Google iOS + server client
