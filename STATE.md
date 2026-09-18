@@ -107,6 +107,31 @@ auth-service adoption deliberately deferred (that repo's handlers are
 being edited live by #9/#10 right now) — follow-up filed:
 auth-service#14. Also filed per spec: dating-service#20, web#40.
 
+**Wave 4 progress — infra#8 D12 push service DONE (plan-only), 2026-09-18.**
+New private repo `mrbam88/bamware-push-service` live, main pushed directly
+(new/unprotected). CI green: build+test+gitleaks, 60 tests, `pnpm build:lambda`
+verified to bundle `node_modules/@bamware/auth-middleware/dist`. `POST
+/devices` / `DELETE /devices/:deviceId` (any registered tenant) match
+`bamware-ios`'s `BamwarePush` wire contract exactly; internal `POST /send`
+behind timing-safe `X-Service-Key` (503 fail-closed when unset, venue-engine
+admin-auth pattern); `PLATFORM_APP_ARNS_JSON` env map doubles as this
+service's tenant registry (`bamware-dating` + `bamware-brewdesk`, matching
+auth-service's `tenants/registry.ts`). **Correction to the ADR/ticket
+spec:** `@bamware/auth-middleware` v0.1.2's `authenticate({ secret, tenantId
+})` has `tenantId` **required**, not optional — it can't express "any
+tenant." Worked around with the package's own documented
+`verifyAccessToken` direct-verification path instead of `authenticate()`;
+tenant allow-listing moved to `PLATFORM_APP_ARNS_JSON`. Matters for any
+other consumer that needs multi-tenant (not single-hardcoded-tenant) auth.
+`bamware-infra` PR #10 (`feat/push-service`, plan-only): push Lambda +
+api-gateway + DynamoDB table (+GSI1 for send-by-deviceIds) + one new
+per-tenant SNS platform app for `bamware-brewdesk` (`bamware-dating` reuses
+the existing `module.push_notifications`); `modules/sns` gained an optional
+`tenant_id` var (default `""`, no behavior change for existing callers).
+`terraform validate`: Success. **Not applied — Human-only**, blocked on
+infra#7 (APNs key) — commented on infra#8 with the full apply checklist.
+**Not merged — PR-only, supervisor merges** (infra PRs never self-merged).
+
 **Architecture decided-in-principle (2026-09-18) → ADR 0001
 `docs/adr/0001-one-identity-platform-for-all-apps.md` + `docs/bamware-account-platform.md`:**
 accounts/sign-in/sessions/deletion/push are Bamware platform, not app code —
