@@ -6,7 +6,7 @@
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
 > Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
-> BrewDesk 1.0.1 code complete (release pending Bilal's go). Bilal's checklist: brewdesk#176.
+> **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
 ## Vision (one line)
 
@@ -75,7 +75,7 @@ test run and end their turn stall; tell them to run tests in the foreground.
 
 **Supervisor mistakes, owned:** merged brewdesk PR #177 while its CI check was red (main passed the same commit; runner flake). Fixed the gating for #178. Two agents stalled waiting on background monitors; the fix is "run tests in the foreground" in every prompt.
 
-**Next:** BrewDesk 1.0.1 release (still awaiting "cut the release"), then 1.1 "Accounts" ships once the checklist is done and a device smoke passes.
+**Next:** the 1.0.1 release is SKIPPED (Bilal, 2026-09-19); the trust-fix work ships as part of 1.1 "Accounts" once the checklist is done and a device smoke passes. Never re-ask about 1.0.1.
 
 **NIGHT RUN 2026-09-18 → 19 (Bilal: "work on this tonight so tomorrow morning
 this is all done"). ADR 0001 ACCEPTED.** 16 tickets filed + boarded:
