@@ -109,6 +109,10 @@ despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
   (`bamware-brewdesk-flutter`) debug APK boots to onboarding on the emulator.
   No `android/key.properties` here, so the map renders blank — do NOT reuse
   the vault's `venue-engine/google-maps-api-key` (server key) in the APK.
+- **bamware-web** (Next 16) runs via `npm run dev` on :3000 with an untracked
+  `mise.local.toml` (node 24, matches CI). `.env.local` = `.env.example`
+  (public dev API URLs only); no web secrets in the vault, so `/admin` login
+  and the waitlist are inert locally.
 - **Android / React Native local rail (set up 2026-09-18, all user-local, no
   sudo).** Baat (`bamware-dating-app`) debug build boots to sign-in on the
   emulator via `expo run:android`. Pieces:
