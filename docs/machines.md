@@ -102,13 +102,13 @@ despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
 - Toolchain via `mise` (Omarchy default): node 26, `gh`, aws-cli 2 (`mise use -g
   aws-cli` — no sudo needed). docker, python 3.14, nvim 0.12.5, `rg`, `fd`,
   `fzf`, `lazygit` preinstalled by Omarchy.
-- Not installed: `vercel`.
+- Not installed: `vercel`. `sudo` prompts for a password.
 - **Flutter 3.47.4 stable** (Dart 3.13.3) at `~/.local/share/flutter` (official
   tarball; on `PATH` via `~/.bashrc`). `flutter config --jdk-dir` points at the
   mise temurin-17 install so it ignores global JDK 27. BrewDesk
   (`bamware-brewdesk-flutter`) debug APK boots to onboarding on the emulator.
   No `android/key.properties` here, so the map renders blank — do NOT reuse
-  the vault's `venue-engine/google-maps-api-key` (server key) in the APK. `sudo` prompts for a password.
+  the vault's `venue-engine/google-maps-api-key` (server key) in the APK.
 - **Android / React Native local rail (set up 2026-09-18, all user-local, no
   sudo).** Baat (`bamware-dating-app`) debug build boots to sign-in on the
   emulator via `expo run:android`. Pieces:
