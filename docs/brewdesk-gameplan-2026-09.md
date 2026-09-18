@@ -35,34 +35,57 @@ The four bugs and the one display rule that makes the new data visible.
 - brewdesk#142 (name shown twice, ISO dates), #154 (lat/lng off the query
   string — keeps the privacy claim true), #156 (stale comments).
 
-## Release 1.1 — "Useful every day" (next ~2 weeks, $0)
+## Release 1.1 — "Accounts & alerts" (DECIDED by Bilal, 2026-09-18)
 
-- Walking minutes + open-now on every card.
-- Detail leads with a plain-English verdict built from claims; score becomes a chip.
-- Colorblind-safe pins (shape/number or blue–orange) + dark-mode pass.
-- Onboarding: one page plus the location choice.
-- Business info wired in (website/phone) — merge-ready code already exists per
-  `venue-engine/docs/business-info.md`; today 0/200 venues show a website.
-- Laptop-policy time windows visible ("laptops OK weekdays before noon").
-- Data, in parallel on the engine: ve#81 (free press hunt for hollow famous
-  cafés), ve#82 (persist path for agent findings), OSM re-import with the
-  Wi-Fi / outdoor / laptop tags, NYC open-data ingest (libraries, POPS),
-  laptopfriendly.co's 92 NYC listings.
+Reassessment on 2026-09-18: the card polish list was "fluffy"; with zero
+users, the next big thing is the account baseline we gated off for the
+submission, plus push notifications and alerts. Live "right now" signals and
+the speed test are parked (Bilal reads them as marketing-adjacent, not
+baseline). Community contributions count as baseline boilerplate.
 
-## Release 1.2 — "Community on" (the forgotten good ideas live here)
+**Already built, gated OFF (`STORE_SURFACE_GATED`):** accounts (email +
+password, sign-out, in-app deletion with E2E test, bd#139), report/block,
+"Rate this visit" observation form, contributor bylines, Apple 1.2 pack
+(bd#48). **Push:** local nudges (bd#93), APNs registration in the app
+(bd#94), device registry + weekly nearby-updates digest on the engine
+(ve#34) — all merged; only the APNs key / SNS platform app (infra#7,
+Human-only) is missing.
 
-Everything below is already built or specced and gated OFF.
-- Open the store gate: **Rate this visit** (highest-trust source we have),
-  community photos, bylines, report/block.
-- **One-tap in-app speed test** → observation. The original differentiator, cut
-  from v1; the only proprietary-data flywheel we have. Endpoint exists.
-- You tab says why an account is worth having before it asks for a password.
-- Prerequisites: durable storage for community photos (Vercel FS is read-only
-  today), `ADMIN_KEY` in Vercel, privacy label stops being "Data Not Collected".
-- Rides on this: bathroom codes (brewdesk#97), imported favorites feeding the
-  engine (#115), "claim your café" owner form (not filed; `owner` source exists).
+**Scope, in order:**
+1. Open the gate for good: remove the store-surface gate from the release
+   flow; privacy label moves off "Data Not Collected" (email, user content,
+   device token) — review notes and the 1.2 evidence updated to match.
+2. Account worth having: the You tab explains sync + alerts BEFORE asking
+   for a password; sign in with Apple added (4.8 requires it once any
+   third-party login exists; email stays); optional fourth onboarding page
+   with a real "skip".
+3. Saved spots sync: new engine endpoint (`/v1/users/me/saved`, token from
+   bamware-auth-service) + a server-backed `SavedVenuePersisting` adapter;
+   local saves stay free and unlimited forever (bd#120 rule).
+4. Alerts on top of push: (a) weekly nearby-updates digest (exists, needs
+   the key), (b) "a spot you saved changed its laptop policy / hours",
+   (c) "new researched spot near your saved ones"; a notifications settings
+   screen with per-type toggles. Content rules: never marketing pushes.
+5. Community on: photos (durable storage first — Vercel FS is read-only;
+   reuse the dating-app S3 presign rail), ratings feed scoring, bylines,
+   moderation queue with `ADMIN_KEY` in Vercel.
+6. Lists and notes on saved spots (cheap once sync exists).
+7. Auth-service hardening before any of this ships: cold starts (auth#7),
+   token refresh (auth#8).
 
-## Marketing (after 1.1 ships, NYC-first)
+**Human-only inputs:** infra#7 APNs key + SNS platform app; Google Sign-In
+yes/no (adds the first third-party SDK); privacy-label wording sign-off;
+`ADMIN_KEY` in Vercel.
+
+**Parked (was "1.1 Useful every day"):** distance/open-now on cards,
+verdict hero, colorblind-safe pins, one-page onboarding, business info
+wiring, time windows. Fold into releases as filler, not a phase.
+
+**Parked (was "1.2 Community on" extras):** one-tap speed test, live
+"right now" layer, bathroom codes, owner-claimed listings, imported
+favorites feeding the engine.
+
+## Marketing (after 1.1 Accounts & alerts, NYC-first)
 
 - bamware.io still sells a dating app and a studio: web#25, #26, #28, #29, #30.
 - Store subtitle rewrite ("NYC WFH cafés, with evidence" undersells libraries/parks).

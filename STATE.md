@@ -55,6 +55,17 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+**Phase 2 reassessed (Bilal, 2026-09-18): "Accounts & alerts" is the next big
+thing.** Card polish judged fluffy; live "right now" layer and speed test
+parked as marketing-adjacent; community = baseline boilerplate. Scope in
+`docs/brewdesk-gameplan-2026-09.md` §1.1: open the store gate for good
+(privacy label changes), account value prop + Sign in with Apple, saved-spots
+sync (new engine endpoint + `SavedVenuePersisting` adapter), alerts on the
+already-built push rail (digest exists; saved-spot changes + new nearby spots
+new), community photos/ratings on, lists + notes, auth-service hardening
+(auth#7 cold starts, auth#8 refresh). Human-only: infra#7 APNs key, Google
+Sign-In decision, privacy wording, `ADMIN_KEY`. Tickets not yet filed.
+
 **Game plan (2026-09-16) → `docs/brewdesk-gameplan-2026-09.md`** — proposed,
 awaiting Bilal's cut, no tickets filed. Sequence: 1.0.1 "Trust fix" (4 critique
 bugs, no score for unobserved venues, snapshot refresh, review prompt) → 1.1
