@@ -55,6 +55,23 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+**Night run progress (interim, ~03:30 local):** MERGED + deployed —
+auth-service #9 tenant registry (PR #13), #10 refresh rotation + revocation
+(PR #15), #14 middleware adoption (PR #16; its deploy failed on packaging →
+fixed in PR #17: middleware v0.1.2 commits `dist/`), #11 cold start lazy
+imports (PR #17; deploy green, `/auth/tenants/bamware-brewdesk/providers`
+answers 200 from the dev Lambda). New public repo `bamware-auth-middleware`
+(v0.1.2). venue-engine: middleware dep (PR #89), saved-spots sync API (PR #94,
+routes 503 until `JWT_SECRET` is set; storage best-effort JSON pending
+Bilal's durable-store call). bamware-ios: BamwareAccounts lift (PR #7),
+silent refresh (PR #8 — QA fixed a real bug: refresh reply has no `user`),
+Apple + Google sign-in with trait-gated Google SDK (PR #9), BamwarePush (PR
+#10), BamwareAccountUI (PR #11; 104 tests). mcp: create_tenant native target
+(PR #2). OPEN for Bilal: infra PR #9 auth warmer (merging = apply). IN
+FLIGHT: brewdesk#174 adoption, infra#8 push service. Bilal's bamware-ios
+checkout has uncommitted Aug-20 edits (21 files) — commit or discard before
+using the dev workspace substitution.
+
 **NIGHT RUN 2026-09-18 → 19 (Bilal: "work on this tonight so tomorrow morning
 this is all done"). ADR 0001 ACCEPTED.** 16 tickets filed + boarded:
 auth-service#9 A1 registry, #10 A2 refresh rotation, #11 A3 cold start,
