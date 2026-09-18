@@ -71,6 +71,25 @@ Known blockers (flagged, not faked): auth-service private-repo Actions may not
 deploy; Terraform applies, Apple/Google console, APNs key, ASC privacy label
 are Bilal's (#176). Morning report goes at the top of this file.
 
+**Wave 1 progress — #12 A4 (pkg + venue-engine slice) DONE, 2026-09-18.**
+New public repo `mrbam88/bamware-auth-middleware` live, tagged `v0.1.0`
+(CI green: build+test+gitleaks on GitHub Actions). Exports
+`TokenPayloadSchema` (copied verbatim from auth-service
+`src/schemas/authSchemas.ts`), `verifyAccessToken`, Express `authenticate`,
+`requireRole`. **Lesson worth keeping:** the first tag shipped with no
+`prepare` script, so `npm install`ing the git tag pulled source with no
+built `dist/` — caught immediately while adopting in venue-engine, fixed,
+and the `v0.1.0` tag was moved (safe only because nothing else depended on
+it yet). Any future from-source git-dependency package needs a `prepare`
+script from the start.
+`bamware-venue-engine` PR #89 (`chore/auth-middleware-dep`) adds the
+dependency + an import smoke test only (no route wiring, per scope) —
+`npm run typecheck` and `npm test` (522 tests) green, Vercel preview
+deployed clean. **Not merged — PR-only, supervisor merges.**
+auth-service adoption deliberately deferred (that repo's handlers are
+being edited live by #9/#10 right now) — follow-up filed:
+auth-service#14. Also filed per spec: dating-service#20, web#40.
+
 **Architecture decided-in-principle (2026-09-18) → ADR 0001
 `docs/adr/0001-one-identity-platform-for-all-apps.md` + `docs/bamware-account-platform.md`:**
 accounts/sign-in/sessions/deletion/push are Bamware platform, not app code —
