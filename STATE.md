@@ -5,9 +5,8 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-17 — **1.0.1 "Trust fix" code complete on main (9 tickets, local Release QA); awaiting Bilal's go for the release branch + TestFlight.** NYC data sprint landed 09-15/16.
-> 2026-09-12 — **🎉 BREWDESK 1.0 IS LIVE ON THE APP STORE (approved 2026-09-12).
-> Post-approval steps done. Direction (Bilal, 2026-09-12): PRODUCT POLISH FIRST — the MVP got through Apple, now make it an app he's happy with. Marketing second. Money third.**
+> Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
+> BrewDesk 1.0.1 code complete (release pending Bilal's go). Bilal's checklist: brewdesk#176.
 
 ## Vision (one line)
 
@@ -55,22 +54,28 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
-**Night run progress (interim, ~03:30 local):** MERGED + deployed —
-auth-service #9 tenant registry (PR #13), #10 refresh rotation + revocation
-(PR #15), #14 middleware adoption (PR #16; its deploy failed on packaging →
-fixed in PR #17: middleware v0.1.2 commits `dist/`), #11 cold start lazy
-imports (PR #17; deploy green, `/auth/tenants/bamware-brewdesk/providers`
-answers 200 from the dev Lambda). New public repo `bamware-auth-middleware`
-(v0.1.2). venue-engine: middleware dep (PR #89), saved-spots sync API (PR #94,
-routes 503 until `JWT_SECRET` is set; storage best-effort JSON pending
-Bilal's durable-store call). bamware-ios: BamwareAccounts lift (PR #7),
-silent refresh (PR #8 — QA fixed a real bug: refresh reply has no `user`),
-Apple + Google sign-in with trait-gated Google SDK (PR #9), BamwarePush (PR
-#10), BamwareAccountUI (PR #11; 104 tests). mcp: create_tenant native target
-(PR #2). OPEN for Bilal: infra PR #9 auth warmer (merging = apply). IN
-FLIGHT: brewdesk#174 adoption, infra#8 push service. Bilal's bamware-ios
-checkout has uncommitted Aug-20 edits (21 files) — commit or discard before
-using the dev workspace substitution.
+## MORNING REPORT — 2026-09-19 (night run 2026-09-18 → 19)
+
+**Done: 15 of 15 code tickets merged, every PR QA'd locally by the supervisor, $0 spent.**
+
+| Repo | Merged | Notes |
+|---|---|---|
+| bamware-auth-service | #9 tenant registry (PR #13) · #10 refresh rotation + revocation + real logout (PR #15) · #14 shared verifier adopted (PR #16) · #11 cold-start lazy imports (PR #17) | All deployed to the dev Lambda; `/auth/tenants/bamware-brewdesk/providers` → 200. One deploy failed (packaging) and was fixed forward the same night. |
+| bamware-auth-middleware (NEW, public) | v0.1.2 | Shared `TokenPayloadSchema` + `verifyAccessToken` + Express `authenticate`; ships `dist/` for git-tag consumers. Follow-ups filed: dating-service#20, web#40. |
+| bamware-venue-engine | middleware dep (PR #89) · saved-spots sync API (PR #94) | Routes 503 until `JWT_SECRET` is set. Storage is best-effort JSON: durable store = Bilal's call. Bump to v0.1.2 filed. |
+| bamware-ios | BamwareAccounts (PR #7) · silent refresh (PR #8) · Apple + Google sign-in (PR #9) · BamwarePush (PR #10) · BamwareAccountUI (PR #11) | 104 package tests; Google SDK behind an opt-in package trait. QA caught a real bug in #8 (refresh reply has no `user`). |
+| bamware-push-service (NEW, private) | code + CI green (60 tests) | Not deployed (Terraform + APNs key are Bilal's). |
+| bamware-infra | PR #9 auth warmer · PR #10 push service | Plan-only, OPEN for Bilal: merging = apply. CI plan check fails repo-wide (no AWS profile) — pre-existing. |
+| bamware-brewdesk | #174 adopt shared accounts + Apple sign-in + gate removed (PR #177) · #175 saved-spots sync adapter (PR #178) | BrewDeskKit's own account code deleted. Store gate gone. 19 + 12 tests green locally; CI green on main. |
+| bamware-mcp | #1 create_tenant native target (PR #2) | 63 tests. |
+
+**Bilal's checklist (brewdesk#176), in order:** (1) Sign in with Apple capability on the App ID; (2) Google OAuth client ids (iOS + server) → registry PR + Info.plist; (3) `JWT_SECRET` on the venue-engine Vercel project; (4) pick a durable store for user data; (5) apply infra PR #9 then #10 after the APNs key (infra#7); (6) ASC privacy label from `submission/1.1/metadata/privacy-label.md`; (7) `ADMIN_KEY` in Vercel; (8) commit or discard the Aug-20 edits in your local bamware-ios checkout (21 files) so the dev workspace can use the new packages.
+
+**Not verified tonight (needs the above):** a real Apple/Google sign-in on a device; sync against production; any push end to end.
+
+**Supervisor mistakes, owned:** merged brewdesk PR #177 while its CI check was red (main passed the same commit; runner flake). Fixed the gating for #178. Two agents stalled waiting on background monitors; the fix is "run tests in the foreground" in every prompt.
+
+**Next:** BrewDesk 1.0.1 release (still awaiting "cut the release"), then 1.1 "Accounts" ships once the checklist is done and a device smoke passes.
 
 **NIGHT RUN 2026-09-18 → 19 (Bilal: "work on this tonight so tomorrow morning
 this is all done"). ADR 0001 ACCEPTED.** 16 tickets filed + boarded:
