@@ -55,6 +55,22 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+**NIGHT RUN 2026-09-18 → 19 (Bilal: "work on this tonight so tomorrow morning
+this is all done"). ADR 0001 ACCEPTED.** 16 tickets filed + boarded:
+auth-service#9 A1 registry, #10 A2 refresh rotation, #11 A3 cold start,
+#12 A4 shared middleware (new public repo `bamware-auth-middleware`);
+bamware-ios#2 B5 BamwareAccounts lift, #3 B6 refresh, #4 B7 Apple+Google,
+#5 B8 BamwareAccountUI, #6 D13 BamwarePush; infra#8 D12 push service
+(plan-only); venue-engine#84 C10e saved sync API; brewdesk#174 C9 adopt +
+gate off, #175 C10 sync adapter, #176 HUMAN-ONLY console steps; mcp#1 E15.
+Waves (same-file collisions in auth-service handlers force order): 1 = #9,
+#12(pkg+venue-engine only), ios#2 · 2 = #10, ios#3, ios#4, ios#6 · 3 = #11,
+#12 auth-service adoption, ios#5, ve#84 · 4 = bd#174, bd#175, infra#8, mcp#1.
+Sonnet DEV agents, supervisor QA + merge, PR-only in auto-deploy repos.
+Known blockers (flagged, not faked): auth-service private-repo Actions may not
+deploy; Terraform applies, Apple/Google console, APNs key, ASC privacy label
+are Bilal's (#176). Morning report goes at the top of this file.
+
 **Architecture decided-in-principle (2026-09-18) → ADR 0001
 `docs/adr/0001-one-identity-platform-for-all-apps.md` + `docs/bamware-account-platform.md`:**
 accounts/sign-in/sessions/deletion/push are Bamware platform, not app code —
