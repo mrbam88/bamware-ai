@@ -19,6 +19,7 @@ REPOS=(
   bamware-infra
   bamware-ai
   bamware-web
+  brewdesk-web
   bamware-dating-app
   bamware-dating-service
   bamware-mcp

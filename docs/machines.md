@@ -102,7 +102,34 @@ despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
 - Toolchain via `mise` (Omarchy default): node 26, `gh`, aws-cli 2 (`mise use -g
   aws-cli` — no sudo needed). docker, python 3.14, nvim 0.12.5, `rg`, `fd`,
   `fzf`, `lazygit` preinstalled by Omarchy.
-- Not installed: `adb`, JDK, `flutter`, `vercel`. `sudo` prompts for a password.
+- Not installed: `vercel`. `sudo` prompts for a password.
+- **Flutter 3.47.4 stable** (Dart 3.13.3) at `~/.local/share/flutter` (official
+  tarball; on `PATH` via `~/.bashrc`). `flutter config --jdk-dir` points at the
+  mise temurin-17 install so it ignores global JDK 27. BrewDesk
+  (`bamware-brewdesk-flutter`) debug APK boots to onboarding on the emulator.
+  No `android/key.properties` here, so the map renders blank — do NOT reuse
+  the vault's `venue-engine/google-maps-api-key` (server key) in the APK.
+- **bamware-web** (Next 16) runs via `npm run dev` on :3000 with an untracked
+  `mise.local.toml` (node 24, matches CI). `.env.local` = `.env.example`
+  (public dev API URLs only); no web secrets in the vault, so `/admin` login
+  and the waitlist are inert locally.
+- **Android / React Native local rail (set up 2026-09-18, all user-local, no
+  sudo).** Baat (`bamware-dating-app`) debug build boots to sign-in on the
+  emulator via `expo run:android`. Pieces:
+  - SDK at `~/Android/Sdk`; `ANDROID_HOME`, `ANDROID_AVD_HOME` and `PATH` are
+    exported in `~/.bashrc` *above* the interactive guard, so agents see them.
+  - Toolchain pinned per repo with an untracked `mise.local.toml` (listed in
+    `.git/info/exclude`): node 20, `java = "temurin-17"`, `"npm:yarn" = "1"`.
+    Global mise stays node 26 / JDK 27 — JDK 27 is too new for AGP/Gradle.
+  - AVD `Pixel_8_API_36` (API 36 google_apis x86_64). `/dev/kvm` is 0666.
+    Launch with `QT_QPA_PLATFORM=xcb emulator -avd Pixel_8_API_36` (Hyprland);
+    GPU falls back to software rendering — works, just slower.
+  - **Do not use cmdline-tools ≥ 16111833.** Its `sdkmanager` delegates to a
+    native `android-cli` that downloaded at ~250 KB/s on a 3 MB/s line. The
+    Java-based 19.0 (`commandlinetools-linux-13114758`) ran at ~7 MB/s.
+  - **`avdmanager` writes AVDs under `$XDG_CONFIG_HOME/.android/avd`; the
+    emulator reads `~/.android/avd`.** Omarchy sets `XDG_CONFIG_HOME`, hence
+    `ANDROID_AVD_HOME=~/.config/.android/avd`.
 - nvim is Omarchy's stock LazyVim config, not `mrbam88/nvim`; no
   `mrbam88/dotfiles`; shell is bash (no oh-my-zsh).
 - `gh auth setup-git` pins the credential helper to a versioned mise install
