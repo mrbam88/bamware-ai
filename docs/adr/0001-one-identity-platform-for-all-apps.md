@@ -1,5 +1,5 @@
 ---
-status: proposed (Bilal to accept)
+status: accepted (Bilal, 2026-09-18: "Great … create some tickets … work on this tonight")
 date: 2026-09-18
 ---
 # One identity and account platform for every Bamware app
