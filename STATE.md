@@ -63,8 +63,11 @@ parked as marketing-adjacent; community = baseline boilerplate. Scope in
 sync (new engine endpoint + `SavedVenuePersisting` adapter), alerts on the
 already-built push rail (digest exists; saved-spot changes + new nearby spots
 new), community photos/ratings on, lists + notes, auth-service hardening
-(auth#7 cold starts, auth#8 refresh). Human-only: infra#7 APNs key, Google
-Sign-In decision, privacy wording, `ADMIN_KEY`. Tickets not yet filed.
+(auth#7 cold starts, auth#8 refresh). **Bilal, same day: account creation,
+management, onboarding and basics FIRST, with BOTH Google and Apple sign-in**
+(→ SIWA mandatory, first third-party SDK, auth-service token verification).
+Human-only: infra#7 APNs key, Google OAuth client IDs, Apple Sign-In
+capability, privacy wording, `ADMIN_KEY`. Tickets not yet filed.
 
 **Game plan (2026-09-16) → `docs/brewdesk-gameplan-2026-09.md`** — proposed,
 awaiting Bilal's cut, no tickets filed. Sequence: 1.0.1 "Trust fix" (4 critique

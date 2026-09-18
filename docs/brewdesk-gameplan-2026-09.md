@@ -73,9 +73,17 @@ Human-only) is missing.
 7. Auth-service hardening before any of this ships: cold starts (auth#7),
    token refresh (auth#8).
 
-**Human-only inputs:** infra#7 APNs key + SNS platform app; Google Sign-In
-yes/no (adds the first third-party SDK); privacy-label wording sign-off;
-`ADMIN_KEY` in Vercel.
+**Decided 2026-09-18 (Bilal):** focus on account creation, account
+management, onboarding, and the basics first. **Both Google and Apple
+sign-in.** Consequences: Sign in with Apple is mandatory alongside Google
+(Guideline 4.8), Google Sign-In becomes the first third-party SDK in the
+binary, bamware-auth-service must verify Google ID tokens and Apple identity
+tokens (cross-repo contract, Bilal gate), and the privacy label lists email +
+name. Email/password stays as the third option.
+
+**Human-only inputs:** infra#7 APNs key + SNS platform app; Google Cloud
+OAuth client IDs (iOS + server) and Apple Sign-In capability in the App ID;
+privacy-label wording sign-off; `ADMIN_KEY` in Vercel.
 
 **Parked (was "1.1 Useful every day"):** distance/open-now on cards,
 verdict hero, colorblind-safe pins, one-page onboarding, business info
