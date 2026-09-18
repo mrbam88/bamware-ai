@@ -54,6 +54,30 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+## 2026-09-19 (day) — keys done, Google wired, push stack applied
+- **Keys:** Bilal ran `scripts/keys-wizard.sh` (new; with `scripts/secrets-status.sh`
+  and docs/secrets.md "Day-to-day"). Vault now holds Google iOS + server client
+  ids, APNs key/key id/team id (BZRTC4A75L), dev JWT secret, venue-engine admin
+  key; `GOOGLE_CLIENT_IDS` in the auth Lambda secret; `JWT_SECRET` + `ADMIN_KEY`
+  on venuekit (saved-sync route now 401, not 503).
+- **App:** brewdesk PR #179 merged — GIDClientID + URL scheme; sign-in shows
+  Apple and Google at equal size (test pins it). Bilal tests via the next
+  TestFlight build.
+- **Infra (Bilal: "merge it yourself"):** PRs #9 (warmer) + #10 (push) merged;
+  my conflict merge broke `environments/dev/main.tf` (unclosed brace) — hotfix
+  pushed to main. **Push stack APPLIED to dev** with root profile + targeted
+  plan (9 added / 0 changed / 0 destroyed): Lambda `bamware-dev-push-service`,
+  table `bamware-dev-push-devices`, API
+  https://nag5tg01y2.execute-api.us-east-1.amazonaws.com (health 200, /devices
+  401 without token). **Warmer NOT applied:** its plan drags an unsafe
+  auth-Lambda update (missing zip path, blanked SENTRY_DSN) → infra#11.
+  Lessons: the GitHub terraform-apply workflow has failed since July (no AWS
+  profile in CI); the `bamware` deployer profile lacks IAM read; full plans
+  need a Cloudflare token (`module.dns`). Rule change (Bilal): agents merge
+  and apply approved infra PRs themselves — plan first, zero destroys.
+- **Skipped for good:** the 1.0.1 release (Bilal). Remaining human items:
+  ASC privacy label, bamware-ios checkout cleanup.
+
 ## MORNING REPORT — 2026-09-19 (night run 2026-09-18 → 19)
 
 **Done: 15 of 15 code tickets merged, every PR QA'd locally by the supervisor, $0 spent.**
