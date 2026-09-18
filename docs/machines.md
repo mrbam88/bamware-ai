@@ -1,4 +1,4 @@
-# Machines — the two physical devices
+# Machines — the three physical devices
 
 A machine is a **cache of this repo** (AGENTS.md). Nothing is authored locally;
 `scripts/bootstrap.sh` rebuilds any of them. This file exists for one reason:
@@ -6,7 +6,7 @@ A machine is a **cache of this repo** (AGENTS.md). Nothing is authored locally;
 `docs/runtimes.md` is keyed by runtime — but Claude Code CLI on the ThinkPad
 cannot touch Xcode no matter what the runtime column says. Read both.
 
-Registered 2026-09-08. Two devices, both Bilal's.
+Registered 2026-09-08; `omarchy` added 2026-09-17. Three devices, all Bilal's.
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
@@ -82,6 +82,34 @@ as a *shell function*, so `command -v rg` succeeds in an agent shell while no
 `rg` binary exists — nvim's `checkhealth` then reports it missing and the
 picker's grep is dead. When auditing what is installed on a machine, verify
 with `ls -la "$(command -v X)"` or `type X`, not `command -v X` alone.
+
+## `omarchy` — MacBook Pro 16" 2019 (Intel, T2), Omarchy (Arch Linux)
+
+Intel i9-9980HK · 16 threads · 62 GiB RAM · 1.9 TB disk · kernel 7.2 (T2 patches)
+
+Apple hardware, **Linux OS: cannot do anything Apple.** Same rule as the
+ThinkPad — iOS tickets get reassigned to `mac`. Bilal (2026-09-17): "dont worry
+about ios this is a linux machine." The ASC `.p8` not being in the vault is
+not a gap here.
+
+Good for the same work as the ThinkPad, with more headroom (RAM, disk, no
+glibc ceiling — rolling release, glibc 2.44).
+
+Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
+despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
+(`launchd`), so the headless runners are not installed here.
+
+- Toolchain via `mise` (Omarchy default): node 26, `gh`, aws-cli 2 (`mise use -g
+  aws-cli` — no sudo needed). docker, python 3.14, nvim 0.12.5, `rg`, `fd`,
+  `fzf`, `lazygit` preinstalled by Omarchy.
+- Not installed: `adb`, JDK, `flutter`, `vercel`. `sudo` prompts for a password.
+- nvim is Omarchy's stock LazyVim config, not `mrbam88/nvim`; no
+  `mrbam88/dotfiles`; shell is bash (no oh-my-zsh).
+- `gh auth setup-git` pins the credential helper to a versioned mise install
+  path that breaks on the next `gh` upgrade. Point it at the shim:
+  `~/.local/share/mise/shims/gh auth git-credential`.
+- Dictation: Omarchy's Voxtype (F9 push-to-talk, Super+Ctrl+X toggle). Wispr
+  Flow has no Linux build.
 
 ## Rules
 

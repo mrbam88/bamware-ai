@@ -82,8 +82,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   switches laptops and AI tools constantly, always experimenting. Never
   create anything that only works on one machine, model, or harness;
   durable facts and procedures go in this repo. **But capability is NOT
-  interchangeable:** there are two machines — a MacBook Pro (M3 Pro) and a
-  ThinkPad X1 Carbon on Ubuntu — and only the Mac can do Xcode, simulators,
+  interchangeable:** of three machines (M3 Mac, Ubuntu ThinkPad,
+  Omarchy Linux laptop), only the M3 Mac can do Xcode, simulators,
   fastlane, signing, or a physical-iPhone smoke. Check docs/machines.md
   before accepting Apple work; reassign rather than improvise.
 
@@ -93,7 +93,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 |---|---|
 | All repos: what each is, deploy targets, endpoints | docs/repos.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
-| The two machines and what each can physically do | docs/machines.md |
+| The three machines and what each can physically do | docs/machines.md |
 | Security rules: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base, what works | docs/app-review-field-notes.md |
