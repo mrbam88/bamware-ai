@@ -104,6 +104,38 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   coordinate. Templated screening questions may not fit the role ("work permit for
   Malta" on an NYC job); answer literally and note it. Success URL ends in `/applied`.
 
+## Gem (jobs.gem.com)
+
+- Single page, form at the bottom of the posting (`jobs.gem.com/{org}/{id}`).
+  Plain React: coordinate clicks + real keystrokes work; the Location field is
+  a free text box, not an autocomplete ("New York, NY" is fine). Custom
+  selects are buttons that open a menu; click the button, then click the
+  option at screenshot coordinates. Radios take ref clicks.
+- Mouse-wheel scroll did nothing in the Gem tab; use `scroll_to` with a ref
+  from `find` instead.
+- Textareas auto-grow as you type, so a click aimed at the NEXT field by
+  pre-typing coordinates lands inside the previous textarea and appends to
+  it. Re-screenshot after each long answer before clicking the next field.
+- Required privacy-consent select ("Acknowledge/Confirm") sits between the
+  short answers and the EEO block. Two submit buttons: "Apply and save"
+  (creates a Gem profile) and "Apply without saving". (Quo, 2026-09-17.)
+
+## Greenhouse, extra (2026-09-17)
+
+- The public boards API gives the whole form without opening a tab:
+  `https://boards-api.greenhouse.io/v1/boards/{org}/jobs/{id}?questions=true`
+  returns the description, every question, its options, and which are
+  required. Read it during triage to spot below-floor ranges and unanswerable
+  questions before filling. `.../boards/{org}/jobs` lists the board.
+- A `grnh.se` short link resolves server-side (curl `-w '%{redirect_url}'`)
+  to the company careers page with `gh_jid=`; the job id is the token for
+  the standalone embed URL. Nanit's careers page hides the embed entirely.
+- Greenhouse Location (City) autocomplete: type "New York", wait 2 s, click
+  the first suggestion "New York, New York, United States" by coordinate.
+- Some Greenhouse forms (NPR) put the mouse-wheel-blocking textarea in the
+  middle of the page; scroll by wheel over a non-textarea area or use
+  `scroll_to` by ref.
+
 ## Workday
 
 - Account creation is usually mandatory. That is a **blocker** — hand it to Bilal.
@@ -175,3 +207,15 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 - Coordinate frame changes when the window is resized or a tab opens in a different
   window. Always take one screenshot per tab to read the frame size before computing
   click coordinates; never reuse a frame from another tab.
+- **Focus loss mid-batch (2026-09-17, three times in one session).** The browser's
+  selected tab flipped back to the "New Tab" page during long `browser_batch` calls, and
+  every later action in the working tab failed with "Tool failed in the extension"
+  (JS reads included). Recovery that worked: `tabs_context_mcp` to confirm, then a fresh
+  `tabs_create` + navigate and refill from scratch. Keep batches short (one field group
+  per call) on long forms so less is lost, and verify with a JS read at the end of each
+  batch. Right after `tabs_create`, the first keystrokes can be dropped even after a
+  click; do a `scroll_to` + screenshot first, then click and type, then read back.
+- No resume or cover letter PDF was reachable this session (not in git, not in Drive;
+  the 2026-09-16 uploads came from a per-session attachment). Every form was left with
+  the file inputs empty for Bilal. Attaching the PDFs to the Cowork task at the start
+  of a batch avoids this.

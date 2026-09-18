@@ -146,6 +146,21 @@ answer here once he gives it.
   on Ro 2026-08-21, pending his confirmation: "Bamware (founder)".
 - Diversity-survey age bracket and "communities you belong to" are demographic;
   they are tracked in the private repo's unanswered list, not here.
+- "Are you subject to any non-solicit restrictions?" (Compass, 2026-09-17;
+  pairs with the non-compete question above). Left blank on the form.
+- "Are you currently engaged in any additional employment or business
+  activities that could create a conflict of interest?" (Compass,
+  2026-09-17). Bamware is a business activity, so this needs Bilal's own
+  wording. Left blank on the form.
+- SMS / text-message consent for application updates ("Yes - I consent" /
+  "No - I do not consent"). (FloSports, 2026-09-17.) Left blank.
+- "Is the posted salary range in alignment with your expectations?" when the
+  range is BELOW the floor (NPR, 2026-09-17, $165K-$175K). No standard
+  answer; the rule above only covers ranges at or above the floor. Left
+  blank for Bilal.
+- "How many years managing software engineers?" in buckets that split at 2
+  (Quo, 2026-09-17: 0 / 1-2 / 2-4 / 4+). FreedomCare was exactly 2 years;
+  "2 - 4" was chosen. Confirm which bucket he prefers.
 
 ## Voluntary self-identification
 
