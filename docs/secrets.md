@@ -48,3 +48,23 @@ consumer expects it. New laptop = one key + one script.
 Incident history that forced this: 2026-08-21 — TestFlight keys unreachable
 (only copy in write-only GitHub vault, CI billing-dead) and terraform apply
 blocked (secrets nowhere on the machine). See issue bamware-ai#13.
+
+## Day-to-day (added 2026-09-19 — "I hate dealing with keys every time")
+
+- **See what exists:** `scripts/secrets-status.sh` — every key the fleet
+  needs, present/MISSING, who consumes it, how it gets delivered. Never
+  prints values.
+- **Fill and deliver:** `scripts/keys-wizard.sh` — walks the console steps
+  Bilal must click (Google OAuth ids, Sign in with Apple, APNs key), stores
+  each value in the vault, and pushes it to the consumer (Secrets Manager
+  for the auth Lambda, Vercel env for the venue engine). Re-runnable; each
+  stage skips when the vault already has the value.
+- **Agents read the vault, never ask Bilal:** an agent that needs a non-secret
+  value (a Google client id, a team id) runs `aws ssm get-parameter` with the
+  local `bamware` profile. Secrets still never go into code, logs, or chat.
+- **New app or new key:** add a row to the manifest in `secrets-status.sh`
+  and a stage to the wizard in the same PR that introduces the consumer.
+
+Vault paths in use: `/bamware/shared/*` (Apple, Anthropic), `/bamware/<app>/*`
+(per app), `/bamware/<app>/<env>/*` (per environment).
+
