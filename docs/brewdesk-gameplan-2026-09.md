@@ -43,13 +43,22 @@ submission, plus push notifications and alerts. Live "right now" signals and
 the speed test are parked (Bilal reads them as marketing-adjacent, not
 baseline). Community contributions count as baseline boilerplate.
 
+**Architecture (2026-09-18, Bilal: think Bamware-wide, Baat did this already):**
+ADR 0001 + `docs/bamware-account-platform.md`. Accounts, sign-in, sessions,
+deletion and push become shared platform (`bamware-auth-service`,
+`bamware-ios` BamwareAccounts/BamwareAccountUI/BamwarePush, a shared push
+service, `@bamware/auth-middleware`); BrewDesk consumes, it does not
+re-implement. Work packages A–E there; BrewDesk 1.1 = C after A+B.
+
+**CORRECTION (2026-09-18):** push is NOT built. bd#94 and ve#34 were closed
+*not planned*; BrewDesk has local notifications only and venue-engine has no
+device registry. Only dating-service + infra have the SNS rail.
+
 **Already built, gated OFF (`STORE_SURFACE_GATED`):** accounts (email +
 password, sign-out, in-app deletion with E2E test, bd#139), report/block,
 "Rate this visit" observation form, contributor bylines, Apple 1.2 pack
-(bd#48). **Push:** local nudges (bd#93), APNs registration in the app
-(bd#94), device registry + weekly nearby-updates digest on the engine
-(ve#34) — all merged; only the APNs key / SNS platform app (infra#7,
-Human-only) is missing.
+(bd#48). **Push:** local nudges only (bd#93). Remote push must come from the shared
+push platform (work package D) plus the APNs key (infra#7, Human-only).
 
 **Scope, in order:**
 1. Open the gate for good: remove the store-surface gate from the release

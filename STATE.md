@@ -55,6 +55,15 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+**Architecture decided-in-principle (2026-09-18) → ADR 0001
+`docs/adr/0001-one-identity-platform-for-all-apps.md` + `docs/bamware-account-platform.md`:**
+accounts/sign-in/sessions/deletion/push are Bamware platform, not app code —
+auth-service (already multi-tenant with Google+Apple verification) + new
+`bamware-ios` products BamwareAccounts / BamwareAccountUI / BamwarePush +
+a shared push service + `@bamware/auth-middleware`. Lift BrewDeskKit's
+account stack, don't rewrite. **Correction:** push is NOT built (bd#94/ve#34
+closed not-planned; only local notifications exist). Bilal to accept the ADR.
+
 **Phase 2 reassessed (Bilal, 2026-09-18): "Accounts & alerts" is the next big
 thing.** Card polish judged fluffy; live "right now" layer and speed test
 parked as marketing-adjacent; community = baseline boilerplate. Scope in
