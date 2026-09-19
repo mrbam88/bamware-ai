@@ -27,6 +27,14 @@
   built but its dataset is gated on Hugging Face — human step filed as a
   venue-engine issue (accept gate + FSQ_HF_TOKEN in vault). Google Nearby
   calls this month ≈1,145 of 5,000 free.
+- brewdesk#182 PR #183 merged: Apple base-map café labels are tappable
+  (card: name, distance, "Not in BrewDesk yet", Directions, Suggest); iOS 18
+  resolves details via MKMapItemRequest, iOS 17 falls back to MKLocalSearch;
+  gap-fill with grey unverified Apple pins behind a launch flag (default off);
+  nothing from Apple is persisted. "Suggest this café" is a stub until the
+  engine grows POST /v1/discovery-hints — filed as venue-engine #127, a
+  cross-repo contract, so Bilal approves the shape first. Known pre-existing:
+  DegradedStateTests fails 4 cases on main too (see brewdesk#170 stale tests).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
