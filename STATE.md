@@ -1,5 +1,25 @@
 # State of the Union — Bamware
 
+## 2026-09-19 — Venue database migration tickets created (planning only)
+
+Bilal requested tickets to migrate the standalone venue engine from mutable
+JSON to a database. Proposed target: PostgreSQL + PostGIS; preserve venue IDs,
+existing REST contracts, scoring semantics and the merged Overture/Foursquare
+provenance. JSON remains a generated public snapshot/export format. Hosting
+provider, monthly budget and production activation are not yet approved.
+
+Epic: [venue-engine#129](https://github.com/mrbam88/bamware-venue-engine/issues/129).
+Ten linked children #130–139 cover architecture/costs, schema, idempotent import,
+compatible reads, durable saves, authenticated community writes, resumable
+ingestion jobs, snapshot exports, approved hosting, and reversible cutover.
+All eleven tickets are on project 2: P1 / Todo / Supervised, with Area, Size
+and Work Type set. Dependencies and file-collision sequencing are in the epic.
+Start with #130; promote individual leaves only after definition-of-ready.
+No agents launched, infrastructure provisioned or production code changed.
+Research targeting #116 and discovery-hints contract #127 remain separate.
+Refresh main and check other agents' claims before implementation. The database
+migration does not itself fix venue coverage or recommendation quality.
+
 > 📋 Board: https://github.com/users/mrbam88/projects/2 — cross-repo, fielded
 > (Priority/Area/Size/Worker; conventions in skills/board-ops)
 
