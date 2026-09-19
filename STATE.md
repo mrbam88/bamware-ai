@@ -54,6 +54,29 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+## 2026-09-19 (later) — data-quality fixes landed; engine v2 direction on the table
+Merged: ve#113 evidence-first ranking + optional `evidence` field (Village
+600 m: 9 researched + 15 partial now above 60 hollow); ve#114 Village/SoHo
+press pass (Reggio gains sourced seating/wifi → honest 48; Qahwah House has
+no allowlisted press) + `data/nyc-truth-sets.json`; ve#118 truth-set gate in
+`npm test` (Qahwah rank 25, Reggio 21 vs top-10 bar → `pending`, Capital One
+Café SoHo MISSING); ve#119 full-Manhattan discovery grid + coverage check
+(code only — live seed = 90 Places calls, list \$2.88 inside the 5,000 free,
+AWAITING Bilal's "run it"); bd#181 press links + "press research" label.
+555 Broadway = **Capital One Café SoHo** (web search; absent from OSM).
+In flight: ve#111 closed-business sweep (live inside free tier).
+**Strategy (Bilal):** early days → willing to throw out the architecture and
+reconsider budget; NYC is the test case; wants to know the cost of "developing
+a city". Answer given: rent the café list (Google), build only the work layer
+(~600 viable Manhattan cafés); Manhattan ≈ \$150 once + <\$100/mo; national
+top-25 ≈ \$2.5k once + \$500–700/mo; in-person verification ≈ \$1k/city
+optional. Proposed engine v2: Google-first discovery, real DB (not JSON),
+nightly pipeline, reviews-read-by-AI for the work layer, truth sets as the
+gate. **Decisions pending:** discovery run (\$2.88 list, \$0 real) and the
+Manhattan budget. **Decided:** hours/phone/website cached — OSM hours as the
+free base, Google gap-fill inside the free tier refreshed ~quarterly at \$0;
+Bilal accepts the 30-day caching rule exposure ("don't care if stale").
+
 ## 2026-09-19 — Data quality is the product problem (Bilal, Greenwich Village test)
 Bilal tested BrewDesk around his neighborhood (Thompson & W Houston; home
 address is NOT to be stored anywhere) and was unhappy: the great cafés are
