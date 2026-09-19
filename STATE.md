@@ -66,6 +66,19 @@ no execution, paid research or hosting approval follows from this discussion.
   locate-me button, launch animation, Apple café labels tappable.
   Bilal smoke-tested build 21 (2026-09-19): "definitely much better already...
   although it still needs a lot of work" — next: collect his specific list.
+- 2026-09-19 evening, after Bilal tested build 21 ("iOS app is decent.. the
+  api still sucks.. missing cafes and not good scores"): ROOT CAUSE of
+  "missing cafés" = the app fetched limit 100 at 2.5 km by score, hollow pins
+  last; at Carmine St that dropped 96% of pins in view. Fixes: ve#140 PR #141
+  merged+live (limit max 500, meta.total_in_radius/returned/hollow_returned/
+  truncated, compact=1; radius param is `radius_m`); brewdesk "Search this
+  area" + viewport fetch in flight. Spot check found junk Foursquare-only
+  pins (bars, restaurants, food court) — quality gate in flight, supervisor
+  reviews samples before merge. Launch-animation polish in flight (Bilal:
+  "sharper and more polished"), video to Bilal before merge. Scores: new pins
+  are unrated; real scores need the research budget Bilal has on hold.
+  ASC API keys on the Mac return 401 (issuer id mismatch?) — re-run the keys
+  wizard Apple stage some time. brewdesk#191 merged: export-compliance flag.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
