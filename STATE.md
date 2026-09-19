@@ -45,9 +45,11 @@
   Bilal UX asks, landed on brewdesk main 2026-09-19: sign-in busy state
   (bamware-ios#13 → brewdesk#187 pin ac444619), onboarding sign-in pitch page
   removed (#188, back to 3 pages), prominent working locate-me button (#189).
-  Animated launch mark: brewdesk PR #190 OPEN for Bilal's review (video sent;
-  do not merge until he says so). All of this is on main only — a new
-  TestFlight build (1.1 build 21) is needed for him to test.
+  Animated launch mark: brewdesk PR #190 merged 2026-09-19 (Bilal: "whats
+  the issue?" — proceed). TestFlight 1.1 build 21 uploaded 2026-09-19
+  (tag store/1.1-build21 = 2f256f7, free local rail, Upload succeeded);
+  Bilal to smoke: Google sign-in busy state, no onboarding pitch page,
+  locate-me button, launch animation, Apple café labels tappable.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
