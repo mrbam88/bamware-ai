@@ -132,3 +132,22 @@ Rules:
   from memory. `/usage` in the CLI shows the quota bars and whether any
   dollar figure is *extra usage* (billed) or *equivalent* (informational).
 
+
+## Why iOS agents "stall waiting on tests" (2026-09-19)
+
+Six Sonnet agents in one day ended their turn with "waiting for the
+background test run". Cause: the Bash tool's default limit is 120 s; a longer
+`xcodebuild test` is AUTO-BACKGROUNDED, and the agent then waits for a
+notification that does not reliably wake it. "Run in the foreground" in the
+prompt is not enough. Put this in every iOS agent prompt instead:
+
+- Pass `timeout: 600000` on every build/test Bash call.
+- One UI suite per command (`-only-testing:<Target>/<Suite>`), output piped to
+  `grep -E "Test Suite|Test Case.*(failed|passed)|\*\* TEST" | tail -30`.
+- `gh pr checks <PR> --watch` also needs `timeout: 600000`.
+- Parallel iOS agents each create their own simulator
+  (`xcrun simctl create "bd-<ticket>" "iPhone 17"`) and delete it afterwards;
+  sharing one device causes launch-time flakes.
+- A stale sibling `../bamware-ios` checkout gets picked up by Xcode as a local
+  package override; agents must not symlink it into their worktree.
+If an agent still reports "waiting", SendMessage it once with the above.
