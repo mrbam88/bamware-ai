@@ -19,6 +19,14 @@
   Foursquare OS Places bulk ingest (free, storable licenses); code+dry run
   now, live write after ve#122. brewdesk#182 filed: tappable Apple café
   labels + on-device gap-fill (MapKit, $0; never persist Apple data).
+- Landed 2026-09-19 ($0 real): ve#122 PR #124 fine grid (+680 pins, 942
+  Nearby calls, Capital One Café 555 Broadway now listed, 0 missing within
+  500 m of the SoHo anchor); ve#123 PR #125 Overture ingest (+1,624 pins after
+  a 0.5 confidence cut removed 176; 2,440 of 3,158 rows scored ≥0.9). Venue
+  store 3,258 → 5,562; Manhattan cafés 1,737 → 3,910. Foursquare adapter
+  built but its dataset is gated on Hugging Face — human step filed as a
+  venue-engine issue (accept gate + FSQ_HF_TOKEN in vault). Google Nearby
+  calls this month ≈1,145 of 5,000 free.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
