@@ -79,6 +79,13 @@ no execution, paid research or hosting approval follows from this discussion.
   are unrated; real scores need the research budget Bilal has on hold.
   ASC API keys on the Mac return 401 (issuer id mismatch?) — re-run the keys
   wizard Apple stage some time. brewdesk#191 merged: export-compliance flag.
+- TestFlight 1.1 build 22 uploaded 2026-09-19 18:25 (tag store/1.1-build22 =
+  b9a3130): "Search this area" + viewport fetch up to 500 pins (brewdesk#194),
+  launch-animation polish (#195: geometry mismatch 16% → 0.9%, light sweep),
+  export-compliance flag now on the STORE plist (#191 had only patched Debug;
+  follow-up #196 to main). FSQ quality gate ve#142 PR #143 sent back once:
+  keep stale + bad-name removals, loosen wrong-category for bakery-cafés and
+  a coffee-chain allowlist; supervisor merges after reviewing new samples.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
