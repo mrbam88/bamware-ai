@@ -19,6 +19,7 @@ MANIFEST='
 /bamware/dating/prod/jwt-secret              | auth-service prod, dating-service, web | Terraform (infra PR #6)
 /bamware/dating/prod/admin-secret            | dating-service prod                    | Terraform (infra PR #6)
 /bamware/venue-engine/google-maps-api-key    | venue-engine photos                    | Vercel GOOGLE_MAPS_API_KEY (manual)
+/bamware/venue-engine/fsq-hf-token           | venue-engine Foursquare OS Places ingest | env FSQ_HF_TOKEN at ingest time (scripts/fsq-token.sh)
 /bamware/venue-engine/admin-key              | venue-engine moderation                | Vercel ADMIN_KEY
 '
 printf '%-46s %-8s %s\n' "KEY (vault path)" "STATUS" "CONSUMER → DELIVERY"
