@@ -35,6 +35,16 @@
   engine grows POST /v1/discovery-hints — filed as venue-engine #127, a
   cross-repo contract, so Bilal approves the shape first. Known pre-existing:
   DegradedStateTests fails 4 cases on main too (see brewdesk#170 stale tests).
+- 2026-09-19 later: ve#126 PR #128 merged — Foursquare OS Places ingest
+  (+2,733 pins, $0; token via scripts/fsq-token.sh → vault
+  /bamware/venue-engine/fsq-hf-token). All three truth cafés now present;
+  Qahwah House came only from Foursquare. Venue store 5,562 → 8,295.
+  infra#11 PR #12 merged+applied: auth warmer live (rate 5 min), /health
+  9.7 s cold → 0.1–0.4 s. Follow-up: add /bamware/shared/sentry-dsn-backend
+  to keys-wizard/secrets-status (infra reads it off the live Lambda for now).
+  Bilal UX asks in flight: sign-in busy state (bamware-ios), remove the
+  onboarding sign-in pitch page, animated launch mark (PR for review, not
+  auto-merged), prominent working locate-me button.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
