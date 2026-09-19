@@ -86,6 +86,14 @@ no execution, paid research or hosting approval follows from this discussion.
   follow-up #196 to main). FSQ quality gate ve#142 PR #143 sent back once:
   keep stale + bad-name removals, loosen wrong-category for bakery-cafés and
   a coffee-chain allowlist; supervisor merges after reviewing new samples.
+- ve#142 PR #143 merged + live 2026-09-19: open-data quality gate (primary
+  category, 24-month freshness, name sanity, bakery-café rule, 46-chain
+  allowlist). Removed 1,364 fsq-only pins (957 stale, 379 wrong category, 28
+  cafeterias/food courts), auditable in data/open-places-gate-removed.json.
+  Venue store 8,295 → 6,931. Carmine St 500 m: 215 → 166 pins; Qahwah House
+  kept; Bar Pisellino / food court gone. Remaining gap is SCORES: 146 of those
+  166 pins are hollow (no evidence) — needs the research budget Bilal has on
+  hold. brewdesk#196 merged (compliance flag on Store plist).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
