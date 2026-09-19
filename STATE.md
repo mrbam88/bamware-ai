@@ -8,6 +8,20 @@
 > Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-19 — NYC recommendation quality is the goal; DB plan provisional
+
+Bilal clarified that the core problem is failing to surface and highly rank
+known excellent work cafés during his manual neighborhood tests. NYC only.
+The engine should aggregate its existing sources, use AI to interpret media
+reviews and other evidence, and reuse stored analysis to control AI cost.
+Database scale/durability supports this goal; migrating current rankings
+unchanged does not solve it. Work Fit remains primary, with popularity and
+social atmosphere relevant; exact scoring changes are still undecided.
+Canonical direction and open decisions:
+[NYC venue intelligence](docs/nyc-venue-intelligence-direction.md).
+The [database epic draft](docs/venue-engine-database-epic-plan.md) is provisional;
+no execution, paid research or hosting approval follows from this discussion.
+
 ## 2026-09-19 — Listing direction: free bulk sources + Apple Maps (Bilal)
 
 - Bilal: "Let's only do the number one: improve the listing"; research/enrichment
