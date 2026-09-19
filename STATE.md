@@ -8,6 +8,20 @@
 > Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-19 — Listing direction: free bulk sources + Apple Maps (Bilal)
+
+- Bilal: "Let's only do the number one: improve the listing"; research/enrichment
+  budget on hold. Then: "definitely go with the free ones, but also, Apple Maps
+  is interesting" (he sees Apple's base-map café labels on our map that we
+  don't list).
+- venue-engine PR #121 merged (+330 Manhattan pins, $0). ve#122 fine grid
+  running (≤300-call chunks, free tier). ve#123 filed: Overture Maps +
+  Foursquare OS Places bulk ingest (free, storable licenses); code+dry run
+  now, live write after ve#122. brewdesk#182 filed: tappable Apple café
+  labels + on-device gap-fill (MapKit, $0; never persist Apple data).
+- Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
+  Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
+
 ## Vision (one line)
 
 White-label mobile-first software business, ALL altitudes: multi-tenant
