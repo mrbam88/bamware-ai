@@ -8,7 +8,27 @@
 > Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
-## 2026-09-19 — NYC recommendation quality is the goal; DB plan provisional
+## 2026-09-19 — NYC venue intelligence implementation in draft PR #145
+
+Bilal subsequently authorized execution of the entire epic and requested no
+optional permission questions. System sandbox approvals still apply; do not
+promise unattended execution while those approvals are required.
+
+- [venue-engine PR #145](https://github.com/mrbam88/bamware-venue-engine/pull/145)
+  contains PostGIS import/read repositories, durable private writes and coarse
+  demand counters, grounded AI caching, fenced jobs and public snapshots.
+- Verified: 783 regression tests, 12 real database integration tests, TypeScript,
+  and a backup/restore drill preserving private records and ranked results.
+- Verified first-party Capital One SoHo evidence improves the local benchmark
+  from rank 191 to 7 and Work Fit 40 to 65. Qahwah/Reggio remain quality misses.
+- Not deployed or epic-complete. Remaining work is recorded in the PR/runbook:
+  provider identity lineage, spend reporting, expiry/deletion, hosted operations
+  and client auth coordination. The inspected Swift observation client does not
+  send a JWT; database community writes require one. Production flags unchanged.
+- No paid research or database hosting provisioned. Draft implementation lives
+  on `feat/nyc-venue-intelligence`, commit `3778b49`.
+
+## 2026-09-19 — NYC recommendation quality is the goal
 
 Bilal clarified that the core problem is failing to surface and highly rank
 known excellent work cafés during his manual neighborhood tests. NYC only.
@@ -19,8 +39,9 @@ unchanged does not solve it. Work Fit remains primary, with popularity and
 social atmosphere relevant; exact scoring changes are still undecided.
 Canonical direction and open decisions:
 [NYC venue intelligence](docs/nyc-venue-intelligence-direction.md).
-The [database epic draft](docs/venue-engine-database-epic-plan.md) is provisional;
-no execution, paid research or hosting approval follows from this discussion.
+The [database epic draft](docs/venue-engine-database-epic-plan.md) records the
+original planning baseline. The later execution instruction above supersedes
+its no-execution status; hosted activation and spend remain separate gates.
 
 ## 2026-09-19 — Listing direction: free bulk sources + Apple Maps (Bilal)
 
