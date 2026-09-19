@@ -94,6 +94,19 @@ no execution, paid research or hosting approval follows from this discussion.
   kept; Bar Pisellino / food court gone. Remaining gap is SCORES: 146 of those
   166 pins are hollow (no evidence) — needs the research budget Bilal has on
   hold. brewdesk#196 merged (compliance flag on Store plist).
+- 2026-09-19 night, Bilal's build-22 feedback → in flight: (a) detail card
+  leads with café name (bd agent); (b) "Search this area" snapped back to GPS
+  because DiscoveryRootView.task(id: request) re-applies the location fix
+  (bd agent, fail-before/pass-after UI test); (c) SCORES: formula pads unknown
+  attributes as 0.5 and blends known ones toward 0.5 → evidence-backed range
+  44–84, hollow pins flat 40/50; Work Fit v2 PR (evidence-only score,
+  scoreDisplay/scoreCoverage/scoreConfidence) — supervisor reviews before
+  merge; (d) PRESS: 26 corpus articles mention 35 cafés, 16 got no credit
+  (e.g. Conwell Coffee Hall); press fan-out PR credits every mention;
+  (e) app search is viewport-limited (server q= works city-wide) — fix queued
+  after (b) merges. COORDINATION: another agent is overhauling venue-engine on
+  feat/nyc-venue-intelligence (Postgres/PostGIS epic ve#129); both engine PRs
+  are isolated from its files; note left on ve#129.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
