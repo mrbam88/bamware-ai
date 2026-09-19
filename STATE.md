@@ -128,6 +128,19 @@ its no-execution status; hosted activation and spend remain separate gates.
   after (b) merges. COORDINATION: another agent is overhauling venue-engine on
   feat/nyc-venue-intelligence (Postgres/PostGIS epic ve#129); both engine PRs
   are isolated from its files; note left on ve#129.
+- 2026-09-19 late: Bilal: backend is owned by other agents; this session is
+  iOS-only (engine scoring/press builds stopped, findings on ve#144 / ve#146).
+  At Bilal's request the supervisor reviewed and MERGED venue-engine PR #145
+  (Postgres/PostGIS foundation, epic ve#129) as 97a1e73: only conflict was
+  venues.json.gz (resolved = main's data + the PR's single Capital One
+  change); 833 tests + truth gate green; merged server vs production parity
+  identical (keys, counts, order ex Capital One 40 → 65), re-verified on
+  production after deploy. Production stays in JSON mode: Postgres path only
+  when PRIVATE_STORAGE=postgres (not set; Vercel has ADMIN_KEY,
+  GOOGLE_MAPS_API_KEY, JWT_SECRET only). DO NOT set it until brewdesk#202
+  ships (app must send the JWT on observation/photo/report writes) and Bilal
+  approves hosting spend. iOS in flight: detail card name-first, city-wide
+  search; merged: GPS-snap fix (#199).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
