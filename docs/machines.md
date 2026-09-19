@@ -108,6 +108,12 @@ despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
 - `gh auth setup-git` pins the credential helper to a versioned mise install
   path that breaks on the next `gh` upgrade. Point it at the shim:
   `~/.local/share/mise/shims/gh auth git-credential`.
+- **Always-on agent server (2026-09-18).** Reach it from anywhere via
+  Tailscale SSH: `ssh bilal@omarchy.tailb7fa1e.ts.net` (no keys; auth is the
+  tailnet login). Use the full MagicDNS name — bare `omarchy` resolves to the
+  home-LAN IP on the X1, where ufw drops it. ufw allows `in on tailscale0`
+  only. Lid close is ignored (`/etc/systemd/logind.conf.d/30-server-lid.conf`).
+  Run agents inside `tmux` so they survive disconnects.
 - Dictation: Omarchy's Voxtype (F9 push-to-talk, Super+Ctrl+X toggle). Wispr
   Flow has no Linux build.
 
