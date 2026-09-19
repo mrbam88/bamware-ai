@@ -42,9 +42,12 @@
   infra#11 PR #12 merged+applied: auth warmer live (rate 5 min), /health
   9.7 s cold → 0.1–0.4 s. Follow-up: add /bamware/shared/sentry-dsn-backend
   to keys-wizard/secrets-status (infra reads it off the live Lambda for now).
-  Bilal UX asks in flight: sign-in busy state (bamware-ios), remove the
-  onboarding sign-in pitch page, animated launch mark (PR for review, not
-  auto-merged), prominent working locate-me button.
+  Bilal UX asks, landed on brewdesk main 2026-09-19: sign-in busy state
+  (bamware-ios#13 → brewdesk#187 pin ac444619), onboarding sign-in pitch page
+  removed (#188, back to 3 pages), prominent working locate-me button (#189).
+  Animated launch mark: brewdesk PR #190 OPEN for Bilal's review (video sent;
+  do not merge until he says so). All of this is on main only — a new
+  TestFlight build (1.1 build 21) is needed for him to test.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
