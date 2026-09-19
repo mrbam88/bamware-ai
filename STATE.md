@@ -54,6 +54,24 @@ in August; concurrent xcodebuilds inflate it. (3) Subagents that background a
 test run and end their turn stall; tell them to run tests in the foreground.
 (4) Two critique "bugs" were capture artifacts (sticky search, blank tiles).
 
+## 2026-09-19 — Data quality is the product problem (Bilal, Greenwich Village test)
+Bilal tested BrewDesk around his neighborhood (Thompson & W Houston; home
+address is NOT to be stored anywhere) and was unhappy: the great cafés are
+missing or empty, some suggestions look wrong. Measured: 83 venues within
+600 m, 44 at a flat 50, 15 at 40, only 9 with real evidence. His truth set
+(all 95–100): Qahwah House 13 Carmine (in data, empty pin, 44), Caffe Reggio
+119 MacDougal (in data, empty pin, 50), a café at 555 Broadway (absent —
+not in OSM; name pending). Grok-bot engine work 09-16→18 reviewed (12 PRs,
+$0.70 spent): real press evidence on ~27 cafés, buzz/news fields, work-mode
+filters, Google Places discovery seam — but 94% of claims are still
+estimates, 142 of 145 new Places pins are empty, no quality/popularity or
+closed-business signal exists. Tickets filed + running: ve#110 Village/SoHo
+free press pass + truth-set file (`data/nyc-truth-sets.json`), ve#112
+evidence-first ranking + optional `evidence` field, bd#180 press links +
+"press research" label; ve#111 closed-business sweep (Google businessStatus
+inside the free tier) queued after #112. Contract note: iOS drops unknown
+keys (`buzz`, `news`) safely; `Claim.sourceLabel` lacked "agent".
+
 ## 2026-09-18 evening — TestFlight 1.1 (20) uploaded
 Release branch `release/1.1.0` cut from main (a62d420), MARKETING_VERSION 1.1,
 build 20 (last was 19). Archived + exported via the free local rail (cloud-
