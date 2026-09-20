@@ -10,8 +10,9 @@
 
 ## 2026-09-19 — Bamware CRM: third-app direction (Bilal)
 
-- New product idea: **Bamware CRM**, a personal CRM built with React Native
-  for web and mobile. Bilal describes it as the third app and a full app.
+- **Bamware CRM** is a generic, extensible business-management app built with
+  React Native for web and mobile. Bilal describes it as the third app and a
+  full app. [Canonical CRM entry point](docs/bamware-crm.md).
 - Platform goal: bring together features from the Bamware ecosystem and make
   its capabilities reusable by the fourth app and subsequent products.
 - Initial capabilities requested: appointments/calendar; to-do/checklists
@@ -53,7 +54,10 @@
   and rechecked. [Results and follow-ups](docs/crm-first-slice-results.md).
   Preview: loopback port 4310; Metro 8093. Local demo identities only; live
   shared-auth registration/activation and Android device verification remain.
-  Publication was not requested; code and context additions remain local.
+  CRM source publication has not been requested; source remains local.
+- **Bilal's first web walkthrough:** very positive initial impression —
+  "I'm very impressed" and "wow" for the first iteration. This is initial
+  product feedback, not completion of the remaining integration/release gates.
 
 ## 2026-09-19 — NYC venue intelligence implementation in draft PR #145
 
@@ -221,6 +225,19 @@ its no-execution status; hosted activation and spend remain separate gates.
   run as a UI test and SKIPS the launch reveal; to check the real path, set
   `defaults write io.bamware.brewdesk brewdesk.onboarding.complete -bool YES`
   in the simulator and launch with no flags.
+- 2026-09-20: Bilal rejected build 24's map markers ("a step backwards…
+  grouping doesn't make any sense… take a pause and think"). Marker work is
+  PAUSED in the app. Design review artifact with 4 options on real West
+  Village data (recommended: "Best first" = top ~10 rated as score pills with
+  names, other rated as dots, unrated only as faint rings at street zoom, NO
+  count clusters): https://claude.ai/artifact/1gDVdnxqL1T51cVWQ3e8iF — waiting
+  for his pick (direction + pin shape). brewdesk#211 perf agent paused; WIP on
+  branch perf/211-map-replan-stalls; finding: plan() is cheap (~20 ms), the
+  cost is SwiftUI/MapKit creating/destroying 70–100 annotation views per
+  re-plan → fewer markers + stable ids is the fix; its branch got default-zoom
+  hitchRatio to 0.105–0.118 and surfaced a failing
+  MapLocateButtonUITests.testAuthorizedTapCentersOnSimulatedLocation to
+  root-cause. Build 24's launch animation is fine.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
