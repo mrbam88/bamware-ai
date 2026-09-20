@@ -274,6 +274,19 @@ its no-execution status; hosted activation and spend remain separate gates.
   hitchRatio to 0.105–0.118 and surfaced a failing
   MapLocateButtonUITests.testAuthorizedTapCentersOnSimulatedLocation to
   root-cause. Build 24's launch animation is fine.
+- 2026-09-20 DECISION (Bilal, via the mock-up page; "this GUI actually really
+  helps me figure things out"): map markers = MICRO TEARDROP pins, Hanken
+  Grotesk Light numbers, 0.75 pt dark hairline + small soft shadow, no white
+  ring, NO grouping/clusters; size scales with zoom (4 pt dots zoomed out →
+  12 pt neighborhood → 17 pt street → 20 pt max), number only ≥ 11 pt; best
+  score = brightest on the dark map (single green hue, lightness only);
+  overlapping lower scores shrink to dots; unrated = faint specks. Smoothness
+  is a hard requirement ("buttery-smooth"): one stable annotation per venue,
+  MapKit-positioned, target hitchRatio ≤ 0.12 Release. Reference:
+  https://claude.ai/artifact/1gDVdnxqL1T51cVWQ3e8iF (v4). Build agent running
+  (PR only; supervisor re-screenshots at 3 zooms, watches a real-speed pinch
+  recording and re-measures before merge → build 25). Process that worked:
+  mock options on REAL data in an artifact before touching the app.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
