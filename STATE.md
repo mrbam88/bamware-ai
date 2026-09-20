@@ -295,6 +295,18 @@ its no-execution status; hosted activation and spend remain separate gates.
   goes green before the alias switches) in docs/venue-engine-deployment.md.
   iOS follow-up: brewdesk#213. Markers v3 (micro teardrops) build in flight →
   TestFlight build 25 after supervisor checks.
+- TestFlight 1.1 build 25 uploaded 2026-09-20 04:31 (tag store/1.1-build25 =
+  d245e02): map markers v3 (#212 / PR #214): micro teardrop pins, Hanken
+  Grotesk Light numbers, dark hairline + soft shadow, size by METRES PER POINT
+  (9.0→4 pt dots, 5.4→11.5, 3.6→12.5, 1.8→17, 0.9→20; number ≥ 11 pt), best =
+  brightest on the dark map, overlapping lower scores demote to MapCircle
+  dots, unrated = MapCircle specks, one stable annotation per rated venue, NO
+  clusters. Supervisor caught and fixed before merge: teardrop path not
+  filled (agent approved invisible pins), and size stops too tight (every
+  café a dot at neighborhood zoom). Perf unchanged vs build 24 (Release
+  hitchRatio ≈ 0.17/0.16, worst ≈ 300 ms; target 0.12) → brewdesk#211 stays
+  open (likely needs an MKMapView-backed marker layer). In flight: #213
+  scoreDisplay → "Not rated yet" (build 26).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
