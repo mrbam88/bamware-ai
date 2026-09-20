@@ -39,9 +39,21 @@
   with [backend evidence](docs/crm-backend-reuse-audit.md). Existing identity,
   native push, match-based chat and saved-list sync are useful foundations;
   workspace authorization and offline task semantics need new design.
-  Proposed first proof: one configured workspace with role-scoped offline
-  tasks across web/mobile. Architecture and first slice await agreement;
-  no product implementation or runtime verification performed in this audit.
+  Bilal approved the first proof and authorized implementation: one configured
+  workspace with role-scoped offline tasks across web/mobile.
+- **First slice implemented and locally verified:** new `code/bamware-crm`,
+  branch `feat/crm-offline-tasks`, no commits/remote yet. Ticket
+  [bamware-ai#31](https://github.com/mrbam88/bamware-ai/issues/31).
+  Expo RN web/iOS, Express + SQLite, shared JWT verifier, independently reusable
+  Tasks module, admin/member permissions, durable queues and explicit conflicts.
+  Verified: 18 tests, typecheck, server/web builds, real offline browser cold
+  reopen, local iOS build (0 errors/warnings), native queue across app restart,
+  and the exact native-created completed task visible in a separate browser.
+  Headless Tasks consumer also passed. Standards/spec review findings fixed
+  and rechecked. [Results and follow-ups](docs/crm-first-slice-results.md).
+  Preview: loopback port 4310; Metro 8093. Local demo identities only; live
+  shared-auth registration/activation and Android device verification remain.
+  Publication was not requested; code and context additions remain local.
 
 ## 2026-09-19 — NYC venue intelligence implementation in draft PR #145
 
@@ -192,6 +204,23 @@ its no-execution status; hosted activation and spend remain separate gates.
   follow-up agent running, supervisor re-screenshots before merge. Merged:
   #206 JWT on observation/speed-test writes (reports have no wire client).
   Build 24 waits on the marker follow-up + launch animation.
+- TestFlight 1.1 build 24 uploaded 2026-09-20 01:21 (tag store/1.1-build24 =
+  0aad384). Contents, each checked by the supervisor on a simulator at real
+  speed / live density: launch animation v4 (#207; additive signal pulse,
+  clock starts at first presented frame; verified frame-by-frame on a
+  flag-free Release launch: ~22 frames of arc motion, cup region flat);
+  map markers (#208 + #210: circles = scores, rounded-square stacks with real
+  counts at member centroid, single-hue lightness dots, hollow rings for
+  unrated, collision-free, excluded from app chrome, walking-scale initial
+  camera, "Search this area" only after a user gesture, readable score
+  badge); JWT on observation/speed-test writes (#206). Known cost: Release
+  MapPerformanceUITests hitchRatio 0.188/0.155 (was ~0.08; limit 0.20) from
+  re-plan stalls, not marker count → brewdesk#211 agent running (stable ids,
+  incremental placement, off-main planning); supervisor re-measures before
+  merge → build 25. Gotcha: any launch arg starting with -UITest marks the
+  run as a UI test and SKIPS the launch reveal; to check the real path, set
+  `defaults write io.bamware.brewdesk brewdesk.onboarding.complete -bool YES`
+  in the simulator and launch with no flags.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
