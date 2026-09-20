@@ -307,6 +307,14 @@ its no-execution status; hosted activation and spend remain separate gates.
   hitchRatio ≈ 0.17/0.16, worst ≈ 300 ms; target 0.12) → brewdesk#211 stays
   open (likely needs an MKMapView-backed marker layer). In flight: #213
   scoreDisplay → "Not rated yet" (build 26).
+- TestFlight 1.1 build 26 uploaded 2026-09-20 05:20 (tag store/1.1-build26 =
+  b5570f4; first upload attempt timed out, retry succeeded): brewdesk#213 /
+  PR #215 — app reads the server's `scoreDisplay` (number / null / absent);
+  unrated cafés show "Not rated yet" on tile, detail badge, rows, share text
+  and VoiceOver, never a placeholder 40/50. Supervisor reviewed the unrated
+  detail + map screenshots before merge. New ticket brewdesk#216: estimated
+  attribute values render in red (not colorblind-safe). Open: #211 map pan
+  smoothness (≈0.17 vs 0.12 target), #170 stale UI tests.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
