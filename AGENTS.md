@@ -36,7 +36,20 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## 3. How does Bilal work?
 
-- Short and sweet. Bullets over prose. No re-summaries. Limit his reading.
+- **Talk short and plain. He has asked for this many times (latest 2026-09-18:
+  "way too verbose... tired of repeating myself... stop being so fluffy and
+  wordy"). He should never have to say it again.**
+  - Answer first, in the shortest true sentence. Then stop.
+  - Aim for under 8 lines. Go longer only when he asks for a deep dive.
+  - Plain everyday words. No labels you made up and no vague nouns. "Each
+    stage is one sitting" failed: he asked "what stage? what sitting?". If a
+    word would need explaining, pick a different word.
+  - No fluff: no praise, no pep talk, no "talking points", no repeating what
+    he just said, no closing offers, no re-summaries.
+  - One idea per message when he is learning or confused.
+  - Short full sentences. Bullets only for real lists. No cryptic fragments
+    and no repo shorthand.
+  - Before sending, cut the reply in half.
 - Direct recommendations, not option menus. Plan before building.
 - RN + Express mental model; mobile/Node analogies land.
 - Specs are GitHub issues: story / scope / out-of-scope / acceptance criteria.
