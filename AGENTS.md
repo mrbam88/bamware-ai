@@ -1,8 +1,24 @@
 # Bamware — read me first (as of 2026-08-18)
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
-This file loads in every session. It answers three questions, then links out.
-Detail lives in `docs/` and `skills/` — read those when the task needs them.
+This entry map loads every session; detail lives in `docs/` and `skills/`.
+
+## First-class principle: continuity across agents
+
+Bilal constantly switches models, vendors and harnesses. **Context must survive
+every switch.** Make the next agent's job easier—even with less context or
+weaker reasoning. Never rely on model memory.
+
+- At verified milestones and after corrections, save the decision **and why**,
+  exact next action, relevant paths/commands, evidence, blockers and pause state.
+- Put durable procedures in canonical docs; link critical rules from entry
+  instructions. Explicit precedence prevents generic defaults replacing decided
+  workflows. Don't bury rules only in incident logs.
+- Use capabilities and task ownership, not model names, to route work.
+- Distinguish **edited locally / published / deployed**. Unpublished context
+  is not available to another machine. Publish when authorized; otherwise
+  explicitly flag the pending handoff. Procedure: `skills/session-handoff`;
+  portability contract: `docs/portability.md`.
 
 ## 1. Where is the truth?
 
@@ -28,7 +44,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Claude Code CLI / Sol / opencode | native git + gh |
 
 - A missing `gh` binary or a container-git 403 does NOT mean "no access."
-  Check the connector first. (This mistake cost a session on 2026-08-18.)
+  Check the connector first.
 - No write path at all? STOP and hand Bilal the patch. Never write durable
   context into a vendor cache instead.
 - New facts go to this repo, never to chat. Ending a session that made
@@ -46,6 +62,11 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## Before you touch these, read the linked doc first
 
+- **Deploying Venue Engine? Read `docs/venue-engine-deployment.md` first.**
+  Default: local validation → direct deployment to the existing Vercel project.
+  Actions is NOT a prerequisite. Resolve this before PR/CI planning or CI spend.
+  Missing tool/auth access does not authorize switching to CI. This overrides
+  generic release sequencing, not checks required for an actual PR merge.
 - Committing anything? Never commit credential values or PII — this repo is
   public. Rules: docs/security.md
 - Changing a service API response shape? It breaks the mobile app silently.
@@ -57,41 +78,23 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - Merging agent PRs? QA merges after CI green + evidenced QA pass
   (adopted 2026-08-21). Bilal-only gates: store submission, spend,
   CI/signing/deploy config, cross-repo contracts. See skills/qa-engineer.
-- **HARD SPEND RULE (Bilal, 2026-08-21 — "probs the most important rule
-  ever"):** Bilal is severely budget-constrained. Anything that could cost
-  more than **$20** — a run, a service tier, accumulated CI minutes — is an
-  automatic STOP: quit the work immediately and get his explicit permission
-  first, even mid-task. Below $20, paid runs still need a prior
-  quote-and-confirm with a cheapest-option offer. Always prefer free:
-  local Mac builds over GitHub Actions macOS runners (Actions is BACKUP
-  only for mobile builds/uploads, decided 2026-08-21), OpenStreetMap over
-  Google, Haiku over Opus for mechanical jobs. **Claude usage itself is
-  budgeted too:** Bilal is on Claude Max 20x with extra-usage overage OFF
-  (2026-08-21) — sessions cost quota, long-lived sessions cost the most
-  (one day-old session ≈ $650 API-equivalent of an $800 week). One session
-  per ticket, `/compact` early, never cat whole files/logs into context;
-  see skills/agent-fanout "Session hygiene = token cost". Subagent model
-  policy (2026-08-22, after 12%-by-Saturday burn): mechanical/well-specified
-  tickets run on SONNET, docs drafting on HAIKU; the frontier model is for
-  QA verdicts, design judgment, and ambiguous work only. No idle polling
-  loops — event notifications only. Supervisor sessions stay short-lived.
-  Full policy, measured costs, levers, per-ticket budgets, and rate-limit
-  rule of thumb: see docs/token-diet.md. Overnight queue: label a ticket
-  `night`, run `scripts/night-queue.sh` — see skills/night-supervisor.
-- Machines, models, and harnesses are interchangeable caches — Bilal
-  switches laptops and AI tools constantly, always experimenting. Never
-  create anything that only works on one machine, model, or harness;
-  durable facts and procedures go in this repo. **But capability is NOT
-  interchangeable:** of three machines (M3 Mac, Ubuntu ThinkPad,
-  Omarchy Linux laptop), only the M3 Mac can do Xcode, simulators,
-  fastlane, signing, or a physical-iPhone smoke. Check docs/machines.md
-  before accepting Apple work; reassign rather than improvise.
+- **HARD SPEND RULE:** anything that could cost **more than $20** requires
+  an immediate STOP and Bilal's explicit permission, even mid-task. Below $20,
+  paid runs still require a prior quote-and-confirm with a cheapest-option
+  offer. Prefer free. Mobile builds/uploads use local Mac tooling; Actions is
+  BACKUP only. Agent usage consumes quota too. Before agent runs, read
+  `docs/token-diet.md` for model-cost defaults, session hygiene and budgets.
+  No idle polling loops. Overnight procedure: `skills/night-supervisor`.
+- Models/harnesses are interchangeable; machine capabilities are not. Only
+  the M3 Mac can do Xcode, iOS simulators, signing or physical-iPhone smoke.
+  Before Apple work, read `docs/machines.md`; reassign rather than improvise.
 
 ## Table of contents — read on demand
 
 | Need | Where |
 |---|---|
 | All repos: what each is, deploy targets, endpoints | docs/repos.md |
+| Venue Engine release route, local checks, direct Vercel deployment | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
 | The three machines and what each can physically do | docs/machines.md |
 | Security rules: credentials, PII, accounts | docs/security.md |

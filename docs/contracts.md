@@ -28,6 +28,21 @@ A shared contract package is the real answer — that decision is parked in
 
 ## Recent contract changes
 
+- **2026-09-20 (venue-engine `76e343a`, published on
+  `feat/venue-evidence-quality`; production deployment pending):** optional nullable
+  `scoreDisplay` on NYC full listings, compact/map listings, detail and
+  observation-result venues. `null` means **Not rated yet**; number means
+  the existing evidenced Work Fit. Absent means legacy server/non-NYC behavior.
+  `workScore` remains numeric and keeps its existing calculation/ranking.
+  Never use `scoreDisplay ?? workScore`: explicit null must not fall back to
+  a placeholder. Swift must distinguish missing key from decoded null;
+  Flutter must check key presence. Bilal has parallel iOS agents and will
+  coordinate the UI; Flutter coordination remains required before rollout.
+  Provider tests cover GET/POST full/compact/detail, real 40/50 scores vs
+  placeholders, and non-NYC compatibility. No client changes made here.
+  Evidence-only scoring/coverage/confidence remain an **offline pilot**, not
+  additional served fields. Details: venue-engine `docs/work-fit-pilot.md`.
+
 - **2026-09-19 (venue-engine#140, additive):** `GET /v1/venues` and
   `POST /v1/venues/search` support map-viewport queries (centre `lat`/`lng` +
   `radius_m`, up to 3000, per BrewDesk's "Search this area").

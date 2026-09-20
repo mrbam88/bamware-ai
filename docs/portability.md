@@ -2,6 +2,33 @@
 
 Bilal switches between model vendors. No vendor holds his context; this repo does.
 
+**This is a first-class Bamware design principle, not an optional convenience.**
+An agent should leave the next agent less to infer, regardless of model quality
+or harness. A stronger model remembering a convention is not the continuity
+mechanism; a discoverable, current repo instruction is.
+
+## The handoff contract
+
+After a verified milestone, a changed decision, or a user correction, update
+the canonical context before ending the task:
+
+- **Decision and reason:** what was selected, what it replaces, and why.
+- **Current state:** local edits, published source and deployed behavior are
+  separate facts. Include the relevant revision and verification evidence.
+- **Next action:** concrete paths, commands and acceptance criteria. Mark an
+  unverified command/access path as unverified rather than inventing a recipe.
+- **Constraints:** cost limits, scope ownership, blocked access, active pauses
+  and withdrawn approvals. Never make the next agent rediscover these in chat.
+- **Discoverability:** critical rules belong in entry instructions or linked
+  runbooks, with precedence over generic defaults stated explicitly. A log
+  entry alone does not make a procedure discoverable.
+
+Use `skills/session-handoff` for publication. Commit/push only when authorized;
+if publication is pending, say so and provide the exact changed paths/patch.
+Do not call local edits a completed cross-machine handoff. Store facts once,
+link them elsewhere, and replace superseded operational guidance while keeping
+the rationale in the incident/decision history. No transcript dumps or secrets.
+
 The only thing a vendor needs is a **pointer** in whatever field that product
 injects on every turn. Everything else is fetched from here at runtime. Moving to
 a new assistant is a copy-paste, not a migration.
@@ -11,18 +38,22 @@ a new assistant is a copy-paste, not a migration.
 ```
 Bilal Malik's context lives in github.com/mrbam88/bamware-ai (public).
 Before answering anything about Bilal, his job search, his resume, or any
-Bamware repo, fetch and read:
+Bamware repo, resolve the runtime's repo write path, then fetch current main:
+  https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/AGENTS.md
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/STATE.md
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/INDEX.md
 Then fetch the specific skill you need:
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/skills/<name>/SKILL.md
 Start at bilal-profile for anything about Bilal. Never answer from memory.
-Never cache these facts here. Write durable updates back to the repo.
+State context: <CONTEXT_VERSION contents> and write-path: <resolved path>.
+Use native git in CLI runtimes or the GitHub connector in Cowork; raw HTTPS
+is the read fallback. Never cache these facts here. Update the canonical repo
+after verified milestones/corrections so the next model can continue.
 If you cannot reach the repo, say so and stop.
 ```
 
-That is the whole vendor-side footprint. Roughly 120 tokens.
+That pointer is the vendor-side footprint; durable facts remain in the repo.
 
 ## Where it goes, per platform
 
@@ -39,12 +70,13 @@ That is the whole vendor-side footprint. Roughly 120 tokens.
 
 ## Requirements on the runtime
 
-Only one: the ability to fetch an HTTPS URL. No API key, no OAuth, no connector,
-no vendor storage. `bamware-ai` is public precisely so this holds everywhere.
+Reading the public bootstrap needs repo/network access; raw HTTPS is available
+as a fallback without credentials. Writing/publishing also needs the runtime's
+authorized GitHub path. Resolve both before accepting context-changing work;
+see `skills/bamware-context` for runtime-specific access instructions.
 
-A runtime **without** web access cannot bootstrap. In that case paste the
-relevant SKILL.md contents in by hand and treat that session as read-only — it
-cannot write updates back.
+A runtime that cannot reach the current repo must say so and stop. Pasted or
+vendor-cached instructions are not a substitute for verifying current context.
 
 ## New machine (CLI side)
 

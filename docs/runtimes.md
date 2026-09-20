@@ -1,36 +1,43 @@
 # Runtimes — who can do what
 
-Agents differ by RUNTIME, not just by skill. A job handed to the wrong runtime
+Agents differ by actual runtime capabilities, not model brand. A job handed to the wrong runtime
 doesn't fail loudly — it half-completes and leaves debris. Check this table
 before assigning or accepting work.
 
 **Runtime is only half the answer — check the MACHINE too**
-(`docs/machines.md`). The CLI column below assumes the Mac. The same CLI on the
-ThinkPad (Ubuntu) has no Xcode, no simulators, no fastlane and no signing, so
-every row marked *Mac only* is unavailable there regardless of runtime.
+(`docs/machines.md`). A CLI can run on different machines. The same harness on
+Linux has no Xcode, iOS simulators, fastlane iOS builds or Apple signing; every
+row marked *Mac only* is unavailable there regardless of the selected model.
 
 ## Capability matrix
 
-| Capability | Machine | Claude Code CLI | Sol / opencode | Claude Cowork (cloud) |
+| Capability | Machine | Native CLI harness (any model) | Local app/tool bridge | Cloud/web runtime |
 |---|---|---|---|---|
-| `git push` / release tags | any | ✅ owns it | ✅ | ✅ API connector; container git needs repo authorized |
-| Repo read/write via GitHub API | any | ✅ | ✅ | ✅ owns it — no checkout, no lock cruft |
-| Xcode, simulators, `xcodebuild` | **Mac only** | ✅ owns it | ✅ | ❌ no macOS |
-| fastlane, App Store Connect, signing | **Mac only** | ✅ owns it | — | ❌ |
-| Physical iPhone install / screen recording | **Mac only** | ✅ owns it | — | ❌ |
-| Credential-bearing ops (EAS, AWS, Vercel) | any | ✅ owns it | — | ⚠️ connector-based only |
-| SwiftUI / client feature work | **Mac only** | ❌ reads only | ✅ owns it | ❌ |
-| Backend / API / data work | any | ✅ owns it | ❌ reads only | ✅ scratch + research |
-| Flutter / Android build | Mac or ThinkPad | ✅ | — | ❌ |
-| Long unattended runs, bulk research | any | ⚠️ rate-limited | ⚠️ | ✅ owns it |
+| `git push` / release tags | any | Authorized native git/gh | Only with appropriate repo tools | GitHub connector; container git needs repo authorization |
+| Repo read/write via GitHub API | any | Authorized gh/API | Check available connector | Authorized GitHub connector |
+| Xcode, simulators, `xcodebuild` | **Mac only** | Installed Apple tools | Only through a capable Mac bridge | No local Apple validation without a Mac executor |
+| fastlane iOS build/signing/upload | **Mac only** | Existing authorized setup | Check Mac bridge capability | Requires an authorized Mac executor |
+| Physical iPhone smoke / recording | **Mac only** | Connected device + tools | Requires device bridge | Requires a physical-device executor |
+| Existing EAS/AWS/Vercel operations | any | Existing authorized CLI | Check available authorized tools | Existing authorized connector |
+| SwiftUI source edits | any | When assigned; Mac required for validation | When assigned and repo tools exist | Repo tools required; hand off Mac validation |
+| Backend / API / data work | any | When assigned, with supported tools | Check shell/filesystem capability | Check runtime/tools; scratch research alone is not deployment access |
+| Flutter / Android build | Capable machine | Installed SDK/toolchain required | Check build bridge | Requires a suitable build executor |
+| Long unattended runs / research | any | Subject to quota/spend/task authorization | Same | Same; cloud does not mean unlimited or free |
 
 ## Ownership rules
 
-- Ownership is one-way: Claude writes backend and reads Swift; Sol writes
-  Swift and reads backend. Neither edits the other's tree.
+- Release routing is service-specific, not determined by the model's name.
+  For Venue Engine, read `docs/venue-engine-deployment.md` before accepting or
+  handing off deployment: local checks, then direct existing-project Vercel
+  deployment. A runtime access gap does not make GitHub Actions a prerequisite.
+- Assign ownership by the current task, scope and verified tools. Claude, Grok,
+  GPT or another model may fill any compatible role; no model permanently owns
+  a codebase. Respect another active agent's scope and one writer per resource.
 - Credentials never move to close a capability gap. Reassign the job instead.
 - Hand off through files in a repo, never chat.
-- Builds, tags, releases, signing stay native (CLI on the Mac).
+- Apple builds/signing need the Mac. Backend releases follow their service
+  runbook using the authorized runtime; a Linux native CLI is not disqualified
+  by model name. Git publication follows the runtime write path.
 - A *Mac only* row is a hard stop on the ThinkPad, not a slow path. Reassign
   the ticket to the Mac runner; never improvise a substitute.
 

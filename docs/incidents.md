@@ -95,6 +95,39 @@ Project's instructions field now requires the `context:` / `write-path:`
 markers in the first reply; `bamware-ai` stays public by design — it is the
 bootstrap, and PII already lives elsewhere.
 
+## 2026-09-19 — generic PR/CI workflow displaced the Venue Engine release route
+
+During a Venue Engine release request, the agent chose PR → GitHub Actions →
+merge, discovered the repository was private, and asked Bilal to approve CI
+spend. Local validation had already passed: 866 tests plus typecheck, with
+12 database tests skipped and two enforced truth venues passing.
+
+Bilal briefly accepted a small CI budget, then immediately paused and corrected
+the dependency: Venue Engine should use local validation and direct deployment
+to its existing Vercel project. No commit, push, deployment or paid CI run had
+been triggered. The direct deployment tool/auth path had not been verified.
+
+Contributing context gap: the global spend rule explicitly described local
+mobile builds, while Venue Engine's entry instructions had no deployment route
+and the generic PR review workflow required CI. The agent substituted that
+generic workflow instead of resolving the service-specific path first. This
+was an agent error, not evidence that a model's first deployment is unreliable
+or that another named model would behave differently.
+
+**Rules it produced:** canonical `docs/venue-engine-deployment.md`, linked from
+shared and service entry instructions; select and state the route before CI
+spend/PR/push actions; treat absent tooling/auth as an access gap, not an Actions
+dependency; inspect publication triggers separately; preserve pause state and
+do not reuse withdrawn budget approval. Local validation does not prove that
+Vercel access or deployment works—record that proof only after it is observed.
+
+Bilal's broader clarification: preserving/updating context for the next model
+and harness is a first-class Bamware principle. The fix is not to choose a
+supposedly smarter model; it is to make decisions explicit, discoverable and
+published when authorized, with enough detail that a weaker agent can follow
+them. This principle is now stated near the top of `AGENTS.md` and expanded in
+`docs/portability.md`; runtime ownership no longer depends on model names.
+
 ## The pattern
 
 Every one of these was a *copy* diverging from its source — or an agent

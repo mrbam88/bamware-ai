@@ -5,8 +5,44 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
+> Last updated: 2026-09-20 — **Venue Engine evidence release published for Bilal's deployment; cross-agent continuity rules codified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-20 — Venue quality: published source, deployment handed to Bilal
+
+- **Published:** engine commit `76e343a` on
+  [`feat/venue-evidence-quality`](https://github.com/mrbam88/bamware-venue-engine/tree/feat/venue-evidence-quality).
+  Not merged to main; no production deployment performed by this session.
+  Bilal explicitly requested commit/push and will deploy from his configured
+  machine. The working session is SSH'd into the Omarchy Linux server.
+- **Next action on the deployment machine:** fetch/check out that branch, read
+  engine `docs/work-fit-pilot.md` and `docs/venue-engine-deployment.md` here,
+  then use the existing authorized Vercel path and verify production responses.
+  The checkout already links project **venuekit**. Linux CLI auth check returned
+  **a new login is required**; do not recreate the project, move keys, restart
+  implementation, or make GitHub Actions a prerequisite. No PR was opened.
+- **Verified locally:** 866 tests pass, 12 DB integration tests skipped;
+  typecheck passes; truth-check passes two enforced venues with Qahwah pending.
+  No paid research/model calls or Actions runs were requested for this handoff.
+- **Reggio:** audited, visit-scoped `user_report` claims for laptop friendliness,
+  usable seating and acceptable Wi-Fi replace misleading/missing machine
+  evidence. Existing formula **48 → 69**, 600m anchor rank **21 → 6**. Original
+  claims preserved; no invented Mbps, visit dates, all-hours policy, outlets,
+  noise or outdoor-seat availability. Reggio's top-ten gate is now enforced;
+  Capital One passes at rank 8. Replaying feedback changes zero venues.
+- **Display contract:** NYC `scoreDisplay: number | null`, including compact
+  map and detail responses. Explicit null => **Not rated yet**; absent => legacy
+  fallback. `workScore` remains numeric. iOS work belongs to Bilal's other
+  agents; `docs/contracts.md` records the handoff. Not confirmed live yet.
+- **Press recovery:** 55 mentions audited, 47 safe branch matches. All 47 now
+  linked (one Blue Bottle link recovered); same-brand source pooling fixed.
+  No Wi-Fi/laptop claims fabricated from list titles. The offline scoring
+  candidate evaluates corrected Reggio at 87 but is **not activated**.
+- **Continuity is first-class:** `AGENTS.md` / `docs/portability.md` require
+  explicit decisions, rationale, evidence, next steps, blockers and pause state.
+  `docs/runtimes.md` uses capabilities/task ownership, not model names. Venue
+  Engine's canonical route is local validation → direct existing-project
+  Vercel deployment. Earlier CI-route approval was withdrawn; don't reuse it.
 
 ## 2026-09-19 — Bamware CRM: third-app direction (Bilal)
 

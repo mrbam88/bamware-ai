@@ -22,6 +22,10 @@ this when you are about to work in a repo, not at session start.
 
 ## Live endpoints (dev)
 
+Venue Engine release instructions: [local validation → direct Vercel
+deployment](venue-engine-deployment.md). GitHub Actions is not a prerequisite;
+resolve the authorized existing-project path before proposing CI spend.
+
 - Auth: `https://cje3ppxv47.execute-api.us-east-1.amazonaws.com`
 - Dating: `https://1l5fzig94l.execute-api.us-east-1.amazonaws.com`
 - Venue Engine: `https://venuekit-ashen.vercel.app`

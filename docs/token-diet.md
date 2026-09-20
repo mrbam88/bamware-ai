@@ -4,6 +4,23 @@ One-page policy for cutting token/rate-limit cost across Bamware harnesses.
 Companion to `skills/agent-fanout` "Session hygiene = token cost" (that doc
 covers supervisor sessions; this one covers per-ticket subagent runs).
 
+## Standing session rules
+
+Bilal's 2026-08-21 spend rule is critical: prefer free (local Mac mobile builds,
+OpenStreetMap where suitable); Actions is backup-only for mobile builds/uploads.
+Paid runs require quote-and-confirm; anything that could exceed $20 is an
+immediate stop for explicit permission, including accumulated minutes.
+
+Agent usage itself is budgeted: Claude Max 20x with extra-usage overage OFF
+(2026-08-21). A day-old session consumed roughly $650 API-equivalent out of an
+$800 week; this is historical quota evidence, not a current cash bill. Keep one
+session per ticket, compact early, avoid whole-file/log dumps, and keep
+supervisors short-lived. No idle polling loops; use event notifications.
+Cost defaults adopted 2026-08-22: Sonnet for mechanical/well-specified tickets,
+Haiku for docs drafting; frontier reasoning for QA verdicts, design judgment
+and ambiguity. These are cost-routing defaults, not permanent model ownership
+of a repo. Check current available capabilities and budget when switching tools.
+
 ## Evidence table (2026-08-22/23, measured)
 
 | Agent | Tokens | Tool uses | Time | Notes |
@@ -38,11 +55,12 @@ Observed waste (not itemized per-ticket, but real):
 - **Sonnet/Haiku model defaults** — done (2026-08-22). Mechanical/well-specified
   tickets on Sonnet, docs drafting on Haiku. Saving: baseline, already banked.
   Risk: none, already adopted.
-- **No screenshots-into-model** — use snapshot tests + a11y audits + captures
-  as PR evidence (not model input). Saving: ~50% on UI tickets (384k → ~150-200k
-  range, matching non-screenshot code runs). Risk: low — snapshot/a11y checks
-  catch most regressions; occasional visual bug slips through, catch in human
-  QA pass.
+- **Bound visual evidence, do not skip required review.** The earlier blanket
+  "no screenshots-into-model" recommendation is superseded for visual tickets
+  by the 2026-09-19 `skills/agent-fanout` rule: real-speed recording and a
+  supervisor-reviewed contact sheet. Keep captures targeted; snapshot/a11y
+  tests supplement that review rather than replace it. Do not claim savings
+  from omitting a required visual gate.
 - **`-only-testing` discipline, full matrix once** — run the targeted test
   during iteration, full suite once before PR. Saving: 20-40% on any ticket
   with a test loop (scales with iteration count). Risk: low — full run still
