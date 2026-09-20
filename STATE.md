@@ -337,6 +337,23 @@ its no-execution status; hosted activation and spend remain separate gates.
   at every visual change on a simulator at live density / real speed before
   merge, (3) reading his TestFlight screenshots + notes directly via
   scripts/asc.py. Keep doing all three.
+- TestFlight 1.1 build 28 uploaded 2026-09-20 19:39 (tag store/1.1-build28 =
+  8d72db7): brewdesk#219 / PR #220 — selecting a search result behaves like
+  Google/Apple Maps: keyboard + shelf step aside, field commits to the café's
+  name (x clears), detail sheet opens at MEDIUM with background interaction
+  enabled, camera flies to the café at walking scale via
+  MapCamera(distance: 3580 m ≈ 2.2 m/pt), selected teardrop + name centred in
+  the visible band above the sheet, surroundings load via updateViewport
+  (exploredViewport), and an authoritative `flyTarget` blocks every other
+  `position` write until the next gesture. Root causes fixed: late "fit all
+  results" write racing the selection; shelf gesture (minimumDistance 0)
+  swallowing row taps in search mode; search text still filtering the map
+  after selection; substring matches ("sey" in "Jersey") widening the fit.
+  It took three supervisor reviews of real-speed recordings: the first two
+  passes "passed" tests that checked the map centre but never the ZOOM. UI
+  test now asserts map-camera-mpp ≤ 2.6, selected marker in the 35–65 % band,
+  ≥ 5 rendered markers, held 4 s and after sheet dismissal. Server has
+  Brooklyn cafés (SEY, Devoción, Butler…).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
