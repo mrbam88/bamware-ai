@@ -315,6 +315,21 @@ its no-execution status; hosted activation and spend remain separate gates.
   detail + map screenshots before merge. New ticket brewdesk#216: estimated
   attribute values render in red (not colorblind-safe). Open: #211 map pan
   smoothness (≈0.17 vs 0.12 target), #170 stale UI tests.
+- TestFlight 1.1 build 27 uploaded 2026-09-20 14:49 (tag store/1.1-build27 =
+  42551e1): brewdesk#217 / PR #218 from Bilal's TestFlight notes on build 26
+  ("Much better! Might need to change the color of the text to white on the
+  pins!" + "border should be white instead of dark"): LIGHT map pins = darker
+  single-hue greens (#1C5243 / #2C6B58 / #3D8069, white ≥ 4.5:1), white
+  numbers, 1 pt white edge + soft shadow, Regular weight below 15 pt heads;
+  DARK map unchanged (adaptive edge token). Fixed pins peeking under the
+  "Search this area" pill (chrome-blocked candidates no longer fall back to
+  unchecked MapCircle dots) + compass exclusion. PENDING BILAL DECISION: Apple
+  style "depth" finish (tone-on-tone rim, gradient, shadow), café name labels
+  beside top pins, Apple-size at street zoom — mock v5 at
+  https://claude.ai/artifact/1gDVdnxqL1T51cVWQ3e8iF (his second note: "Notice
+  the Apple Maps pins! They look 3d ish because of the color… I want my pins
+  to compete against the Apple pins"). TestFlight feedback is readable via
+  scripts/asc.py (screenshots + comments).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
