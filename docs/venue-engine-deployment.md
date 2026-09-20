@@ -96,6 +96,41 @@ Review relevant diffs and retain the tested source revision/candidate identity.
   checks, and cost status. Notify client agents when a new contract is actually
   live. Save verified context in `bamware-ai` through session-handoff.
 
+## Validated release record
+
+### 2026-09-20 — `76e343a` (scoreDisplay contract, reviewed Reggio feedback, branch press links)
+
+Executed from the M3 Mac (Claude Code CLI), the runtime with an existing Vercel
+login (`npx --no-install vercel whoami` → account present; `.vercel/project.json`
+→ project `venuekit`). No credentials moved between machines.
+
+- Candidate: branch `feat/venue-evidence-quality`, one commit ahead of `main`,
+  fast-forwardable. Local checks on that exact commit: `npm run typecheck` exit
+  0; `npx vitest run --maxWorkers=2 --minWorkers=1` 866 passed / 12 skipped
+  (database suite, no test DB configured); `npm run truth-check` exit 0 (Caffe
+  Reggio rank 6 and Capital One pass; Qahwah House pending).
+- App-contract parity before release (candidate run locally vs production, the
+  requests the iOS app makes): no keys removed, counts identical, `workScore`
+  numeric everywhere; added keys only: `scoreDisplay` (null for the 146 unrated
+  of 166 near Carmine St, equal to `workScore` for the 20 rated) and optional
+  `attributes.*.timeWindow`.
+- Mechanism that actually deployed: `git push origin 76e343a:main`
+  (fast-forward). The existing Vercel **Git integration** builds production
+  from `main`; no `vercel deploy` command was needed and GitHub Actions was not
+  a prerequisite. Deployment `venuekit-ec9sv3hzz…`, target production, Ready,
+  alias `venuekit-ashen.vercel.app`.
+- Gotcha: the GitHub commit status showed `Vercel=success` BEFORE the production
+  alias had switched; a live check in that window still hit the previous
+  deployment. Confirm with `npx --no-install vercel ls venuekit` (newest row
+  `Production` + `Ready`) and then re-run the live checks.
+- Live proof after the alias switched: `/v1/health` 200 (6,931 venues); full and
+  `compact=1` searches carry `scoreDisplay`; `X-BrewDesk-Viewport` query 200;
+  `q=conwell` → Conwell Coffee Hall 84/84; Caffe Reggio detail `workScore` 69,
+  `laptopPolicy` unrestricted (`user_report`); Qahwah House 44/44.
+- Cost: $0 (Vercel hobby build; no paid SKU, no CI spend requested).
+- Client follow-up filed: bamware-brewdesk#213 (render "Not rated yet" from
+  `scoreDisplay: null`). Builds ≤ 24 ignore the new field and keep working.
+
 ## Pauses and authorization
 
 “Pause” or “wait” stops release actions. A request to update context during

@@ -287,6 +287,14 @@ its no-execution status; hosted activation and spend remain separate gates.
   (PR only; supervisor re-screenshots at 3 zooms, watches a real-speed pinch
   recording and re-measures before merge → build 25). Process that worked:
   mock options on REAL data in an artifact before touching the app.
+- 2026-09-20 03:05 ET: venue-engine `76e343a` (other agent's
+  feat/venue-evidence-quality: additive nullable `scoreDisplay`, reviewed
+  Caffe Reggio feedback 48 → 69, branch-specific press links; Work Fit pilot
+  formula stays OFFLINE) verified locally, fast-forwarded to main, deployed by
+  the Vercel Git integration, and verified live. Record + gotcha (commit status
+  goes green before the alias switches) in docs/venue-engine-deployment.md.
+  iOS follow-up: brewdesk#213. Markers v3 (micro teardrops) build in flight →
+  TestFlight build 25 after supervisor checks.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
