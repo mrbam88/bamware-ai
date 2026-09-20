@@ -1,7 +1,7 @@
 # Bamware — read me first (as of 2026-08-18)
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
-This entry map loads every session; detail lives in `docs/` and `skills/`.
+Entry map for every session; details in `docs/` and `skills/`.
 
 ## First-class principle: continuity across agents
 
@@ -101,6 +101,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base, what works | docs/app-review-field-notes.md |
 | Current state: building / blocked / shipped | STATE.md |
+| CRM context | docs/bamware-crm.md |
 | All skills (procedures) | skills/INDEX.md |
 | Interview prep: what to study, what's dead | docs/interview-prep/README.md |
 | Definition of done, test gates | docs/definition-of-done.md |
