@@ -176,6 +176,22 @@ its no-execution status; hosted activation and spend remain separate gates.
   ships (app must send the JWT on observation/photo/report writes) and Bilal
   approves hosting spend. iOS in flight: detail card name-first, city-wide
   search; merged: GPS-snap fix (#199).
+- 2026-09-19 night (iOS-only session): ASC API reconnected (scripts/asc-key.sh,
+  scripts/asc.py reads TestFlight builds + tester feedback; old vault issuer
+  id was wrong). Bilal's build-23 feedback: map count bubbles read as scores;
+  "animation looks broken"; "you're not testing some of the UI before it goes
+  out" → new rule (skills/agent-fanout + memory): visual tickets need a
+  real-speed recording → contact sheet read by the supervisor; no self-merge.
+  Supervisor now keeps a simulator build of main (flags: -UITestSkipGates,
+  "-brewdesk.uitest-fixed-location" "lat|lng", -brewdesk.debug.environment
+  production) to look at UI at live density. Findings: launch reveal never
+  rendered its motion at real speed (timeline clock starts before first
+  presented frame) — PR #207 open, being reworked with a frame-diff pass
+  test; PR #208 (cluster redesign) merged but NOT shippable (overlapping
+  pins, dot blob, stacks over the river, unreadable shelf score badge) —
+  follow-up agent running, supervisor re-screenshots before merge. Merged:
+  #206 JWT on observation/speed-test writes (reports have no wire client).
+  Build 24 waits on the marker follow-up + launch animation.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
