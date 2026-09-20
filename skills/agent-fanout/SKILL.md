@@ -151,3 +151,22 @@ prompt is not enough. Put this in every iOS agent prompt instead:
 - A stale sibling `../bamware-ios` checkout gets picked up by Xcode as a local
   package override; agents must not symlink it into their worktree.
 If an agent still reports "waiting", SendMessage it once with the above.
+
+## UI changes need eyes, not just green tests (2026-09-19)
+
+A launch-animation PR merged on stills + a geometry number and shipped to
+TestFlight looking broken (logo flickered out and redrew; a grey "sheen"
+smeared across it). Rule for every visual or animation ticket:
+
+- The agent records at REAL speed: `xcrun simctl io <udid> recordVideo
+  --codec h264 out.mp4` (no freeze seams), then builds a contact sheet:
+  `ffmpeg -i out.mp4 -vf "fps=30,crop=<region>,scale=260:-1" f_%03d.png` and
+  `ffmpeg -pattern_type glob -i 'f_*.png' -vf "tile=16x8" sheet.png`.
+- The agent must Read the sheet and state what it verified; the SUPERVISOR
+  also reads the sheet before merging. No auto-merge for visual tickets.
+- Layout tickets: before/after screenshots at live-server data density, dark
+  mode, and an accessibility Dynamic Type size.
+- Design sanity: a launch animation starts from the static launch image and
+  only ADDS motion; anything that hides what is already visible reads as a
+  glitch. Map markers that carry different meanings (score vs count) must
+  differ in SHAPE, not just colour (Bilal is red-green colorblind).
