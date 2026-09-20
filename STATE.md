@@ -8,6 +8,41 @@
 > Last updated: 2026-09-19 — **MORNING REPORT: account platform night run DONE — 15/15 code tickets merged across 6 repos, $0.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-19 — Bamware CRM: third-app direction (Bilal)
+
+- New product idea: **Bamware CRM**, a personal CRM built with React Native
+  for web and mobile. Bilal describes it as the third app and a full app.
+- Platform goal: bring together features from the Bamware ecosystem and make
+  its capabilities reusable by the fourth app and subsequent products.
+- Initial capabilities requested: appointments/calendar; to-do/checklists
+  with offline sync; in-app messaging between people within a user pool.
+- Messaging clarification: Bilal is exploring a dating-app-like user pool
+  where people can message one another; the earlier "event messaging" label
+  was tentative. Pool membership, discovery and messaging permissions remain
+  undecided; large-scale requirements have not been defined.
+- Broader product examples (Bilal): warehouse management with items/products,
+  employee users and differentiated admin/access permissions; a dentist's
+  office managing patients and records. These illustrate the desired breadth
+  beyond a personal CRM; neither is selected as the first implementation.
+- Architectural priority (Bilal): the app must be very generic and highly
+  extensible; software architecture is critical. Preserve the ability to defer
+  decisions and evolve the system rather than locking in speculative choices.
+- Configuration starts with Bilal/Bamware doing it manually; more automated
+  configuration may follow. The extension mechanism remains undecided.
+- Reuse existing foundations across Bamware repos and the existing mobile and
+  web apps. CRM should build on that ecosystem; use the source inventory below
+  before selecting new shared modules or technology.
+- Still being defined: primary user/workflow, offline scope beyond tasks,
+  and the first release boundary.
+- Source audit completed across 12 repos at pinned main commits:
+  [CRM reuse inventory and architecture proposal](docs/bamware-crm-architecture.md),
+  with [backend evidence](docs/crm-backend-reuse-audit.md). Existing identity,
+  native push, match-based chat and saved-list sync are useful foundations;
+  workspace authorization and offline task semantics need new design.
+  Proposed first proof: one configured workspace with role-scoped offline
+  tasks across web/mobile. Architecture and first slice await agreement;
+  no product implementation or runtime verification performed in this audit.
+
 ## 2026-09-19 — NYC venue intelligence implementation in draft PR #145
 
 Bilal subsequently authorized execution of the entire epic and requested no
