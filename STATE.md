@@ -330,6 +330,13 @@ its no-execution status; hosted activation and spend remain separate gates.
   the Apple Maps pins! They look 3d ish because of the color… I want my pins
   to compete against the Apple pins"). TestFlight feedback is readable via
   scripts/asc.py (screenshots + comments).
+- 2026-09-20, Bilal on build 27: "wow, this is the first build that I
+  actually feel pretty happy and proud about… a much smoother feel… a much
+  more polished look." What got there: (1) design decisions made on a
+  real-data mock-up page before touching the app, (2) the supervisor looking
+  at every visual change on a simulator at live density / real speed before
+  merge, (3) reading his TestFlight screenshots + notes directly via
+  scripts/asc.py. Keep doing all three.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
