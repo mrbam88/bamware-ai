@@ -67,6 +67,14 @@ current figure in a form field.
   me. Given 15+ years of experience and prior engineering management
   experience, I would target the top of it." (Used 2026-08-21 on Ro and
   MyFitnessPal.) Compare against the private repo's numbers every time.
+- **Any posted range, including one below the floor** (Bilal, 2026-09-21): same
+  answer — the range works, target the top. Get the offer first; Bilal decides
+  after. Never leave the question blank for this reason.
+- **Never enter a number above the top of a posted range.** Use the top of the
+  range. Genworth/CareScout auto-rejected within an hour on 2026-09-21; an
+  above-range or top-of-range number on a Workday knockout is the likely cause.
+- Free-text expected-salary field with no posted range: use the private repo's
+  target, not the floor.
 
 ## Content rule: Bamware apps (updated 2026-09-16)
 
@@ -155,9 +163,8 @@ answer here once he gives it.
 - SMS / text-message consent for application updates ("Yes - I consent" /
   "No - I do not consent"). (FloSports, 2026-09-17.) Left blank.
 - "Is the posted salary range in alignment with your expectations?" when the
-  range is BELOW the floor (NPR, 2026-09-17, $165K-$175K). No standard
-  answer; the rule above only covers ranges at or above the floor. Left
-  blank for Bilal.
+  range is BELOW the floor (NPR, 2026-09-17, $165K-$175K). RESOLVED
+  2026-09-21: answer yes, target the top (see Compensation).
 - "How many years managing software engineers?" in buckets that split at 2
   (Quo, 2026-09-17: 0 / 1-2 / 2-4 / 4+). FreedomCare was exactly 2 years;
   "2 - 4" was chosen. Confirm which bucket he prefers.
