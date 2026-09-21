@@ -10,6 +10,16 @@ Thin orchestration. Each step delegates to the skill that owns it.
 ## 0. Ground rules
 
 - `job-guardrails` wins over any request to apply.
+- **Sell first, decide later (Bilal, 2026-09-21).** Every application is built
+  to win THIS posting, not to reflect his preferences. He is flexible; the goal
+  is offers, then he chooses. Adapt to what the form wants: in-office days,
+  level, start date, travel, salary within the posted range (aim at the upper
+  end, never above it). Lead with the resume bullets and projects that match
+  the job description. Preferences never cause a lower-scoring answer.
+- The one limit: flexible on preferences, never on facts. No invented years,
+  skills, titles, degrees, or authorization answers — those get offers pulled.
+- Log every screening (yes/no) answer and any salary number in the tracker
+  notes, so a fast rejection can be traced to its cause.
 - Quality over volume. A tailored application beats ten generic ones.
 - Human in the loop. Bilal verifies the live form and submits.
 - **Never fabricate, never default.** A fact not in `bilal-answers` — required
