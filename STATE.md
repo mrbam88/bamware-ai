@@ -354,6 +354,18 @@ its no-execution status; hosted activation and spend remain separate gates.
   test now asserts map-camera-mpp ≤ 2.6, selected marker in the 35–65 % band,
   ≥ 5 rendered markers, held 4 s and after sheet dismissal. Server has
   Brooklyn cafés (SEY, Devoción, Butler…).
+- 2026-09-21 design review ROUND 2 (Bilal's build-28 TestFlight note: pins
+  "a bit hard to read… font bolder and brighter or microscopically bigger.
+  Lighter border maybe"). The review page now has a `db` capability and a
+  "Send my selection to Claude" button; the supervisor reads it with
+  ArtifactData (collection `selections`, doc `latest`). HIS SAVED SELECTION:
+  fill even (all-bright dark-map ramp #B4F5D6/#9BE8C4/#86D9B3/#74C9A3),
+  finish depth, names ON beside top cafés, numColor auto (near-black on dark
+  map, white on light), numScale 0.58, rim tone (lighter tint of the fill),
+  size microplus (+1 pt), weight Regular 400. Build agent running against
+  reference renders (tmp/proto/selref-*.png); PR only, supervisor compares
+  screenshots with the references before merge → build 29. Page:
+  https://claude.ai/artifact/1gDVdnxqL1T51cVWQ3e8iF (v7).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
