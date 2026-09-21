@@ -138,8 +138,87 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 
 ## Workday
 
-- Account creation is usually mandatory. That is a **blocker** — hand it to Bilal.
-- Multi-page wizard. Verify each page before advancing; going back can clear fields.
+Proven end to end on five tenants on 2026-09-21 (CareScout/Genworth, GEICO, Disney,
+Fox, Synechron) from the Claude in Chrome extension. 15-25 minutes of agent time each.
+
+- **Split of work (Bilal, 2026-09-21: Workday is in scope).** Each employer has its
+  own Workday account. The agent may not create accounts or type passwords, so Bilal
+  does one minute per employer: Apply -> Create Account or Sign In, verify email if
+  asked, leave that tab in FRONT. The agent does everything after.
+- **Sessions expire, and "Something went wrong / Please refresh" on Save and Continue
+  means the sign-in is gone.** The reload lands on Create Account and the unsaved page
+  is lost (pages already saved survive). Work ONE tenant at a time, right after Bilal
+  signs in; save every page the moment it is filled; do the cheap pages first. Never
+  fill four tabs and save later.
+- **Consent boxes and knockout questions: answer them, don't ask (Bilal, 2026-09-21).**
+  A blank or a "No" on sponsorship, authorization, over-18, terms, "worked here
+  before" auto-rejects. Tick every required terms box and answer knockouts from
+  `bilal-answers` without stopping. Mention arbitration or non-compete clauses in one
+  line in the hand-off summary, never as a mid-form stop. If a rule prevents ticking
+  something, say so up front.
+- **Get the resume PDF attached to the task BEFORE a Workday batch.** Fox (page 2) and
+  Disney (step 1) require the upload and will not advance without it.
+- Three entry paths. **Apply Manually** (CareScout): empty rows, type everything.
+  **Autofill with Resume** (Synechron, Disney): parser rows have correct titles,
+  companies and dates but empty locations and mangled descriptions; keep the rows,
+  retype `--location` and every `--roleDescription`, add missing roles with Add
+  Another. **Use My Last Application** (GEICO): prefilled from an OLD profile (stale
+  address, wrong "I currently work here" tick, old wording); re-read every field.
+- **Role Description = his resume bullets, as bullets (Bilal, 2026-09-21).** Copy the
+  bullets for that job from `bilal-resume/resume.txt` word for word, one per line,
+  each starting with "- ", Return between them. No "Stack:" line, no merging into a
+  paragraph. Single-sentence early roles get that one sentence.
+- **Stable element ids.** `source--source`, `name--legalName--firstName`,
+  `name--legalName--lastName`, `address--addressLine1`, `address--addressLine2`
+  (Disney), `address--city`, `address--countryRegion` (state button),
+  `address--postalCode`, `address--regionSubdivision1` (Disney county),
+  `phoneNumber--phoneType`, `phoneNumber--phoneNumber`. Repeating rows carry a random
+  index (`workExperience-46--jobTitle`), so select by SUFFIX and take the last match:
+  `--jobTitle`, `--companyName`, `--location`, `--startDate-dateSectionMonth-input`,
+  `--endDate-dateSectionMonth-input`, `--roleDescription`, `--schoolName`, `--degree`,
+  `--fieldOfStudy`, `--lastYearAttended-dateSectionYear-input`, `--url`,
+  `skills--skills`, `socialNetworkAccounts--linkedInAccount`. Footer:
+  `[data-automation-id=pageFooterNextButton]`; row adders:
+  `button[data-automation-id=add-button]`, in section order (work, education, certs,
+  languages, websites); a section's group has `aria-labelledby="Websites-section"`.
+- **Text fields:** one real click on the page, then JS `el.focus(); el.select()` and
+  REAL keystrokes. Registers every time; verified on the Review page.
+- **Month/year dates:** focus the Month input, type six digits (`042025`); it
+  auto-advances to Year.
+- **Full dates (month/day/year, disability form):** JS focus + typing LOOKS right but
+  fails validation. Real click on the Month spinbutton (ref click works), type
+  `09212026`, then real-click another field to blur. Never Backspace inside the
+  sections. The date must be today.
+- **Dropdowns (button + listbox):** JS focus the button, press Return, wait 1 s, then
+  JS-click the matching `[role=option]` inside the VISIBLE `[role=listbox]` (the DOM
+  keeps stale listboxes; picking by global `[role=option]` grabs the wrong one). Read
+  the option texts first; wording differs per tenant.
+- **"How did you hear", Field of Study, Skills** are search prompts: type, Return,
+  wait 3 s, then JS-click the `[data-automation-id=promptLeafNode]` with the exact
+  text; result shows as a pill (`[data-automation-id=selectedItem]`). Skill names are
+  odd: no plain "Swift" (SwiftUI/SwiftData only); "Flutter Software Development Kit
+  (SDK)"; "Kotlin Programming Language"; "GraphQL (Query Language)"; "MongoDB
+  (Platform)". React Native, TypeScript, Node.js, PostgreSQL match exactly.
+- **Checkboxes and radios:** real ref clicks. JS focus + Space is unreliable.
+- After every Save and Continue, read the page: a stuck page shows "Errors Found" at
+  the top; an expired session shows "Something went wrong".
+- Veteran options differ per tenant: "I am not a Veteran or have any Military
+  affiliation" (CareScout), "I AM NOT A VETERAN" (Disney, all caps), "I am not a
+  veteran" (Fox), "No" to "served in Active/Guard/Reserve" (GEICO). Gender at Disney
+  is Man/Woman/Nonbinary.
+- Tenant questions seen: GEICO asks reasons for leaving the last three positions
+  (free text), desired salary (free text), a state professional license, an FCRA
+  acknowledgement ("I have read and acknowledge"), and in-person attendance; its
+  terms box covers a hair-sample drug screen, interview confidentiality and at-will.
+  Fox asks "ever employed by a Fox entity" (radio, page 1), a salary BUCKET
+  ($230k target -> "200,001 to 250,000"), highest education, and a work-samples
+  box (put bamware.io + GitHub there); Fox has no work-history form at all, page 2 is
+  only the resume upload. Disney asks "why apply" checkboxes (chose reputation +
+  career advancement) and consent to be considered for other Disney roles (Yes);
+  its terms include a medical exam if hired and use of likeness. CareScout asks
+  relatives at Genworth and KPMG history; its terms include binding arbitration.
+- Stop at Review. Bilal reads the live page and clicks Submit. Detect a submit by the
+  tab moving to `/jobTasks/completed/application` (title "Candidate Home").
 
 ## Lever
 

@@ -35,8 +35,11 @@ Read `job-guardrails`. Blocked or uncertain → do not apply, flag it for Bilal.
 - **Do:** single-page forms. Land on one page, attach a resume, answer a few
   questions, submit. Ashby, Greenhouse, Lever, and custom career sites built on
   them.
+- **Workday is in scope (Bilal, 2026-09-21):** he creates the account and signs in
+  (one minute per employer), the agent fills the wizard to Review, one tenant at a
+  time, saving each page as it is filled. See the Workday section of `ats-playbooks`.
 - **Skip:** anything that requires creating an account, logging in, or walking
-  a multi-step Next/Next/Submit wizard (Workday, iCIMS, Taleo, SuccessFactors,
+  a multi-step Next/Next/Submit wizard (iCIMS, Taleo, SuccessFactors,
   SmartRecruiters behind a login, AI-training marketplaces). List them in the
   summary as skipped; Bilal applies by hand if he wants them.
 - Triage the whole batch first (resolve the real apply URL, identify the ATS,

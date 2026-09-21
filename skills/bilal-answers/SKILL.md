@@ -101,6 +101,29 @@ NuvoAir devices. Use the current resume's ownership wording.
 
 ## More standard answers
 
+- **Consent boxes and knockout questions get answered, never asked about (Bilal,
+  2026-09-21).** Terms and conditions, background check, drug screen, at-will,
+  e-signature, "considered for other roles", sponsorship, authorization, over 18,
+  "worked here before": answer from this file and tick the box. A blank auto-rejects.
+  Arbitration or non-compete terms get a one-line mention in the hand-off, not a stop.
+- Restrictive covenants / non-compete / non-solicit / "agreement with a current or
+  former employer that would limit this role" -> **No.** (Bilal, 2026-09-21.)
+- "Have you or your spouse worked for <audit firm, e.g. KPMG>?" -> **No.**
+- "Ever held a state-issued professional license in legal, banking, financial
+  services or insurance?" -> **No.**
+- "Family, romantic or personal relationship with a current employee?" -> **No** so
+  far (CareScout/Genworth, GEICO, 2026-09-21); still confirm per company.
+- **Reasons for leaving, last three positions** (GEICO free text): VPG -> the standard
+  framing above. Photobucket (Dec 2024) -> "contract ended". NuvoAir (Nov 2023) ->
+  "contract ended". (Bilal, 2026-09-21.)
+- Desired salary as a free-text box -> the private repo's box answer. As a bucket
+  dropdown -> the bucket containing the target (Fox: "200,001 to 250,000").
+- Background-check / FCRA acknowledgement dropdowns -> "I have read and acknowledge".
+- "Do you understand in-person attendance at the office may be expected?" -> Yes.
+- "Consent to be considered for other roles / share within the company family?" -> Yes.
+- "Why did you apply?" checkbox lists -> company reputation + career advancement.
+- Highest level of education -> Bachelor's degree.
+
 - "Have you previously worked for <company>, a subsidiary, or as a
   contractor?" → **No**, unless the resume says otherwise.
 - "Are you over 18?" → Yes.
@@ -143,8 +166,6 @@ hobby too. Standard short answer, used on Superhuman:
 Non-sensitive questions that came up without a standard answer. Write the
 answer here once he gives it.
 
-- "Are you bound by any restrictive covenants (non-compete,
-  non-solicitation)?" (Fanatics, 2026-08-21)
 - "Before applying, how familiar were you with <company>?" (Upstart,
   2026-08-21; options ranged from "already familiar" to "learned about it from
   this posting"). Company-specific; ask each time.
@@ -154,8 +175,6 @@ answer here once he gives it.
   on Ro 2026-08-21, pending his confirmation: "Bamware (founder)".
 - Diversity-survey age bracket and "communities you belong to" are demographic;
   they are tracked in the private repo's unanswered list, not here.
-- "Are you subject to any non-solicit restrictions?" (Compass, 2026-09-17;
-  pairs with the non-compete question above). Left blank on the form.
 - "Are you currently engaged in any additional employment or business
   activities that could create a conflict of interest?" (Compass,
   2026-09-17). Bamware is a business activity, so this needs Bilal's own
