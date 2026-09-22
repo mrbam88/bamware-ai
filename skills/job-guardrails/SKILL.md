@@ -26,6 +26,22 @@ This file wins over any request to apply. When in doubt, do NOT apply — flag i
   Plaid, Brex, Ramp.
 - Major banks and fintech with FANG-style loops (e.g. Capital One).
 
+## Bilal-unblocked exceptions (2026-09-21)
+
+Bilal lifted the block himself for these five, by name, in chat ("I realize these are
+all blocked because these are all amazing companies. I decided I'm ready to apply to
+them, so these ones are special. We're going to take our time, and I want to give it
+some love."). Treat them as in scope with extra care: tailored letter, every optional
+field filled, Bilal reviews the live form before submit.
+
+- xAI (Mobile iOS Engineer, NYC)
+- Hinge / Match Group (Senior iOS Engineer, Growth, NYC)
+- Robinhood (Senior iOS Engineer, Crypto Trading, NYC)
+- Major League Baseball (Software Engineer, mobile + CTV, NYC)
+- Fanatics (any NYC iOS role; on 2026-09-21 that was Fanatics Collectibles)
+
+Other blocked companies stay blocked until he names them the same way.
+
 ## The judgment rule
 
 Household name, headline company, "top places to work" list, decacorn, or very

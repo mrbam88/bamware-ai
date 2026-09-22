@@ -32,6 +32,47 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   Use the second "Enter manually" button for the letter text; the textarea id is
   `cover_letter_text`.
 
+## Greenhouse, background-tab fill (2026-09-21, xAI / Robinhood / MLB / Fanatics)
+
+When the tab is NOT in front (Chrome kept snapping back to the Claude tab all night),
+the whole job-boards React form can still be filled from JS reads alone. Verified on
+four forms; every field read back through `__reactProps` matched.
+
+- **Text inputs and textareas:** native setter + `input` + `change` + `blur`:
+  `Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,v)`
+  (HTMLTextAreaElement for textareas), then the three events. React registers it.
+  Verify with `el[Object.keys(el).find(k=>k.startsWith('__reactProps'))].value`.
+- **Every React-Select (country, screening, EEO):** do NOT try to open the menu. Walk
+  the fiber up from the combobox input (`el[__reactFiber$...]`, follow `.return`)
+  until `memoizedProps` has `options` AND `selectOption`; flatten grouped options,
+  find by exact `label`, call `props.selectOption(opt)`. Option labels as in the
+  boards API: "United States +1", "Cisgender man", "I am not a protected veteran".
+- **Location (City), async:** same fiber; call
+  `props.selectProps.onInputChange('New Yor',{action:'input-change'})`, wait ~1 s,
+  then `onInputChange('New York',...)`, wait ~3.5 s, re-walk the fiber (props are
+  replaced), then `selectOption` the "New York, New York, United States" option
+  from `selectProps.options`. One call alone returned nothing; two staged calls did.
+- **Cover letter as text:** `[...document.querySelectorAll('button')]
+  .filter(b=>/enter manually/i.test(b.textContent))[1].click()` reveals
+  `#cover_letter_text`; set it with the textarea native setter.
+- **Phone:** native setter with digits only; intl-tel-input reformats to
+  (xxx) xxx-xxxx once the country React-Select is "United States +1".
+- Race dropdown appears only after Hispanic/Latino is picked; wait ~1 s, then pick.
+- The boards API (`?questions=true`) gives the option labels up front, so the whole
+  fill is one JS call per form. Resume/cover-letter file inputs still stay with Bilal.
+
+## Lever, background-tab location (2026-09-21, Match Group / Hinge)
+
+- Plain fields: DOM value + input/change is enough (unchanged).
+- **Current location** needs per-character synthetic keys, not one `input` event:
+  for each char append to `#location-input.value` and dispatch keydown, keypress,
+  InputEvent(input), keyup; wait 3 s; `.dropdown-results > *` then holds
+  "New York, NY, USA"; dispatch mousedown + click + mouseup on it.
+  `#selected-location` (hidden `selectedLocation`) then carries the place JSON.
+  That hidden field is the one Lever validates.
+- Match Group's Hinge form has no cover letter or free-text field at all; the
+  only textarea is "What are your pronouns?".
+
 ## SmartRecruiters
 
 - File inputs live in a **shadow DOM** and are unreachable by ref-based upload
@@ -342,3 +383,7 @@ Fox, Synechron) from the Claude in Chrome extension. 15-25 minutes of agent time
   the 2026-09-16 uploads came from a per-session attachment). Every form was left with
   the file inputs empty for Bilal. Attaching the PDFs to the Cowork task at the start
   of a batch avoids this.
+- **Side-panel sessions (2026-09-21): the tab in front is usually the Claude tab, and
+  it snaps back within seconds of `tabs_create`.** `navigate` and JS still work in the
+  background tab; clicks/keystrokes do not. Use the Greenhouse and Lever
+  background-tab recipes above and skip the keystroke path entirely.
