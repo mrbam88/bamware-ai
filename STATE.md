@@ -409,6 +409,19 @@ its no-execution status; hosted activation and spend remain separate gates.
   so both now assert the selection — PR #233 (merging on green). Lesson:
   run timing-sensitive UI suites only when `uptime` load < ~12, and grant
   location to fresh simulators before search/map UI tests.
+- 2026-09-22 afternoon: test reliability closed out for the 1.1 gate.
+  Merged #233 (reviewer-sim + store-screenshot flows assert commit-on-select
+  search), #234 + #236 (every deadline-based wait in the package tests
+  replaced by continuations / awaiting the model's Tasks; zero
+  ContinuousClock/timedOut paths remain; 3× serial + 3× parallel green
+  locally), #235 (reviewer-sim waits for keyboard focus before typing — a
+  tap→focus race that only loses on GitHub's simulator). Main CI green three
+  merges in a row (9566a9f, 6736c70, 1e70906). Still watching: the
+  Reviewer-simulation workflow on 1e70906 (earlier runs were auto-cancelled
+  by newer commits). Known low-priority flake: VenueKitTests
+  LaunchEnvironmentTests.fixedNowParsesLocalWallTime (TimeZone leak). Next:
+  store screenshots at live density → release candidate; HUMAN: privacy
+  label, sign-in-to-contribute decision, "What's New" OK.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
