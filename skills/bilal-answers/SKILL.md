@@ -151,6 +151,24 @@ Preferred shape and Bilal's canonical example live in `bilal-cover-letter`
 Replace every brace with real specifics before submitting. For full letters use
 `bilal-cover-letter`.
 
+## "What exceptional work have you done?" / proudest project (Bilal, 2026-09-22)
+
+Approved by Bilal on the xAI application ("basically perfect and we should use this for
+other applications"). Use it for any "work you are most proud of", "exceptional work",
+"tell us about a project" box. Swap "this month" for the real timing as BrewDesk ages.
+Never mention the map or pin work in this answer (Bilal, 2026-09-22).
+
+Full version (167 words), the default:
+
+> I shipped BrewDesk, a SwiftUI app, to the App Store this month as a solo builder. It helps remote workers find cafés that are good for laptop work, and every score shows its evidence. The data is researched with AI. What makes it exceptional is how it was built. Through Bamware, my open source studio, I run specialized AI agents across design, mobile, cloud and QA, with automated review gates and my own technical oversight on every merge. One engineer shipped a full product, got it through App Review, and kept the quality bar where a team would.
+>
+> That bar comes from 15 years of shipping mobile products. I led the redesign of FollowMyHealth at Allscripts, a health record used by more than one million patients. At FreedomCare I built and led the mobile team behind a platform serving more than 25,000 daily users, hired and mentored the engineers, and stayed hands on with the architecture. BrewDesk is that experience compressed into one person with AI leverage.
+
+Short version (98 words) for boxes capped at 100 words, such as xAI's. The first
+paragraph alone:
+
+> I shipped BrewDesk, a SwiftUI app, to the App Store this month as a solo builder. It helps remote workers find cafés that are good for laptop work, and every score shows its evidence. The data is researched with AI. What makes it exceptional is how it was built. Through Bamware, my open source studio, I run specialized AI agents across design, mobile, cloud and QA, with automated review gates and my own technical oversight on every merge. One engineer shipped a full product, got it through App Review, and kept the quality bar where a team would.
+
 ## Personal interests / hobbies (Bilal, 2026-09-16)
 
 Basketball, golf, running. Building his own apps through Bamware counts as a
