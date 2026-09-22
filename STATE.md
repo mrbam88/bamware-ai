@@ -5,8 +5,26 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-20 — **Venue Engine evidence release published for Bilal's deployment; cross-agent continuity rules codified.**
+> Last updated: 2026-09-22 — **Marketing media pack (Fiverr/Contra) produced from the live build; 1.1 release prep continues.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-22 — Marketing media pack for Fiverr and Contra (step 2 of the post-approval order)
+
+- Delivered in `bamware-web/marketing/2026-09/` (web#41, merged 2026-09-22): hero video
+  (9:16 36.7 s, 16:9 Contra header, 16:9 Fiverr cut 39.7 s, all < 6 MB),
+  three phone mockups (1280x769, 1600x1200, 1080x1080), the
+  Scope → Build → TestFlight → App Store process image, ten 1290x2796
+  stills (light + dark: map, detail, search, saved, launch reveal), a
+  one-page case-study PDF, the video contact sheet, and `src/` to
+  regenerate. Index and gotchas: [docs/marketing-media.md](docs/marketing-media.md).
+- Recorded from `bamware-brewdesk@9566a9f` (main, Release, production
+  engine) on an iPhone 16 Plus simulator at West Village, load < 12 on
+  every take. Storyline: launch reveal → street-zoom map → Carmela Coffee
+  (84) detail with evidence → search "SEY" → fly → Save → Saved. Supervisor
+  read every image and a 1 fps contact sheet before commit; no debug
+  overlays, no "Not rated yet" sheets, brand colours only. $0, no Actions.
+- Not done: posting to Fiverr/Contra (Bilal's accounts), launch posts,
+  listing keywords, web city pages — the rest of the marketing step.
 
 ## 2026-09-20 — Venue quality: published source, deployment handed to Bilal
 
