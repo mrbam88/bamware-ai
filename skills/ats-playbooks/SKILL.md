@@ -34,6 +34,17 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 
 ## Greenhouse, background-tab fill (2026-09-21, xAI / Robinhood / MLB / Fanatics)
 
+**CORRECTION (Bilal, 2026-09-22, after submitting all four):** the recipe below fills the
+form visually and `__reactProps` reads back, but Greenhouse's submit validation still
+flagged "many" fields on every form; Bilal had to click into each flagged field and
+reselect it by hand before submit went through. So background fill is a DRAFT, not a
+finished form. Rules that follow: (1) tell Bilal up front that script-set React-Selects
+will show red on submit and need a reselect; (2) when the tab can be brought to the
+front, prefer the keystroke path (real click, ArrowDown, click option) for every
+React-Select and for Location, and keep the JS native setter only for plain text and
+textareas; (3) after any fill, the hand-off summary lists which fields were script-set.
+Lever (Hinge) did not complain.
+
 When the tab is NOT in front (Chrome kept snapping back to the Claude tab all night),
 the whole job-boards React form can still be filled from JS reads alone. Verified on
 four forms; every field read back through `__reactProps` matched.
