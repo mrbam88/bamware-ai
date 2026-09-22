@@ -440,6 +440,20 @@ its no-execution status; hosted activation and spend remain separate gates.
   LaunchEnvironmentTests.fixedNowParsesLocalWallTime (TimeZone leak). Next:
   store screenshots at live density → release candidate; HUMAN: privacy
   label, sign-in-to-contribute decision, "What's New" OK.
+- 2026-09-22 18:00: **1.1 RELEASE CANDIDATE = TestFlight build 31**
+  (tag store/1.1-build31 = 70fb9c4 on release/1.1.0; archive 1.1 (31),
+  Upload succeeded). Contents since 1.0: accounts (Apple/Google), saved-spot
+  sync, discovery data (Google fine grid + Overture + Foursquare, closed
+  places removed), city-wide search + fly-to + recent searches, micro
+  teardrop pins (Bilal's round-2 selection + round-3 fixes), honest filters,
+  "Not rated yet", neutral estimate styling, launch animation, warmer,
+  JWT on writes, export-compliance flag. Listing assets merged: 9 store
+  screenshots per locale (#237, Bilal approved), 1.1 What's New en/es (#239,
+  Bilal approved). CI on main green; reviewer-simulation workflow green.
+  NOT DONE (human): App Privacy label in ASC (submission/1.1/metadata/
+  privacy-label.md), sign-in-to-contribute decision, then `fastlane
+  deliver` metadata + select build 31 + submit. Deferred: #211 smoothness,
+  #232 VibeChips contrast, #238 Spanish UI localization, #120 epic.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
