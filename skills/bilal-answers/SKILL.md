@@ -166,6 +166,9 @@ hobby too. Standard short answer, used on Superhuman:
 Non-sensitive questions that came up without a standard answer. Write the
 answer here once he gives it.
 
+- "Have you worked full time at a seed-stage, VC-backed startup before?"
+  Yes/No (On Me, 2026-09-21). Left blank. Recent startup roles (Photobucket,
+  NuvoAir) were contracts, so the honest answer is Bilal's call.
 - "Before applying, how familiar were you with <company>?" (Upstart,
   2026-08-21; options ranged from "already familiar" to "learned about it from
   this posting"). Company-specific; ask each time.

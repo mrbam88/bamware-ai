@@ -40,6 +40,15 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 - Location and postal-code fields are **autocompletes**. Typing alone fails
   validation — you must click the suggestion.
 
+- The `oneclick-ui` Easy Apply form (Versant, 2026-09-21) is ALL shadow DOM:
+  `read_page` sees nothing but "Apply With Indeed". Plain inputs still accept a
+  real click at screenshot coordinates + keystrokes; read values back with a JS
+  walker that recurses into `shadowRoot`s. City: type "New York", click the
+  "New York, NY, US" suggestion. Experience/Education "Add" rows are optional.
+  **Next is gated on the resume** ("Please attach your resume to complete this
+  application"), so page 2 (screening questions) is only reachable after Bilal
+  uploads. Message to the Hiring Team = the short "why" answer.
+
 ## Ashby
 
 - Tab state survives while the application is unsubmitted, so a half-filled form
@@ -136,6 +145,17 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   middle of the page; scroll by wheel over a non-textarea area or use
   `scroll_to` by ref.
 
+- **Country code React-Select is blank by default (NYT, 2026-09-21).** It shows
+  "Select country" and the phone will not validate. JS focus `#country`, type
+  "United States", wait 1 s, JS-click the `.select__option` whose text is
+  "United States +1"; the phone input then reformats itself to (xxx) xxx-xxxx.
+- `scrollIntoView` from JS does nothing on a fresh job-boards tab until one real
+  click lands on the page. Click a blank margin first, then scroll by JS.
+- NYT (`thenewyorktimes`) form: 13 screening React-Selects + two custom
+  demographic selects (gender Female/Male/Non-Binary..., ethnicity list) ahead
+  of the EEOC block; no disability question. Its posting asks candidates not to
+  use GenAI for application content: paste only the standard letter and facts.
+
 ## Workday
 
 Proven end to end on five tenants on 2026-09-21 (CareScout/Genworth, GEICO, Disney,
@@ -220,6 +240,26 @@ Fox, Synechron) from the Claude in Chrome extension. 15-25 minutes of agent time
 - Stop at Review. Bilal reads the live page and clicks Submit. Detect a submit by the
   tab moving to `/jobTasks/completed/application` (title "Candidate Home").
 
+- **Apply With LinkedIn (Fabletics, 2026-09-21)** signs Bilal in and prefills
+  every work row from LinkedIn: LinkedIn titles ("Manager, Mobile Engineering",
+  "iOS Developer", "WMI Robotics"), LinkedIn-era dates (NuvoAir end 1/2024, VPG
+  "currently work here" still ticked), LinkedIn descriptions with • bullets,
+  empty locations. Retype title/company/location/description on every row to
+  resume wording; untick VPG current and type `072026`; retype NuvoAir end
+  `112023`. Education row came as "Temple University College of Engineering" /
+  Bachelors / Electrical Engineering; retype the school name.
+- **Skills prompt keeps the typed text after a pick.** Typing the next skill
+  appends ("React NativeTypeScript") and the search returns junk. Working loop
+  per skill: JS native-setter clear + `input` event, Escape, ONE real click on
+  the input (screenshot coords), type, Return, wait 3 s, JS-click the
+  `promptLeafNode` with the exact text. `cmd+a` did NOT select-all here.
+- **State/phone-type dropdowns:** after Return opens the list, pick with JS from
+  options where `offsetParent !== null` and text matches exactly; a global
+  `[role=listbox]` search grabbed the phone-country prompt instead.
+- Fabletics page 1 asks SMS Opt-in / WhatsApp Opt-in checkboxes (left blank;
+  SMS consent is still an open answer). Page 2 requires the Resume/CV upload
+  (5 MB max) before Save and Continue, so get the PDF attached first.
+
 ## Lever
 
 - Simple single-page form. Resume upload is a plain file input.
@@ -241,6 +281,10 @@ Fox, Synechron) from the Claude in Chrome extension. 15-25 minutes of agent time
   result containing a query string, so strip or decode params before returning.
 - "Application submitted N hours ago" on the job page means Bilal already
   applied by hand. Skip, and check the tracker has it.
+
+- "Clicked apply" + "Did you finish applying? Yes / No" on a LinkedIn job page
+  means Bilal clicked through once (On Me, 2026-09-21). Still not an
+  application; check the tracker, then apply on the real ATS.
 
 ## Marketplaces that look like jobs
 
