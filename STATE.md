@@ -397,6 +397,18 @@ its no-execution status; hosted activation and spend remain separate gates.
   (accounts/photos now collected; 1.0 label says Data Not Collected);
   decide whether contributing requires sign-in. Deferred: #211 smoothness
   (0.13–0.16 Release, acceptable), #120 accounts/paywall epic.
+- 2026-09-22 early: the "search-selection regression" flagged by the #170
+  repair was a FALSE ALARM: with the Mac quiet (other sessions had load
+  130+ then 33 on 12 cores) `SearchUITests.testSelectingAFarAwaySearchResult
+  FliesTheMapToIt` passes on main and at every recent merge; the agent's
+  own failures came from a fresh simulator without location permission.
+  Its branch (removed single-result auto-select) was discarded. The two
+  remaining red flows (ReviewerSimulationTests.testReviewerFirstTenMinutes,
+  AppStoreScreenshotTests) had an OBSOLETE expectation (count line "1 …"
+  after a one-match search); since #219/#223 that search selects the café,
+  so both now assert the selection — PR #233 (merging on green). Lesson:
+  run timing-sensitive UI suites only when `uptime` load < ~12, and grant
+  location to fresh simulators before search/map UI tests.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
