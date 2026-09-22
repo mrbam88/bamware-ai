@@ -366,6 +366,17 @@ its no-execution status; hosted activation and spend remain separate gates.
   reference renders (tmp/proto/selref-*.png); PR only, supervisor compares
   screenshots with the references before merge → build 29. Page:
   https://claude.ai/artifact/1gDVdnxqL1T51cVWQ3e8iF (v7).
+- 2026-09-21 late: merged brewdesk PR #225 (recent searches stored on-device,
+  results list scrolls under the keyboard, centred search states, locate
+  button hidden in search, NO camera moves while typing — fit only on
+  Search/return or selection) and PR #224 (Bilal's round-2 pin selection:
+  +1 pt, depth finish, tone rim, all-bright dark ramp, Regular numbers,
+  11 pt semibold name labels beside top-scored pins; pin body cached as an
+  image per tier/size/appearance → Release hitchRatio 0.128, better than
+  before). Supervisor reviews: search recording passed first time; pins
+  needed one round (label gap/size/ordering). Build 29 archiving. In flight:
+  brewdesk#222 honest filters (PR-only). Backend report filed: ve#147
+  (unknown attributes pass every filter; WeWork ranks first).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
