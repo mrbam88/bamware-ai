@@ -177,6 +177,11 @@ four forms; every field read back through `__reactProps` matched.
 - Textareas auto-grow as you type, so a click aimed at the NEXT field by
   pre-typing coordinates lands inside the previous textarea and appends to
   it. Re-screenshot after each long answer before clicking the next field.
+- **Background-tab fill works (Arcus, 2026-09-22):** the React native value setter
+  plus input/change/blur registers on Gem's text inputs and textareas, and
+  `radio.click()` from JS flips React state; `__reactProps` read back matched on
+  every field. Text inputs carry no name/id, so map them by DOM order against the
+  label order on the page (First name, Last name, Email, LinkedIn URL).
 - Required privacy-consent select ("Acknowledge/Confirm") sits between the
   short answers and the EEO block. Two submit buttons: "Apply and save"
   (creates a Gem profile) and "Apply without saving". (Quo, 2026-09-17.)
@@ -331,6 +336,12 @@ Fox, Synechron) from the Claude in Chrome extension. 15-25 minutes of agent time
   parameter holds the real apply URL. Read it with JS instead of clicking, and
   return only hostname and path. The Chrome tool's output filter blocks any
   result containing a query string, so strip or decode params before returning.
+- A job LinkedIn shows as "New York, NY" can resolve to a different city on the
+  real ATS (US Mobile, 2026-09-22: Lever posting says Toronto, hybrid). Read the
+  ATS page's own location line before filling and flag any mismatch.
+- Easy Apply resume picker: Resume_BilalMalik_20269.pdf (9/21/2026) is the
+  preselected current resume as of 2026-09-22. Farther's Easy Apply is
+  Greenhouse-backed (URL gains applicantTrackingSystemName=Greenhouse at Review).
 - "Application submitted N hours ago" on the job page means Bilal already
   applied by hand. Skip, and check the tracker has it.
 

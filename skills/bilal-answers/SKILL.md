@@ -205,6 +205,8 @@ answer here once he gives it.
 - "Is the posted salary range in alignment with your expectations?" when the
   range is BELOW the floor (NPR, 2026-09-17, $165K-$175K). RESOLVED
   2026-09-21: answer yes, target the top (see Compensation).
+- "Do you personally own any crypto?" Yes/No, required (MoonPay Easy Apply,
+  2026-09-22). Left blank; the modal is parked on that page. Only Bilal can answer.
 - "How many years managing software engineers?" in buckets that split at 2
   (Quo, 2026-09-17: 0 / 1-2 / 2-4 / 4+). FreedomCare was exactly 2 years;
   "2 - 4" was chosen. Confirm which bucket he prefers.
