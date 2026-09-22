@@ -377,6 +377,26 @@ its no-execution status; hosted activation and spend remain separate gates.
   needed one round (label gap/size/ordering). Build 29 archiving. In flight:
   brewdesk#222 honest filters (PR-only). Backend report filed: ve#147
   (unknown attributes pass every filter; WeWork ranks first).
+- 2026-09-22: Bilal: "massive improvement since our official prod release…
+  get ready for our second big push to production." RELEASE 1.1 PREP.
+  Merged: #226 honest filters (dark-mode dimming was a real bug: `.disabled`
+  + `.secondary`), #228 neutral estimate styling (+ open/closed badge and
+  "No laptops" marker de-redded), #229 pins round 3 (raster clip caused both
+  the "box" and the blunt tail; dark ramp one step brighter; label
+  collisions), #230 search-test flake fix (tests await the debounce Task;
+  suite growth had blown a fixed sleep). INCIDENT: I merged #229 with its
+  check red because the chained merge did not stop on failure — rule now:
+  `gh pr checks --watch --fail-fast && gh pr merge`, and verify main's own
+  run is green before any build. TestFlight 1.1 build 30 uploaded 01:45
+  (tag store/1.1-build30 = dada18f) for Bilal's full pass. Release
+  checklist: (1) #170 stale UI tests + Reviewer-simulation workflow green
+  (agent running); (2) new App Store screenshots at live density (after
+  #170); (3) 1.1 "What's New" (fastlane release_notes.txt still 1.0.x);
+  (4) release candidate + full suite + review notes; HUMAN: App Privacy
+  label answers in ASC from submission/1.1/metadata/privacy-label.md
+  (accounts/photos now collected; 1.0 label says Data Not Collected);
+  decide whether contributing requires sign-in. Deferred: #211 smoothness
+  (0.13–0.16 Release, acceptable), #120 accounts/paywall epic.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
