@@ -89,10 +89,33 @@ Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
 despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
 (`launchd`), so the headless runners are not installed here.
 
+**How Bilal actually works (2026-09-23):** this box is the workstation. The X1
+is a thin client — he SSHes in from it and generally does nothing else on it.
+Assume a session here is Bilal at a terminal, not an unattended runner.
+
 - Toolchain via `mise` (Omarchy default): node 26, `gh`, aws-cli 2 (`mise use -g
   aws-cli` — no sudo needed). docker, python 3.14, nvim 0.12.5, `rg`, `fd`,
   `fzf`, `lazygit` preinstalled by Omarchy.
-- Not installed: `adb`, JDK, `flutter`, `vercel`. `sudo` prompts for a password.
+- **Toolchain audit 2026-09-23 — the earlier "not installed" list was stale.**
+  Present and verified by inspecting the binary, not `command -v`:
+  `adb` 1.0.41 (full Android SDK at `~/Android/Sdk`: platform-tools, emulator,
+  ndk, system-images), `flutter` 3.47.4 stable, **OpenJDK 27** via mise.
+  Still absent: `vercel`, `gradle`.
+- ⚠️ **JDK 27 will break AGP.** The Mac pins JDK 21 and the ThinkPad Java 17
+  for exactly this reason. Before any Android/Flutter build here, pin a
+  supported JDK (`mise use java@21`) — do not build on the default 27.
+- **`mise ls node` offers 20.20.2, 24.21.0 and 26.8.2 (26 is the default).**
+  Venue Engine's tested baseline is Node 20 (`docs/venue-engine-deployment.md`)
+  — Node 26 lacked a prebuilt DuckDB binary. Use `mise use node@20` in
+  `bamware-venue-engine` before running its local validation.
+- **Venue Engine CAN be deployed from this box**, despite the failed
+  `vercel whoami` recorded on 2026-09-20. The mechanism that actually
+  deployed `76e343a` was `git push origin <sha>:main` — the existing Vercel
+  **Git integration** builds production, so no Vercel CLI login is required
+  here. Only CLI-based verification (`vercel ls venuekit`) needs the Mac;
+  bounded HTTP checks against the production alias replace it. Do not hand
+  an engine release to the Mac on the assumption that this box cannot ship it.
+- `sudo` prompts for a password.
 - nvim is Omarchy's stock LazyVim config, not `mrbam88/nvim`; no
   `mrbam88/dotfiles`; shell is bash (no oh-my-zsh).
 - `gh auth setup-git` pins the credential helper to a versioned mise install
