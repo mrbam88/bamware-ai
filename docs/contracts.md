@@ -28,6 +28,41 @@ A shared contract package is the real answer — that decision is parked in
 
 ## Recent contract changes
 
+- **2026-09-23 (venue-engine ve#144 + ve#148, branch `feat/work-fit-v2`, NOT
+  merged — awaiting Bilal's review):** two additive changes, no field removed
+  or renamed.
+
+  **ve#144 — Work Fit v2 is now the served score.** `workScore` switches to the
+  v2 number for venues that earn one and keeps its stored v1 value otherwise,
+  so every response still carries an integer. v2 scores only the attributes
+  that hold a voting claim, renormalised over those weights, instead of padding
+  every unchecked attribute with a neutral 0.5 vote. A venue must hold
+  `MIN_DISPLAY_WEIGHT` (0.75) of the core attribute weight to get a number at
+  all; below that `scoreDisplay` is `null` → **Not rated yet**.
+
+  New optional fields, NYC only, absent elsewhere:
+  - `scoreCoverage: { known: 0-5, of: 5, weight: 0-1, attributes: string[] }`
+    — what the number rests on. Lets a client say "based on 3 of 5".
+  - `scoreConfidence: "high" | "medium" | "low"` — how much to trust it. Served
+    for unrated pins too, so a client can explain *why* there is no number.
+    `compact=1` / `fields=map` gain `scoreConfidence` as well.
+
+  Client impact: **more pins now read "Not rated yet" than before** — roughly
+  95% of the Greenwich Village viewport, because that is the real state of the
+  evidence. The `scoreDisplay ?? workScore` prohibition still stands and
+  matters more than ever. Flutter coordination still required.
+
+  **ve#148 — community observation writes no longer claim a durable success.**
+  `POST /v1/observations` and `POST /v1/venues/:id/observations` return **202
+  Accepted** instead of 201 when the write is not durably stored, plus an
+  additive `storage: { durable, mode, detail? }` block. Production on Vercel is
+  `durable: false` today (read-only filesystem, JSON store) until the storage
+  decision in ve#148 lands. Both codes are 2xx and the iOS client accepts any
+  2xx while ignoring unknown keys, so build 28 and earlier are unaffected — a
+  newer client should keep the submission queued locally and resubmit when
+  `durable` is true. Previously these returned 201 for writes that were then
+  silently lost, including Bilal's own field ratings.
+
 - **2026-09-20 (venue-engine `76e343a`, published on
   `feat/venue-evidence-quality`; production deployment pending):** optional nullable
   `scoreDisplay` on NYC full listings, compact/map listings, detail and
