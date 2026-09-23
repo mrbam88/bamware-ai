@@ -5,8 +5,35 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-23 — **Bilal's field test: listing coverage is GOOD; scoring is now the single product problem (measured: score tracks evidence coverage, not quality).**
+> Last updated: 2026-09-23 — **Bilal's field test: listing coverage is GOOD; scoring is the product problem; community ratings submitted from the app are SILENTLY DISCARDED (ve#148).**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-23 — Community ratings from the app are silently discarded (ve#148)
+
+Bilal asked whether the ratings he submitted through the iOS observation form
+are used. **The engine scores them correctly and then throws them away.**
+
+- The write path works: community answers become `user_report` claims at
+  confidence 0.7, they outrank machine evidence, `workScore` recomputes, and the
+  route returns **201 with the updated venue** — so the app shows success and a
+  changed score.
+- `VenueStore` is in-memory over a JSON seed. `persist()` catches the read-only
+  filesystem error and logs `persist skipped: filesystem is read-only`. Vercel's
+  FS is read-only, and `api/index.ts` runs the JSON path because
+  `PRIVATE_STORAGE !== "postgres"` (cutover unapproved, DB-09 #138 open).
+- **Net: a rating survives in one lambda instance until it recycles, and is
+  invisible everywhere else. No `data/observations.json` exists. Bilal's
+  submissions are unrecoverable.** The `user_report` claims on Caffe Reggio are
+  from the hand-authored seed in `76e343a`, not from the app.
+- Same posture, same loss: content reports (an Apple 1.2 commitment), community
+  photos, saved-spots sync, city demand/spend logs. On-device local saves are
+  unaffected.
+- **The defect is the silent 201**, separately from the missing storage. Filed
+  [ve#148](https://github.com/mrbam88/bamware-venue-engine/issues/148).
+- Product consequence: the community form is the cheapest evidence source there
+  is, and it currently yields zero durable evidence — while ve#144 (scoring)
+  and ve#146 (press fan-out) are both bottlenecked on evidence coverage. The
+  field-rating flywheel in the gameplan is disconnected.
 
 ## 2026-09-23 — Field test (Bilal): coverage solved, scoring is the problem
 
