@@ -40,6 +40,13 @@ field filled, Bilal reviews the live form before submit.
 - Major League Baseball (Software Engineer, mobile + CTV, NYC)
 - Fanatics (any NYC iOS role; on 2026-09-21 that was Fanatics Collectibles)
 
+Unblocked 2026-09-23 the same way (Bilal, pointing at the list "Affirm, Thomson Reuters,
+Synchrony, Hype": "lets do all of those now! dont skip"). Same extra-care treatment.
+
+- Affirm (Staff Software Engineer, Mobile App Infrastructure, Remote US)
+- Thomson Reuters (Lead Software Engineer, Mobile App, CoCounsel Legal; NYC among locations)
+- Synchrony Financial (AVP iOS Software Development Engineer III, MySynchrony)
+
 Other blocked companies stay blocked until he names them the same way.
 
 ## The judgment rule
