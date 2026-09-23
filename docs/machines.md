@@ -6,7 +6,8 @@ A machine is a **cache of this repo** (AGENTS.md). Nothing is authored locally;
 `docs/runtimes.md` is keyed by runtime — but Claude Code CLI on the ThinkPad
 cannot touch Xcode no matter what the runtime column says. Read both.
 
-Registered 2026-09-08; `omarchy` added 2026-09-17. Three devices, all Bilal's.
+Registered 2026-09-08; `omarchy` added 2026-09-17; `thinkpad` moved to Omarchy
+by 2026-09-23. Three devices, all Bilal's.
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
@@ -37,51 +38,40 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
-## `thinkpad` — ThinkPad X1 Carbon Gen 12, Ubuntu 22.04 LTS
+## `thinkpad` — ThinkPad X1 Carbon Gen 12, Omarchy (Arch Linux)
 
-Intel Core Ultra 7 155U · 14 threads · 30 GiB RAM · 228 GB disk · kernel 6.8
+Intel Core Ultra 7 155U (Meteor Lake, no AVX-512) · 14 threads · 30 GiB RAM ·
+237 GB disk · Omarchy, kernel 7.2
+
+Reinstalled from Ubuntu 22.04 to Omarchy (observed 2026-09-23). The Ubuntu-era
+notes (glibc 2.35 ceiling, apt neovim, GNOME Terminal profile) no longer apply.
+
+**Name clash:** the hostname is also `omarchy`, same as the MacBook below. On
+the tailnet this machine is `omarchy-1`; use full MagicDNS names, never a bare
+`omarchy`.
 
 **Cannot do anything Apple.** No Xcode, no simulators, no fastlane, no signing,
-no `.ipa`. A ticket that touches the iOS app is not assignable here — reassign,
-never work around.
+no `.ipa`. A ticket that touches the iOS app is not assignable here. Reassign
+it; never work around it.
 
 Good for:
 
 - Backend / API work (`bamware-venue-engine`, auth, dating services)
 - Docs, grooming, board ops, ticket writing
-- The Flutter/Android track (Android SDK present; Android is parked as of
-  2026-09-08, so this is latent capability, not queued work)
+- The Android track: Android SDK at `~/Android/Sdk` (adb, emulator, AVD
+  `brewdesk_api36`), Java 17 via mise. `ANDROID_HOME` is unset.
 - Long research and bulk reads
 
-Installed: `adb`, OpenJDK 17, Android SDK at `~/Android/Sdk`, node 20, docker,
-aws-cli 2, `gh`, `git`, plus a user-local toolchain in `~/.local/bin` (see below).
-Not installed: `flutter`, `dart`, `vercel`.
-`ANDROID_HOME` is unset even though the SDK directory exists.
+`sudo` prompts for a password. An agent without a terminal can use `pkexec`
+(Bilal approves a GUI prompt).
 
-**No passwordless sudo.** `apt` and `snap` both prompt for a password, so an
-unattended agent cannot install system packages here. Install user-local
-instead: `~/.local/bin` is already on `PATH`, and upstream release binaries
-land there without sudo. Everything below was installed that way.
-
-### Editor (set up 2026-09-08)
-
-Config is `mrbam88/nvim` (LazyVim) at `~/.config/nvim`. Neovim **v0.12.5** in
-`~/.local/opt/nvim-linux-x86_64`, symlinked to `~/.local/bin/nvim`. Ubuntu's apt
-neovim is 0.6.1 — below LazyVim's 0.9 floor — which is why the tarball is used.
-Also user-local for LazyVim: `rg` 15.2, `fd` 10.5, `fzf` 0.74, `lazygit` 0.65,
-`tree-sitter` 0.25.10. 24 treesitter parsers built; `lua_ls` attaches.
-
-**glibc ceiling — this will bite again.** Ubuntu 22.04 ships glibc 2.35.
-tree-sitter CLI ≥0.26 is built against glibc 2.39 and dies with
-``version `GLIBC_2.39' not found``. **0.25.10 is the newest that runs here.**
-Expect the same class of failure from any recent Rust/Go release binary; check
-`ldd --version` before assuming "latest" is installable.
+Desktop setup (Mac-style keys, dictation, emulator window sizing, and how Bilal
+uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
 
 **`rg` was a false positive, twice.** Claude Code's shell snapshot defines `rg`
-as a *shell function*, so `command -v rg` succeeds in an agent shell while no
-`rg` binary exists — nvim's `checkhealth` then reports it missing and the
-picker's grep is dead. When auditing what is installed on a machine, verify
-with `ls -la "$(command -v X)"` or `type X`, not `command -v X` alone.
+as a *shell function*, so `command -v rg` succeeds in an agent shell even when
+no `rg` binary exists. When auditing what is installed on a machine, verify with
+`ls -la "$(command -v X)"` or `type X`, not `command -v X` alone.
 
 ## `omarchy` — MacBook Pro 16" 2019 (Intel, T2), Omarchy (Arch Linux)
 
