@@ -5,8 +5,55 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-22 — **Marketing media pack (Fiverr/Contra) produced from the live build; 1.1 release prep continues.**
+> Last updated: 2026-09-23 — **Bilal's field test: listing coverage is GOOD; scoring is now the single product problem (measured: score tracks evidence coverage, not quality).**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-23 — Field test (Bilal): coverage solved, scoring is the problem
+
+**Bilal's report after real-world testing of the live app:** "not too bad right
+now"; **it finds every cafe at least** — the listing/discovery push is done as
+far as he is concerned. He discovered a great new café he did not know, using
+his own app. **The big issue now is scoring: still wrong in too many cases,
+though sometimes spot on.** This supersedes the 2026-09-19 "data quality"
+framing: *listing* is no longer the complaint, *scoring* is.
+
+**Measured against live production (`venuekit-ashen.vercel.app`, main
+`76e343a`, 2026-09-23) — the score is a function of evidence coverage, not
+venue quality.** 500-venue radius pulls, counting attributes with a real
+(non-`estimate`, confidence >= 0.4, non-unknown) claim:
+
+| evidenced attrs | Greenwich Village | Midtown | SoHo | median score |
+|---|---|---|---|---|
+| 0 | 398 venues | 401 | 401 | **40** |
+| 1 | 44 | 67 | 40 | 52 |
+| 2-3 | 21 | 17 | 23 | 45-48 |
+| 4 | 4 | 4 | 3 | 74 |
+| 5 | 33 | 11 | 33 | **73-78** |
+
+- **~80% of venues in every neighborhood have zero evidenced attributes and
+  therefore score exactly 40.** Pin coverage is high; *evidence* coverage is
+  ~20%. That is the "sometimes spot on" pattern: a venue is only scored
+  correctly when all five attributes happen to be researched.
+- **The scale cannot express Bilal's judgment.** With all five attributes
+  perfect at curated confidence 0.75, the confidence blend
+  (`util·c + 0.5·(1−c)`) caps a venue near **85-86**. Observed ceiling: Carmela
+  Coffee 84, Capital One Café 84, Stavros Niarchos Library 85. Bilal's truth-set
+  cafés are 95-100. **No venue can ever score what he says it deserves.**
+- Root cause is unchanged from ve#144 and now confirmed in the field: every
+  *unobserved* attribute votes a full-weight neutral 0.5, so the number answers
+  "how much do we know about this place?" rather than "how good is it?".
+- **Non-cafés outrank cafés without any filter applied.** Midtown top-8 by
+  Work Fit: Stavros Niarchos Foundation Library (85), Capital One Café (84),
+  Stephen A. Schwarzman Building (81), **Bryant Park (80)**. ve#147 reported
+  this under filters; it is also true of the default ranking. A park cannot be
+  the best place in Midtown to work from.
+
+**Recommendation (not yet approved by Bilal):** ve#144 Work Fit v2 is the fix
+for the complaint — score from evidenced attributes only, report coverage as a
+separate signal, no number for hollow pins. ve#147 (venue-type gate) is a
+smaller, independent win that stops parks and library buildings ranking as
+cafés. ve#146 press fan-out raises evidence coverage, which is the input ve#144
+needs. No implementation, spend or deployment was authorized in this session.
 
 ## 2026-09-22 — Marketing media pack for Fiverr and Contra (step 2 of the post-approval order)
 
