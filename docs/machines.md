@@ -89,9 +89,28 @@ Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
 despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
 (`launchd`), so the headless runners are not installed here.
 
-**How Bilal actually works (2026-09-23):** this box is the workstation. The X1
-is a thin client — he SSHes in from it and generally does nothing else on it.
-Assume a session here is Bilal at a terminal, not an unattended runner.
+**Roles, in Bilal's words (2026-09-23):** this Intel MacBook is **the server** —
+always on, lid shut or not, sitting at his desk on a **6K display**. The X1 is
+his **daily laptop**, and he reaches the server from it over Tailscale SSH. The
+M3 MacBook is the only machine that can ship Apple work. Assume a session here
+is Bilal at a terminal, not an unattended runner.
+
+⚠️ **Sessions here are not crash-proof by default.** Tailscale SSH parents the
+shell (`tailscaled -> login -> bash -> claude`), and the agent runs in the
+foreground process group of the pty — so closing the X1 lid SIGHUPs it and the
+session is gone. Verified 2026-09-23: an interactive `claude` died exactly this
+way. **Start every agent session in tmux, on THIS box, not on the X1** — tmux
+on the laptop only wraps the ssh client and protects nothing:
+
+```sh
+tmux new -s bam     # then run claude inside it
+echo $TMUX          # must print a path — this is the check that matters
+```
+
+Background jobs are the exception: they are `setsid`'d into their own session,
+and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
+2026-09-23). Transcripts persist in `~/.claude/projects/-home-bilal/`, so
+`claude --resume` recovers a lost conversation either way.
 
 - Toolchain via `mise` (Omarchy default): node 26, `gh`, aws-cli 2 (`mise use -g
   aws-cli` — no sudo needed). docker, python 3.14, nvim 0.12.5, `rg`, `fd`,
