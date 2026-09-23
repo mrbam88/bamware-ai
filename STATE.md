@@ -5,8 +5,55 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-23 — **Bilal's field test: listing coverage is GOOD; scoring is the product problem; community ratings submitted from the app are SILENTLY DISCARDED (ve#148).**
+> Last updated: 2026-09-23 — **Work Fit v2 + the non-durable-write fix are implemented and in DRAFT PRs awaiting Bilal's review (ve#149, bamware-ai#34). Nothing merged, nothing deployed.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-23 (evening) — Work Fit v2 implemented; two draft PRs await review
+
+Bilal authorised ve#144 and ve#148 after the field test above. Both are built,
+gated and **unmerged**. Engine work was done entirely on the `omarchy` server.
+
+- **[venue-engine PR #149](https://github.com/mrbam88/bamware-venue-engine/pull/149)**
+  (draft, branch `feat/work-fit-v2`, commit `142b7e1`) closes ve#144 + ve#148.
+  **[bamware-ai PR #34](https://github.com/mrbam88/bamware-ai/pull/34)** is the
+  companion `docs/contracts.md` change. Merge together, or neither.
+- **ve#144:** `workScoreV2` scores only attributes holding a voting claim,
+  renormalised — promoted from the reviewed pilot in `src/work-fit-pilot.ts`,
+  served behind `WORK_FIT_VERSION` (one-line revert). Adds `scoreCoverage` and
+  `scoreConfidence`; `compact=1` gains `scoreConfidence`. Stored `data/` rows
+  stay v1; v2 applies at serve time.
+- **Measured, Greenwich Village 600m:** Caffe Reggio 69 → **87** (rank 6),
+  Capital One 64 → **83** (rank 8), Gregorys 82 → **95**, Joe Coffee 80 → 93.
+  Top ten is now entirely real cafés. **Qahwah House still shows no number** —
+  it holds one OSM wifi tag and nothing else. Evidence gap, not formula gap;
+  reported rather than fudged, per the ticket's acceptance criteria.
+- **`MIN_DISPLAY_WEIGHT = 0.75` was forced by measurement, not taste.**
+  Renormalising rewards sparse maximal tags: without a bar WeWork displayed
+  **100** at Midtown rank 4, OSM-only libraries 94, and The Malin Chelsea (a
+  members co-working club) 97. Ranking shrink alone did not keep them off the
+  first screen. Gating on the `confidence` label instead of weight was tried
+  and rejected — it expired fully-researched venues after ~90 days of decay.
+- **Deviation from the ticket, deliberate:** its `c' = 0.5 + 0.5·c` confidence
+  blend was implemented, measured and removed. It contradicted the pilot's
+  reviewed design, three existing tests guard against it, and it made the truth
+  cafés worse (Reggio 81 with it vs 87 without). Recorded in the PR.
+- **Product change worth seeing before merge:** ~95% of that viewport now reads
+  **"Not rated yet"** (10 of 216 venues carry a number, spread 64-95, vs v1
+  where 205 of 216 sat in the 50-59 bucket). That is the true state of the
+  evidence; v1 hid it. The lever if it is too aggressive is
+  `MIN_DISPLAY_WEIGHT`, not the formula.
+- **ve#148:** `persist()` now records durability and the observation routes
+  return **202 + a `storage` block** when a write will not survive, instead of
+  the 201 that lost Bilal's ratings. iOS build 28 is unaffected (any 2xx,
+  unknown keys ignored). **Durable storage itself is still blocked on Bilal's
+  hosting decision** (ve#148 / DB-09 #138; `docs/database-hosting.md` prices
+  it — Neon Free $0 with scale-to-zero, Supabase Pro $25 exceeds the $20 bar).
+- **Gates (Node 20):** 867 passed / 12 skipped / 0 failed, `tsc --noEmit`
+  clean, `truth-check` passes Reggio and Capital One with Qahwah pending as
+  before. No network, no paid calls, no Actions. $0.
+- **Toolchain trap confirmed:** `npm ci` fails on this box for the private
+  `git+ssh` dep `@bamware/auth-middleware`, and Node 26 has no prebuilt DuckDB
+  binary. Use Node 20 and the existing checkout's `node_modules`.
 
 ## 2026-09-23 — Community ratings from the app are silently discarded (ve#148)
 
