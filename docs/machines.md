@@ -160,12 +160,17 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   vendor logins (`claude login`, `opencode auth`), `~/.oh-my-zsh`.
 - Shell/editor config syncs through `mrbam88/dotfiles` (`dots-pull` /
   `dots-push`); nvim through `mrbam88/nvim`. Both are separate from this repo.
-- **Terminal look (set 2026-09-11):** Tokyo Night Storm, ~4% transparency,
-  JetBrainsMono Nerd Font 14, matched to nvim's `tokyonight-storm`
-  (transparent bg, `lua/plugins/theme.lua`). Mac: iTerm2 dynamic profile
-  `dotfiles/iterm2/tokyonight-storm-glass.json` (iTerm writes GUI tweaks back
-  into that file — commit them). ThinkPad: `dotfiles/linux/` scripts create the
-  same GNOME Terminal profile via dconf + install the font user-local;
-  `install.sh` runs both on Linux and pulls the nvim repo. Bilal is red-green
-  colorblind — the nvim config also carries colorblind-safe alternates
+- **Terminal look (Mac, set 2026-09-23; supersedes the 2026-09-11 iTerm2 note):**
+  Ghostty is the Mac terminal. Config, the custom `Bamware` theme, and the
+  `gtheme` switcher live in `dotfiles/.config/ghostty/` + `dotfiles/.local/bin/gtheme`
+  (symlinked by `install.sh`). Look: TokyoNight pinned dark (`theme = TokyoNight`,
+  no macOS light/dark follow), frosted glass (`background-opacity 0.85`,
+  `background-blur 20`, `window-theme dark`), soft text (`font-thicken false`,
+  JetBrainsMono Nerd Font **Light** 14, `alpha-blending linear-corrected`).
+  Reload with Cmd+Shift+, ; `gtheme <name>` swaps themes. The iTerm2 dynamic
+  profile `dotfiles/iterm2/tokyonight-storm-glass.json` stays as fallback.
+  ThinkPad: `dotfiles/linux/` scripts create the matching GNOME Terminal
+  Tokyo Night Storm profile + install the font user-local; nvim uses
+  `tokyonight-storm` (transparent bg, `lua/plugins/theme.lua`). Bilal is
+  red-green colorblind — nvim carries colorblind-safe alternates
   (`colorschemes-colorblind.lua`); prefer blue/orange over red/green in any UI.
