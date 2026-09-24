@@ -89,8 +89,16 @@ Good for:
 `sudo` prompts for a password. An agent without a terminal can use `pkexec`
 (Bilal approves a GUI prompt).
 
-Desktop setup (Mac-style keys, dictation, emulator window sizing, and how Bilal
-uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
+**Displays** (used at the desk; both sit above the laptop screen):
+
+- Kuycon G32P, a 32" 6K monitor (6144x3456@60, scale 2) on either USB-C port.
+  Unplugging needs the `drm-unstick-typec` auto-fix, or no monitor is detected
+  again until reboot.
+- Samsung QBQ90 4K TV (3840x2160@60, scale 2) on a Ugreen USB-C to HDMI cable,
+  with a fallback for when its EDID isn't readable.
+
+Desktop setup (Mac-style keys, dictation, emulator window sizing, displays, and
+how Bilal uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
 
 **`rg` was a false positive, twice.** Claude Code's shell snapshot defines `rg`
 as a *shell function*, so `command -v rg` succeeds in an agent shell even when
