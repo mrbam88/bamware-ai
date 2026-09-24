@@ -170,3 +170,10 @@ centers them above eDP-1.
   sits right of the clock: scroll sets the minutes, click starts or pauses,
   right click resets, and it sends a critical notification when done. Plugin
   icon changes may need `omarchy restart shell` to show.
+
+## Later: iPad Pro as a second screen
+
+Bilal wants his iPad Pro as an extra wireless screen for Omarchy (deferred,
+2026-09-24; the exact model is not recorded yet). Sidecar is Mac-only. The
+plan is a Hyprland headless output shared with `wayvnc`, viewed from a VNC
+client on the iPad over the LAN or Tailscale.
