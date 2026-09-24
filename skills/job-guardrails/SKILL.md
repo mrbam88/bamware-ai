@@ -47,6 +47,13 @@ Synchrony, Hype": "lets do all of those now! dont skip"). Same extra-care treatm
 - Thomson Reuters (Lead Software Engineer, Mobile App, CoCounsel Legal; NYC among locations)
 - Synchrony Financial (AVP iOS Software Development Engineer III, MySynchrony)
 
+Unblocked 2026-09-23 (evening) the same way. Bilal had five LinkedIn tabs open, two of them
+blocked, and said "do all of them and not skip the blocked ones(take extra care tho)".
+Same extra-care treatment.
+
+- Pinterest (Sr. Staff Software Engineer, iOS Search and Shopping Journeys, Remote US)
+- Reddit (Staff iOS Engineer, Media Foundation, Remote US)
+
 Other blocked companies stay blocked until he names them the same way.
 
 ## The judgment rule
