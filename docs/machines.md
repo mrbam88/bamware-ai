@@ -57,8 +57,34 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
-**Likely plan: roles across the three machines (Bilal, 2026-09-24).** Bilal is
-leaning toward making Omarchy his daily driver:
+**M3 handoff status (2026-09-24, done from the M3):**
+
+- `mrbam88/dotfiles` and `mrbam88/nvim` pushed from the M3 (Ghostty config +
+  `gtheme`, iTerm2 keymap, nvim diagnostics/blink tweaks), so `dots-pull` and
+  a nvim `git pull` on the X1 bring the Mac's terminal setup over.
+- `~/code/bamware-crm` had **never been committed or pushed anywhere**; it is
+  now `mrbam88/bamware-crm` (private, default branch `feat/crm-offline-tasks`,
+  46 files, env files ignored).
+- Uncommitted WIP that still exists only on the M3 (nothing pushed; Bilal's
+  call whether to commit, stash or drop): `bamware-ios` (21 modified, incl.
+  `Sources/BamwareCore/Auth/Entities/User.swift` and README), `brewdesk-web`
+  (`app/page.tsx` + new `app/bam.tsx`, `lib/venue-stub.ts`),
+  `bamware-dating-service` (`scripts/lib/api.ts` + seed test), `bamware-workspace`
+  (`RUNBOOK.md` + submodule pointers), `coderpad-practice`, `ReactNativeInterview`
+  (branch `interview-prep`, no upstream), `swift-coding-assessment` (untracked
+  solution folders/zips).
+- `tailscale` CLI on the M3: the brew formula was removed (it duplicated the
+  app's daemon and printed a version-mismatch warning on every call).
+  `/opt/homebrew/bin/tailscale` is a two-line wrapper that execs
+  `/Applications/Tailscale.app/Contents/MacOS/Tailscale`. A plain symlink to
+  that binary crashes with "bundleIdentifier is unknown to the registry".
+- The M3's Claude memory dir (`~/.claude/projects/-Users-bilalmalik/memory`)
+  was a stale July copy; it is now a symlink to `dotfiles/.claude/projects/shared`
+  like the other machines (old copy kept as `memory.bak-20260924`).
+
+**Roles across the three machines (decided by Bilal, 2026-09-24).** The X1 on
+Omarchy is the daily driver as of this day. The M3 had been the daily driver
+until then and is being retired to iOS-only duty (handoff status below):
 
 - `thinkpad` (Omarchy): the portable daily driver for code, browser, backend
   and Android.
@@ -81,8 +107,17 @@ remote box so a dropped cafe connection doesn't kill them.
 
 Not done yet (open before relying on it):
 
-- Mac-side remote access: Tailscale SSH or macOS Remote Login, plus power
-  settings so it stays awake with the lid closed.
+- Mac-side remote access — **done and verified 2026-09-24.** Bilal turned on
+  Remote Login and Screen Sharing and set `pmset disablesleep 1`, so the M3
+  stays up with the lid closed. An SSH login from `omarchy` over the tailnet
+  succeeded (`ssh bilalmalik@bilals-m3-macbook-pro.tailb7fa1e.ts.net`, key
+  auth; `omarchy`'s ed25519 key is in the Mac's `~/.ssh/authorized_keys`).
+  The Tailscale *app* on macOS cannot serve Tailscale SSH (only the open-source
+  `tailscaled` build can), so plain macOS sshd over the tailnet is the rail.
+  **Open:** the X1's key is not authorized on the Mac yet (X1 was offline);
+  from the X1 run `ssh-copy-id bilalmalik@bilals-m3-macbook-pro.tailb7fa1e.ts.net`
+  once (password auth is on). Screen Sharing is on (port 5900) but has not
+  been exercised over the tailnet yet.
 - A way to see simulators and Xcode UI remotely (Screen Sharing/VNC over
   Tailscale) for work that needs eyes on the UI.
 - Cloud storage has to work on Linux and phone, not only on the Mac. A
