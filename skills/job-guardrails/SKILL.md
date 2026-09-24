@@ -1,72 +1,44 @@
 ---
 name: job-guardrails
-description: Company scope rules for Bilal Malik's job applications — which employers may be auto-applied to and which are hard-blocked for manual handling. Use before starting any application, and when evaluating whether a posting is in scope.
+description: Company scope rules for Bilal Malik's job applications. As of 2026-09-24 there is no company block list; any employer may be applied to. Use before starting any application, and when evaluating whether a posting is in scope.
 ---
 
 # Application guardrails
 
-This file wins over any request to apply. When in doubt, do NOT apply — flag it.
+## Company scope: no blocks (Bilal, 2026-09-24)
 
-## In scope (auto-apply, with review)
+**Every company is in scope.** Bilal removed the top-company block list in chat on
+2026-09-24: "so the rule that i blocked top company is now removed!! we can apply
+to any compnay now". Giants, AI labs, unicorns, big banks and fintech are applied
+to like any other posting. Do not skip or flag a posting because of the company's
+size or fame.
 
-- Startups, roughly seed through Series C.
-- Small and medium companies.
-- Lesser-known, low-profile, unfamiliar companies.
-- Contract and contract-to-hire roles at any of the above — encouraged.
+Big-name employers still get the extra-care treatment that the earlier per-company
+unblocks used: tailored letter, every optional field filled, Bilal reviews the live
+form before submit.
 
-## Blocked — Bilal applies by hand
+## Still out of scope (these are procedure limits, not company blocks)
 
-- Giants: Apple, Google/Alphabet, Amazon, Meta, Microsoft, Netflix, Nvidia, Tesla.
-- Marquee AI labs: OpenAI, Anthropic, and peers.
-- Widely-known large tech and top unicorns: Uber, Airbnb, Salesforce, Oracle,
-  Adobe, IBM, Intel, AMD, Qualcomm, Cisco, SAP, ServiceNow, Stripe, Databricks,
-  Snowflake, Palantir, Coinbase, SpaceX, ByteDance/TikTok, LinkedIn, Spotify,
-  Snap, Reddit, Pinterest, DoorDash, Instacart, Robinhood, Block, PayPal,
-  Atlassian, Shopify, Datadog, Cloudflare, Twilio, Dropbox, Figma, Notion,
-  Plaid, Brex, Ramp.
-- Major banks and fintech with FANG-style loops (e.g. Capital One).
-
-## Bilal-unblocked exceptions (2026-09-21)
-
-Bilal lifted the block himself for these five, by name, in chat ("I realize these are
-all blocked because these are all amazing companies. I decided I'm ready to apply to
-them, so these ones are special. We're going to take our time, and I want to give it
-some love."). Treat them as in scope with extra care: tailored letter, every optional
-field filled, Bilal reviews the live form before submit.
-
-- xAI (Mobile iOS Engineer, NYC)
-- Hinge / Match Group (Senior iOS Engineer, Growth, NYC)
-- Robinhood (Senior iOS Engineer, Crypto Trading, NYC)
-- Major League Baseball (Software Engineer, mobile + CTV, NYC)
-- Fanatics (any NYC iOS role; on 2026-09-21 that was Fanatics Collectibles)
-
-Unblocked 2026-09-23 the same way (Bilal, pointing at the list "Affirm, Thomson Reuters,
-Synchrony, Hype": "lets do all of those now! dont skip"). Same extra-care treatment.
-
-- Affirm (Staff Software Engineer, Mobile App Infrastructure, Remote US)
-- Thomson Reuters (Lead Software Engineer, Mobile App, CoCounsel Legal; NYC among locations)
-- Synchrony Financial (AVP iOS Software Development Engineer III, MySynchrony)
-
-Unblocked 2026-09-23 (evening) the same way. Bilal had five LinkedIn tabs open, two of them
-blocked, and said "do all of them and not skip the blocked ones(take extra care tho)".
-Same extra-care treatment.
-
-- Pinterest (Sr. Staff Software Engineer, iOS Search and Shopping Journeys, Remote US)
-- Reddit (Staff iOS Engineer, Media Foundation, Remote US)
-
-Other blocked companies stay blocked until he names them the same way.
-
-## The judgment rule
-
-Household name, headline company, "top places to work" list, decacorn, or very
-well-funded late-stage → **blocked**. Genuinely uncertain → **blocked**, and ask.
-
-## Why
-
-Blocked companies are not unwanted, they are too valuable to spend while
-interview prep is still in progress. This scope optimizes for fast wins.
+- Postings that fail on facts: a location he cannot work from (he is not
+  relocating; NYC or remote only), or requirements that would need invented
+  experience. Flag these, do not fill them.
+- Flows `apply-to-job` step 1b and `ats-playbooks` rule out: logins the agent
+  cannot do, mandatory account creation, CAPTCHAs. Bilal signs in, then the agent
+  fills.
+- Duplicate applications to the same posting. Check the tracker first.
 
 ## Always
 
 - Human in the loop. Never submit without Bilal's review of the live form.
-- One thoughtful application per company. No mass-blasting.
+- One thoughtful application per posting. No mass-blasting.
+
+## History
+
+- Until 2026-09-24 a block list held giants (Apple, Google, Amazon, Meta,
+  Microsoft, Netflix, Nvidia, Tesla), marquee AI labs, large tech and top unicorns
+  (Salesforce, Stripe, Spotify, Uber and similar) and major banks for manual
+  handling, because they were "too valuable to spend while interview prep is
+  still in progress". Bilal lifted individual companies on 2026-09-21 and
+  2026-09-23 (xAI, Hinge/Match, Robinhood, MLB, Fanatics, Affirm, Thomson Reuters,
+  Synchrony, Pinterest, Reddit), then removed the whole list on 2026-09-24. The
+  old list is in git history.
