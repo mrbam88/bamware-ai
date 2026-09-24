@@ -29,6 +29,12 @@ description: Preserve durable Bamware session context in bamware-ai and publish 
 4. Push to `origin/main` at meaningful milestones unless the remote diverged or
    the user paused publishing.
 
+## Tell Discord
+
+After publishing a milestone, post one line to the Bamware status channel with
+`scripts/discord-post.sh "..."` (docs/discord.md). Lead with what Bilal needs to
+do, if anything. Skip it if the machine has no webhook configured.
+
 ## Record what you read
 
 Every commit that changes context carries a trailer naming the version the
