@@ -26,7 +26,7 @@ same session.** Record only what's known: "model unknown" beats a guess.
 | Tablet | iPad Pro (model unknown) | Planned Omarchy second screen (to-do in `docs/omarchy-thinkpad-desktop.md`) |
 | Pointing | Apple Magic Trackpad (USB) | At the desk, via the monitor's USB hub |
 | Keyboard | External USB keyboard (SONiX, model unknown) | At the desk; Bilal prefers the X1's built-in keyboard |
-| Storage | External SSD (model/size unknown) | Holds the backup of the ThinkPad's old Ubuntu install (`billyx1`), per Bilal 2026-09-24; not verified by an agent |
+| Storage | External SSD (model/size unknown) | Holds the backup of the ThinkPad's old Ubuntu install (`billyx1`), per Bilal 2026-09-24; not verified by an agent. The backup was made from a session on that Ubuntu install, whose history went with the disk. **When he plugs it in:** verify the backup, record the model and size, and check for the old `~/.claude` history. |
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
