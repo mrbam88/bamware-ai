@@ -32,6 +32,17 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
   Use the second "Enter manually" button for the letter text; the textarea id is
   `cover_letter_text`.
 
+## Greenhouse, fixing "This field is required" after a failed submit (Affirm, 2026-09-23)
+
+- Fiber `selectOption` AND JS-clicking `.select__option` both show the value but the form
+  still reports every React-Select as required on submit. Fix that worked for Bilal before:
+  a real reselect. Agent recipe: `scrollIntoView` the `.select__control`, compute its
+  center as `rect * (screenshotWidth / innerWidth)`, real-click it, (type to filter for long
+  lists), read the option's rect the same way, real-click it. The red "required" text does
+  not clear until the next submit, so it cannot be verified before Bilal clicks Submit.
+- Workday: when Bilal uploads the resume on My Experience the page can reload and drop every
+  unsaved row (Synchrony). Ask for the resume BEFORE filling page 2, or save right after.
+
 ## Greenhouse, background-tab fill (2026-09-21, xAI / Robinhood / MLB / Fanatics)
 
 **CORRECTION (Bilal, 2026-09-22, after submitting all four):** the recipe below fills the
