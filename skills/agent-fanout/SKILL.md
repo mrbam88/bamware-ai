@@ -19,8 +19,22 @@ Proven pattern (first run 2026-07-22: 3 agents on dating-app issues
     launch with `--dangerously-skip-permissions`. Repo-level
     `.claude/settings.json` only applies when the session STARTS in
     that repo — a session run from `~` never loads them.
-  - Smoke-test ONE mutating command (e.g. a no-op commit in a scratch
-    worktree) before launching the fleet.
+  - **Smoke-test EVERY permission-gated command the fleet will need** —
+    `gh pr create`, `gh pr merge`, `git push`, any deploy command — not
+    just one no-op commit. One mutating command passing proves nothing
+    about the others.
+  - **`bypassPermissions` does NOT beat auto mode's server-side
+    classifier** (learned the hard way 2026-09-24). It denies
+    `gh pr merge` as "Merge Without Review" and denies an agent editing
+    settings to allow it ("Self-Modification"), so a fleet can be fully
+    "pre-cleared" and still be unable to merge a thing. Verify by
+    actually running the command, never by reading config.
+    See `docs/agent-permission-blocks.md`.
+  - **If any check fails, do not launch.** Tell Bilal while he is still
+    awake, in one sentence, with the exact line to paste. A fleet that
+    cannot merge is not worth running overnight — and a blocked fleet
+    must still work every ticket that does not depend on the blocked
+    step rather than stalling on it.
   - Never flip PLAN MODE on while agents are mid-write: every agent
     action becomes an approval request (prompt storm).
 - Issues are agent-ready (see skills/agent-ready-tickets) and

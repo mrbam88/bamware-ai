@@ -3,33 +3,36 @@
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
 Entry map for every session; details in `docs/` and `skills/`.
 
-## 🚨 READ FIRST — a permission denial is CLAUDE'S fault, never Bilal's
+## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
 
-Bilal has **no permission rules configured**. If `gh pr merge` (or anything)
-is denied, it is auto mode's built-in classifier — say that to him in one
-sentence immediately. He must never have to work out whose restriction it is.
-You cannot unblock yourself: editing settings to allow it is denied too.
+Set by Bilal 2026-09-24. Outranks everything else here. Detail:
+[docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
 
-**First denial → one sentence + the line to paste, then STOP.** No retries, no
-alternative routes, no sending him to `/permissions` (he finds it confusing).
-
-**`gh pr merge` can succeed and print NOTHING.** Always check
-`gh pr list --state merged` before saying a merge failed — ve#149 had already
-merged when it was reported blocked, and that misread cost a whole session.
-
-Full detail: [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md)
+1. **A denial is CLAUDE'S restriction, never Bilal's setup** — he has no
+   permission rules. Say that in one sentence on the FIRST denial.
+2. **Hand him the line to paste, then STOP.** No retries, no other routes, no
+   `/permissions` UI (he finds it confusing).
+3. **A denial NEVER stalls a batch.** Park that ticket, work all the others.
+   "8 PRs ready" is a good night; "blocked 10 min in, nothing done" is what
+   this rule exists to prevent.
+4. **Before any unattended run, dry-run every gated command** (`gh pr create`,
+   `gh pr merge`, `git push`, deploy). `bypassPermissions` does NOT beat the
+   classifier. If one fails, tell him *while he is awake* and do not start.
+5. **Never report a merge failed without `gh pr list --state merged`** —
+   `gh pr merge` can succeed printing nothing and `gh pr view --json` is also
+   denied. ve#149 had merged when reported blocked; that cost a session.
+6. **Prefer routes with no gated step** — Venue Engine deploys by pushing
+   `main` (Vercel Git integration), no merge needed.
 
 ## First-class principle: continuity across agents
 
-Bilal constantly switches models, vendors and harnesses. **Context must survive
-every switch.** Make the next agent's job easier—even with less context or
-weaker reasoning. Never rely on model memory.
+Bilal switches models, vendors and harnesses constantly. **Context must survive
+every switch.** Never rely on model memory.
 
-- At milestones and after corrections, save the decision **and why**, the next
-  action, paths/commands, evidence, blockers and pause state.
-- Durable procedures go in canonical docs, linked from here. Never bury a rule
-  only in an incident log.
-- Route work by capability, not model name.
+- At milestones and after corrections, save the decision **and why**, next
+  action, paths/commands, evidence, blockers, pause state.
+- Durable procedures go in canonical docs linked from here — never bury a rule
+  in an incident log only. Route work by capability, not model name.
 - Distinguish **edited locally / published / deployed** — unpublished context
   does not exist for the next machine. Procedure: `skills/session-handoff`;
   contract: `docs/portability.md`.
@@ -76,42 +79,41 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## Before you touch these, read the linked doc first
 
-- **Deploying Venue Engine? Read `docs/venue-engine-deployment.md` first.**
-  Local validation → the existing Vercel project. Actions is NOT a
-  prerequisite; an access gap never authorizes CI or CI spend.
+- **Venue Engine deploy: read `docs/venue-engine-deployment.md` first.** Local
+  validation → existing Vercel project. Actions is NOT a prerequisite; an
+  access gap never authorizes CI spend.
 - Committing? Never commit credentials or PII — public repo. docs/security.md
-- Changing a service API response shape? It breaks the mobile app silently.
-  Read docs/contracts.md first.
-- App Store submissions: never resubmit the rejected dating concept; make
-  differentiation visible in binary and listing. docs/app-review-field-notes.md.
-- About to run git or Xcode from Cowork? Check docs/runtimes.md first.
-- Merging agent PRs? QA merges after CI green + evidenced QA pass
-  (adopted 2026-08-21). Bilal-only gates: store submission, spend,
-  CI/signing/deploy config, cross-repo contracts. See skills/qa-engineer.
-- **HARD SPEND RULE:** anything over **$20** = STOP and ask, even mid-task.
-  Under $20 still needs quote-and-confirm with a cheapest option. Prefer free.
-  Mobile builds use the local Mac rail; Actions is BACKUP only. Agent usage is
-  spend too — `docs/token-diet.md`. No idle polling loops.
+- Changing an API response shape silently breaks the app — docs/contracts.md.
+- App Store: never resubmit the rejected dating concept; show differentiation
+  in binary + listing. docs/app-review-field-notes.md.
+- git/Xcode from Cowork? Check docs/runtimes.md first.
+- Agent PRs: QA merges after CI green + evidenced pass. Bilal-only gates:
+  store submission, spend, CI/signing/deploy config, cross-repo contracts.
+- **HARD SPEND RULE:** over **$20** = STOP and ask, even mid-task. Under $20
+  needs quote-and-confirm with a cheapest option. Prefer free. Mobile builds
+  use the Mac rail; Actions is BACKUP only. Agent usage is spend too
+  (`docs/token-diet.md`). No idle polling loops.
 - Machine capabilities are not interchangeable: only the M3 Mac does Xcode,
   simulators, signing. Read `docs/machines.md`; reassign, never improvise.
 
-## Table of contents — read on demand
+## Table of contents
 
 | Need | Where |
 |---|---|
-| All repos: what each is, deploy targets, endpoints | docs/repos.md |
-| Venue Engine release route, local checks, direct Vercel deployment | docs/venue-engine-deployment.md |
+| **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
+| All repos: purpose, deploy targets, endpoints | docs/repos.md |
+| Venue Engine release route | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
-| Bilal's rig: machines, displays, gear | docs/machines.md |
-| Security rules: credentials, PII, accounts | docs/security.md |
+| Machines, displays, gear | docs/machines.md |
+| Security: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
-| App Review / 4.3(b) evidence base, what works | docs/app-review-field-notes.md |
-| Current state: building / blocked / shipped | STATE.md |
-| CRM context | docs/bamware-crm.md |
+| App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
+| Current state | STATE.md |
+| CRM | docs/bamware-crm.md |
 | All skills (procedures) | skills/INDEX.md |
-| Interview prep: what to study, what's dead | docs/interview-prep/README.md |
-| Definition of done, test gates | docs/definition-of-done.md |
+| Interview prep | docs/interview-prep/README.md |
+| Definition of done | docs/definition-of-done.md |
 | Brand, design tokens | docs/brand.md |
-| Why these context rules exist (incident history) | docs/incidents.md |
-| Session-end ritual: what to save, how to publish | skills/session-handoff |
-| Running this setup on other vendors | docs/portability.md |
+| Incident history | docs/incidents.md |
+| Session-end ritual | skills/session-handoff |
+| Other-vendor portability | docs/portability.md |

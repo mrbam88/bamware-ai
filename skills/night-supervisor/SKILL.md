@@ -12,9 +12,19 @@ unchanged.
 
 ## 1. Preconditions (verify before the first agent)
 
-- Permissions pre-cleared (`bypassPermissions` or
-  `--dangerously-skip-permissions`, `agent-fanout` preconditions);
-  smoke-test one mutating command first.
+- **PERMISSION PRE-FLIGHT — the single worst failure this queue can have is
+  starting at 11pm, hitting a permission block at 11:10, and Bilal waking to
+  nothing done. Never let that happen.** Before the first agent, dry-run EVERY
+  permission-gated command the queue will need, not "one mutating command":
+  `gh pr create`, `gh pr merge`, `git push`, and any deploy command. Auto mode
+  denies `gh pr merge` outright and denies an agent granting itself permission
+  (`docs/agent-permission-blocks.md`).
+  **If any is denied, do NOT start the run.** Tell Bilal immediately, while he
+  is still awake, in one sentence with the exact fix to paste. A queue that
+  cannot merge is not a queue worth running overnight.
+- Prefer routes with no permission-gated step: Venue Engine deploys by pushing
+  `main` (Vercel Git integration), which needs no merge
+  (`docs/venue-engine-deployment.md`).
 - `gh auth status` green; simulators/Xcode idle (§4); every touched repo has
   a clean `main` to worktree from.
 - Note each repo's CI status once (`check-ci-gate.py`) — no gate isn't a
@@ -106,10 +116,25 @@ cross-repo contract changes; visibility flips a human should see first;
 force-push anywhere — the `qa-engineer` human-gate list plus the
 `standing-engineer` hard stops, no looser version for being unattended.
 
+## 7b. A permission block NEVER stops the queue
+
+If a denial hits mid-run, that ticket is parked-human — **the queue keeps
+going.** Work every remaining ticket that does not depend on the blocked step:
+land the branches, open the PRs, leave them ready to merge. Bilal waking to
+"eight PRs ready, paste this one line" is a good night. Bilal waking to
+"blocked at 11:10pm, nothing done" is the outcome this section exists to
+prevent. Never retry a denial in a loop, and never burn the night on it.
+
 ## 8. Morning report
 
-One dated entry in this repo's `STATE.md`: merged (PR links) / parked-human
-(why + issue link) / skipped-over-budget (measured tokens), per ticket.
+**If anything was permission-blocked, that goes FIRST — before the ticket
+list — in one sentence, naming it as a Claude-side restriction (not Bilal's
+setup) with the exact line to paste.** He must be able to unblock in ten
+seconds without reading the rest.
+
+Then one dated entry in this repo's `STATE.md`: merged (PR links) /
+parked-human (why + issue link) / skipped-over-budget (measured tokens),
+per ticket.
 Commit, push, `PushNotification` if available. Never touch another repo's
 STATE.md.
 

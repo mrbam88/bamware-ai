@@ -57,3 +57,30 @@ reported it blocked, and Bilal spent hours on a problem that was already solved.
   is local validation → `main` → Vercel Git integration
   ([venue-engine-deployment.md](venue-engine-deployment.md)), not
   PR → merge → deploy.
+
+## Bilal's words, 2026-09-24 (why this is RULE #1)
+
+> "nothing is worse then when i give you a large batch of work to do over night
+> and the next morning you havent even started because 10 mins later you get
+> blocked over a permission.... this is the most fustrating thing ever!!!!
+> never let this happen!!!!"
+
+> "this was a claude bullshit permission issue not my flow setup"
+
+> "you should have been clear and warned me!!!"
+
+He declared it **rule #1 and company policy**. It outranks every other
+instruction in `bamware-ai`. An overnight batch that stalls on a permission
+prompt is the single worst outcome this system can produce — worse than a bug,
+worse than a failed ticket, because it wastes a whole night and his trust.
+
+## Related history
+
+Same failure class, second occurrence:
+
+- **2026-07-23** — 4 fan-out agents froze ~8h overnight on install/push
+  prompts (`skills/agent-fanout`).
+- **2026-09-24** — `gh pr merge` denied in auto mode; the agent also misread a
+  silent success as failure and reported ve#149 blocked after it had merged.
+
+Both were preventable by dry-running the actual gated commands first.
