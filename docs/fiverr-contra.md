@@ -4,11 +4,11 @@ Owner: Bilal. Started 2026-09-22 in Cowork. Media pack: `docs/marketing-media.md
 Positioning and copy are decided; the work left is data entry on the two sites.
 Never mention Baat. Location is "New York" only.
 
-## State (2026-09-23)
+## State (2026-09-24)
 
 | Site | Status | Next action |
 |---|---|---|
-| Fiverr `fiverr.com/mrbam8` | Old copy live. One gig, PAUSED, 4 impressions / 0 clicks. Profile strength 9/12. | Enter the copy below (Bilal hits Save), upload the pack, leave the gig paused until Bilal reviews. Reply to the 3 unanswered buyer messages (kevin9work, mio_photo, ruby_qnx_60022). |
+| Fiverr `fiverr.com/mrbam8` | **2026-09-24: profile + Gig A DONE and verified by reload.** Profile: title, About, skills, 6 work-experience rows (companies "Pending" Fiverr approval). Gig A: title, iOS App Development service type, metadata, tags, 3 packages, description, 5 FAQs, gallery (logo + process + mockup, hero video under Fiverr review, case-study PDF). Gig still PAUSED. | Bilal: review + unpause Gig A; make the mockup the primary image (drag, or delete the logo tile — Fiverr has no "set primary"); reply to the 3 buyer messages. Portfolio "BrewDesk" project NOT saved: Fiverr requires duration, cost and start month/year — need Bilal's numbers. Then Gig C, Gig B. |
 | Contra `contra.com/bilal_malik_g87cbt2p` | 11% complete = invisible in search. Headline has a typo ("Experience mobile app developer"). | Headline, bio, rate, timezone, languages, social links, featured media, 4 work items, services. Identity/wallet verification is Bilal-only. |
 | Upwork | Not started. Recommended as the main platform (fee 0–15%, clients post real projects). | Same copy, one profile, bid 3–5 posts/week. |
 | Toptal | Not started. Apply once. | — |
@@ -16,6 +16,16 @@ Never mention Baat. Location is "New York" only.
 Fiverr blocks automation with a "Press & Hold" check on every edit page;
 Bilal clears it, the agent continues. Decisions by Bilal 2026-09-22: do
 Profile + Gig A first; leave Gig A paused after the rewrite.
+
+Fiverr gotchas (2026-09-24): profile title allows letters, numbers, spaces and
+basic punctuation only (no "·" or "&") — live title is "iOS and React Native
+engineer who shipped BrewDesk to the App Store". Skills come from a fixed list
+(no SwiftUI/Expo/Terraform/Claude; used "iOS development", "Apple App Store",
+"ai development"). Work-experience dates: pick the 15th (the 1st shifts a month
+back by timezone); new companies need a website. Gig description is a Quill
+editor — set it with `.ql-container.__quill.setText()`, typing "•" scrambles it.
+Gig titles are lowercased by Fiverr. Press & Hold bot checks appear every few
+saves; a failed save resets the form.
 
 Data nit seen in the pack: search results show "Jersey City Free Public
 Library" twice (duplicate venue) — file on venue-engine.
@@ -29,27 +39,27 @@ Library" twice (duplicate venue) — file on venue-engine.
 
 ## Fiverr
 
-**Profile title:** `iOS & React Native engineer · BrewDesk is live on the App Store`
+**Profile title (live):** `iOS and React Native engineer who shipped BrewDesk to the App Store`
 
 **About (574/600):**
 
 > Lead mobile engineer, 15+ years, based in New York. I run Bamware, a small studio that pairs senior iOS and React Native craft with AI agents, so work moves fast without cutting corners. Latest proof: BrewDesk, a SwiftUI app I designed, built and got through App Review. It is live on the App Store now. Before that I led mobile teams at FreedomCare and Photobucket and shipped health apps used by over a million patients. I scope first, build in fixed sprints, and hand over clean, documented code you own. Message me before you order and we will agree the scope together.
 
-**Skills:** remove Kafka, C++, Kubernetes, Django, CircleCI, MongoDB. Add SwiftUI, Expo, iOS App Development, App Store Submission, Claude Code, AI Agents, Terraform.
+**Skills (live):** removed Kafka, C++, Kubernetes, Django, CircleCI, MongoDB. Added iOS development, Apple App Store, ai development (all Pro).
 
-**Work experience:** the six roles in `skills/bilal-resume` with dates.
+**Work experience (live):** the six roles in `skills/bilal-resume` with dates and resume bullets.
 
-**Portfolio:** one project "BrewDesk", 4–5 screenshots from the pack, App Store link `apps.apple.com/us/app/id6802930990`, bamware.io, case-study PDF.
+**Portfolio:** one project "BrewDesk" (name, industry Mobile App Development, description, 3 images + hero video). Blocked on required duration, cost, start month/year.
 
 **Intro video:** `brewdesk-hero-9x16.mp4` until Bilal records a talking one.
 
-### Gig A (rewrite the existing gig)
+### Gig A (live, paused)
 
-Title (65/80): `I will build your iOS app in SwiftUI and ship it to the App Store`
-Category: Programming & Tech > Mobile App Development. App type: Native.
+Title: `I will build your iOS app in SwiftUI and ship it to the App Store`
+Category: Programming & Tech > Mobile App Development > iOS App Development. App type: Native. Languages Swift, Objective-C. Frameworks SwiftUI, UIKit, Node.js. Tools Xcode, Firebase, Supabase.
 Tags: swiftui, ios app development, iphone app, app store, ios developer
 
-Description (≤1200):
+Description (1082/1200):
 
 > I build native iOS apps in SwiftUI and take them all the way to the App Store. My own app, BrewDesk, is live there now. I designed it, built it, wrote the backend and got it through App Review. Search "BrewDesk" on the App Store to see the quality you will get.
 >
@@ -68,24 +78,19 @@ Description (≤1200):
 >
 > Message me first with a short description of your app and I will reply with a scope and a fixed price.
 
-Packages:
+Packages (live):
 
-| | Basic — Plan | Standard — MVP build | Premium — Ship it |
+| | Basic — App plan & fixed quote | Standard — MVP build | Premium — Ship to the App Store |
 |---|---|---|---|
 | Price | $200 | $2,500 | $6,000 |
 | Delivery | 3 days | 21 days | 45 days |
-| Scope | 45-min call, written scope, screen list, architecture, fixed quote (credited to a build) | Up to 5 screens, one backend hookup (your API, Firebase or Supabase), TestFlight build, source code | Up to 10 screens, backend + sign-in + push, App Store submission, 2 weeks of post-launch fixes |
+| Scope | 45-min call, written scope, screen list, architecture and a fixed quote. Credited to a build. | Up to 5 screens, one backend hookup, a TestFlight build on your phone, and full source code. | Up to 10 screens, backend, sign-in, push, App Store submission and 2 weeks of launch fixes. |
 | Revisions | 1 | 2 | 3 |
-| Checkboxes | — | iOS app, source code | iOS app, app design, app submission, app icon, splash screen, source code |
+| Checkboxes | iOS app (forced), app design | + icon, splash, backend, source code | + app submission |
 
-FAQ:
-1. Do I own the code? — Yes. Everything goes in your GitHub repo.
-2. Do you need my Apple developer account? — For submission, yes. You keep it; I never hold your credentials.
-3. Android too? — See my React Native gig, or ask about Flutter.
-4. Do you use AI? — Yes, with a senior engineer reviewing every line before it ships.
-5. Can we talk before I order? — Please do. A short message with your idea is enough.
+FAQ (live): Do I own the code? · Do you need my Apple developer account? · Can you build for Android too? · Do you use AI? · Can we talk before I order?
 
-Gallery: primary `brewdesk-mockup-1280x769.png`, then `bamware-process-1280x769.png`, then `brewdesk-mockup-1080x1080.png`; video `brewdesk-hero-16x9-fiverr.mp4`; document `brewdesk-case-study.pdf`.
+Gallery (live): Bamware logo (primary), process image, phone mockup; video `brewdesk-hero-16x9-fiverr.mp4` (under Fiverr review); document `brewdesk-case-study.pdf`.
 
 ### Gig B (new)
 
