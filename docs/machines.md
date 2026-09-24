@@ -70,6 +70,14 @@ leaning toward making Omarchy his daily driver:
   as `bilals-m3-macbook-pro`. Don't plan unattended iOS work that assumes the
   M3 is online.
 
+**Daily workflow (Bilal, 2026-09-24):** Bilal carries the `thinkpad` around NYC
+and works from cafes. Heavy work (builds, agents, iOS) runs over SSH on the
+MacBooks at home: `omarchy` (always on; Tailscale SSH already works) and the
+`mac` when it's home. At home he plugs the Kuycon 6K into the X1. So the
+ThinkPad should stay light and portable, work well on battery and cafe Wi-Fi,
+and treat the home machines as remote builders. Run long jobs in `tmux` on the
+remote box so a dropped cafe connection doesn't kill them.
+
 Not done yet (open before relying on it):
 
 - Mac-side remote access: Tailscale SSH or macOS Remote Login, plus power
