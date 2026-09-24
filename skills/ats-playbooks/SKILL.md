@@ -349,6 +349,32 @@ Fox, Synechron) from the Claude in Chrome extension. 15-25 minutes of agent time
   means Bilal clicked through once (On Me, 2026-09-21). Still not an
   application; check the tracker, then apply on the real ATS.
 
+## YC Work at a Startup (workatastartup.com)
+
+- `ycombinator.com/companies/{co}/jobs/{id}` "Apply to role" goes to YC login; Bilal logs
+  in himself. The job then opens at `workatastartup.com/jobs/{id}`. Apply = one free-text
+  message to the founder (min 50 chars, "human-written messages are more likely to get a
+  response"), then Send. No resume upload, no screening. Use the short "why this company"
+  shape in Bilal's voice. The Apply button needs a coordinate click; the ref click did not
+  open the modal. (Hype, 2026-09-23.)
+- His WaaS profile is stale (still shows NuvoAir as current). Flag it; founders read it.
+
+## Hidden-tab behaviour (2026-09-23, side panel)
+
+- `document.visibilityState` is "hidden" for every agent tab, yet real clicks (ref and
+  coordinate) and keystrokes DID land on Workday, Ashby and WaaS. Screenshots work too.
+- Workday search prompts (How did you hear, Field of Study, Skills): JS `focus()+select()`
+  on the input, type, Return, wait 3 s, JS-click the exact `promptLeafNode`. A coordinate
+  click on the skills box from a hidden tab did NOT take keystrokes; the JS focus path did.
+  Clear between skills with the native setter + `input` event.
+- Workday "Add" rows: after clicking Add, re-read the LAST row whose jobTitle is empty
+  before typing. Taking the last row id on a timer typed row 3 over row 2 once.
+- Workday Resume/CV is required on My Experience for both TR and Synchrony; Bilal drops
+  the PDF, everything else can be filled first. Save and Continue only after the upload.
+- The Chrome tool's output filter blocks results that contain a phone number or long
+  company/location strings on some pages ("Cookie/query string data"); return counts
+  or lengths instead of raw values when that happens.
+
 ## Marketplaces that look like jobs
 
 - SME Careers (sme.careers, by SuperAnnotate) posts "iOS Engineer" listings
