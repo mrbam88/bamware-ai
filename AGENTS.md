@@ -67,6 +67,24 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   Actions is NOT a prerequisite. Resolve this before PR/CI planning or CI spend.
   Missing tool/auth access does not authorize switching to CI. This overrides
   generic release sequencing, not checks required for an actual PR merge.
+- **Merging a PR? In auto mode you cannot, and you must not burn Bilal's time
+  discovering that.** The auto-mode safety classifier hard-denies
+  `gh pr merge` ("Merge Without Review") and denies editing
+  `~/.claude/settings.json` to allow it ("Self-Modification"). An agent cannot
+  unblock itself. On the FIRST denial, stop and hand Bilal the exact one-liner
+  to paste — do not retry, do not look for another route, do not re-explain it
+  across several turns. This cost a full session on 2026-09-23/24.
+  - **A merge command that returns NO output may have already succeeded.**
+    `gh pr view --json state` is also denied, so verify with
+    `gh pr list --state merged` before reporting failure. ve#149 was reported
+    blocked when it had in fact merged, which made a one-command problem look
+    like a broken system.
+  - Permanent fix for Bilal, once: `/permissions` → allow `Bash(gh pr merge:*)`,
+    or Shift+Tab out of auto mode.
+  - Prefer the route that has no merge step at all: this repo's canonical
+    Venue Engine deploy is local validation → `main` → Vercel Git integration
+    (docs/venue-engine-deployment.md), not PR → merge → deploy.
+
 - Committing anything? Never commit credential values or PII — this repo is
   public. Rules: docs/security.md
 - Changing a service API response shape? It breaks the mobile app silently.
