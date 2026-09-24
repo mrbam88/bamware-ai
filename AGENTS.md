@@ -96,7 +96,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | All repos: what each is, deploy targets, endpoints | docs/repos.md |
 | Venue Engine release route, local checks, direct Vercel deployment | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
-| The three machines and what each can physically do | docs/machines.md |
+| Bilal's rig: machines, displays, gear | docs/machines.md |
 | Security rules: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base, what works | docs/app-review-field-notes.md |

@@ -1,4 +1,4 @@
-# Machines — the three physical devices
+# Machines and gear
 
 A machine is a **cache of this repo** (AGENTS.md). Nothing is authored locally;
 `scripts/bootstrap.sh` rebuilds any of them. This file exists for one reason:
@@ -8,6 +8,24 @@ cannot touch Xcode no matter what the runtime column says. Read both.
 
 Registered 2026-09-08; `omarchy` added 2026-09-17; `thinkpad` moved to Omarchy
 by 2026-09-23. Three devices, all Bilal's.
+
+## Rig and gear inventory
+
+Bilal wants every agent to know his whole setup and to help keep it in order
+(2026-09-24). **When he mentions new or changed gear, update this list in the
+same session.** Record only what's known: "model unknown" beats a guess.
+
+| Gear | Model | Role / notes |
+|---|---|---|
+| `thinkpad` | ThinkPad X1 Carbon Gen 12, Omarchy | Portable daily driver (section below) |
+| `omarchy` | MacBook Pro 16" 2019 (Intel), Omarchy | Always-on Linux build/agent server; stays put |
+| `mac` | MacBook Pro M3 Pro, macOS | All iOS work; sometimes travels |
+| Monitor | Kuycon G32P, 32" 6K | Desk display for the ThinkPad over USB-C |
+| TV | Samsung QBQ90, 4K | Second display via a Ugreen USB-C to HDMI cable |
+| Phone | iPhone 15 Pro | Physical test device; pairs with the `mac` |
+| Tablet | iPad Pro (model unknown) | Planned Omarchy second screen (to-do in `docs/omarchy-thinkpad-desktop.md`) |
+| Pointing | Apple Magic Trackpad (USB) | At the desk, via the monitor's USB hub |
+| Keyboard | External USB keyboard (SONiX, model unknown) | At the desk; Bilal prefers the X1's built-in keyboard |
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
