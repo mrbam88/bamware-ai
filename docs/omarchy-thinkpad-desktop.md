@@ -35,7 +35,7 @@ never edit `/usr/share/omarchy/` (the package owns it). After any change run
 
 ## Dictation (Wispr Flow replacement)
 
-Omarchy's Voxtype: hold F9 (Fn+F9 unless Fn Lock) or toggle with Super+Ctrl+X.
+Omarchy's Voxtype: hold **Right Ctrl**, click the bar mic, or toggle with Super+Ctrl+X.
 
 - **Engine: Parakeet**, not Whisper. `engine = "parakeet"`, model
   `parakeet-tdt-0.6b-v3-int8` (CPU, ONNX). About 1 s to transcribe an 11 s clip.
@@ -62,8 +62,10 @@ Omarchy's Voxtype: hold F9 (Fn+F9 unless Fn Lock) or toggle with Super+Ctrl+X.
   while recording and an hourglass while transcribing, and right click opens
   the Voxtype settings. Verified working 2026-09-24. Holding F9 is unreliable
   on the X1: Fn+F9 arrives as rapid press/release pairs, so push-to-talk
-  records sub-second fragments. Right Ctrl was offered as a hold-to-talk key.
-  Super+Ctrl+X also toggles.
+  records sub-second fragments. **Hold-to-talk is Right Ctrl** (bound in
+  `~/.config/hypr/bindings.lua` with `voxtype record start`/`stop` on
+  press/release), verified 2026-09-24; Bilal calls it "a good button". Super+Ctrl+X
+  also toggles.
 - Ollama is installed with `ollama-vulkan`. The iGPU is used only with
   `OLLAMA_IGPU_ENABLE=1` (in `/etc/systemd/system/ollama.service.d/override.conf`,
   along with `OLLAMA_KEEP_ALIVE=60m`). Only `qwen2.5:7b` is kept.
