@@ -99,6 +99,8 @@ notes (glibc 2.35 ceiling, apt neovim, GNOME Terminal profile) no longer apply.
 **Name clash:** the hostname is also `omarchy`, same as the MacBook below. On
 the tailnet this machine is `omarchy-1`; use full MagicDNS names, never a bare
 `omarchy`.
+The offline tailnet node `billyx1` is this same X1's old Ubuntu install
+(Bilal, 2026-09-24). It's stale and safe to remove in the Tailscale admin console.
 
 **Cannot do anything Apple.** No Xcode, no simulators, no fastlane, no signing,
 no `.ipa`. A ticket that touches the iOS app is not assignable here. Reassign
