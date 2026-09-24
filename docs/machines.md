@@ -94,7 +94,8 @@ Not done yet (open before relying on it):
 Intel Core Ultra 7 155U (Meteor Lake, no AVX-512) · 14 threads · 30 GiB RAM ·
 237 GB disk · Omarchy, kernel 7.2
 
-Reinstalled from Ubuntu 22.04 to Omarchy (observed 2026-09-23). The Ubuntu-era
+Timezone fixed 2026-09-24 from fixed `EST` (an hour behind during daylight saving time) to
+`America/New_York`. Reinstalled from Ubuntu 22.04 to Omarchy (observed 2026-09-23). The Ubuntu-era
 notes (glibc 2.35 ceiling, apt neovim, GNOME Terminal profile) no longer apply.
 
 **Name clash:** the hostname is also `omarchy`, same as the MacBook below. On
