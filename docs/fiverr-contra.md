@@ -4,12 +4,16 @@ Owner: Bilal. Started 2026-09-22 in Cowork. Media pack: `docs/marketing-media.md
 Positioning and copy are decided; the work left is data entry on the two sites.
 Never mention Baat. Location is "New York" only.
 
-## State (2026-09-24)
+## State (2026-09-24, evening)
+
+Pricing decision (Bilal, 2026-09-24): he is new to freelancing and wants
+prices that are very competitive to grow the brand, not to maximise income
+at first. Same prices on both sites.
 
 | Site | Status | Next action |
 |---|---|---|
-| Fiverr `fiverr.com/mrbam8` | **2026-09-24: profile + Gig A DONE and verified by reload.** Profile: title, About, skills, 6 work-experience rows (companies "Pending" Fiverr approval). Gig A: title, iOS App Development service type, metadata, tags, 3 packages, description, 5 FAQs, gallery (logo + process + mockup, hero video under Fiverr review, case-study PDF). Gig still PAUSED. | Bilal: review + unpause Gig A; make the mockup the primary image (drag, or delete the logo tile — Fiverr has no "set primary"); reply to the 3 buyer messages. Portfolio "BrewDesk" project NOT saved: Fiverr requires duration, cost and start month/year — need Bilal's numbers. Then Gig C, Gig B. |
-| Contra `contra.com/bilal_malik_g87cbt2p` | 11% complete = invisible in search. Headline has a typo ("Experience mobile app developer"). | Headline, bio, rate, timezone, languages, social links, featured media, 4 work items, services. Identity/wallet verification is Bilal-only. |
+| Fiverr `fiverr.com/mrbam8` | Profile + Gig A DONE, verified by reload. Gig A repriced to $100 / $750 / $1,800 and still PAUSED. Portfolio "BrewDesk" project published (1–3 months, Aug 2026, cost field $6,000 with a note). Gig C and Gig B not created yet: the new-gig page is behind a Press & Hold check. | Bilal: clear Press & Hold, then agent creates Gig C then Gig B as drafts. Bilal: unpause Gig A; make the mockup the primary image; reply to the 3 buyer messages. |
+| Contra `contra.com/bilal_malik_g87cbt2p` | DONE except Bilal-only steps. Headline, bio, rate $50–75/hr, featured hero video, 4 work items, 3 services live. | Bilal: verify identity and set up wallet (last item on the completion checklist). Later: apply to the expert network. |
 | Upwork | Not started. Recommended as the main platform (fee 0–15%, clients post real projects). | Same copy, one profile, bid 3–5 posts/week. |
 | Toptal | Not started. Apply once. | — |
 
@@ -25,7 +29,15 @@ engineer who shipped BrewDesk to the App Store". Skills come from a fixed list
 back by timezone); new companies need a website. Gig description is a Quill
 editor — set it with `.ql-container.__quill.setText()`, typing "•" scrambles it.
 Gig titles are lowercased by Fiverr. Press & Hold bot checks appear every few
-saves; a failed save resets the form.
+saves; a failed save resets the form. Gallery has no "set primary"; the first
+tile is primary, drag does not work by automation, and delete is permanent.
+
+Contra gotchas (2026-09-24): work items go through "Create case study" (the
+"Add work" button makes a social post). The first keystrokes after an image
+upload are dropped, so check the editor text. The Details modal allows at most
+3 tools. Service tag search only works after clicking outside the field between
+picks, and a tag can silently drop, so check "n/9" before publishing. Work items
+reorder by keyboard: focus the "Re-order project" handle, Space, arrows, Space.
 
 Data nit seen in the pack: search results show "Jersey City Free Public
 Library" twice (duplicate venue) — file on venue-engine.
@@ -49,7 +61,7 @@ Library" twice (duplicate venue) — file on venue-engine.
 
 **Work experience (live):** the six roles in `skills/bilal-resume` with dates and resume bullets.
 
-**Portfolio:** one project "BrewDesk" (name, industry Mobile App Development, description, 3 images + hero video). Blocked on required duration, cost, start month/year.
+**Portfolio (live):** one project "BrewDesk" (industry Mobile App Development, description, 3 images + hero video, 1–3 months, Aug 2026). The older Bamware project still says "award-winning"; offered to edit it, not yet approved.
 
 **Intro video:** `brewdesk-hero-9x16.mp4` until Bilal records a talking one.
 
@@ -82,7 +94,7 @@ Packages (live):
 
 | | Basic — App plan & fixed quote | Standard — MVP build | Premium — Ship to the App Store |
 |---|---|---|---|
-| Price | $200 | $2,500 | $6,000 |
+| Price | $100 | $750 | $1,800 |
 | Delivery | 3 days | 21 days | 45 days |
 | Scope | 45-min call, written scope, screen list, architecture and a fixed quote. Credited to a build. | Up to 5 screens, one backend hookup, a TestFlight build on your phone, and full source code. | Up to 10 screens, backend, sign-in, push, App Store submission and 2 weeks of launch fixes. |
 | Revisions | 1 | 2 | 3 |
@@ -90,30 +102,34 @@ Packages (live):
 
 FAQ (live): Do I own the code? · Do you need my Apple developer account? · Can you build for Android too? · Do you use AI? · Can we talk before I order?
 
-Gallery (live): Bamware logo (primary), process image, phone mockup; video `brewdesk-hero-16x9-fiverr.mp4` (under Fiverr review); document `brewdesk-case-study.pdf`.
+Gallery (live): Bamware logo (primary; Bilal to swap for the mockup), process image, phone mockup; video `brewdesk-hero-16x9-fiverr.mp4` (under Fiverr review); document `brewdesk-case-study.pdf`.
 
-### Gig B (new)
-
-Title: `I will build a React Native app for iOS and Android with Expo`
-Tags: react native, expo, cross platform app, mobile app development, typescript
-Same description with SwiftUI → React Native + Expo; keep the BrewDesk paragraph. Prices $200 / $2,000 / $5,500.
-
-### Gig C (new, the review-builder)
+### Gig C (to create as draft, the review-builder)
 
 Title: `I will review, fix or finish your iOS or React Native app`
 Tags: bug fix, code review, ios app, react native, app maintenance
-Basic $100 / 3 days: code review of one repo, written report with fixes ranked.
-Standard $350 / 7 days: fix up to 3 bugs or add one small feature.
-Premium $900 / 14 days: take a stalled app to a working TestFlight build.
+Basic $50 / 3 days: code review of one repo, written report with fixes ranked.
+Standard $150 / 7 days: fix up to 3 bugs or add one small feature, with tests.
+Premium $400 / 14 days: take a stalled app to a working TestFlight build.
+Copy: same as the Contra service "Review, fix or finish your iOS or React Native app".
 
-Order: reply to messages → profile → Gig A → Gig C → Gig B.
+### Gig B (to create as draft, the social app starter)
+
+Replaces the earlier plain React Native gig. Title: `I will rebrand my react native social app starter for your community`.
+Rebrand $150 / 5 days: name, colors, logo and fonts, full source, running on the client's phone.
+Launch-ready $500 / 14 days: plus backend deployed to the client's AWS account, iOS and Android test builds.
+Custom $1,200 / 30 days: plus up to 2 custom features and App Store submission prep.
+Gallery: `starter-1280x769.png` (matches + chat screens only, no faces). Copy: same as the Contra service.
+Guardrails: never say it is on the App Store or open source; keep the honest App Review note (Apple rejects plain copies in crowded categories; shape it around a niche; the client publishes from their own developer account); the app is not named.
+
+Order: Gig C → Gig B.
 
 ## Contra
 
-Headline: `Lead iOS & React Native engineer · Shipped BrewDesk to the App Store`
-Rate: $150/hr (Bilal to confirm). Timezone Eastern. Languages English.
+Headline (live): `Lead iOS & React Native engineer · shipped BrewDesk`
+Rate (live): $50–75/hr. Timezone Eastern. Languages English.
 Links: bamware.io, github.com/mrbam88, linkedin.com/in/bilal-malik-797abb35, App Store id 6802930990.
-Featured media: `brewdesk-hero-16x9-contra-header.mp4` (or `brewdesk-mockup-1600x1200.png`).
+Featured media (live): the BrewDesk hero video.
 
 Bio:
 
@@ -125,8 +141,11 @@ Bio:
 >
 > How I work: scope first, fixed sprints, TestFlight builds you can try as we go, and clean documented code in your own repo. No lock-in. Message me with a short description of your app and I'll come back with a plan and a fixed price.
 
-Four work items (Contra needs 4): (1) BrewDesk case study, (2) Venue Engine backend, (3) Bamware multi-agent studio (public bamware-ai), (4) bamware.io site.
+Work items (live, in this order): (1) BrewDesk: native iOS app, live on the App Store; (2) Social app starter: matching, chat, profiles; (3) Bamware AI studio: agents that build, test and ship (links the public bamware-ai repo); (4) bamware.io: launch site and web backbone for BrewDesk. Covers were generated in the brand (graphite + lime); the site cover is a screenshot of bamware.io.
 
-Services: App plan $200 · iOS MVP build from $2,500 · Ship it from $6,000 · Senior mobile engineer retainer $150/hr, 10–20 hrs/week · App review & fix from $100.
+Services (live):
+- iOS app in SwiftUI, built and shipped to the App Store: from $750, 3 weeks. Description lists Plan $100 / MVP $750 / Ship it $1,800.
+- Review, fix or finish your iOS or React Native app: from $50, 3 days. Lists $50 / $150 / $400.
+- Social app starter: your own matching and chat app: from $150, 5 days. Lists $150 / $500 / $1,200 and the honest App Review note.
 
 After it's live: apply to Contra's expert network, reply within 24h, post weekly in the community.
