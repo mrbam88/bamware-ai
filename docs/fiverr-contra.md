@@ -12,7 +12,7 @@ at first. Same prices on both sites.
 
 | Site | Status | Next action |
 |---|---|---|
-| Fiverr `fiverr.com/mrbam8` | Profile + Gig A DONE, verified by reload. Gig A repriced to $100 / $750 / $1,800 and still PAUSED. Portfolio "BrewDesk" project published (1–3 months, Aug 2026, cost field $6,000 with a note). Gig C and Gig B not created yet: the new-gig page is behind a Press & Hold check. | Bilal: clear Press & Hold, then agent creates Gig C then Gig B as drafts. Bilal: unpause Gig A; make the mockup the primary image; reply to the 3 buyer messages. |
+| Fiverr `fiverr.com/mrbam8` | Profile + Gig A DONE, verified by reload. Gig A repriced to $100 / $750 / $1,800 and still PAUSED. Portfolio "BrewDesk" project published (1–3 months, Aug 2026, cost field $6,000 with a note). Gig C and Gig B created as DRAFTS (all steps filled, stopped before Publish). An older draft "build full stack mobile apps" also exists, untouched. | Bilal: review and publish Gigs C and B; unpause Gig A; make the mockup the primary image; reply to the 3 buyer messages. |
 | Contra `contra.com/bilal_malik_g87cbt2p` | DONE except Bilal-only steps. Headline, bio, rate $50–75/hr, featured hero video, 4 work items, 3 services live. | Bilal: verify identity and set up wallet (last item on the completion checklist). Later: apply to the expert network. |
 | Upwork | Not started. Recommended as the main platform (fee 0–15%, clients post real projects). | Same copy, one profile, bid 3–5 posts/week. |
 | Toptal | Not started. Apply once. | — |
@@ -104,22 +104,23 @@ FAQ (live): Do I own the code? · Do you need my Apple developer account? · Can
 
 Gallery (live): Bamware logo (primary; Bilal to swap for the mockup), process image, phone mockup; video `brewdesk-hero-16x9-fiverr.mp4` (under Fiverr review); document `brewdesk-case-study.pdf`.
 
-### Gig C (to create as draft, the review-builder)
+### Gig C (draft, the review-builder)
 
 Title: `I will review, fix or finish your iOS or React Native app`
 Tags: bug fix, code review, ios app, react native, app maintenance
 Basic $50 / 3 days: code review of one repo, written report with fixes ranked.
 Standard $150 / 7 days: fix up to 3 bugs or add one small feature, with tests.
 Premium $400 / 14 days: take a stalled app to a working TestFlight build.
+Category: Mobile App Maintenance > Mobile App Bug Fixes. Hours 1/6/20, revisions 1/2/2, source code on Standard and Premium. 4 FAQs, 1 requirement question. Gallery: `svc-fix-1280x769.png` (primary), mockup, process; hero video; case-study PDF.
 Copy: same as the Contra service "Review, fix or finish your iOS or React Native app".
 
-### Gig B (to create as draft, the social app starter)
+### Gig B (draft, the social app starter)
 
-Replaces the earlier plain React Native gig. Title: `I will rebrand my react native social app starter for your community`.
+Replaces the earlier plain React Native gig. Title (live): `I will launch your social app with chat, profiles and matching in React Native`. Category: Mobile App Development > Cross-platform. Tags: react native, social app, chat app, app template, dating app. Fiverr needs at least $100 per package in this category.
 Rebrand $150 / 5 days: name, colors, logo and fonts, full source, running on the client's phone.
 Launch-ready $500 / 14 days: plus backend deployed to the client's AWS account, iOS and Android test builds.
 Custom $1,200 / 30 days: plus up to 2 custom features and App Store submission prep.
-Gallery: `starter-1280x769.png` (matches + chat screens only, no faces). Copy: same as the Contra service.
+Gallery: `starter-1280x769.png` (primary; matches + chat screens only, no faces), then the BrewDesk mockup. Revisions 1/2/3. 4 FAQs (incl. "Is this app already on the App Store?" → No; "Will Apple approve my app?" → no one can promise). Copy: same as the Contra service.
 Guardrails: never say it is on the App Store or open source; keep the honest App Review note (Apple rejects plain copies in crowded categories; shape it around a niche; the client publishes from their own developer account); the app is not named.
 
 Order: Gig C → Gig B.
