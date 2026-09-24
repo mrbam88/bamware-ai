@@ -112,13 +112,19 @@ must disable the output
 **Fix:** a VT switch away and back makes Hyprland reset every CRTC, which frees
 the PHY. It is automated:
 
-- `/usr/local/bin/drm-unstick-typec` watches for 15 s. If an output stays
-  disconnected-but-enabled for 3 s, it runs `chvt` away and back (about a 2 s
-  black flash) and logs to the journal under `drm-unstick-typec`.
+- `/usr/local/bin/drm-unstick-typec` polls every 0.25 s for 12 s. When an
+  output is disconnected-but-enabled for about 0.5 s, it runs `chvt` away and
+  back (about a 0.5 s black flash, which Bilal likes as an "unplugged cleanly"
+  signal), then keeps watching and repeats if needed (at most 3 times). It logs
+  to the journal under `drm-unstick-typec`. Releasing early, before the
+  driver's link reset (about 3.7 s after unplug), stops the broken re-enable
+  from happening at all.
 - `/etc/udev/rules.d/90-drm-unstick-typec.rules` runs it on every DRM hotplug
   via `systemd-run`.
-- Verified: 2 unplug/replug cycles on each port. Each unplug got stuck and was
-  auto-released, and the monitor came back at 6K without a reboot.
+- Verified: 2 unplug/replug cycles on each port, plus 2 more with the fast
+  version. Each time it released once and the monitor came back at 6K without a
+  reboot. Bilal unplugs constantly (portable daily driver), so this must stay
+  reliable.
 - If it is ever stuck anyway: `sudo /usr/local/bin/drm-unstick-typec`, or
   Ctrl+Alt+F2 then Ctrl+Alt+F1. A reboot always works.
 - If a kernel update fixes the bug, the script sees nothing stuck and does
