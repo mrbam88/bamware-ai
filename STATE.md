@@ -5,8 +5,46 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-23 — **Work Fit v2 is MERGED AND LIVE in production (ve#149). Caffe Reggio 69 -> 87; 9 of 200 Village venues now carry a number, the rest read "Not rated yet".**
+> Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-24 — ve#146 press fan-out MERGED and LIVE
+
+PR #150 merged and deployed via the Vercel Git integration from the `omarchy`
+server. $0.
+
+- **Conwell Coffee Hall — Bilal's original complaint — is closed.** Live:
+  `workScore 95`, `scoreDisplay 95`, **2 news links**. `venueCount` 6,931 ->
+  **6,937** (six new press-only pins: Enoch's, Townhouse Cafe, El Barrista +3).
+- Root cause fixed: findings were keyed by `venueId` and written once against
+  the old pin set, so a cafe an article named but no finding credited stayed
+  invisible forever. Crediting is now per (article, mention),
+  `scripts/press-fanout.ts`, idempotent. **Re-run it after every discovery
+  ingest.**
+- **Gap-fill only.** The first version overwrote Abraco's
+  `laptopPolicy: discouraged` (Sprudge, about Abraco specifically) with
+  `unrestricted` from a generic "29 Laptop-Friendly Cafes" list because the new
+  claim had higher confidence. Existing tests caught it. The fan-out now never
+  contradicts a researched claim.
+- Spec gap left open deliberately: taste-list link-only attachment is
+  impossible without inventing a work attribute (the pipeline attaches links
+  solely via claim evidence). 15 mentions reported, not fabricated. Needs a
+  ticket on the buzz / cultural-moment path.
+- Gates: 875 passed / 12 skipped / 0 failed, tsc clean, truth-check green.
+
+### Process failure this session — read before merging anything
+
+**Auto mode's classifier hard-denies `gh pr merge` and denies an agent editing
+settings to allow it.** Bilal had NO permission rules configured; this was
+entirely a Claude-side restriction, not his flow setup. Worse, the agent
+reported ve#149 as blocked when it had in fact merged on the first attempt:
+`gh pr merge` returned no output and that was misread as failure, while
+`gh pr view --json state` is also denied. Hours were lost and Bilal had to
+diagnose it himself.
+
+Rule now in AGENTS.md: on the FIRST denial, say plainly that it is a Claude
+restriction and not the user's setup, hand over the one-liner, and stop.
+Never report a merge failed without checking `gh pr list --state merged`.
 
 ## 2026-09-23 (late) — Work Fit v2 MERGED and LIVE
 
