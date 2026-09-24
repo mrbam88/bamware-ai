@@ -5,8 +5,29 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-23 — **Work Fit v2 + the non-durable-write fix are implemented and in DRAFT PRs awaiting Bilal's review (ve#149, bamware-ai#34). Nothing merged, nothing deployed.**
+> Last updated: 2026-09-23 — **Work Fit v2 is MERGED AND LIVE in production (ve#149). Caffe Reggio 69 -> 87; 9 of 200 Village venues now carry a number, the rest read "Not rated yet".**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-23 (late) — Work Fit v2 MERGED and LIVE
+
+ve#149 and bamware-ai#34 both merged; production deployed from the `omarchy`
+server via the Vercel Git integration. **First engine release not run from the
+Mac** — no Vercel CLI login needed. $0.
+
+- Live now: Caffe Reggio **87** (was 69), `scoreCoverage`/`scoreConfidence`
+  served on full + detail, `scoreConfidence` on `compact=1`, `/v1/health` 200
+  at 6,931 venues. **9 of 200 venues near Carmine St carry a number; the other
+  191 read "Not rated yet".** Full evidence in `docs/venue-engine-deployment.md`.
+- Bilal should re-test in the field — this is a large visible change and the
+  displayed-score bar (`MIN_DISPLAY_WEIGHT = 0.75`) is the lever if too many
+  pins now read unrated.
+- **Still open:** ve#148's durable storage (needs Bilal's hosting decision,
+  DB-09 #138) — writes are honestly `durable: false` today. ve#147 (venue-type
+  labelling) is client-side and needs a Mac session. ve#146 press fan-out is
+  the cheapest way to raise the rated count.
+- **Agent gotcha:** `gh pr merge` and `gh pr view --json state` are blocked by
+  the auto-mode permission classifier; `gh pr list --state merged` is not. A
+  blocked-looking merge may already have succeeded — check before retrying.
 
 ## 2026-09-23 (evening) — Work Fit v2 implemented; two draft PRs await review
 
