@@ -214,3 +214,22 @@ Bilal wants his iPad Pro as an extra wireless screen for Omarchy (deferred,
 2026-09-24; the exact model is not recorded yet). Sidecar is Mac-only. The
 plan is a Hyprland headless output shared with `wayvnc`, viewed from a VNC
 client on the iPad over the LAN or Tailscale.
+
+## Plan: cancel Wispr Flow (Bilal, 2026-09-24)
+
+Bilal pays for Wispr Flow and uses it only on the M3 MacBook. After using the
+X1 setup (Voxtype + Parakeet + cleanup + vocabulary + Right Ctrl) he judged it
+"at Wispr level", and wants to cancel the subscription.
+
+- **X1:** covered by the setup above.
+- **M3 Mac:** run the same Parakeet model locally (the M3 Pro is his strongest
+  machine for local AI). Voxtype is Linux-only, so use a Mac wrapper instead:
+  VoiceInk (open source; check that it currently supports Parakeet) or a DIY
+  Parakeet-on-MLX + hotkey. Reuse `vocabulary.tsv` and the cleanup rules so
+  both machines behave the same. The Mac could run the self-correction pass on
+  a local model instead of Claude Code.
+- **Order:** set up Mac dictation first (from a session on the Mac, or over SSH
+  once Remote Login is on), confirm it's good enough, then cancel Wispr.
+- The money saved (about $12-15/month) could fund the Claude voice assistant
+  idea: push-to-talk, Parakeet, Claude Haiku API streaming, Kokoro TTS with
+  barge-in, about $6-12/month on the API. Waiting on a dedicated API key.
