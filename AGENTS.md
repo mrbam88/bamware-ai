@@ -3,22 +3,36 @@
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
 Entry map for every session; details in `docs/` and `skills/`.
 
+## 🚨 READ FIRST — a permission denial is CLAUDE'S fault, never Bilal's
+
+Bilal has **no permission rules configured**. If `gh pr merge` (or anything)
+is denied, it is auto mode's built-in classifier — say that to him in one
+sentence immediately. He must never have to work out whose restriction it is.
+You cannot unblock yourself: editing settings to allow it is denied too.
+
+**First denial → one sentence + the line to paste, then STOP.** No retries, no
+alternative routes, no sending him to `/permissions` (he finds it confusing).
+
+**`gh pr merge` can succeed and print NOTHING.** Always check
+`gh pr list --state merged` before saying a merge failed — ve#149 had already
+merged when it was reported blocked, and that misread cost a whole session.
+
+Full detail: [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md)
+
 ## First-class principle: continuity across agents
 
 Bilal constantly switches models, vendors and harnesses. **Context must survive
 every switch.** Make the next agent's job easier—even with less context or
 weaker reasoning. Never rely on model memory.
 
-- At verified milestones and after corrections, save the decision **and why**,
-  exact next action, relevant paths/commands, evidence, blockers and pause state.
-- Put durable procedures in canonical docs; link critical rules from entry
-  instructions. Explicit precedence prevents generic defaults replacing decided
-  workflows. Don't bury rules only in incident logs.
-- Use capabilities and task ownership, not model names, to route work.
-- Distinguish **edited locally / published / deployed**. Unpublished context
-  is not available to another machine. Publish when authorized; otherwise
-  explicitly flag the pending handoff. Procedure: `skills/session-handoff`;
-  portability contract: `docs/portability.md`.
+- At milestones and after corrections, save the decision **and why**, the next
+  action, paths/commands, evidence, blockers and pause state.
+- Durable procedures go in canonical docs, linked from here. Never bury a rule
+  only in an incident log.
+- Route work by capability, not model name.
+- Distinguish **edited locally / published / deployed** — unpublished context
+  does not exist for the next machine. Procedure: `skills/session-handoff`;
+  contract: `docs/portability.md`.
 
 ## 1. Where is the truth?
 
@@ -63,49 +77,23 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 ## Before you touch these, read the linked doc first
 
 - **Deploying Venue Engine? Read `docs/venue-engine-deployment.md` first.**
-  Default: local validation → direct deployment to the existing Vercel project.
-  Actions is NOT a prerequisite. Resolve this before PR/CI planning or CI spend.
-  Missing tool/auth access does not authorize switching to CI. This overrides
-  generic release sequencing, not checks required for an actual PR merge.
-- **Merging a PR? In auto mode you cannot, and you must not burn Bilal's time
-  discovering that.** The auto-mode safety classifier hard-denies
-  `gh pr merge` ("Merge Without Review") and denies editing
-  `~/.claude/settings.json` to allow it ("Self-Modification"). An agent cannot
-  unblock itself. On the FIRST denial, stop and hand Bilal the exact one-liner
-  to paste — do not retry, do not look for another route, do not re-explain it
-  across several turns. This cost a full session on 2026-09-23/24.
-  - **A merge command that returns NO output may have already succeeded.**
-    `gh pr view --json state` is also denied, so verify with
-    `gh pr list --state merged` before reporting failure. ve#149 was reported
-    blocked when it had in fact merged, which made a one-command problem look
-    like a broken system.
-  - Permanent fix for Bilal, once: `/permissions` → allow `Bash(gh pr merge:*)`,
-    or Shift+Tab out of auto mode.
-  - Prefer the route that has no merge step at all: this repo's canonical
-    Venue Engine deploy is local validation → `main` → Vercel Git integration
-    (docs/venue-engine-deployment.md), not PR → merge → deploy.
-
-- Committing anything? Never commit credential values or PII — this repo is
-  public. Rules: docs/security.md
+  Local validation → the existing Vercel project. Actions is NOT a
+  prerequisite; an access gap never authorizes CI or CI spend.
+- Committing? Never commit credentials or PII — public repo. docs/security.md
 - Changing a service API response shape? It breaks the mobile app silently.
   Read docs/contracts.md first.
-- App Store submissions: don't resubmit the rejected dating concept. Make
-  differentiation visible in the binary and listing. BrewDesk was approved
-  2026-09-12; evidence and template: docs/app-review-field-notes.md.
+- App Store submissions: never resubmit the rejected dating concept; make
+  differentiation visible in binary and listing. docs/app-review-field-notes.md.
 - About to run git or Xcode from Cowork? Check docs/runtimes.md first.
 - Merging agent PRs? QA merges after CI green + evidenced QA pass
   (adopted 2026-08-21). Bilal-only gates: store submission, spend,
   CI/signing/deploy config, cross-repo contracts. See skills/qa-engineer.
-- **HARD SPEND RULE:** anything that could cost **more than $20** requires
-  an immediate STOP and Bilal's explicit permission, even mid-task. Below $20,
-  paid runs still require a prior quote-and-confirm with a cheapest-option
-  offer. Prefer free. Mobile builds/uploads use local Mac tooling; Actions is
-  BACKUP only. Agent usage consumes quota too. Before agent runs, read
-  `docs/token-diet.md` for model-cost defaults, session hygiene and budgets.
-  No idle polling loops. Overnight procedure: `skills/night-supervisor`.
-- Models/harnesses are interchangeable; machine capabilities are not. Only
-  the M3 Mac can do Xcode, iOS simulators, signing or physical-iPhone smoke.
-  Before Apple work, read `docs/machines.md`; reassign rather than improvise.
+- **HARD SPEND RULE:** anything over **$20** = STOP and ask, even mid-task.
+  Under $20 still needs quote-and-confirm with a cheapest option. Prefer free.
+  Mobile builds use the local Mac rail; Actions is BACKUP only. Agent usage is
+  spend too — `docs/token-diet.md`. No idle polling loops.
+- Machine capabilities are not interchangeable: only the M3 Mac does Xcode,
+  simulators, signing. Read `docs/machines.md`; reassign, never improvise.
 
 ## Table of contents — read on demand
 
