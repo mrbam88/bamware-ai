@@ -107,21 +107,17 @@ remote box so a dropped cafe connection doesn't kill them.
 
 Not done yet (open before relying on it):
 
-- Mac-side remote access — **still off, verified on the M3 2026-09-24:**
-  Remote Login (sshd) off, Screen Sharing off. The Tailscale *app* on macOS
-  cannot serve Tailscale SSH (only the open-source `tailscaled` build can), so
-  the rail is macOS Remote Login reached over the tailnet with the usual
-  `~/.ssh/id_ed25519` key. Power: on AC `sleep 0` and `womp 1` are already
-  set, but a closed lid with no external display still sleeps it. All three
-  need Bilal's password on the Mac:
-
-  ```sh
-  sudo systemsetup -setremotelogin on     # or System Settings → General → Sharing → Remote Login
-  sudo pmset -a disablesleep 1            # stay awake with the lid closed
-  # Screen Sharing: System Settings → General → Sharing → Screen Sharing
-  ```
-
-  Then from the X1: `ssh bilalmalik@bilals-m3-macbook-pro.tailb7fa1e.ts.net`.
+- Mac-side remote access — **done and verified 2026-09-24.** Bilal turned on
+  Remote Login and Screen Sharing and set `pmset disablesleep 1`, so the M3
+  stays up with the lid closed. An SSH login from `omarchy` over the tailnet
+  succeeded (`ssh bilalmalik@bilals-m3-macbook-pro.tailb7fa1e.ts.net`, key
+  auth; `omarchy`'s ed25519 key is in the Mac's `~/.ssh/authorized_keys`).
+  The Tailscale *app* on macOS cannot serve Tailscale SSH (only the open-source
+  `tailscaled` build can), so plain macOS sshd over the tailnet is the rail.
+  **Open:** the X1's key is not authorized on the Mac yet (X1 was offline);
+  from the X1 run `ssh-copy-id bilalmalik@bilals-m3-macbook-pro.tailb7fa1e.ts.net`
+  once (password auth is on). Screen Sharing is on (port 5900) but has not
+  been exercised over the tailnet yet.
 - A way to see simulators and Xcode UI remotely (Screen Sharing/VNC over
   Tailscale) for work that needs eyes on the UI.
 - Cloud storage has to work on Linux and phone, not only on the Mac. A
