@@ -135,8 +135,15 @@ the PHY. It is automated:
 - The cable sometimes connects before the TV's EDID is readable. The TV then
   shows up nameless with only 640x480-1024x768 modes.
 - `~/.config/hypr/monitors.lua`: a `desc:Samsung Electric Company QBQ90` rule
-  sets 3840x2160@60 at scale 2, placed to the right. A `monitor.added` hook
+  sets 3840x2160@60 at scale 2. A `monitor.added` hook
   gives any display with no EDID (empty description, not eDP-1) the same 4K60
   mode instead of 640x480.
 - Unplugging it can hit the same stuck-output bug as the 6K monitor; the
   `drm-unstick-typec` auto-release covers it too (seen releasing `DP-1`).
+
+## Screen arrangement
+
+Bilal types on the X1's own keyboard, so external screens sit physically behind
+and above the laptop. `monitors.lua` places the 6K (`desc:GKT Kuycon G32P`),
+the TV, and any display with no EDID at `position = "auto-center-up"`, which
+centers them above eDP-1.
