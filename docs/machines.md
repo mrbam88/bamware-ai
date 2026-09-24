@@ -38,12 +38,19 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
-**Likely plan: the Mac becomes a build box (Bilal, 2026-09-24).** Bilal
-is leaning toward moving his daily driver fully to Omarchy on the `thinkpad`.
-The Mac stays because nothing else can ship iOS. Its role narrows to Xcode
-builds, simulators, signing, TestFlight/App Store uploads, physical-iPhone
-smokes, and the headless runners. It would be reached over Tailscale; on the
-tailnet it is `bilals-m3-macbook-pro`.
+**Likely plan: roles across the three machines (Bilal, 2026-09-24).** Bilal is
+leaning toward making Omarchy his daily driver:
+
+- `thinkpad` (Omarchy): the portable daily driver for code, browser, backend
+  and Android.
+- `omarchy` (2019 MacBook Pro, Omarchy): the always-on Linux build and agent
+  server. It stays put and can't do iOS.
+- `mac` (M3): kept for everything iOS (Xcode, simulators, signing,
+  TestFlight/App Store, physical-iPhone smokes, the headless runners).
+  Sometimes it travels with Bilal when macOS is handier for compatibility, so
+  it is **not** always reachable. When it's home, it is reached over Tailscale
+  as `bilals-m3-macbook-pro`. Don't plan unattended iOS work that assumes the
+  M3 is online.
 
 Not done yet (open before relying on it):
 
