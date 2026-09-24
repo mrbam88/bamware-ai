@@ -81,6 +81,16 @@ Omarchy's Voxtype: hold **Right Ctrl**, click the bar mic, or toggle with Super+
   ("KUN"/"Conan") and Claude Code ("clawed/clock/cloud/clod code"). Bilal
   doesn't care about Omarchy's pronunciation. Add a line whenever a name keeps
   coming out wrong.
+- **Smart self-correction fix (free):** when a transcript contains "no wait",
+  "scratch that", "I mean" and similar, `voxtype-cleanup` runs
+  `claude -p --model haiku --tools "" --safe-mode --strict-mcp-config
+  --no-session-persistence` on the Claude subscription, not API billing
+  (Bilal chose free over the ~$2-3/month Haiku API option). It takes about
+  5-12 s, only on those dictations. There's a 12 s timeout, after which the
+  rule-cleaned text is typed. `VOXTYPE_CLAUDE_CLEANUP=0` disables it. The API
+  route would take about 0.5 s if the delay ever bothers him; the key is in
+  the vault at `/bamware/shared/anthropic-api-key`, but a separate
+  dictation key is preferred.
 - The recording popup is at `[osd] position = "top-center"`, so it doesn't
   cover the input line in terminal apps.
 - Ollama is installed with `ollama-vulkan`. The iGPU is used only with
