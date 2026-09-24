@@ -38,6 +38,23 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
+**Likely plan: the Mac becomes a build box (Bilal, 2026-09-24).** Bilal
+is leaning toward moving his daily driver fully to Omarchy on the `thinkpad`.
+The Mac stays because nothing else can ship iOS. Its role narrows to Xcode
+builds, simulators, signing, TestFlight/App Store uploads, physical-iPhone
+smokes, and the headless runners. It would be reached over Tailscale; on the
+tailnet it is `bilals-m3-macbook-pro`.
+
+Not done yet (open before relying on it):
+
+- Mac-side remote access: Tailscale SSH or macOS Remote Login, plus power
+  settings so it stays awake with the lid closed.
+- A way to see simulators and Xcode UI remotely (Screen Sharing/VNC over
+  Tailscale) for work that needs eyes on the UI.
+- Cloud storage has to work on Linux and phone, not only on the Mac. A
+  cloud-drive decision is in the backlog (Google Drive has no official Linux
+  client; the options are Insync, rclone, or a provider with a native Linux app).
+
 ## `thinkpad` — ThinkPad X1 Carbon Gen 12, Omarchy (Arch Linux)
 
 Intel Core Ultra 7 155U (Meteor Lake, no AVX-512) · 14 threads · 30 GiB RAM ·
