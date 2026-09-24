@@ -92,3 +92,34 @@ The Android SDK is at `~/Android/Sdk`; AVD `brewdesk_api36`.
 The screen is 2880x1800 at scale 2 (about 1440x900 of usable space).
 Super+/ and Super+Alt+/ step through scales 1, 1.25, 1.6, 2, 3 and 4. A custom
 2.4 in `~/.config/hypr/monitors.lua` was offered but not applied.
+
+## External 6K monitor (Kuycon G32P over USB-C)
+
+Daily-driver setup: the laptop plus a Kuycon G32P at 6144x3456@60 and scale 2,
+on either left USB-C port. It connects as DP alt mode (no Thunderbolt device).
+6K@60 needs DSC and two joined pipes.
+
+**Bug (fixed locally 2026-09-23):** unplugging while active left the output
+stuck. i915's `intel_tc_port_link_reset_work` re-enables the pipe on the dead
+link. The logs show `pipe state doesn't match` / `UHBR10 not supported for the
+platform` (Meteor Lake has no UHBR on the TBT path). The stuck pipe keeps the
+Type-C PHY, so **no monitor is detected on either USB-C port until a reboot**.
+Tell-tale sign: `/sys/class/drm/card1-DP-N` shows `status=disconnected` with
+`enabled=enabled`. The upstream analysis puts the fix in the compositor, which
+must disable the output
+(https://ratatoskr.run/intel-xe/2026/06/17096046/t).
+
+**Fix:** a VT switch away and back makes Hyprland reset every CRTC, which frees
+the PHY. It is automated:
+
+- `/usr/local/bin/drm-unstick-typec` watches for 15 s. If an output stays
+  disconnected-but-enabled for 3 s, it runs `chvt` away and back (about a 2 s
+  black flash) and logs to the journal under `drm-unstick-typec`.
+- `/etc/udev/rules.d/90-drm-unstick-typec.rules` runs it on every DRM hotplug
+  via `systemd-run`.
+- Verified: 2 unplug/replug cycles on each port. Each unplug got stuck and was
+  auto-released, and the monitor came back at 6K without a reboot.
+- If it is ever stuck anyway: `sudo /usr/local/bin/drm-unstick-typec`, or
+  Ctrl+Alt+F2 then Ctrl+Alt+F1. A reboot always works.
+- If a kernel update fixes the bug, the script sees nothing stuck and does
+  nothing. Remove both files once it is no longer needed.
