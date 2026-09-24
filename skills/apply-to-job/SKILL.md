@@ -28,7 +28,8 @@ Thin orchestration. Each step delegates to the skill that owns it.
 
 ## 1. Guardrail check
 
-Read `job-guardrails`. Blocked or uncertain → do not apply, flag it for Bilal.
+Read `job-guardrails`. No company is blocked since 2026-09-24; only fact problems
+(location he cannot work from, duplicate posting) stop an application.
 
 ## 1b. Path check — easy path only (Bilal, 2026-08-21)
 
