@@ -66,6 +66,23 @@ Omarchy's Voxtype: hold **Right Ctrl**, click the bar mic, or toggle with Super+
   `~/.config/hypr/bindings.lua` with `voxtype record start`/`stop` on
   press/release), verified 2026-09-24; Bilal calls it "a good button". Super+Ctrl+X
   also toggles.
+- **Typing goes through ydotool, not wtype** (`driver_order = ["ydotool",
+  "wtype"]`). With wtype, Ghostty misread modifiers from wtype's per-client
+  keymap: capital B vanished and S arrived as `CSI 83;5u` (Ctrl+S).
+  Reproduced with `wtype` into `ghostty -e cat`; foot was fine. ydotoold runs as
+  a system service (`/etc/systemd/system/ydotoold.service`, socket
+  `/run/ydotoold/socket` owned by bilalx1), and the voxtype user unit gets
+  `YDOTOOL_SOCKET` from `~/.config/systemd/user/voxtype.service.d/ydotool.conf`.
+- **Vocabulary:** `~/.config/voxtype/vocabulary.tsv` has "heard<TAB>written"
+  pairs. They're applied whole-word and case-insensitive by
+  `voxtype-cleanup`; Voxtype's built-in `replacements` are substring matches
+  and would mangle "fix code" into "fiXcode". It covers opencode, BrewDesk,
+  Bamware, Hyprland, Voxtype, TestFlight, Tailscale, Xcode, Kuycon
+  ("KUN"/"Conan") and Claude Code ("clawed/clock/cloud/clod code"). Bilal
+  doesn't care about Omarchy's pronunciation. Add a line whenever a name keeps
+  coming out wrong.
+- The recording popup is at `[osd] position = "top-center"`, so it doesn't
+  cover the input line in terminal apps.
 - Ollama is installed with `ollama-vulkan`. The iGPU is used only with
   `OLLAMA_IGPU_ENABLE=1` (in `/etc/systemd/system/ollama.service.d/override.conf`,
   along with `OLLAMA_KEEP_ALIVE=60m`). Only `qwen2.5:7b` is kept.
