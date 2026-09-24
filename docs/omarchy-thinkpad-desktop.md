@@ -56,6 +56,14 @@ Omarchy's Voxtype: hold F9 (Fn+F9 unless Fn Lock) or toggle with Super+Ctrl+X.
   accurate but took 2-4.5 s. Setting `VOXTYPE_CLEANUP_MODEL=qwen2.5:7b` enables
   LLM handling of self-corrections ("no wait", "scratch that"). Open option: the
   Claude API (Haiku) for fast self-correction handling.
+- **Starting dictation:** use the **mic button on the bar**, the custom
+  `bilalx1.dictation` widget in `~/.config/omarchy/plugins/bilalx1.dictation/`.
+  Click to start and click to stop (`voxtype record toggle`); it shows red
+  while recording and an hourglass while transcribing, and right click opens
+  the Voxtype settings. Verified working 2026-09-24. Holding F9 is unreliable
+  on the X1: Fn+F9 arrives as rapid press/release pairs, so push-to-talk
+  records sub-second fragments. Right Ctrl was offered as a hold-to-talk key.
+  Super+Ctrl+X also toggles.
 - Ollama is installed with `ollama-vulkan`. The iGPU is used only with
   `OLLAMA_IGPU_ENABLE=1` (in `/etc/systemd/system/ollama.service.d/override.conf`,
   along with `OLLAMA_KEEP_ALIVE=60m`). Only `qwen2.5:7b` is kept.
