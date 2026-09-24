@@ -43,6 +43,36 @@ Identify the ATS first, from the URL or page chrome. Then read its section.
 - Workday: when Bilal uploads the resume on My Experience the page can reload and drop every
   unsaved row (Synchrony). Ask for the resume BEFORE filling page 2, or save right after.
 
+## Greenhouse dropdowns: THE FIX THAT WORKS (Bilal, 2026-09-23, "this issue happens often, it worked, remember this")
+
+**Read this before touching any Greenhouse form. It overrides the background-fill recipe below for every dropdown.**
+
+Script-set React-Selects LOOK filled but Greenhouse's form state never receives them. Submit then
+fails with "This field is required", "Select a country" or "Phone is required" under fields that
+visibly show an answer. Proven again on Reddit 2026-09-23: fiber `selectOption` failed, and calling
+the Select's own `onChange` from JS also failed. Real clicks passed on the very next submit.
+
+Per flagged dropdown, with the tab in front:
+
+1. Screenshot first and read the coordinate frame. It changes when the window resizes, so recompute
+   every time: scale = frame width / `innerWidth` (same for height).
+2. Real click on the dropdown ARROW at the right end of the control. Clicking the middle can land in
+   the neighbouring field.
+3. Wait 1 s. Find the option with JS (`.select__option` whose text matches), scale its rect to the
+   frame, and real click it. If the option is below the viewport, type a few letters of it and press
+   Enter instead.
+4. Multi-selects (gender, sexual orientation, ethnicity): real click the chip's x first, then open and
+   pick again. Press Escape after.
+5. Country code: real click the flag control, click "United States +1". The phone error clears with it.
+6. The red "required" text does NOT clear until the next Submit. Do not judge success by it.
+
+Default from now on: text fields and textareas may be set by JS, but set EVERY Greenhouse dropdown
+this way before handing off. Never hand off a Greenhouse form whose dropdowns were script-set.
+
+Two traps seen on the same form: a hidden background tab does not hydrate React until one real click
+lands on it, and the extension's JS runs in an isolated world where `__reactFiber` keys are invisible
+(inject a `<script>` element to read them).
+
 ## Greenhouse, background-tab fill (2026-09-21, xAI / Robinhood / MLB / Fanatics)
 
 **CORRECTION (Bilal, 2026-09-22, after submitting all four):** the recipe below fills the
