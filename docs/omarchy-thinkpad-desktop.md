@@ -147,3 +147,26 @@ Bilal types on the X1's own keyboard, so external screens sit physically behind
 and above the laptop. `monitors.lua` places the 6K (`desc:GKT Kuycon G32P`),
 the TV, and any display with no EDID at `position = "auto-center-up"`, which
 centers them above eDP-1.
+
+## Input and bar tweaks (2026-09-24)
+
+- **Touchpad** (Sensel haptic `SNSL0028`): tap-to-click and tap-and-drag are
+  off, so clicking means pressing, like a Mac. Two-finger touches while
+  scrolling were becoming right-clicks, and Chrome's context menu then picked
+  "Inspect". `misc.middle_click_paste = false`: a resting thumb turned presses
+  into middle clicks, which pasted text at random.
+- **Page Up/Down blanked on the built-in keyboard only.** `hl.device` for
+  `at-translated-set-2-keyboard` uses `kb_file = ~/.config/xkb/x1-builtin.xkb`,
+  which is the compiled keymap with `<PGUP>`/`<PGDN>` set to `NoSymbol`.
+  Regenerate it (the command is in the file header) if `kb_options` change.
+- `repeat_delay = 400` (Omarchy's default is 250).
+- **fcitx5 is disabled** (`omarchy-fcitx5.service` masked, XDG autostart
+  hidden). Bilal types English only. It was suspected, but not proven, of an
+  opencode Ctrl+A "aaaa" key-repeat glitch in Ghostty. Status unconfirmed;
+  Bilal said "might be fixed". If it recurs, compare foot and Ghostty
+  (simulated keys with `wtype` never reproduced it).
+- **Bar:** the clock uses 12-hour format (`dddd h:mm AP` in `shell.json`). A
+  custom `bilalx1.timer` bar widget in `~/.config/omarchy/plugins/bilalx1.timer/`
+  sits right of the clock: scroll sets the minutes, click starts or pauses,
+  right click resets, and it sends a critical notification when done. Plugin
+  icon changes may need `omarchy restart shell` to show.
