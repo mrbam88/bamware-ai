@@ -1,0 +1,6 @@
+[Unit]
+Description=Bamware Discord morning digest (#37)
+
+[Service]
+Type=oneshot
+ExecStart=%h/code/bamware-ai/scripts/discord-digest.sh morning
