@@ -92,8 +92,12 @@ remote box so a dropped cafe connection doesn't kill them.
 
 Not done yet (open before relying on it):
 
-- Mac-side remote access: Tailscale SSH or macOS Remote Login, plus power
-  settings so it stays awake with the lid closed.
+- ~~Mac-side remote access~~ **Done 2026-09-25:** macOS Remote Login is on. The
+  `thinkpad` reaches it as `ssh m3` (`~/.ssh/config`: user `bilalmalik`,
+  `bilals-m3-macbook-pro.tailb7fa1e.ts.net`, key `~/.ssh/id_ed25519`,
+  installed with `ssh-copy-id`). Plain sshd, not Tailscale SSH, so no
+  check-mode re-auth. Screen Sharing (port 5900) is also open. Still open:
+  power settings so it stays awake with the lid closed.
 - A way to see simulators and Xcode UI remotely (Screen Sharing/VNC over
   Tailscale) for work that needs eyes on the UI.
 - Cloud storage has to work on Linux and phone, not only on the Mac. A
