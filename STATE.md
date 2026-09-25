@@ -667,6 +667,17 @@ its no-execution status; hosted activation and spend remain separate gates.
   (PR only; supervisor compares with tmp/proto/sel3ref-*.png before merge)
   → build 32 becomes the 1.1 release candidate. Human gates unchanged: App
   Privacy label in ASC, sign-in-to-contribute decision, then submit.
+- 2026-09-25 18:20: **1.1 RELEASE CANDIDATE = TestFlight build 32**
+  (supersedes 31; tag store/1.1-build32 = 6a93f5b on release/1.1.0 = main
+  106b91d; archive 1.1 (32), Upload succeeded). New since 31: lime dark-map
+  pins per Bilal's round-3 selection (bd#241, PR #242), venue-type badges +
+  "Place type" filter chips — WeWork/parks/libraries tagged, Bilal: "great
+  new feature" (bd#240, PR #243; its CI ran on the rebased head, green;
+  package suite 359+180 green locally). API re-verified against ve Work Fit
+  v2 before the cut (no breaking change; scoreDisplay null → "Not rated").
+  Main CI + reviewer-sim + identity green on 106b91d before the release
+  merge. Human gates unchanged: App Privacy label, sign-in-to-contribute
+  decision, then `fastlane deliver` + select build 32 + submit.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
