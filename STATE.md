@@ -678,6 +678,22 @@ its no-execution status; hosted activation and spend remain separate gates.
   Main CI + reviewer-sim + identity green on 106b91d before the release
   merge. Human gates unchanged: App Privacy label, sign-in-to-contribute
   decision, then `fastlane deliver` + select build 32 + submit.
+- 2026-09-25 19:35: Bilal on build 32: "very impressed… first time I'm
+  actually proud" → "get ready for a push to production". PREPARED in ASC
+  (no submit; store submission is Bilal's gate): version 1.1 created
+  (PREPARE_FOR_SUBMISSION), build 32 attached, en-US + es-ES metadata,
+  What's New, promo text, 9 screenshots per locale (APP_IPHONE_67, deliver
+  double-uploaded 01_*.png — dupes deleted via API), review notes
+  (fastlane/review_information/notes.txt), copyright 2026 Bamware, release
+  AFTER_APPROVAL. Tooling: scratch Fastfile in the job tmp dir (Homebrew
+  fastlane 2.238, API key 897K… from SSM; `ignore_language_directory_
+  validation` needed because fastlane/screenshots has 6.5/raw/raw-es;
+  `build_number` did NOT attach the build with skip_binary_upload — PATCH
+  /v1/appStoreVersions/{id}/relationships/build did). NOT automatable:
+  App Privacy label (fastlane's upload_app_privacy_details needs an Apple
+  ID web session, no API-key path) → Bilal enters the 7 rows from
+  submission/1.1/metadata/privacy-label.md, then Submit. Contributions
+  stay open signed-out (as built and tested; review notes say so).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
