@@ -11,6 +11,20 @@ Everything about Bilal and Bamware lives in **`github.com/mrbam88/bamware-ai`**
 on `main`. That repo is the single source of truth across every vendor and
 runtime he uses. This skill exists only so a vendor-hosted assistant can find it.
 
+## Hermes runtime
+
+Hermes reads this skill directly through `skills.external_dirs`; never install
+an independent copy. The approved startup hook `scripts/hermes-context.py`
+fetches and pins current main, injects AGENTS.md, an explicitly bounded STATE
+excerpt and the skill index, and reports local drift without merging anything.
+A successful startup marker is evidence of that fetch, not of push access.
+
+Read `docs/hermes-integration.md` for install, verification, role routing,
+automation ownership and rollback. If the hook is absent, run the ordinary
+bootstrap below. A failed fetch is a stop, not permission to use cached facts.
+Use the native git/gh path. Hermes session history is useful evidence, not the
+canonical store. New facts and procedural improvements belong in this repo.
+
 ## Step 0 — resolve your WRITE path first, before reading anything
 
 Reading this repo needs no connector. **Writing does.** If you discover that gap

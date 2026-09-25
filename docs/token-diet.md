@@ -4,6 +4,28 @@ One-page policy for cutting token/rate-limit cost across Bamware harnesses.
 Companion to `skills/agent-fanout` "Session hygiene = token cost" (that doc
 covers supervisor sessions; this one covers per-ticket subagent runs).
 
+## Cost-aware distribution priority (Bilal, 2026-09-24)
+
+A primary reason for adopting Hermes is repeatedly exhausting rate-limited
+agent access. Bilal wants work distributed to cheaper models across his
+machines. Treat quota preservation as an architectural requirement, not a
+later optimization. This states a goal, not approval for paid runs or fallback.
+Bilal specifically wants to explore the M3 MacBook as a local-inference server
+for offloading work and backup capacity, not only as an Apple build executor.
+Unified memory, serving software, model quality and contention with Apple work
+must be measured before choosing a model or promising throughput.
+
+Route execution location separately from inference provider/model: moving a
+worker to another laptop does not add quota when it uses the same account's
+shared limit. Local inference requires verified model-serving capability;
+remote workers calling cloud models still consume that provider's allowance.
+Before selecting worker models, inventory current subscriptions, model access,
+shared limits, hardware readiness and an approved spending ceiling. Use scripts
+for deterministic work, bounded cheaper-model tasks for well-specified work,
+and stronger reasoning for ambiguity/review or explicit escalation. Measure
+accepted outcomes and rework, not only nominal token price. No model purchases,
+new endpoints, fallback billing or worker runs were authorized by this goal.
+
 ## Standing session rules
 
 Bilal's 2026-08-21 spend rule is critical: prefer free (local Mac mobile builds,

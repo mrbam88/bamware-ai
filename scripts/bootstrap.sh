@@ -114,6 +114,12 @@ else
   say "secrets SKIPPED — run: aws configure --profile bamware, then scripts/secrets-pull.sh"
 fi
 
+# Hermes is opt-in: does not install providers, migrate credentials or schedules.
+if command -v hermes >/dev/null 2>&1; then
+  say "Hermes available — integrate after reviewing docs/hermes-integration.md"
+  printf '  python3 "%s/install-hermes.py" --apply\n' "$SCRIPT_DIR"
+fi
+
 say "done"
 echo "Optional, per machine:"
 echo "  - ollama pull qwen3.6:35b-a3b   (local model advertised in opencode config)"

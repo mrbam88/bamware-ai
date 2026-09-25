@@ -30,6 +30,10 @@ same session.** Record only what's known: "model unknown" beats a guess.
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
+**Hermes:** Bilal reports it is already installed on the Mac (2026-09-24).
+Version, active profile, Bamware integration and remote execution have not yet
+been verified. Do not reinstall merely because the earlier audit lacked access.
+
 **The only machine that can ship.** Everything Apple lives here and nowhere else.
 
 - `gh` token on this Mac carries the `workflow` scope (refreshed by Bilal
@@ -57,8 +61,15 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
-**Likely plan: roles across the three machines (Bilal, 2026-09-24).** Bilal is
-leaning toward making Omarchy his daily driver:
+**Usage clarification (Bilal, 2026-09-24):** Bilal uses all three laptops in
+varying situations and tries to keep them in sync. The roles below are
+capability/availability defaults, not exclusive assignments: any machine may
+be his interactive workstation. Hermes planning must support switching among
+all three without requiring the ThinkPad to be the sole control desk. Shared
+context/procedures and machine-local execution state are distinct concerns;
+no particular session/config synchronization mechanism has been chosen yet.
+
+**Likely roles across the three machines (2026-09-24):**
 
 - `thinkpad` (Omarchy): the portable daily driver for code, browser, backend
   and Android.

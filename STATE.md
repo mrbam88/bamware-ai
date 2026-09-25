@@ -8,6 +8,29 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-24 — Hermes integration installed locally; remote rollout gated
+
+- Bilal requested full integration with Bamware remaining canonical. Installed
+  in the ThinkPad's active default Hermes profile: Bamware desktop project,
+  direct canonical skill discovery, and an explicitly approved context hook.
+- Real Hermes loaders resolved all 25 first-party skills to this repo. Hook
+  dispatcher fetched/pinned current context and deduplicated a repeated turn;
+  no model/provider calls. Bilal declined a quota-consuming fresh-agent smoke.
+- Existing digest timers are enabled/active on the ThinkPad and unchanged;
+  no duplicate cron jobs or credential migration. GitHub reports push access,
+  but no publishing/deployment operation was exercised.
+- Remote Linux capability check stopped at Tailscale SSH re-authentication.
+  No remote changes or retries. Mac execution is not verified.
+- **GitHub sync authorized by Bilal.** Integration source is included in this
+  handoff; verify the remote commit before calling it published. Installer/tests:
+  `docs/hermes-integration.md`, `scripts/install-hermes.py`,
+  `scripts/hermes-context.py`, `tests/test_hermes_bridge.py`,
+  `tests/verify_hermes_live.py`. Worker brief: `templates/hermes-task.md`.
+- **Scope correction:** cloud/VM/fleet ideas were background, not an expanded
+  build request. Next: pull this source on the Mac and inspect its already
+  installed Hermes setup before applying anything. No new remote rollout or
+  local-model installation is authorized by this sync request.
+
 ## 2026-09-24 — ve#146 press fan-out MERGED and LIVE
 
 PR #150 merged and deployed via the Vercel Git integration from the `omarchy`
