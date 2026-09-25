@@ -248,8 +248,8 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   (`colorschemes-colorblind.lua`); prefer blue/orange over red/green in any UI.
 - **Machine themes (2026-09-25):** an `ssh` shell function on the `thinkpad`
   (`~/.bashrc`) opens `ssh m3` / `ssh server` in a persistent tmux session that
-  is themed per host. **M3:** dark maroon `#2c1519` (Bilal chose it), orange "M3 MACBOOK" bar.
-  **Server:** dark slate blue `#1b2b3f`, sky-blue "SERVER" bar. **Local:** stays
+  is themed per host. **M3:** dark maroon `#2c1519` (Bilal chose it), dark bar with an orange "M3 MACBOOK" label.
+  **Server:** dark slate blue `#1b2b3f`, dark bar with a sky-blue "SERVER" label (bright bars were distracting). **Local:** stays
   the navy theme. The background is painted by tmux `window-style`: Ghostty draws
   an OSC 11 background see-through, so the pink wallpaper made every host look
   "red". Ghostty's `ssh-env` integration is off (it overrode the function) and
