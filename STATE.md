@@ -657,6 +657,16 @@ its no-execution status; hosted activation and spend remain separate gates.
   privacy-label.md), sign-in-to-contribute decision, then `fastlane
   deliver` metadata + select build 31 + submit. Deferred: #211 smoothness,
   #232 VibeChips contrast, #238 Spanish UI localization, #120 epic.
+- 2026-09-25: Bilal on build 31 dark mode: "not bright enough especially
+  next to the apple ones". Diagnosis: Apple's dark-map POIs are SATURATED
+  orange; our pale mint is light but desaturated. Design page round 3 put
+  fill options next to Apple-style decoys; his saved selection: fill LIME
+  (#C9FF3D/#B6F52A/#A3E61F/#8FD214), white 1 pt rim on both maps, Semibold
+  600 numbers, size "tiny" (one step up: 5.4→14 pt, 3.6→15, 1.8→20, 0.9→23),
+  depth finish, names on (lime on dark). brewdesk#241; build agent running
+  (PR only; supervisor compares with tmp/proto/sel3ref-*.png before merge)
+  → build 32 becomes the 1.1 release candidate. Human gates unchanged: App
+  Privacy label in ASC, sign-in-to-contribute decision, then submit.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
