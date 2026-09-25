@@ -246,3 +246,10 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   `install.sh` runs both on Linux and pulls the nvim repo. Bilal is red-green
   colorblind — the nvim config also carries colorblind-safe alternates
   (`colorschemes-colorblind.lua`); prefer blue/orange over red/green in any UI.
+- **Machine colors (2026-09-25):** so Bilal can tell sessions apart at a glance, an
+  `ssh` shell function on the `thinkpad` (`~/.bashrc`) tints the terminal per
+  host and prints a text banner and window title. `m3` gets dark amber
+  `#2b1d08` with an orange "M3 MacBook" banner; `omarchy` gets charcoal
+  `#262626` with a yellow "SERVER" banner; local stays the navy theme. **Bilal
+  relies on agents to choose colors** (red-green colorblind). Pick on the
+  blue/orange axis with a brightness difference, and always add a label.
