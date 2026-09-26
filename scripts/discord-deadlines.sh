@@ -6,6 +6,7 @@
 # reminder posts once (state in ~/.local/state/bamware/deadlines-sent), so
 # running it several times a day is safe.
 set -uo pipefail
+export BAMWARE_POST_TO=${BAMWARE_POST_TO:-assistant}   # #bamware-bot, see discord-post.sh
 
 dry_run=${1:-}
 repo_dir=$(cd "$(dirname "$0")/.." && pwd)

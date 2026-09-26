@@ -38,6 +38,7 @@ status flow. Roles will grow (Architect, Product) as the team builds up.
 | `agent-ready-tickets` | Writing specs an agent can execute. The spec IS the prompt. |
 | `definition-of-ready` | The grooming gate a ticket passes BEFORE it becomes Agent-ready. Catch problems in daylight. |
 | `board-ops` | Board statuses, fields, the Dev-QA loop, gh commands. Tickets, never "cards". |
+| `bamware-assistant` | The Discord bot in #bamware-bot: Bilal's Bamware personal assistant. Status, idea intake, "have an agent do X" → a groomed ticket, briefing follow-ups. Intake only; the repo and board are the record. |
 | `idea-capture` | Bilal spitballs an app or business idea → one `idea` ticket, quick or spike depth, no code or spend. Also listing, killing and promoting ideas. |
 
 ### DEV

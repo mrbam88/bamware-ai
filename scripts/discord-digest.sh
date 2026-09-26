@@ -8,6 +8,8 @@
 # plain list built from the same data. Posts via scripts/discord-post.sh.
 # Deadline reminders (#38) are appended by scripts/discord-deadlines.sh.
 set -uo pipefail
+# Briefings go to #bamware-bot so Bilal can reply (deadlines inherit this).
+export BAMWARE_POST_TO=${BAMWARE_POST_TO:-assistant}
 
 kind=${1:-morning}
 dry_run=${2:-}

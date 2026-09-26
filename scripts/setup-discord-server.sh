@@ -57,6 +57,9 @@ systemctl --user list-timers 'bamware-*' --no-pager | sed -n '1,3p'
 
 [[ $no_bot == --no-bot ]] && { say "skipping the Hermes bot (--no-bot)"; exit 0; }
 
+# Briefings post as the bot in its channel (discord-post.sh BAMWARE_POST_TO).
+set_key "$bam_env" DISCORD_ASSISTANT_CHANNEL "$chan"
+
 # --- 4. Hermes Discord gateway ----------------------------------------------
 herm_env=$HOME/.hermes/.env
 if ! grep -q '^DISCORD_BOT_TOKEN=.' "$herm_env" 2>/dev/null; then
@@ -68,6 +71,21 @@ set_key "$herm_env" DISCORD_HOME_CHANNEL "$chan"
 set_key "$herm_env" DISCORD_HOME_CHANNEL_NAME bamware-bot
 set_key "$herm_env" DISCORD_FREE_RESPONSE_CHANNELS "$chan"
 say "hermes .env: token, allowed user and #bamware-bot set"
+
+# Assistant role for the channel (skills/bamware-assistant) and a reset after
+# 4 quiet hours, so the conversation stays short and fast.
+python3 - "$chan" <<'PY'
+import os, sys, yaml
+chan, p = sys.argv[1], os.path.expanduser("~/.hermes/config.yaml")
+c = yaml.safe_load(open(p)) or {}
+c["session_reset"] = {"mode": "idle", "idle_minutes": 240}
+c.setdefault("discord", {}).setdefault("channel_prompts", {})[chan] = (
+    "You are Bilal's Bamware personal assistant in this Discord channel. "
+    "Before your first reply in a session, load and follow the bamware-assistant "
+    "skill. Keep replies short and link every ticket, PR and file.")
+open(p, "w").write(yaml.safe_dump(c, sort_keys=False))
+PY
+say "hermes config: assistant channel prompt, reset after 4 quiet hours"
 
 hermes gateway install --force --start-now --start-on-login
 # install --force leaves a running gateway alone; restart so new .env values load.
