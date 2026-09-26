@@ -81,13 +81,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - **Venue Engine deploy: read `docs/venue-engine-deployment.md` first.** Local
   validation → existing Vercel project. Actions is NOT a prerequisite; an
   access gap never authorizes CI spend.
-- Committing? Never commit credentials or PII — public repo. docs/security.md
-- **Need a login to test?** A super-user pool exists (basketball-player names,
-  cross-tenant) so nobody asks Bilal to type a password:
-  `docs/test-superusers.md`. It is a **proposed carve-out** from the
-  credentials rule above and is not in force until Bilal accepts it — read both
-  before acting. A blank `JWT_SECRET` 401s every account and looks exactly like
-  a wrong password; check that before blaming credentials.
+- Never commit credentials/PII (public repo: docs/security.md). **Test
+  logins:** the super-user pool, docs/test-superusers.md — never ask Bilal.
 - Changing an API response shape silently breaks the app — docs/contracts.md.
 - App Store: never resubmit the rejected dating concept; show differentiation
   in binary + listing. docs/app-review-field-notes.md.
@@ -98,8 +93,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   needs quote-and-confirm with a cheapest option. Prefer free. Mobile builds
   use the Mac rail; Actions is BACKUP only. Agent usage is spend too
   (`docs/token-diet.md`). No idle polling loops.
-- Machine capabilities are not interchangeable: only the M3 Mac does Xcode,
-  simulators, signing. Read `docs/machines.md`; reassign, never improvise.
+- Machines aren't interchangeable: only the M3 Mac does Xcode, simulators,
+  signing. `docs/machines.md`; reassign, never improvise.
 
 ## Table of contents
 
@@ -111,7 +106,6 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
 | Machines, displays, gear | docs/machines.md |
 | Security: credentials, PII, accounts | docs/security.md |
-| **Test logins: the super-user pool** | **docs/test-superusers.md** |
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
 | Current state | STATE.md |
