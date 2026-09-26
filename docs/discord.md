@@ -35,14 +35,70 @@ Set up 2026-09-24 so Bilal can see Bamware status at a glance. For now there is
 The repo is public, so never commit the URL. Each machine keeps it in
 `~/.config/bamware/discord.env` (`DISCORD_WEBHOOK_STATUS=...`, chmod 600).
 
-- Present on: `thinkpad`.
-- To-do: add it to the vault as `/bamware/shared/discord-webhook-status` and
-  have `scripts/secrets-pull.sh` write `discord.env`, so `omarchy` and `mac`
-  get it too. The ThinkPad has no AWS profile yet.
+- Present on: `thinkpad`. Vault path: `/bamware/shared/discord-webhook-status`;
+  `scripts/secrets-pull.sh` writes `discord.env` from it (server setup below).
 - If it leaks, delete the webhook in Discord (channel → Integrations), create a
   new one, and update the vault and the 13 GitHub hooks.
 
-## Verified timer placement (2026-09-24)
+## Always-on server (decided 2026-09-25)
+
+Bilal chose the Intel `omarchy` server for everything scheduled or always-on:
+the digest timers (moved off the ThinkPad, which sleeps; the 2026-09-25
+morning briefing posted at 12:36) and the two-way bot. The M3 still travels,
+so it hosts nothing that must stay up. Never run the timers on two machines.
+
+**Two-way bot:** Bilal wants to check status and capture ideas from Discord.
+It is the Hermes Discord gateway, which loads this repo's skills, so no
+custom bot code. Hermes is used sparingly now (docs/hermes-integration.md)
+and has been buggy with timeouts. It's a trial: if it doesn't hold up, the
+fallback is a small bot that shells out to `claude -p` on the server, like
+`scripts/discord-digest.sh` already does. Everything else here works without
+Hermes.
+
+### Server setup
+
+Bilal does these once. Agents were denied applying the Hermes hook on the
+server, so it is his step. On the **ThinkPad**:
+
+```sh
+# 1. webhook into the vault (the ThinkPad has it, the server has AWS)
+. ~/.config/bamware/discord.env && printf %s "$DISCORD_WEBHOOK_STATUS" |
+  ssh bilal@omarchy.tailb7fa1e.ts.net '~/.local/share/mise/shims/aws --profile bamware \
+  --region us-east-1 ssm put-parameter --name /bamware/shared/discord-webhook-status \
+  --type SecureString --overwrite --value file:///dev/stdin'
+# 2. cut over: stop the ThinkPad timers, then carry the sent-state across
+systemctl --user disable --now bamware-digest-{morning,evening}.timer
+ssh bilal@omarchy.tailb7fa1e.ts.net 'mkdir -p .local/state/bamware &&
+  cat > .local/state/bamware/deadlines-sent' < ~/.local/state/bamware/deadlines-sent
+```
+
+In Discord: create the bot (Developer Portal → New Application → Bot: turn on
+the Message Content and Server Members intents, Reset Token), invite it with
+`https://discord.com/oauth2/authorize?client_id=<APP_ID>&scope=bot+applications.commands&permissions=274878286912`,
+create `#bamware-bot`, and copy your user ID and that channel's ID
+(Settings → Advanced → Developer Mode, then right-click → Copy ID).
+
+Then on the **server** (`ssh server`, inside tmux):
+
+```sh
+cd ~/code/bamware-ai && git pull
+scripts/secrets-pull.sh               # writes discord.env
+hermes model                          # log in to a subscription provider, never Bedrock
+python3 scripts/install-hermes.py --apply && hermes hooks list   # approve the hook
+scripts/setup-discord-server.sh <your-user-id> <bamware-bot-channel-id>
+```
+
+`setup-discord-server.sh` enables linger, sets `DISCORD_USER_ID`, installs
+and enables the timers, asks for the bot token (hidden), writes the Hermes
+Discord settings and starts the gateway as a user service. Add `--no-bot` to
+set up only the timers. `#bamware-bot` answers without an @mention; elsewhere
+the bot needs one. Only Bilal's user ID is allowed.
+
+Hermes on the server is 0.19 (the newest mise/pipx release); the ThinkPad
+runs 0.21 from git. 0.19 has the Discord gateway.
+
+## Verified timer placement (2026-09-24, superseded by the move above)
+
 
 The Hermes integration audit found both digest user timers enabled and active
 on the **ThinkPad** (`omarchy-1`), with services installed in its user systemd
@@ -54,15 +110,5 @@ invokes the configured Claude summarizer; it is not a no-model test.
 
 ## Open
 
-- Installing the digest timers on `omarchy`: blocked on Tailscale SSH re-auth
-  (check mode) and on `discord.env` existing there.
 - Board data (the project board) needs a `read:project` gh scope on the
   posting machine.
-- **Two-way bot (wanted, Bilal 2026-09-25):** check status and capture ideas
-  from Discord. Planned route: the Hermes Discord gateway (`hermes gateway
-  setup`), which already loads this repo's skills, so no custom bot code. It
-  only calls a cloud model, so it belongs on an always-on machine, not the
-  ThinkPad. Machine choice is pending (see `docs/machines.md`, `mac`).
-- The digest timers on the ThinkPad fire late when the laptop sleeps (the
-  2026-09-25 morning briefing posted at 12:36). Move them to the always-on
-  machine along with the gateway.
