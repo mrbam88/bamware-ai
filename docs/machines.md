@@ -61,6 +61,12 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
+**Local-model benchmark (Bilal, 2026-09-25):** Qwen3 running locally, asked to
+load the Bamware context, took about **1 minute on the M3** and about **20
+minutes on the Intel `omarchy` server** (CPU only). Treat the M3 as the only
+machine that can usefully host a local model. Bilal is weighing making the M3
+the always-on server; undecided, because it sometimes travels (below).
+
 **Usage clarification (Bilal, 2026-09-24):** Bilal uses all three laptops in
 varying situations and tries to keep them in sync. The roles below are
 capability/availability defaults, not exclusive assignments: any machine may

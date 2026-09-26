@@ -58,3 +58,11 @@ invokes the configured Claude summarizer; it is not a no-model test.
   (check mode) and on `discord.env` existing there.
 - Board data (the project board) needs a `read:project` gh scope on the
   posting machine.
+- **Two-way bot (wanted, Bilal 2026-09-25):** check status and capture ideas
+  from Discord. Planned route: the Hermes Discord gateway (`hermes gateway
+  setup`), which already loads this repo's skills, so no custom bot code. It
+  only calls a cloud model, so it belongs on an always-on machine, not the
+  ThinkPad. Machine choice is pending (see `docs/machines.md`, `mac`).
+- The digest timers on the ThinkPad fire late when the laptop sleeps (the
+  2026-09-25 morning briefing posted at 12:36). Move them to the always-on
+  machine along with the gateway.
