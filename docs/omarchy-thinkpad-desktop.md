@@ -31,8 +31,8 @@ never edit `/usr/share/omarchy/` (the package owns it). After any change run
   key printed Fn sends **Ctrl**. Shortcuts pressed on the printed Ctrl silently
   fail (e.g. Herdr's Ctrl+Space prefix). The setting lives at
   `/sys/class/firmware-attributes/thinklmi/attributes/FnCtrlKeySwap` (no BIOS
-  password; takes effect after reboot). **Undecided; ask Bilal before changing
-  it.** An agent flipped it once without his OK and restored it the same minute.
+  password; takes effect after reboot). **Keep it (Bilal, 2026-09-26): he set it up in the Ubuntu days for Mac
+  order (fn bottom-left, control second). Never change it without his OK.** An agent flipped it once without his OK and restored it the same minute.
   Verify with `wev`; never assume the layout.
 - `kb_options` adds `altwin:swap_lalt_lwin`: the key printed **Alt** (beside
   space) sends **Super** (Mac Cmd position), and the **Windows** key sends
