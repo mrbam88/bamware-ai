@@ -1,4 +1,4 @@
-# Bamware — read me first (as of 2026-08-18)
+# Bamware — read me first
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
 Entry map for every session; details in `docs/` and `skills/`.
@@ -6,7 +6,7 @@ Entry map for every session; details in `docs/` and `skills/`.
 ## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
 
 Set by Bilal 2026-09-24. Claude-specific diagnoses below apply only to Claude;
-other runtimes identify the actual denying component. Never bypass a denial. Detail:
+other runtimes name the denying component. Never bypass a denial. Detail:
 [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
 
 1. **A denial is CLAUDE'S restriction, never Bilal's setup** — he has no
@@ -90,7 +90,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - Agent PRs: QA merges after CI green + evidenced pass. Bilal-only gates:
   store submission, spend, CI/signing/deploy config, cross-repo contracts.
 - **HARD SPEND RULE:** over **$20** = STOP and ask, even mid-task. Under $20
-  needs quote-and-confirm with a cheapest option. Prefer free. Mobile builds
+  needs quote-and-confirm, cheapest option. Prefer free. Mobile builds
   use the Mac rail; Actions is BACKUP only. Agent usage is spend too
   (`docs/token-diet.md`). No idle polling loops.
 - Machines aren't interchangeable: only the M3 Mac does Xcode, simulators,
