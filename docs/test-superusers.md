@@ -1,6 +1,8 @@
-# Test super-users — the pool, and why an agent still cannot use it yet
+# Test super-users — the pool (in force since 2026-09-26)
 
 Set by Bilal 2026-09-24, after a session lost time asking him to log in by hand.
+**Carve-out accepted by Bilal 2026-09-26** ("I'm using you as my LastPass for
+these test super users"). The pool is live; the roster and rules are below.
 
 Bamware keeps a standing pool of **super-user test accounts named after
 basketball players** (Kobe Bryant and others), holding privileges across
@@ -32,9 +34,8 @@ document does not pretend the conflict away. The proposed resolution:
 - **The pool is the carve-out, scoped to development and testing.** Named
   super-users, non-production surfaces, values delivered through the vault.
 
-**Until Bilal explicitly accepts that carve-out, an agent follows
-`docs/security.md` and stops.** A doc claiming an exception is not the same as
-the exception being granted — say so and hand him the command, per RULE #1.
+**Accepted 2026-09-26.** The carve-out is in force for the pool below and
+nothing else; every other credential still follows `docs/security.md`.
 
 ## The rule, once the carve-out is accepted
 
@@ -76,19 +77,40 @@ Observed 2026-09-24 on `omarchy`: `bamware-web/.env.local` carried
 `JWT_SECRET=` with an empty value, and a session read it as a credential
 problem for several exchanges. It was configuration.
 
-## Open — Bilal to confirm
+## The roster (as of 2026-09-26)
 
-An agent must not guess these, and must not invent accounts:
+Five accounts, `<name>@bamware.com`, registered on **both** tenants the auth
+service accepts (`bamware-dating`, `bamware-brewdesk`) through
+`POST /auth/register`, then promoted on both DynamoDB rows with
+`emailVerified: true`. Passwords are in the vault, never here.
 
-- **Does he accept the dev/test carve-out above**, and should
-  `docs/security.md` carry a pointer to it?
-- **Vault path for the pool.** Proposed:
-  `/bamware/shared/test-superusers/<name>`, delivered by `secrets-pull.sh` like
-  every other secret. If they are not in SSM yet, putting them there is what
-  makes this policy work on every machine — today it works only where Bilal
-  types them.
-- **Which tenants they span, and whether the role is `admin` or `owner`.**
-- **Dev/test surfaces only, or prod too?** The carve-out above assumes not
-  prod.
+| name | role on both tenants | reaches |
+|---|---|---|
+| curry | admin | web `/admin`, apps |
+| kobe | admin | web `/admin`, apps |
+| lebron | owner | web `/admin`, apps |
+| jordan | staff | apps only (web admin admits `admin`/`owner`) |
+| magic | customer | apps only |
+
+- **Vault path:** `/bamware/shared/test-superusers/<name>` (SSM SecureString).
+  `scripts/secrets-pull.sh` writes them to `~/.config/bamware/test-superusers.env`.
+- **Environments:** all of them. Today only `dev` is deployed
+  (`docs/environments.md`); when `prod` exists, provision the same roster the
+  same way. Bilal wants these to work everywhere, prod included.
+- **Changing a role** is expected ("battle testing"): update `role` on BOTH
+  rows (`TENANT#<tenant>#USER#<email>` and `USER#<userId>`), then update the
+  agent memory that holds the pool. One-row edits are the bug in
+  [auth-service#18](https://github.com/mrbam88/bamware-auth-service/issues/18).
+- **Never hand-write rows.** The 2026-09-24 seed rows were half-written
+  (mis-keyed `USER#` twins, no `schemaVersion`); they were backed up and
+  removed on 2026-09-26 and re-created through the API. `pnpm seed` in
+  `bamware-auth-service` now goes through `putUser` and reads passwords from
+  the vault.
+- **Why NBA names:** unique, and no real app user will ever carry them.
+
+## Resolved (2026-09-26)
+
+- Carve-out: accepted. `docs/security.md` points here.
+- Vault path: as above. Tenants: both. Roles: as above. Environments: all.
 
 Tracked in [bamware-ai#47](https://github.com/mrbam88/bamware-ai/issues/47).

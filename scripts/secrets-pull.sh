@@ -32,6 +32,21 @@ fi
 # Nothing to materialize: terraform reads data.aws_ssm_parameter directly
 # using the same profile. Kept here as documentation.
 
+# --- Test super-user pool (docs/test-superusers.md) ------------------------
+# Dev/test logins agents may hold. Written as TEST_SUPERUSER_<NAME>=<password>
+# so `pnpm seed` in bamware-auth-service and any test harness can source it.
+if exists "/bamware/shared/test-superusers/curry"; then
+  mkdir -p ~/.config/bamware
+  : > ~/.config/bamware/test-superusers.env
+  chmod 600 ~/.config/bamware/test-superusers.env
+  for n in curry kobe lebron jordan magic; do
+    if exists "/bamware/shared/test-superusers/$n"; then
+      echo "TEST_SUPERUSER_$(echo "$n" | tr a-z A-Z)=$(get /bamware/shared/test-superusers/$n)" >> ~/.config/bamware/test-superusers.env
+    fi
+  done
+  say "test super-users -> ~/.config/bamware/test-superusers.env"
+fi
+
 # --- Local .env files (developer convenience, all gitignored) ---------------
 if exists "/bamware/shared/anthropic-api-key" && [ -d "$HOME/code/bamware-venue-engine" ]; then
   {
