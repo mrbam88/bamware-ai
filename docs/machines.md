@@ -224,7 +224,7 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
 - `gh auth setup-git` pins the credential helper to a versioned mise install
   path that breaks on the next `gh` upgrade. Point it at the shim:
   `~/.local/share/mise/shims/gh auth git-credential`.
-- **Hosts the Discord digest timers and the two-way bot** (from 2026-09-25;
+- **Hosts the Discord digest timers and the two-way bot** (timers live 2026-09-26;
   `docs/discord.md`). Linger must be on so they survive logout.
 - **Always-on agent server (2026-09-18).** Reach it from anywhere via
   Tailscale SSH: `ssh bilal@omarchy.tailb7fa1e.ts.net` (no keys; auth is the

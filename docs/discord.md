@@ -57,24 +57,28 @@ Hermes.
 
 ### Server setup
 
-**Status 2026-09-26:** on the server, linger is on, the Bamware Hermes
-integration is applied and its hook approved (`hermes hooks doctor` green).
-Still to do by Bilal: the vault write (step 1; agents are denied secret-store
-writes), the timer cutover, the Discord bot, `hermes model`, and
-`setup-discord-server.sh`. The timers still run on the ThinkPad until then.
+**Status 2026-09-26:** done on the server: linger, Bamware Hermes
+integration and hook, `hermes model` (OpenAI Codex, `gpt-6-astra`), webhook
+in the vault and `discord.env`, the digest timers (the ThinkPad's are
+disabled; deadline sent-state copied, checksum verified). Left: the bot token,
+by running `setup-discord-server.sh` without `--no-bot`. The bot is
+`Bamware Bot`, channel `#bamware-bot`. @mentions stay off until the numeric
+user ID is known.
 
 Bilal does these once. Agents were denied applying the Hermes hook on the
 server, so it is his step. On the **ThinkPad**:
 
 ```sh
+# `command ssh` skips the themed ssh wrapper, which breaks piped stdin.
 # 1. webhook into the vault (the ThinkPad has it, the server has AWS)
 . ~/.config/bamware/discord.env && printf %s "$DISCORD_WEBHOOK_STATUS" |
-  ssh bilal@omarchy.tailb7fa1e.ts.net '~/.local/share/mise/shims/aws --profile bamware \
-  --region us-east-1 ssm put-parameter --name /bamware/shared/discord-webhook-status \
-  --type SecureString --overwrite --value file:///dev/stdin'
+  command ssh bilal@omarchy.tailb7fa1e.ts.net 'umask 077; f=$(mktemp); cat > "$f";
+  ~/.local/share/mise/shims/aws --profile bamware --region us-east-1 ssm put-parameter \
+  --name /bamware/shared/discord-webhook-status --type SecureString --overwrite \
+  --value "file://$f" --query Version --output text; rm -f "$f"'
 # 2. cut over: stop the ThinkPad timers, then carry the sent-state across
 systemctl --user disable --now bamware-digest-{morning,evening}.timer
-ssh bilal@omarchy.tailb7fa1e.ts.net 'mkdir -p .local/state/bamware &&
+command ssh bilal@omarchy.tailb7fa1e.ts.net 'mkdir -p .local/state/bamware &&
   cat > .local/state/bamware/deadlines-sent' < ~/.local/state/bamware/deadlines-sent
 ```
 
