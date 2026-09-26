@@ -57,13 +57,14 @@ Hermes.
 
 ### Server setup
 
-**Status 2026-09-26:** done on the server: linger, Bamware Hermes
-integration and hook, `hermes model` (OpenAI Codex, `gpt-6-astra`), webhook
-in the vault and `discord.env`, the digest timers (the ThinkPad's are
-disabled; deadline sent-state copied, checksum verified). Left: the bot token,
-by running `setup-discord-server.sh` without `--no-bot`. The bot is
-`Bamware Bot`, channel `#bamware-bot`. @mentions stay off until the numeric
-user ID is known.
+**Status 2026-09-26: live.** On the server: linger, the digest timers (the
+ThinkPad's are disabled; deadline sent-state copied, checksum verified),
+`discord.env` from the vault with `DISCORD_USER_ID` (@mentions on), and the
+Hermes gateway as a user service (`hermes-gateway`, OpenAI Codex
+`gpt-6-astra`). `Bamware Bot#5303` answers Bilal (allow-listed by numeric ID)
+in `#bamware-bot` without an @mention; first reply verified by Bilal.
+Logs: `~/.hermes/logs/gateway.log`. To-do for Bilal: reset the bot token (it
+was pasted into a chat once) and re-run the setup script with the new one.
 
 Bilal does these once. Agents were denied applying the Hermes hook on the
 server, so it is his step. On the **ThinkPad**:
