@@ -26,6 +26,21 @@ def settings(current, root):
     return {"skills.external_dirs": dirs, "hooks.pre_llm_call": hooks}
 
 
+def repair_stringified(config_path, plan, yaml):
+    """Hermes 0.19 (the newest PyPI release on 2026-09-26) saves a JSON list of
+    hooks as one string, so no hook loads. Put the planned lists back as YAML."""
+    config = yaml.safe_load(config_path.read_text()) or {}
+    fixed = False
+    for dotted, value in plan.items():
+        section, key = dotted.split(".")
+        if isinstance(config.get(section, {}).get(key), str):
+            config[section][key] = value
+            fixed = True
+    if fixed:
+        config_path.write_text(yaml.safe_dump(config, sort_keys=False))
+        print(f"Repaired settings Hermes saved as strings in {config_path}")
+
+
 def main():
     import yaml  # Ships with Hermes; no additional package installation.
     parser = argparse.ArgumentParser(description=__doc__)
@@ -41,7 +56,9 @@ def main():
         data = yaml.safe_load(result.stdout) or {}
         if not isinstance(data, dict):
             parser.error(f"Unexpected {section} config format; no changes made")
-        current[f"{section}.{key}"] = data.get(key, [])
+        value = data.get(key, [])
+        # Hermes 0.19 stores `config set` JSON as a string; see repair below.
+        current[f"{section}.{key}"] = json.loads(value) if isinstance(value, str) else value
     plan = settings(current, root)
     home = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes"))).resolve()
     print(f"Target profile home: {home}")
@@ -57,6 +74,7 @@ def main():
         backup.chmod(0o600)
     for key, value in plan.items():
         subprocess.run(["hermes", "config", "set", key, json.dumps(value)], check=True)
+    repair_stringified(home / "config.yaml", plan, yaml)
     print(f"Original settings backup: {backup}")
     print("Hook consent is separate: inspect `hermes hooks list`, then approve only this hook.")
     print("New sessions load the configuration. Existing prompt/tool caches are not reset.")
