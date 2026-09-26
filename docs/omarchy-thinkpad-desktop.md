@@ -91,6 +91,10 @@ Omarchy's Voxtype: hold **Right Ctrl**, click the bar mic, or toggle with Super+
   route would take about 0.5 s if the delay ever bothers him; the key is in
   the vault at `/bamware/shared/anthropic-api-key`, but a separate
   dictation key is preferred.
+- `wait_for_modifier_release = true`: Voxtype waits for all modifiers to be up
+  before typing. Typing with Ctrl held turned spaces into Ctrl+Space, which is
+  Herdr's prefix, and letters into pane/tab commands. That closed a Claude Code
+  pane on 2026-09-25.
 - The recording popup is at `[osd] position = "top-center"`, so it doesn't
   cover the input line in terminal apps.
 - Ollama is installed with `ollama-vulkan`. The iGPU is used only with
