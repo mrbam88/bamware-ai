@@ -133,5 +133,6 @@ invokes the configured Claude summarizer; it is not a no-model test.
 
 ## Open
 
-- Board data (the project board) needs a `read:project` gh scope on the
-  posting machine.
+- ~~Board data needs a `read:project` gh scope on the posting machine.~~
+  Done 2026-09-26: the server's gh has `project`, so the assistant can file
+  delegated tickets onto board 2 and the digests can read it.
