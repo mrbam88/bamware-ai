@@ -41,15 +41,16 @@ have not yet been requested.
 | First-slice scope and acceptance criteria | [Spec](crm-first-slice-ticket.md) · [GitHub issue #31](https://github.com/mrbam88/bamware-ai/issues/31) |
 | Repository location/status | [Repo map](repos.md) |
 
-The source repository is currently local at sibling `code/bamware-crm`, on
-`feat/crm-offline-tasks`; it has not been committed or published. Its README
+The source is published privately at `github.com/mrbam88/bamware-crm`
+(2026-09-24, one commit `2136c09`; default branch `feat/crm-offline-tasks`,
+no `main`). Clone it on any machine that needs it; omarchy has no checkout. Its README
 owns setup commands; `CONTEXT.md` owns domain vocabulary; `docs/architecture.md`
 owns implementation invariants; `docs/verification.md` records local gates.
 
 ## Next checkpoints
 
-1. Publish the CRM source when explicitly requested so it is portable to other
-   machines and sessions.
+1. ~~Publish the CRM source~~ Done 2026-09-24 (private repo). Next: promote
+   `feat/crm-offline-tasks` to `main` so the repo has a default trunk.
 2. Capture concrete feedback from continued use and select the next workflow.
 3. Before live use: register CRM with shared auth, configure real workspace
    memberships, and address the documented identity-hardening findings.
