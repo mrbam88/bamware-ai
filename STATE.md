@@ -28,9 +28,12 @@
 - **Auth pool audit:** [auth-service#18](https://github.com/mrbam88/bamware-auth-service/issues/18)
   — hand-seeded NBA accounts have mis-keyed `USER#` twin rows and the two
   migrations never ran. A clean admin test account (curry, `bamware-dating`)
-  was created through `/auth/register`; values live in the agent memory and
-  belong in SSM per [ai#48](https://github.com/mrbam88/bamware-ai/pull/48),
-  never here.
+  was created through `/auth/register`. **2026-09-26: pool provisioned** —
+  broken seed rows backed up and removed; curry/kobe/lebron/jordan/magic
+  registered on both tenants via the API, promoted on both rows, all 10
+  logins verified 200. Passwords in SSM `/bamware/shared/test-superusers/<name>`,
+  never here. Policy: [ai#48](https://github.com/mrbam88/bamware-ai/pull/48);
+  seed script fixed in auth-service PR (see #18).
 - **Bamware CRM source published privately** at `mrbam88/bamware-crm`
   (2026-09-24, `2136c09`, default branch `feat/crm-offline-tasks`). CRM docs
   updated; no checkout on omarchy. Iteration-two scope still unrequested.
