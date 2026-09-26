@@ -25,9 +25,18 @@ never edit `/usr/share/omarchy/` (the package owns it). After any change run
 
 ## Keyboard and touchpad (`~/.config/hypr/input.lua`, `bindings.lua`)
 
-- `kb_options` adds `altwin:swap_lalt_lwin` to Omarchy's defaults, so the key
-  beside the spacebar is Super (Cmd position) and the Windows key is Alt
-  (Option position). Fn/Ctrl are already Mac order on the X1; don't swap in BIOS.
+- **Bottom row, measured with `wev` (2026-09-26).** The keycaps from the left
+  read: **Ctrl, Fn, Windows, Alt, Space, Alt, Ctrl**. The firmware setting
+  `FnCtrlKeySwap` was **Enabled**, so the key printed Ctrl sent Fn and the key
+  printed Fn sent Ctrl. Every Ctrl shortcut Bilal tried silently failed, and
+  Herdr's Ctrl+Space prefix never fired. It was set to **Disable** via
+  `/sys/class/firmware-attributes/thinklmi/attributes/FnCtrlKeySwap` (no BIOS
+  password; takes effect after reboot). Verify with `wev`; never assume the
+  layout. `FoolProofFnCtrl` is Enable.
+- `kb_options` adds `altwin:swap_lalt_lwin`: the key printed **Alt** (beside
+  space) sends **Super** (Mac Cmd position), and the **Windows** key sends
+  **Alt** (Option). In app shortcuts that say "Alt" (Herdr), use the Windows
+  key. Right Alt = Compose; Right Ctrl = dictation push-to-talk.
 - Natural scrolling on. Two-finger click is Omarchy's default.
 - Omarchy already ships universal Super+C/V/X. `bindings.lua` adds Super+A,
   Super+Z, Super+Shift+Z, Super+R, Super+N (sent as Ctrl+key to non-terminal
