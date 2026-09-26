@@ -1,6 +1,8 @@
 #!/bin/bash
 # One-time setup of the always-on Discord pieces on the `omarchy` server.
-#   scripts/setup-discord-server.sh <discord-user-id> <bot-channel-id> [--no-bot]
+#   scripts/setup-discord-server.sh <discord-user-id|username> <bot-channel-id> [--no-bot]
+# A username works for the bot (Hermes resolves it on connect); @mentions in
+# deadline reminders need the numeric ID, so they stay off until one is given.
 # Run it ON the server, in a terminal (it may prompt). Safe to re-run.
 #
 # 1. Linger, so user services keep running with nobody logged in.
@@ -36,8 +38,12 @@ say "linger: $(loginctl show-user "$USER" -p Linger --value)"
 # --- 2. webhook + @mention --------------------------------------------------
 [[ -f $bam_env ]] || { echo "no $bam_env: run scripts/secrets-pull.sh first" >&2; exit 1; }
 grep -q '^DISCORD_WEBHOOK_STATUS=.' "$bam_env" || { echo "no webhook in $bam_env" >&2; exit 1; }
-set_key "$bam_env" DISCORD_USER_ID "$uid"
-say "discord.env: webhook present, DISCORD_USER_ID set"
+if [[ $uid =~ ^[0-9]+$ ]]; then
+  set_key "$bam_env" DISCORD_USER_ID "$uid"
+  say "discord.env: webhook present, DISCORD_USER_ID set"
+else
+  say "discord.env: webhook present; @mentions off until run with the numeric user ID"
+fi
 
 # --- 3. digest timers -------------------------------------------------------
 [[ -s ${XDG_STATE_HOME:-$HOME/.local/state}/bamware/deadlines-sent ]] ||
