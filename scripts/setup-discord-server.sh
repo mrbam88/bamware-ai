@@ -70,5 +70,7 @@ set_key "$herm_env" DISCORD_FREE_RESPONSE_CHANNELS "$chan"
 say "hermes .env: token, allowed user and #bamware-bot set"
 
 hermes gateway install --force --start-now --start-on-login
+# install --force leaves a running gateway alone; restart so new .env values load.
+systemctl --user restart hermes-gateway
 hermes gateway status
 say "done. Test in #bamware-bot: \"what's blocked on me?\" and \"new idea: ...\""
