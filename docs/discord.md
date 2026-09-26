@@ -57,6 +57,12 @@ Hermes.
 
 ### Server setup
 
+**Status 2026-09-26:** on the server, linger is on, the Bamware Hermes
+integration is applied and its hook approved (`hermes hooks doctor` green).
+Still to do by Bilal: the vault write (step 1; agents are denied secret-store
+writes), the timer cutover, the Discord bot, `hermes model`, and
+`setup-discord-server.sh`. The timers still run on the ThinkPad until then.
+
 Bilal does these once. Agents were denied applying the Hermes hook on the
 server, so it is his step. On the **ThinkPad**:
 
@@ -94,8 +100,9 @@ Discord settings and starts the gateway as a user service. Add `--no-bot` to
 set up only the timers. `#bamware-bot` answers without an @mention; elsewhere
 the bot needs one. Only Bilal's user ID is allowed.
 
-Hermes on the server is 0.19 (the newest mise/pipx release); the ThinkPad
-runs 0.21 from git. 0.19 has the Discord gateway.
+Hermes on the server is 0.19 (the newest PyPI release); the ThinkPad runs
+0.21 from git. 0.19 has the Discord gateway, but its `config set` saves the
+hook list as a string so no hook loads; `install-hermes.py` now repairs that.
 
 ## Verified timer placement (2026-09-24, superseded by the move above)
 
