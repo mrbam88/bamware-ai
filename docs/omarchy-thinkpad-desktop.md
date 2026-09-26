@@ -27,12 +27,13 @@ never edit `/usr/share/omarchy/` (the package owns it). After any change run
 
 - **Bottom row, measured with `wev` (2026-09-26).** The keycaps from the left
   read: **Ctrl, Fn, Windows, Alt, Space, Alt, Ctrl**. The firmware setting
-  `FnCtrlKeySwap` was **Enabled**, so the key printed Ctrl sent Fn and the key
-  printed Fn sent Ctrl. Every Ctrl shortcut Bilal tried silently failed, and
-  Herdr's Ctrl+Space prefix never fired. It was set to **Disable** via
+  `FnCtrlKeySwap` is **Enabled**, so the key printed Ctrl sends **Fn** and the
+  key printed Fn sends **Ctrl**. Shortcuts pressed on the printed Ctrl silently
+  fail (e.g. Herdr's Ctrl+Space prefix). The setting lives at
   `/sys/class/firmware-attributes/thinklmi/attributes/FnCtrlKeySwap` (no BIOS
-  password; takes effect after reboot). Verify with `wev`; never assume the
-  layout. `FoolProofFnCtrl` is Enable.
+  password; takes effect after reboot). **Undecided; ask Bilal before changing
+  it.** An agent flipped it once without his OK and restored it the same minute.
+  Verify with `wev`; never assume the layout.
 - `kb_options` adds `altwin:swap_lalt_lwin`: the key printed **Alt** (beside
   space) sends **Super** (Mac Cmd position), and the **Windows** key sends
   **Alt** (Option). In app shortcuts that say "Alt" (Herdr), use the Windows
