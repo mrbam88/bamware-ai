@@ -24,6 +24,14 @@ row marked *Mac only* is unavailable there regardless of the selected model.
 | Flutter / Android build | Capable machine | Installed SDK/toolchain required | Check build bridge | Requires a suitable build executor |
 | Long unattended runs / research | any | Subject to quota/spend/task authorization | Same | Same; cloud does not mean unlimited or free |
 
+## Hermes adapter
+
+Hermes on the ThinkPad is a native local runtime, not a Mac executor. Its
+canonical skill discovery, startup hook, work brief, automation ownership and
+verification are in `docs/hermes-integration.md`. Git/gh permissions and actual
+machine capability still govern each task; no model inherits another harness's
+permission classifier. New sessions read repo context; history is supplementary.
+
 ## Ownership rules
 
 - Release routing is service-specific, not determined by the model's name.

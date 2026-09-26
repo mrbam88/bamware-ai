@@ -8,6 +8,29 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-24 — Hermes integration installed locally; remote rollout gated
+
+- Bilal requested full integration with Bamware remaining canonical. Installed
+  in the ThinkPad's active default Hermes profile: Bamware desktop project,
+  direct canonical skill discovery, and an explicitly approved context hook.
+- Real Hermes loaders resolved all 25 first-party skills to this repo. Hook
+  dispatcher fetched/pinned current context and deduplicated a repeated turn;
+  no model/provider calls. Bilal declined a quota-consuming fresh-agent smoke.
+- Existing digest timers are enabled/active on the ThinkPad and unchanged;
+  no duplicate cron jobs or credential migration. GitHub reports push access,
+  but no publishing/deployment operation was exercised.
+- Remote Linux capability check stopped at Tailscale SSH re-authentication.
+  No remote changes or retries. Mac execution is not verified.
+- **GitHub sync authorized by Bilal.** Integration source is included in this
+  handoff; verify the remote commit before calling it published. Installer/tests:
+  `docs/hermes-integration.md`, `scripts/install-hermes.py`,
+  `scripts/hermes-context.py`, `tests/test_hermes_bridge.py`,
+  `tests/verify_hermes_live.py`. Worker brief: `templates/hermes-task.md`.
+- **Scope correction:** cloud/VM/fleet ideas were background, not an expanded
+  build request. Next: pull this source on the Mac and inspect its already
+  installed Hermes setup before applying anything. No new remote rollout or
+  local-model installation is authorized by this sync request.
+
 ## 2026-09-24 — ve#146 press fan-out MERGED and LIVE
 
 PR #150 merged and deployed via the Vercel Git integration from the `omarchy`
@@ -634,6 +657,43 @@ its no-execution status; hosted activation and spend remain separate gates.
   privacy-label.md), sign-in-to-contribute decision, then `fastlane
   deliver` metadata + select build 31 + submit. Deferred: #211 smoothness,
   #232 VibeChips contrast, #238 Spanish UI localization, #120 epic.
+- 2026-09-25: Bilal on build 31 dark mode: "not bright enough especially
+  next to the apple ones". Diagnosis: Apple's dark-map POIs are SATURATED
+  orange; our pale mint is light but desaturated. Design page round 3 put
+  fill options next to Apple-style decoys; his saved selection: fill LIME
+  (#C9FF3D/#B6F52A/#A3E61F/#8FD214), white 1 pt rim on both maps, Semibold
+  600 numbers, size "tiny" (one step up: 5.4→14 pt, 3.6→15, 1.8→20, 0.9→23),
+  depth finish, names on (lime on dark). brewdesk#241; build agent running
+  (PR only; supervisor compares with tmp/proto/sel3ref-*.png before merge)
+  → build 32 becomes the 1.1 release candidate. Human gates unchanged: App
+  Privacy label in ASC, sign-in-to-contribute decision, then submit.
+- 2026-09-25 18:20: **1.1 RELEASE CANDIDATE = TestFlight build 32**
+  (supersedes 31; tag store/1.1-build32 = 6a93f5b on release/1.1.0 = main
+  106b91d; archive 1.1 (32), Upload succeeded). New since 31: lime dark-map
+  pins per Bilal's round-3 selection (bd#241, PR #242), venue-type badges +
+  "Place type" filter chips — WeWork/parks/libraries tagged, Bilal: "great
+  new feature" (bd#240, PR #243; its CI ran on the rebased head, green;
+  package suite 359+180 green locally). API re-verified against ve Work Fit
+  v2 before the cut (no breaking change; scoreDisplay null → "Not rated").
+  Main CI + reviewer-sim + identity green on 106b91d before the release
+  merge. Human gates unchanged: App Privacy label, sign-in-to-contribute
+  decision, then `fastlane deliver` + select build 32 + submit.
+- 2026-09-25 19:35: Bilal on build 32: "very impressed… first time I'm
+  actually proud" → "get ready for a push to production". PREPARED in ASC
+  (no submit; store submission is Bilal's gate): version 1.1 created
+  (PREPARE_FOR_SUBMISSION), build 32 attached, en-US + es-ES metadata,
+  What's New, promo text, 9 screenshots per locale (APP_IPHONE_67, deliver
+  double-uploaded 01_*.png — dupes deleted via API), review notes
+  (fastlane/review_information/notes.txt), copyright 2026 Bamware, release
+  AFTER_APPROVAL. Tooling: scratch Fastfile in the job tmp dir (Homebrew
+  fastlane 2.238, API key 897K… from SSM; `ignore_language_directory_
+  validation` needed because fastlane/screenshots has 6.5/raw/raw-es;
+  `build_number` did NOT attach the build with skip_binary_upload — PATCH
+  /v1/appStoreVersions/{id}/relationships/build did). NOT automatable:
+  App Privacy label (fastlane's upload_app_privacy_details needs an Apple
+  ID web session, no API-key path) → Bilal enters the 7 rows from
+  submission/1.1/metadata/privacy-label.md, then Submit. Contributions
+  stay open signed-out (as built and tested; review notes say so).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 

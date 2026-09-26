@@ -42,6 +42,16 @@ The repo is public, so never commit the URL. Each machine keeps it in
 - If it leaks, delete the webhook in Discord (channel → Integrations), create a
   new one, and update the vault and the 13 GitHub hooks.
 
+## Verified timer placement (2026-09-24)
+
+The Hermes integration audit found both digest user timers enabled and active
+on the **ThinkPad** (`omarchy-1`), with services installed in its user systemd
+directory. They were preserved, not migrated or fired. Hermes cron has no
+replacement jobs. The earlier server-install plan below remains blocked;
+before moving these routines, choose one owner and preserve deadline sent-state.
+See `docs/hermes-integration.md` for the cutover checks. `--dry-run` still
+invokes the configured Claude summarizer; it is not a no-model test.
+
 ## Open
 
 - Installing the digest timers on `omarchy`: blocked on Tailscale SSH re-auth

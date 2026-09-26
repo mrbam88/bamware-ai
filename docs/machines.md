@@ -30,6 +30,10 @@ same session.** Record only what's known: "model unknown" beats a guess.
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
+**Hermes:** Bilal reports it is already installed on the Mac (2026-09-24).
+Version, active profile, Bamware integration and remote execution have not yet
+been verified. Do not reinstall merely because the earlier audit lacked access.
+
 **The only machine that can ship.** Everything Apple lives here and nowhere else.
 
 - `gh` token on this Mac carries the `workflow` scope (refreshed by Bilal
@@ -57,8 +61,15 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
-**Likely plan: roles across the three machines (Bilal, 2026-09-24).** Bilal is
-leaning toward making Omarchy his daily driver:
+**Usage clarification (Bilal, 2026-09-24):** Bilal uses all three laptops in
+varying situations and tries to keep them in sync. The roles below are
+capability/availability defaults, not exclusive assignments: any machine may
+be his interactive workstation. Hermes planning must support switching among
+all three without requiring the ThinkPad to be the sole control desk. Shared
+context/procedures and machine-local execution state are distinct concerns;
+no particular session/config synchronization mechanism has been chosen yet.
+
+**Likely roles across the three machines (2026-09-24):**
 
 - `thinkpad` (Omarchy): the portable daily driver for code, browser, backend
   and Android.
@@ -81,8 +92,12 @@ remote box so a dropped cafe connection doesn't kill them.
 
 Not done yet (open before relying on it):
 
-- Mac-side remote access: Tailscale SSH or macOS Remote Login, plus power
-  settings so it stays awake with the lid closed.
+- ~~Mac-side remote access~~ **Done 2026-09-25:** macOS Remote Login is on. The
+  `thinkpad` reaches it as `ssh m3` (`~/.ssh/config`: user `bilalmalik`,
+  `bilals-m3-macbook-pro.tailb7fa1e.ts.net`, key `~/.ssh/id_ed25519`,
+  installed with `ssh-copy-id`). Plain sshd, not Tailscale SSH, so no
+  check-mode re-auth. Screen Sharing (port 5900) is also open. Still open:
+  power settings so it stays awake with the lid closed.
 - A way to see simulators and Xcode UI remotely (Screen Sharing/VNC over
   Tailscale) for work that needs eyes on the UI.
 - Cloud storage has to work on Linux and phone, not only on the Mac. A
@@ -231,3 +246,14 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   `install.sh` runs both on Linux and pulls the nvim repo. Bilal is red-green
   colorblind — the nvim config also carries colorblind-safe alternates
   (`colorschemes-colorblind.lua`); prefer blue/orange over red/green in any UI.
+- **Machine themes (2026-09-25):** an `ssh` shell function on the `thinkpad`
+  (`~/.bashrc`) opens `ssh m3` / `ssh server` in a persistent tmux session that
+  is themed per host. **M3:** dark maroon `#2c1519` (Bilal chose it), dark bar with an orange "M3 MACBOOK" label.
+  **Server:** dark slate blue `#1b2b3f`, dark bar with a sky-blue "SERVER" label (bright bars were distracting). **Local:** stays
+  the navy theme. The background is painted by tmux `window-style`: Ghostty draws
+  an OSC 11 background see-through, so the pink wallpaper made every host look
+  "red". Ghostty's `ssh-env` integration is off (it overrode the function) and
+  `window-padding-color = extend`. **Bilal relies on agents to choose colors**
+  (red-green colorblind) and wants dark themes; a light theme was rejected as
+  unreadable. Use the blue/orange axis, keep contrast high, always add a label,
+  and screenshot-check before shipping.

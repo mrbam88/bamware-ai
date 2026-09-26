@@ -4,6 +4,10 @@ Owner: Bilal. Started 2026-09-22 in Cowork. Media pack: `docs/marketing-media.md
 Positioning and copy are decided; the work left is data entry on the two sites.
 Never mention Baat. Location is "New York" only.
 
+**Fiverr login email is `bmalik.dev@gmail.com`, not `bmalik.ee@gmail.com`**
+(Bilal, 2026-09-25: locked out of the original, re-created on the .dev Gmail).
+Fiverr notifications, buyer messages and verification codes land there.
+
 ## State (2026-09-24, evening)
 
 Pricing decision (Bilal, 2026-09-24): he is new to freelancing and wants

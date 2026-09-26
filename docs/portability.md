@@ -7,6 +7,26 @@ An agent should leave the next agent less to infer, regardless of model quality
 or harness. A stronger model remembering a convention is not the continuity
 mechanism; a discoverable, current repo instruction is.
 
+## Device-independent company workspace (Bilal, 2026-09-24)
+
+Bilal describes Bamware as a consulting company and wants its working setup
+to be device-agnostic, cloud-synchronized where appropriate, and easy to
+onboard onto a new device. A laptop is an access point and optional executor,
+not the sole home of company context or work. These are design requirements;
+no cloud storage/session service or paid hosting has been selected.
+Bilal sees fresh-VM onboarding as useful long-term context, not a current
+implementation request or acceptance criterion. He clarified that the broader
+cloud/device discussion was background color and does not want the integration
+to balloon in scope. No VM provisioning, fleet framework, cloud architecture
+buildout or expanded installation work is authorized by that discussion.
+
+Separate canonical context/code, client-private documents, agent session/task
+state, and credentials. Public bamware-ai is not a destination for client
+confidential material. Prefer a reproducible bootstrap with explicit machine
+capabilities over copying a whole home directory or live agent databases.
+Cloud-backed continuity and local inference are compatible: durable work can
+live in authorized shared systems while available devices supply execution.
+
 ## The handoff contract
 
 After a verified milestone, a changed decision, or a user correction, update
@@ -65,6 +85,7 @@ That pointer is the vendor-side footprint; durable facts remain in the repo.
 | **Grok** | Custom instructions / system prompt field. |
 | **Gemini** | Create a Gem and paste into its instructions. |
 | **Cursor** | `.cursorrules` in the repo root, or Settings → Rules for AI. |
+| **Hermes** | Direct external skill directory + approved context hook; `docs/hermes-integration.md`. Git stays canonical. |
 | **Raw API** (any vendor) | Prepend to the system prompt. |
 | **Local models** (Ollama, LM Studio) | System prompt / modelfile SYSTEM block. |
 

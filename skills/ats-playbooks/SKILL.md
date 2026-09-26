@@ -133,7 +133,7 @@ four forms; every field read back through `__reactProps` matched.
 - Location and postal-code fields are **autocompletes**. Typing alone fails
   validation — you must click the suggestion.
 
-- The `oneclick-ui` Easy Apply form (Versant, 2026-09-21) is ALL shadow DOM:
+- The "oneclick-ui" Easy Apply form (Versant, 2026-09-21) is ALL shadow DOM:
   `read_page` sees nothing but "Apply With Indeed". Plain inputs still accept a
   real click at screenshot coordinates + keystrokes; read values back with a JS
   walker that recurses into `shadowRoot`s. City: type "New York", click the
