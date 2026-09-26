@@ -5,8 +5,42 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
+> Last updated: 2026-09-26 — **AI-spend admin dashboard verified in-browser on the tailnet (web#43); CRM source on GitHub (private).** Previously: **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-26 — Admin AI-spend dashboard verified in a real browser; CRM source is on GitHub
+
+- **bamware-web `/admin/ai-spend`** ([web#43](https://github.com/mrbam88/bamware-web/pull/43),
+  ready for review, checks green) measures token burn/cost from local
+  Claude Code, Codex and opencode transcripts. Serving on omarchy over the
+  tailnet at `http://omarchy.tailb7fa1e.ts.net:4317` from the
+  `ai-spend-dashboard` worktree; **headless-Chromium form login + dashboard
+  render verified 2026-09-26** (screenshot `~/Pictures/bamware/ai-spend-browser-login-2026-09-26.png`).
+  Two login-route bugs fixed on the PR: blank `ADMIN_TENANT_ID` treated as set
+  (`b1ff908`), and the session cookie stamped `Secure` on plain http (`d6fecce`).
+- **Not deployable to Vercel as built:** the snapshot is a local file on
+  omarchy. Open decision for Bilal: S3-backed snapshot store, or keep the
+  dashboard local-only.
+- Findings filed: [ai#45](https://github.com/mrbam88/bamware-ai/issues/45)
+  (token-diet window cap is far too low — measured 98M in one window),
+  [web#44](https://github.com/mrbam88/bamware-web/issues/44) (proxy gate does
+  not verify the JWT signature).
+- **Auth pool audit:** [auth-service#18](https://github.com/mrbam88/bamware-auth-service/issues/18)
+  — hand-seeded NBA accounts have mis-keyed `USER#` twin rows and the two
+  migrations never ran. A clean admin test account (curry, `bamware-dating`)
+  was created through `/auth/register`. **2026-09-26: pool provisioned** —
+  broken seed rows backed up and removed; curry/kobe/lebron/jordan/magic
+  registered on both tenants via the API, promoted on both rows, all 10
+  logins verified 200. Passwords in SSM `/bamware/shared/test-superusers/<name>`,
+  never here. Policy: [ai#48](https://github.com/mrbam88/bamware-ai/pull/48);
+  seed script fixed in auth-service PR (see #18).
+- **Bamware CRM source published privately** at `mrbam88/bamware-crm`
+  (2026-09-24, `2136c09`, default branch `feat/crm-offline-tasks`). CRM docs
+  updated; no checkout on omarchy. Iteration-two scope still unrequested.
+- Lesson (Bilal, 2026-09-25): auto-mode classifier denials are a *mode*
+  problem — the fix is relaunching with `claude --dangerously-skip-permissions`;
+  say so on the first denial. Folded into RULE #1's spirit; see
+  `docs/agent-permission-blocks.md`.
 
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 

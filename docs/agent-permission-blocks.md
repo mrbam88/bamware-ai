@@ -50,6 +50,11 @@ reported it blocked, and Bilal spent hours on a problem that was already solved.
 
 ## Permanent fixes (Bilal's call)
 
+- **Relaunch with `claude --dangerously-skip-permissions`.** Bilal's chosen
+  fix on his own dev boxes (2026-09-25). Auto-mode denials come from a
+  server-side classifier that sits above `permissions.allow`, so allow rules
+  change nothing. Say this flag on the FIRST denial; he lost two hours finding
+  it himself.
 - Shift+Tab out of auto mode — he gets prompted instead of auto-denied.
 - `/permissions` → allow `Bash(gh pr merge:*)`. Note the classifier is
   server-side, so an allow rule may still not beat a merge verdict.

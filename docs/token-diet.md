@@ -129,26 +129,34 @@ burn quota. A ticket that's over budget but visibly making progress
 (bd#93-style: bigger real scope) should say so explicitly rather than
 silently blowing through.
 
-## Rate limits: agents per 5-hour window
+## Rate limits: what is actually enforced (verified 2026-09-26)
 
-Claude Max 20x, 5-hour windows, extra usage OFF — no paid fallback when the
-window fills. Using tonight's non-screenshot code-agent range (~130-250k
-tokens) and doc-agent range (~30-90k tokens), and assuming roughly
-**1.5M tokens/window for subagent work (assumption — verify against the
-usage page)**:
+The old "1.5M tokens per 5-hour window" figure here was an assumption; the
+dashboard measured a single window at 98M that completed uncut. Do not plan
+against 1.5M. The real structure, from Anthropic's help center and the
+provider's own usage endpoint:
 
-- All-code-ticket window: ~1.5M / ~190k avg ≈ **6-8 code agents**.
-- All-doc-ticket window: ~1.5M / ~60k avg ≈ **20-25 doc agents**.
-- Mixed night queue (realistic): budget **~8-10 agents per window**,
-  fewer if any UI/screenshot-heavy tickets are in the mix (those effectively
-  count as ~2 agents each).
-- Screenshots-into-model or 4x parallel Mac contention both blow this
-  estimate — see levers above for why to avoid both.
+- **One weekly budget shared by every model**, resetting at a fixed time
+  assigned to the account. Bilal's resets **Friday 9:59 PM Eastern**. That is
+  why the wall lands on Wednesday after a heavy Thursday/Friday.
+- **Fable is capped at 50% of that weekly budget.** Not an extra allowance:
+  the same pool, half of it. Bilal's default model is Fable 5.1 as of
+  2026-09-25, so routine sessions eat the Fable half unless routed elsewhere.
+- **A rolling 5-hour session limit** sits underneath, also shared.
+- Extra usage is OFF (out of credits): a full window is a hard stop.
+- Codex is a separate pool and reports its own weekly percent.
 
-Rule of thumb: **plan a night queue to ~8 tickets per 5-hour window**,
-sequential on Mac-simulator work, and re-check against the actual usage
-page after a few nights to replace the 1.5M assumption with a measured
-number.
+**Read, don't estimate.** `bamware-web` `/admin/ai-spend` shows the three
+meters live (session, weekly, Fable share) with reset countdowns, from the
+endpoint Claude Code's own `/usage` uses. A 10-minute sampler on omarchy
+(`scripts/systemd/ai-quota-sample.timer`) logs percent against tokens counted
+in the same window; once the meter has moved between samples the dashboard
+shows **tokens per 1%** and **tokens left**, which is the number to budget
+tickets against. Until then, the largest completed window is the floor.
+
+Measured mix (2026-09-18 to 09-26, 332M tokens): Opus 5 83%, Fable 5%,
+Sonnet/Haiku **0%**. The cheap-model routing this doc assumes is not happening
+yet; that is the next lever (`docs/model-routing.md` when it exists).
 
 ## Measurement recipe
 
