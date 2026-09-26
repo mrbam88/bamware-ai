@@ -7,6 +7,8 @@ Read before committing to any Bamware repo.
 - **No credential values in git. Ever.** CI has a tripwire; it exists because
   an agent once committed an App Store Connect key. That key had to be revoked
   and the history is still tainted (purge pending).
+- **Carve-out (Bilal, 2026-09-26): the test super-user pool** in
+  `docs/test-superusers.md` — dev/test logins agents may hold and hand over.
 - **Agents get capabilities, humans keep credentials.** Never authenticate to
   an account, generate signing keys, or handle secret values. If a job needs a
   credential the runtime doesn't hold, reassign the job — never move the
