@@ -2,6 +2,12 @@
 
 ## Decision and boundary
 
+**Use sparingly (Bilal, 2026-09-25).** He hoped to run Hermes full-time, but
+its agents were buggy and timed out often. He still sees potential, so it
+stays installed, but it is not a main driver for now. Don't route core
+workflows through it by default; anything built on it needs a non-Hermes
+fallback. Current trial: the Discord bot (`docs/discord.md`).
+
 Bilal requested full integration on 2026-09-24, not a replacement for Bamware.
 Hermes supplies the local execution surface, skill discovery and context
 bootstrap. Git owns durable context; GitHub issues/Projects own work. Do not

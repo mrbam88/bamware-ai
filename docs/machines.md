@@ -61,6 +61,13 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
+**Local-model benchmark (Bilal, 2026-09-25):** Qwen3 running locally, asked to
+load the Bamware context, took about **1 minute on the M3** and about **20
+minutes on the Intel `omarchy` server** (CPU only). Treat the M3 as the only
+machine that can usefully host a local model. Bilal considered making the M3
+the always-on server and decided against it (2026-09-25): it still travels
+sometimes. Always-on work (Discord timers and bot) lives on `omarchy`.
+
 **Usage clarification (Bilal, 2026-09-24):** Bilal uses all three laptops in
 varying situations and tries to keep them in sync. The roles below are
 capability/availability defaults, not exclusive assignments: any machine may
@@ -217,6 +224,8 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
 - `gh auth setup-git` pins the credential helper to a versioned mise install
   path that breaks on the next `gh` upgrade. Point it at the shim:
   `~/.local/share/mise/shims/gh auth git-credential`.
+- **Hosts the Discord digest timers and the two-way bot** (from 2026-09-25;
+  `docs/discord.md`). Linger must be on so they survive logout.
 - **Always-on agent server (2026-09-18).** Reach it from anywhere via
   Tailscale SSH: `ssh bilal@omarchy.tailb7fa1e.ts.net` (no keys; auth is the
   tailnet login). Use the full MagicDNS name — bare `omarchy` resolves to the

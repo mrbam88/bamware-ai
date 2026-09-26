@@ -3,4 +3,6 @@ Description=Bamware Discord morning digest (#37)
 
 [Service]
 Type=oneshot
+# systemd user units get a bare PATH; gh and claude live in these dirs.
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
 ExecStart=%h/code/bamware-ai/scripts/discord-digest.sh morning

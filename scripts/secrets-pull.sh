@@ -28,6 +28,16 @@ if exists "/bamware/shared/asc-issuer-id"; then
   say "ASC issuer id -> ~/.config/bamware/asc-issuer-id"
 fi
 
+# --- Discord status webhook (docs/discord.md) -------------------------------
+# Rewrites only the webhook line; DISCORD_USER_ID and other keys are kept.
+if exists "/bamware/shared/discord-webhook-status"; then
+  f=~/.config/bamware/discord.env
+  mkdir -p ~/.config/bamware && touch "$f" && chmod 600 "$f"
+  sed -i '/^DISCORD_WEBHOOK_STATUS=/d' "$f"
+  echo "DISCORD_WEBHOOK_STATUS=$(get /bamware/shared/discord-webhook-status)" >>"$f"
+  say "Discord webhook -> ~/.config/bamware/discord.env"
+fi
+
 # --- Terraform (bamware-infra) ---------------------------------------------
 # Nothing to materialize: terraform reads data.aws_ssm_parameter directly
 # using the same profile. Kept here as documentation.
