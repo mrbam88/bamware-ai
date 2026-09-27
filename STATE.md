@@ -8,6 +8,17 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-27 — New spike: AI video generation (#57)
+
+- Bilal launched a hands-on spike: cost per second, quality, market
+  economics. Findings and results log: `docs/video-gen-spike.md`. Verdict
+  **WAIT** until the local runs are measured.
+- Free-first: LTX-2.5 22B 4-bit via `mlx-serve` on the M3 Pro (36 GB
+  pack, ~24 GB RAM). Test brief: the "Hotel Lobby" AI trend. Paid
+  comparison approved up to **$20**, quote before spend. Spend so far $0.
+- Sora 2 API is dead (shutdown 2026-09-24, no replacement). Wan 2.5+ are
+  API-only; open weights stop at Wan 2.2.
+
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 
 - Bilal requested full integration with Bamware remaining canonical. Installed

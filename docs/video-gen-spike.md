@@ -1,0 +1,196 @@
+# Spike: AI video generation — cost, quality, market
+
+Started 2026-09-27. Bilal's framing: video generation is booming; understand it
+hands-on through two lenses, **cost** (token / $ per second) and **quality**
+(as realistic and current as possible), plus the **basic economics** of the
+apps and startups doing it. Spike, not a product commitment.
+
+Status: research done, free local run in progress. Verdict at the bottom is
+**WAIT** until the hands-on runs are measured.
+
+Spend so far: **$0.** Budget approved for the paid round: **$20** (Bilal,
+2026-09-27). Free-first: open weights on the Mac before any paid API.
+
+## 1. What matters in one screen
+
+- **Price per second fell ~5–10x in 18 months.** Mid-tier generation went
+  from ~$0.20–0.50/s (early 2025) to ~$0.02–0.07/s. Frontier with native
+  audio is still $0.10–0.60/s.
+- **Budget 3–6x the sticker price.** Field reports land one usable clip per
+  3–6 generations. Real $/finished-second = list $/s × re-roll factor.
+- **"Tokens" mostly don't apply.** Almost everything is billed per second or in
+  credits with a fixed $ rate. Veo is token-metered inside (5,792 tokens per
+  second of 720p) but priced per second, so budget from the $/s table.
+  Seedance 2.5 is the one model priced per token with no published
+  tokens-per-second constant.
+- **Sora 2 is gone.** OpenAI's deprecations page: shutdown 2026-09-24, no
+  replacement. The Sora consumer app closed 2026-04-26.
+- **Open weights are close to the frontier, but not the #2 model.** Wan
+  3.0 / 2.5 / 2.7 are API-only (Hugging Face `Wan-AI` stops at 2.2). The best
+  open models today are **LTX-2.5 22B** (Lightricks, joint audio + video) and
+  **Wan 2.2**. mlx-serve also lists a **MiniMax-H3 (Hailuo 3.0)** MLX pack; H3
+  is top-4 on Artificial Analysis. Verify its weights and licence before
+  relying on it.
+- **Market verdict (research):** do not build another generic consumer "AI
+  video generator". The defensible solo shape is a narrow B2B workflow tool
+  where the model is raw material.
+
+## 2. Cost: $/generated second (2026-09-27)
+
+List/on-demand API prices. Primary = vendor page. Secondary = cross-checked
+trackers; Kling's own pricing page did not render a table.
+
+| Model | Tier | $/s | Audio | Source |
+|---|---|---|---|---|
+| Google Veo 3.1 Lite | 720p / 1080p | 0.05 / 0.08 | yes | primary |
+| Google Veo 3.1 Fast | 720p / 1080p / 4K | 0.10 / 0.12 / 0.30 | yes | primary |
+| Google Veo 3.1 | 720p–1080p / 4K | 0.40 / 0.60 | yes | primary |
+| Runway Gen-4 Turbo / Gen-4.5 | std | 0.05 / 0.12 | no | primary |
+| Runway Aleph 2.0 (video-to-video) | std | 0.28 | no | primary |
+| Luma Ray3.2 | 540p / 720p / 1080p | 0.03 / 0.06 / 0.24 | unclear | primary |
+| Kling 2.5 Turbo (fal) | std / pro | 0.084 / 0.112 | no | secondary |
+| MiniMax H3 | — | from 0.13 | yes | secondary |
+| Seedance 2.0 | 480p no audio → 4K audio | 0.067 → 0.778 | tier | secondary |
+| Vidu Q3 | 540p | 0.035 | no | secondary |
+| Wan 2.5 (fal) | — | 0.05 | unclear | primary |
+| **Local LTX-2.5 on the M3 Pro** | 4-bit MLX | **$0 cash**, render time only | yes | measured below |
+
+$/finished minute = $/s × 60 × re-roll factor. Example: Veo 3.1 Fast 720p =
+$6/min raw, ~$18–36/min after re-rolls.
+
+Supporting pieces: keyframe images $0.04–0.24 each (Nano Banana class) or free
+locally (FLUX.2-klein via mlx-serve); TTS ~$0.05–0.09/min (ElevenLabs);
+self-hosted H100 $2–3.50/hr (RunPod).
+
+## 3. Quality: leaderboards (2026-09-27)
+
+Artificial Analysis Video Arena, text-to-video with audio: 1 Gemini Omni Flash
+(1233) · 2 Wan 3.0 (1229) · 3 MiniMax H3 Max (1227) · 4 MiniMax H3 (1220) ·
+5 Seedance 2.0 (1210) · … · 12 Kling 3.0 Pro (1095). Image-to-video: MiniMax
+H3 Max / H3 top two; Veo 3.1 is #11. Arena.ai text-to-video: #1 Kling v3.
+Different arenas use different rating pools; compare ranks, not scores.
+
+Consistent top-5 across boards: **Kling 3.0 and MiniMax H3.** VBench's top
+entries could not be identified; ignore it.
+
+## 4. Open weights on the M3 Pro (36 GB unified, measured sizes)
+
+| Model | Disk | RAM | Audio | Licence | Runtime |
+|---|---|---|---|---|---|
+| **LTX-2.5 22B, MLX 4-bit** (`ddalcu/LTX-2.5-MLX-Serve-4bit`) | 36 GB (text encoder bundled) | ~24 GB | joint audio + video | LTX-2.x Community: free under $10M revenue; must disclose AI content | `mlx-serve` (Homebrew, native, no Python) |
+| Wan 2.2 TI2V-5B GGUF Q8 | ~10 GB with encoder + VAE | lower | no | Apache 2.0 | ComfyUI on Metal |
+| Wan 2.2 Animate-2-14B | ~20–25 GB quantised | high | no | Apache 2.0 | ComfyUI; character replacement from a driving video |
+
+The full LTX-2.5 release is 201 GB (bf16 transformer 42 GB, bf16 Gemma-4 12B
+text encoder 26 GB). Its bf16 MLX port peaks at 40–62 GB of RAM, so on this
+Mac only the 4-bit pack is viable. Reference speed: 704×480, 97 frames (4 s),
+8 steps = 2m17s on an M4 Max 128 GB. M3 Pro numbers below.
+
+LTX via mlx-serve does text-to-video, first- and last-frame conditioning, and
+**audio-to-video** (`audio` = base64 WAV on `/v1/video/generations`), which
+lip-syncs a clip to supplied audio.
+
+Setup gotchas:
+- The Mac had 23 GB free; cleared DerivedData, npm, Gradle caches and
+  unavailable simulators to reach 55 GB.
+- Homebrew refuses untrusted taps: `brew trust --formula
+  ddalcu/mlx-serve/mlx-serve` before `brew install mlx-serve`.
+- `mlx-serve` binds 0.0.0.0 by default; pass `--host 127.0.0.1`.
+
+## 5. The hands-on test: "Hotel Lobby" AI trend
+
+Trend (Sept 2026): people swap new faces into Quavo and Takeoff's 2022 COLORS
+performance of "Hotel Lobby (Unc & Phew)". It started with a clip of two cats
+and went fully viral after Quavo reposted the original on 2026-09-23. Template
+apps (Starrd, Summrs, hotellobbyai.app) sell it as a photo-upload face swap.
+Those apps are a live example of the §6 wrapper business.
+
+What it takes technically: this is **video-to-video**, not text-to-video. The
+closest free paths:
+1. **LTX-2.5 audio-to-video:** a keyframe (two subjects, orange studio) plus a
+   ~10 s audio clip → a lip-synced performance. Free, on the Mac.
+2. **Wan 2.2 Animate:** transfers the motion of a driving video onto a
+   character. The most faithful to the trend, and the heaviest.
+3. Paid round: the same brief on Kling 3.0 / MiniMax H3 / Veo 3.1 within the
+   $20 cap.
+
+Rules for the test: no real people's likeness without consent (LTX acceptable
+use policy plus deepfake risk); the song audio stays local and is never
+committed to this public repo; if posted, use the platform's licensed sound.
+
+Results log (fill in per run: model, resolution, seconds, wall-clock, $,
+usable yes/no, notes):
+
+| Run | Model | Output | Wall-clock | $ | Usable | Notes |
+|---|---|---|---|---|---|---|
+| | | | | | | |
+
+## 6. Market and economics (2026-09-27)
+
+| Segment | Who | Signal |
+|---|---|---|
+| Model labs | Runway ($5.3B val), Luma ($4B), Kling (Q2'26 rev ~RMB 850M, +200% YoY), MiniMax (HK IPO Jan'26), Google, OpenAI | API is the product; price war |
+| Avatar / enterprise | Synthesia (~$150M ARR, $4B), HeyGen ($205M ARR on $74.6M raised), Hedra, Tavus | Capital-efficient SaaS works here |
+| Consumer / wrapper | Higgsfield ($5.4B, $700M "annualised" — self-reported), PixVerse (150M users, ~$40M ARR), InVideo (~$70M ARR), CapCut (free Seedance inside 300M+ MAU) | Crowded; free alternatives from platforms |
+| UGC ads | Arcads ($15M ARR, $25M raised), Creatify ($9M ARR), MakeUGC (bootstrapped) | B2B buyer with ROI; most solo-shaped |
+
+Unit economics, worked (estimates, not reported P&Ls):
+- **$6.99/week consumer app, 30 clips × 5 s on Kling at $0.112/s:** COGS
+  $16.80/week if fully used, against $4.89 net after Apple's 30% cut.
+  Profitable only on unused credits, cheap-model routing and trial churn.
+  Trial burn: at 25% trial→paid, payers fund the other 75%'s generations.
+- **Arcads-style UGC ad, $11/video:** ~35 s at $0.10/s + ~$2 voice ≈ $5.50
+  COGS → ~50% gross margin, ~30–40% after re-rolls.
+- **Model owners:** true compute cost per second is undisclosed everywhere;
+  rumoured $0.01–0.03/s for turbo models.
+
+Mobile: hard paywalls convert ~5x freemium by day 35 (RevenueCat 2026: 10.7%
+vs 2.1%). Captions made ~$9 of IAP revenue per download (Appfigures). Weekly
+subs ($4.99–6.99) are the norm. No credible AI-video-specific CAC/LTV found.
+
+Compliance: App Store 5.1.2(i) requires disclosure and consent before sending
+personal data (a user's photo) to third-party AI. EU AI Act Article 50
+labelling applies from 2026-08-02. C2PA is the working standard (TikTok,
+YouTube, Meta read it; X strips it).
+
+Risks: the model layer is a commodity; platforms ship the feature free (Sora
+app: ~7 months launch to shutdown; CapCut bundles Seedance); IP and likeness
+enforcement is active (Disney vs Google); moderation cost is real for
+real-person content.
+
+Solo-builder shape: a narrow B2B vertical tool (real-estate listing video,
+restaurant/menu video, local-business ads, e-commerce product video), priced
+$49–199/mo as SaaS, where the moat is the integration and distribution.
+Expect a profitable niche, not venture scale.
+
+## 7. Open questions
+
+1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
+2. Does LTX audio-to-video lip-sync hold up on two performers in one frame?
+3. Does the MiniMax-H3 MLX pack exist as open weights, under what licence,
+   and does it fit 36 GB?
+4. Paid round: the same brief on Kling 3.0 vs Veo 3.1 Fast. Is the quality
+   gap worth the $/s?
+5. Which vertical, if any, is worth a `Spike:` of its own?
+
+## 8. Verdict
+
+**WAIT.** Flips to **GO** on a product spike if the free local pipeline produces
+a usable ~10 s clip in under ~15 minutes on the M3 Pro, and one vertical from
+§6 has a buyer Bilal can reach directly. **NO-GO** on any consumer
+generic-generator app regardless.
+
+## Sources
+
+Research notes (full tables and ~90 links) were compiled 2026-09-27 from
+primary pages where available: ai.google.dev/gemini-api/docs/pricing,
+docs.dev.runwayml.com/guides/pricing, lumalabs.ai/api,
+developers.openai.com/api/docs/deprecations,
+artificialanalysis.ai/video/leaderboard, huggingface.co (Wan-AI, Lightricks,
+ddalcu, mlx-community model cards and file listings),
+github.com/ddalcu/mlx-serve. Market: TechCrunch (Runway 2026-02-10, Higgsfield
+2026-08-17, PixVerse 2026-07-13, Mirage 2026-03-24), CNBC (Synthesia
+2026-01-26), HeyGen blog ($200M ARR), SCMP (Kling), Variety (Sora shutdown),
+Sensor Tower State of Mobile 2026, RevenueCat State of Subscription Apps 2026,
+artificialintelligenceact.eu (Article 50). Trend: XXL, The Tab (2026-09-25),
+103.1 WEUP (2026-09-24).
