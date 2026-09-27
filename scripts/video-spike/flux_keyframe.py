@@ -18,10 +18,15 @@ p.add_argument("--height", type=int, default=720)
 p.add_argument("--seed", type=int, default=7)
 p.add_argument("--model", default="Runpod/FLUX.2-klein-4B-mflux-4bit")
 p.add_argument("--port", type=int, default=11234)
+p.add_argument("--image", help="edit mode: primary reference (referred to as image 1)")
+p.add_argument("--ref", action="append", default=[], help="edit mode: extra references, in order")
 a = p.parse_args()
 
 body = {"model": a.model, "prompt": a.prompt, "size": f"{a.width}x{a.height}",
         "width": a.width, "height": a.height, "seed": a.seed}
+if a.image:
+    b64 = lambda f: base64.b64encode(Path(f).read_bytes()).decode()
+    body.update(mode="edit", image=b64(a.image), ref_images=[b64(r) for r in a.ref])
 req = urllib.request.Request(f"http://127.0.0.1:{a.port}/v1/images/generations",
                              data=json.dumps(body).encode(),
                              headers={"Content-Type": "application/json"})
