@@ -123,7 +123,22 @@ usable yes/no, notes):
 
 | Run | Model | Output | Wall-clock | $ | Usable | Notes |
 |---|---|---|---|---|---|---|
-| | | | | | | |
+| K1 | FLUX.2-klein 4B 4-bit (text-to-image) | cats keyframe 1056×736 | 32 s | 0 | yes | trend look nailed on the first try |
+| K2 | FLUX.2-klein 4B, edit mode, 2 face refs + cat scene ref | couple keyframe | 120 s | 0 | no | strong likeness, but the scene ref leaked the cat's paws onto one person |
+| K3 | FLUX.2-klein 4B, edit mode, 2 face refs, scene in text | couple keyframe | 75 s | 0 | yes | human hands fixed; one likeness drifted. Identity holds but varies per re-roll |
+
+Local runtime findings (M3 Pro, 36 GB):
+- `mlx-serve pull` fetches only top-level files. Nested repos (FLUX
+  diffusers layout, the LTX pack's `gemma4-12b-ltx-v1/` text encoder) arrive
+  incomplete and fail with `FileNotFound`. Use
+  `scripts/video-spike/hf_fetch.py <repo>` to fill the gaps, then restart the
+  server (it indexes models at startup).
+- LTX-2.5 4-bit needs **25.6 GB resident, ~29.7 GB free to load**. The server
+  auto-caps at 80% of the GPU wired limit (22.5 GB here): pass
+  `--max-resident-mem 27GB` (a unit is required; a bare `27` parses as 0).
+  With everyday apps open (Chrome 6.7 GB, 9.8 GB already compressed) only
+  ~9 GB is free, so a 36 GB Mac must run LTX with most apps closed. A 48 GB+
+  Mac or a rented GPU removes this constraint.
 
 ## 6. Market and economics (2026-09-27)
 
