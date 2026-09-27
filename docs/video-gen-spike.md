@@ -129,6 +129,20 @@ usable yes/no, notes):
 | V1 | LTX-2.5 4-bit, text-to-video, one-stage, 8 steps | 4.0 s 704×480 + generated audio | 332 s | 0 | meme-grade | "cats" came out as people in cat masks; soft; composition jumps. Text-only prompting is the weak path |
 | V2 | LTX-2.5 4-bit, image-to-video from K3, one-stage, 8 steps | 4.0 s 704×480 + generated audio | 344 s | 0 | **yes (proof of concept)** | one coherent shot; both likenesses hold from the keyframe; mouths and gestures read as rapping. Soft, second half blurs |
 
+| S1 | FaceFusion 3.9.0 face swap (hyperswap_1b_256 + GFPGAN), 2 passes onto the real COLORS clip (10 s, 1080p) | 10 s + real song | 335 s + 301 s | 0 | no | real song and real motion fixed; likeness poor because only the inner face changes (hair, sunglasses, clothes, skin stay the performers') |
+
+**Bilal's verdict on V2 (2026-09-27):** visuals and audio "pretty decent";
+the failure is instruction-following: the faces don't match the references and
+the song was invented. Root causes: the song was never given to the model
+(LTX makes its own audio from the prompt), and identity drifted twice
+(keyframe re-draw, then video drift).
+
+**Lesson: the trend is character replacement, not generation.** Trend apps
+keep the real footage (motion, lighting, song) and replace the whole person.
+Face swap is too narrow (face only); text/image-to-video invents too much.
+The tool that matches is Wan 2.2 Animate "Replace" (open weights, 14B; fal.ai
+hosted $0.06/s at 720p ≈ $1.20 for 10 s with two passes).
+
 **Free-tier verdict so far:** ~83 s of M3 Pro time per second of video at
 480p, $0. Keyframe-first (image-to-video) is the path that works; the quality
 ceiling is "fun share", not "realistic". Both renders logged Metal
