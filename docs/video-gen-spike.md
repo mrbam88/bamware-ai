@@ -126,6 +126,14 @@ usable yes/no, notes):
 | K1 | FLUX.2-klein 4B 4-bit (text-to-image) | cats keyframe 1056×736 | 32 s | 0 | yes | trend look nailed on the first try |
 | K2 | FLUX.2-klein 4B, edit mode, 2 face refs + cat scene ref | couple keyframe | 120 s | 0 | no | strong likeness, but the scene ref leaked the cat's paws onto one person |
 | K3 | FLUX.2-klein 4B, edit mode, 2 face refs, scene in text | couple keyframe | 75 s | 0 | yes | human hands fixed; one likeness drifted. Identity holds but varies per re-roll |
+| V1 | LTX-2.5 4-bit, text-to-video, one-stage, 8 steps | 4.0 s 704×480 + generated audio | 332 s | 0 | meme-grade | "cats" came out as people in cat masks; soft; composition jumps. Text-only prompting is the weak path |
+| V2 | LTX-2.5 4-bit, image-to-video from K3, one-stage, 8 steps | 4.0 s 704×480 + generated audio | 344 s | 0 | **yes (proof of concept)** | one coherent shot; both likenesses hold from the keyframe; mouths and gestures read as rapping. Soft, second half blurs |
+
+**Free-tier verdict so far:** ~83 s of M3 Pro time per second of video at
+480p, $0. Keyframe-first (image-to-video) is the path that works; the quality
+ceiling is "fun share", not "realistic". Both renders logged Metal
+out-of-memory warnings at 36 GB even after a reboot (preflight skipped), and
+the blur may partly come from that.
 
 Local runtime findings (M3 Pro, 36 GB):
 - `mlx-serve pull` fetches only top-level files. Nested repos (FLUX
@@ -139,6 +147,11 @@ Local runtime findings (M3 Pro, 36 GB):
   With everyday apps open (Chrome 6.7 GB, 9.8 GB already compressed) only
   ~9 GB is free, so a 36 GB Mac must run LTX with most apps closed. A 48 GB+
   Mac or a rented GPU removes this constraint.
+- What worked: reboot, keep only light apps open (~20 GB reported free), then
+  `mlx-serve serve --host 127.0.0.1 --max-resident-mem 27GB --skip-mem-preflight`.
+  The preflight counts file cache as used; the load succeeded anyway.
+  Changing display resolution does not help meaningfully (framebuffers are a
+  few hundred MB).
 
 ## 6. Market and economics (2026-09-27)
 
