@@ -72,4 +72,4 @@ gotcha is in `docs/video-gen-spike.md`, and the business case is in
   `--max-resident-mem 27GB`.
 - `mlx-serve pull` skips subfolders: use `hf_fetch.py`.
 - Template references that work: the Amen and Godfather Reels (widescreen,
-  film look, natural scale). The Obama Short scales one person too big.
+  film look, natural scale). The Obama Short scales one person too big. The "Power" Reel re-grades the orange set to a moody amber to fit the show: the grade can carry a theme.
