@@ -19,7 +19,7 @@ for item in "$@"; do
       -preset slow -c:a aac -b:a 128k -movflags +faststart "$up"
   fi
   code=$(curl -s -o "$TMP/resp.json" -w '%{http_code}' \
-    -F "payload_json=$(jq -n --arg c "$caption" '{username: "Bamware", content: $c}')" \
+    --form-string "payload_json=$(jq -n --arg c "$caption" '{username: "Bamware", content: $c}')" \
     -F "files[0]=@$up" "$HOOK")
   printf '%s  %s  (%.1f MB)\n' "$code" "$(basename "$f")" "$(echo "$(stat -f%z "$up") / 1000000" | bc -l)"
   [[ "$code" == 20[04] ]] || head -c 300 "$TMP/resp.json"
