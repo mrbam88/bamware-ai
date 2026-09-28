@@ -16,6 +16,7 @@ Usage:
 import argparse
 import json
 import time
+import urllib.parse
 import urllib.request
 
 p = argparse.ArgumentParser()
@@ -33,6 +34,10 @@ p.add_argument("--prompt", default="a person performing a rap song in a studio")
 p.add_argument("--prefix", default="wan-animate")
 p.add_argument("--unet", default="Wan2.2-Animate-14B-Q4_K_M.gguf")
 p.add_argument("--port", type=int, default=8188)
+p.add_argument("--server", help="remote ComfyUI base URL (inputs are uploaded, output downloaded)")
+p.add_argument("--sam2-device", default="mps", help="mps (Mac, fp32) or cuda (fp16)")
+p.add_argument("--segments", help="chain windows for >77 frames, e.g. '77,25' (sum-overlap must cover --frames)")
+p.add_argument("--download", help="where to save the output when using --server")
 a = p.parse_args()
 
 W, H, N = a.width, a.height, a.frames
@@ -64,7 +69,8 @@ g = {
                                                   "retarget_padding": 16, "body_stick_width": -1,
                                                   "hand_stick_width": -1, "draw_head": True}},
     "7": {"class_type": "DownloadAndLoadSAM2Model", "inputs": {
-        "model": "sam2.1_hiera_base_plus.safetensors", "segmentor": "video", "device": "mps", "precision": "fp32"}},  # fp16 needs CUDA autocast
+        "model": "sam2.1_hiera_base_plus.safetensors", "segmentor": "video", "device": a.sam2_device,
+        "precision": "fp16" if a.sam2_device == "cuda" else "fp32"}},  # fp16 needs CUDA autocast
     "8": {"class_type": "Sam2Segmentation", "inputs": {"sam2_model": ["7", 0], "image": ["1", 0],
                                                        "keep_model_loaded": False, "bboxes": ["27", 3],
                                                        "individual_objects": False}},
@@ -99,7 +105,49 @@ g = {
                                                         "format": "video/h264-mp4", "pingpong": False, "save_output": True}},
 }
 
-base = f"http://127.0.0.1:{a.port}"
+if a.segments:
+    # Chain windows: each later window seeks via video_frame_offset and is primed with the last
+    # continue_motion_max_frames frames of the video so far; its first trim_image frames are dropped.
+    lens = [int(x) for x in a.segments.split(",")]
+    g["21"]["inputs"]["length"] = lens[0]
+    anim, accum = "21", ["24", 0]
+    for i, L in enumerate(lens[1:], start=1):
+        k = f"s{i}"
+        g[f"{k}a"] = {"class_type": "WanAnimateToVideo", "inputs": {
+            **g["21"]["inputs"], "length": L, "video_frame_offset": [anim, 5], "continue_motion": accum}}
+        g[f"{k}k"] = {"class_type": "KSampler", "inputs": {
+            **g["22"]["inputs"], "positive": [f"{k}a", 0], "negative": [f"{k}a", 1], "latent_image": [f"{k}a", 2]}}
+        g[f"{k}t"] = {"class_type": "TrimVideoLatent", "inputs": {"samples": [f"{k}k", 0], "trim_amount": [f"{k}a", 3]}}
+        g[f"{k}d"] = {"class_type": "VAEDecode", "inputs": {"samples": [f"{k}t", 0], "vae": ["20", 0]}}
+        g[f"{k}f"] = {"class_type": "ImageFromBatch", "inputs": {"image": [f"{k}d", 0], "batch_index": [f"{k}a", 4], "length": 4096}}
+        g[f"{k}c"] = {"class_type": "ImageBatch", "inputs": {"image1": accum, "image2": [f"{k}f", 0]}}
+        anim, accum = f"{k}a", [f"{k}c", 0]
+    g["25"]["inputs"]["images"] = accum
+
+base = a.server.rstrip("/") if a.server else f"http://127.0.0.1:{a.port}"
+
+
+def upload(path):
+    """Multipart POST to ComfyUI /upload/image (works for videos too); returns the stored name."""
+    import os
+    import uuid
+    b = uuid.uuid4().hex
+    data = open(path, "rb").read()
+    body = (f"--{b}\r\nContent-Disposition: form-data; name=\"overwrite\"\r\n\r\ntrue\r\n"
+            f"--{b}\r\nContent-Disposition: form-data; name=\"image\"; filename=\"{os.path.basename(path)}\"\r\n"
+            f"Content-Type: application/octet-stream\r\n\r\n").encode() + data + f"\r\n--{b}--\r\n".encode()
+    r = urllib.request.Request(f"{base}/upload/image", data=body,
+                               headers={"Content-Type": f"multipart/form-data; boundary={b}"})
+    return json.load(urllib.request.urlopen(r))["name"]
+
+
+if a.server:  # inputs are local paths; send them over and point the graph at the stored names
+    names = {}
+    for nid, key in (("1", "video"), ("2", "video"), ("26", "video"), ("3", "image")):
+        src = g[nid]["inputs"][key]
+        names.setdefault(src, upload(src))
+        g[nid]["inputs"][key] = names[src]
+
 req = urllib.request.Request(f"{base}/prompt", data=json.dumps({"prompt": g}).encode(),
                              headers={"Content-Type": "application/json"})
 try:
@@ -118,4 +166,10 @@ while True:
         print(json.dumps({"status": st.get("status_str"), "wall_s": round(time.time() - t0), "outputs": outs}))
         if st.get("status_str") != "success":
             print(json.dumps(st.get("messages", [])[-3:])[:2000])
+        elif a.download:
+            f = [f for o in h[pid]["outputs"].values() for f in o.get("gifs", []) if "audio" in f["filename"]] or \
+                [f for o in h[pid]["outputs"].values() for f in o.get("gifs", [])]
+            q = urllib.parse.urlencode({"filename": f[0]["filename"], "subfolder": f[0].get("subfolder", ""), "type": "output"})
+            urllib.request.urlretrieve(f"{base}/view?{q}", a.download)
+            print("downloaded", a.download)
         break
