@@ -141,6 +141,14 @@ and better lip sync, which is the selling point because the performers barely
 move. Vertical 9:16 can't hold both performers in the medium shots; square
 1:1 is the proposed final framing.
 
+| W4 | both together, square 640×640, 6 steps, two passes | 3.06 s | 3167 s + 2702 s | 0 | **no: all black** | 17-frame diagnostics at 640² with 4 and 6 steps were fine, so the full 49 × 640² job is over an MPS size limit that silently returns zeros. Keep pixels × frames ≤ the 480×832×49 that works: use 624² for square |
+
+Bilal on W3: her face "very accurate", but glitchier than his and the moves
+need to be smoother; she needs an older, more traditional outfit and "way
+more bling". Fix: a deck photo of her in a green kurta and red dupatta, with
+FLUX.2-klein edit adding gold chains, a pendant, bangles and earrings (face
+unchanged, 59 s, $0); 6 sampling steps instead of 4.
+
 Wan Animate on the M3 Pro, gotchas: SAM2 must run `fp32` on MPS (fp16 needs
 CUDA autocast); ONNX pose runs on CPU; the pose node takes the top detection
 per frame, so for two-person clips feed it a copy with the other person
