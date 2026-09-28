@@ -133,7 +133,8 @@ usable yes/no, notes):
 
 | W1 | Wan 2.2 Animate 14B Q4_K_M GGUF, Replace mode, ComfyUI on MPS, lightx2v 4-step + relight LoRAs; 4K official COLORS master (0:12–0:36) downscaled to 832×480 | 3.06 s (49 f @ 16 fps) + real song, left performer only | 1801 s (~6.5 min per step) | 0 | **yes, big step up** | whole person replaced (cap, sunglasses, moustache, shirt), lighting matched, no face/hair blend; other performer untouched |
 
-| W2 | same, per Bilal's W1 notes: no-cap reference, vertical 480×832 crop (face ~2x larger), face crops tracked from a 1080×1920 copy | 3.06 s + real song | 1966 s | 0 | pending Bilal | face and glasses clearly visible; mouth shapes change with the performer's |
+| W2 | same, per Bilal's W1 notes: no-cap reference, vertical 480×832 crop (face ~2x larger), face crops tracked from a 1080×1920 copy | 3.06 s + real song | 1966 s | 0 | **yes: "really amazing, lip syncing is really good"** | face and glasses clearly visible; mouth shapes change with the performer's |
+| W3 | W2 recipe on the right performer, her kitchen photo as reference | 3.06 s + real song | 1921 s | 0 | pending Bilal | glasses, tied-back hair, outfit from her photo; gestures follow the performer |
 
 Bilal on W1: "really good, I'm impressed." Asked for: no cap (see the face),
 and better lip sync, which is the selling point because the performers barely
