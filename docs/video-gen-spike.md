@@ -261,10 +261,15 @@ Expect a profitable niche, not venture scale.
 
 ## 8. Verdict
 
-**WAIT.** Flips to **GO** on a product spike if the free local pipeline produces
-a usable ~10 s clip in under ~15 minutes on the M3 Pro, and one vertical from
-§6 has a buyer Bilal can reach directly. **NO-GO** on any consumer
-generic-generator app regardless.
+**Tech: GO.** Kling v3 Pro Motion Control with face lock, plus our
+shared-frame composite, gives a realistic, lip-synced two-person trend clip at
+~$0.34 per second of two-person video. Free local (Wan Animate on the M3) proves
+the method but is too slow and low-res to sell. Hosted Wan on fal.ai lacked the
+control inputs.
+
+**Business: WAIT → GO on trigger**, as personalized family trend videos sold
+per video: `docs/family-video-prd.md`. GO = 10 paid orders within 14 days of
+a landing page. **NO-GO** on a generic consumer generator app regardless.
 
 ## Sources
 
