@@ -13,9 +13,9 @@ BOOT=https://raw.githubusercontent.com/mrbam88/bamware-ai/spike/video-gen/script
 body=$(python3 - "$BOOT" "$MAX_MIN" <<'PY'
 import json, sys
 print(json.dumps({
-  "name": "bamware-video-spike", "imageName": "nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04",
+  "name": "bamware-video-spike", "imageName": "runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04",
   "gpuTypeIds": ["NVIDIA H100 80GB HBM3", "NVIDIA H100 NVL", "NVIDIA H100 PCIe", "NVIDIA A100-SXM4-80GB", "NVIDIA A100 80GB PCIe"],
-  "gpuCount": 1, "cloudType": "COMMUNITY", "containerDiskInGb": 120, "volumeInGb": 0, "ports": ["8188/http"],
+  "gpuCount": 1, "cloudType": "SECURE", "containerDiskInGb": 120, "volumeInGb": 0, "ports": ["8188/http"],
   "env": {"MAX_MIN": sys.argv[2]},
   "dockerStartCmd": ["bash", "-c", f"apt-get update -qq && apt-get install -y -qq curl >/dev/null; curl -sL {sys.argv[1]} | bash"]}))
 PY
