@@ -22,6 +22,8 @@ MANIFEST='
 /bamware/venue-engine/fsq-hf-token           | venue-engine Foursquare OS Places ingest | env FSQ_HF_TOKEN at ingest time (scripts/fsq-token.sh)
 /bamware/shared/asc-key-id                   | App Store Connect API key id             | scripts/asc-key.sh (key file in ~/.appstoreconnect/private_keys)
 /bamware/venue-engine/admin-key              | venue-engine moderation                | Vercel ADMIN_KEY
+/bamware/video-spike/fal-key                 | video spike paid renders (fal.ai)      | read at run time (scripts/video-spike/keys.sh fills it)
+/bamware/video-spike/runpod-api-key          | video spike self-hosted GPU (RunPod)   | read at run time (scripts/video-spike/keys.sh fills it)
 '
 printf '%-46s %-8s %s\n' "KEY (vault path)" "STATUS" "CONSUMER → DELIVERY"
 echo "$MANIFEST" | sed '/^\s*$/d' | while IFS='|' read -r path consumer delivery; do
