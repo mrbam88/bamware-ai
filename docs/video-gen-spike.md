@@ -155,6 +155,8 @@ unchanged, 59 s, $0); 6 sampling steps instead of 4.
 
 | K1 | Kling v3 Pro Motion Control on fal (`fal-ai/kling-video/v3/pro/motion-control`), image = his half of the W5 frame, video = 6 s vertical 1080×1920 25 fps crop of the left performer | 6.0 s, **1072×1936 @ 30 fps** + real song | **167 s** | ~1.01 | pending Bilal | clear quality jump: sharp face, glasses, moustache, natural lip shapes. Rejects any clip with two people ("No complete upper body detected"), so it is one person per run |
 
+| R1/R2 | RunPod self-host (A100 community, then H100 secure) via `scripts/video-spike/runpod_run.sh` | nothing | 25 + 21 min | ~1.47 | **no: never rendered** | community pod never started its container; the secure pod ran but sat at 0% CPU, so the start-command bootstrap most likely never executed (REST `dockerStartCmd` apparently ignored). Both pods were deleted. Next attempt: a RunPod ComfyUI template or an SSH-driven setup, with logs visible |
+
 How the trend apps do it (2026-09-28): a strong image of the people in the
 scene, plus **Kling Motion Control** (image + trend clip, audio kept) at
 $0.07–0.17/s, templated per trend, then upscaled and converted to 24–30 fps.
