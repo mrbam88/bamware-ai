@@ -25,6 +25,8 @@ p.add_argument("--ref", required=True)
 p.add_argument("--frames", type=int, default=49, help="4k+1")
 p.add_argument("--width", type=int, default=832)
 p.add_argument("--height", type=int, default=480)
+p.add_argument("--pose-width", type=int, help="track pose/face on a sharper copy (face crops come from it)")
+p.add_argument("--pose-height", type=int)
 p.add_argument("--steps", type=int, default=4)
 p.add_argument("--seed", type=int, default=42)
 p.add_argument("--prompt", default="a person performing a rap song in a studio")
@@ -36,27 +38,35 @@ a = p.parse_args()
 W, H, N = a.width, a.height, a.frames
 
 
-def load_video(name):
+PW, PH = a.pose_width or W, a.pose_height or H
+
+
+def load_video(name, w=W, h=H):
     return {"class_type": "VHS_LoadVideo", "inputs": {
-        "video": name, "force_rate": 16, "custom_width": W, "custom_height": H,
+        "video": name, "force_rate": 16, "custom_width": w, "custom_height": h,
         "frame_load_cap": N, "skip_first_frames": 0, "select_every_nth": 1, "format": "AnimateDiff"}}
 
 
 g = {
     "1": load_video(a.video),
-    "2": load_video(a.pose_video or a.video),
+    "2": load_video(a.pose_video or a.video, PW, PH),
+    # bboxes for SAM2 must be in render-resolution pixels, so detect again at W x H
+    "26": load_video(a.pose_video or a.video),
     "3": {"class_type": "LoadImage", "inputs": {"image": a.ref}},
     "4": {"class_type": "OnnxDetectionModelLoader", "inputs": {
         "vitpose_model": "vitpose-l-wholebody.onnx", "yolo_model": "yolov10m.onnx",
         "onnx_device": "CPUExecutionProvider"}},
     "5": {"class_type": "PoseAndFaceDetection", "inputs": {"model": ["4", 0], "images": ["2", 0], "width": W, "height": H}},
-    "6": {"class_type": "DrawViTPose", "inputs": {"pose_data": ["5", 0], "width": W, "height": H,
+    "27": {"class_type": "PoseAndFaceDetection", "inputs": {"model": ["4", 0], "images": ["26", 0], "width": W, "height": H}},
+    # pose keypoints are drawn in source pixels (no rescale), so draw from the W x H detection;
+    # node 5 (sharper copy) only supplies the face crops that drive expression and lip sync
+    "6": {"class_type": "DrawViTPose", "inputs": {"pose_data": ["27", 0], "width": W, "height": H,
                                                   "retarget_padding": 16, "body_stick_width": -1,
                                                   "hand_stick_width": -1, "draw_head": True}},
     "7": {"class_type": "DownloadAndLoadSAM2Model", "inputs": {
         "model": "sam2.1_hiera_base_plus.safetensors", "segmentor": "video", "device": "mps", "precision": "fp32"}},  # fp16 needs CUDA autocast
     "8": {"class_type": "Sam2Segmentation", "inputs": {"sam2_model": ["7", 0], "image": ["1", 0],
-                                                       "keep_model_loaded": False, "bboxes": ["5", 3],
+                                                       "keep_model_loaded": False, "bboxes": ["27", 3],
                                                        "individual_objects": False}},
     "9": {"class_type": "GrowMaskWithBlur", "inputs": {"mask": ["8", 0], "expand": 10, "incremental_expandrate": 0,
                                                        "tapered_corners": True, "flip_input": False, "blur_radius": 0,

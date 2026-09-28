@@ -133,6 +133,13 @@ usable yes/no, notes):
 
 | W1 | Wan 2.2 Animate 14B Q4_K_M GGUF, Replace mode, ComfyUI on MPS, lightx2v 4-step + relight LoRAs; 4K official COLORS master (0:12–0:36) downscaled to 832×480 | 3.06 s (49 f @ 16 fps) + real song, left performer only | 1801 s (~6.5 min per step) | 0 | **yes, big step up** | whole person replaced (cap, sunglasses, moustache, shirt), lighting matched, no face/hair blend; other performer untouched |
 
+| W2 | same, per Bilal's W1 notes: no-cap reference, vertical 480×832 crop (face ~2x larger), face crops tracked from a 1080×1920 copy | 3.06 s + real song | 1966 s | 0 | pending Bilal | face and glasses clearly visible; mouth shapes change with the performer's |
+
+Bilal on W1: "really good, I'm impressed." Asked for: no cap (see the face),
+and better lip sync, which is the selling point because the performers barely
+move. Vertical 9:16 can't hold both performers in the medium shots; square
+1:1 is the proposed final framing.
+
 Wan Animate on the M3 Pro, gotchas: SAM2 must run `fp32` on MPS (fp16 needs
 CUDA autocast); ONNX pose runs on CPU; the pose node takes the top detection
 per frame, so for two-person clips feed it a copy with the other person
