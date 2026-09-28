@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""Height-true shared frame: scale and place two cut-out people by their real heights.
+
+Kling renders each person to fill their own frame, so their sizes are unrelated. This measures each
+person's head (from the cached rembg masks, per camera shot), keeps the LEFT person as the anchor,
+and scales/places the RIGHT person so head sizes are consistent and the height difference matches
+real life (default 6'0" vs 5'4"). Frames are composited in Python over per-shot plates, then encoded
+with the source audio. Free, local.
+
+Usage:
+  composite_scaled.py LEFT.mp4 RIGHT.mp4 "p1.png@0,p2.png@4.04,p3.png@7.36" AUDIO.mp4 OUT.mp4 \
+      [--left-cm 183 --right-cm 163] [--h 1936]
+Masks must exist at LEFT.mp4.masks/ and RIGHT.mp4.masks/ (made by composite_pair.sh).
+"""
+import argparse
+import json
+import subprocess
+import tempfile
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+
+p = argparse.ArgumentParser()
+p.add_argument("left")
+p.add_argument("right")
+p.add_argument("bg")
+p.add_argument("audio")
+p.add_argument("out")
+p.add_argument("--left-cm", type=float, default=183)   # 6'0"
+p.add_argument("--right-cm", type=float, default=163)  # 5'4"
+p.add_argument("--head-ratio", type=float, default=0.95, help="right head size / left head size")
+p.add_argument("--h", type=int, default=1936)
+p.add_argument("--fps", type=int, default=30)
+a = p.parse_args()
+
+H = a.h
+s0 = H / 2160
+CW = int(round(1858 * s0 / 2)) * 2
+PW = int(round(1215 * s0 / 2)) * 2
+RX0 = int(round((1800 - 1157) * s0))
+
+tmp = Path(tempfile.mkdtemp())
+
+
+def frames(clip, name):
+    d = tmp / name
+    d.mkdir()
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", clip, "-vf", f"fps={a.fps},scale={PW}:{H}",
+                    str(d / "%04d.png")], check=True)
+    return sorted(d.glob("*.png"))
+
+
+def head_metrics(mask):
+    """(top_y, head_h, head_cx) in full-res pixels from a mask, or None."""
+    m = np.asarray(mask.resize((PW, H))) > 128
+    rows = np.where(m.sum(1) > 60)[0]  # ignore thin things (mic, cable, stray hands)
+    if len(rows) == 0:
+        return None
+    top = rows[0]
+    widths = m[top:top + int(0.45 * H)].sum(1)
+    w0 = np.median(widths[15:45]) if len(widths) > 45 else widths.max()
+    below = np.where(widths[45:] > 1.7 * max(w0, 1))[0]
+    chin = (below[0] + 45) if len(below) else int(0.12 * H)
+    cols = np.where(m[top:top + chin].any(0))[0]
+    return top, chin, (cols.min() + cols.max()) / 2 if len(cols) else PW / 2
+
+
+# shots from the bg spec
+parts = [(x.split("@")[0], float(x.split("@")[1])) for x in a.bg.split(",")]
+plates = [Image.open(pl).convert("RGB").resize((CW, H), Image.LANCZOS) for pl, _ in parts]
+starts = [t for _, t in parts]
+
+Lf, Rf = frames(a.left, "l"), frames(a.right, "r")
+n = min(len(Lf), len(Rf))
+Lm = sorted(Path(a.left + ".masks").glob("*.png"))
+Rm = sorted(Path(a.right + ".masks").glob("*.png"))
+
+
+def shot_of(i):
+    t = i / a.fps
+    return max(k for k, s in enumerate(starts) if t >= s)
+
+
+# per-shot medians of head metrics
+stats = {}
+for k in range(len(parts)):
+    idx = [i for i in range(n) if shot_of(i) == k][::3]
+    L = [head_metrics(Image.open(Lm[i]).convert("L")) for i in idx]
+    R = [head_metrics(Image.open(Rm[i]).convert("L")) for i in idx]
+    L = np.array([x for x in L if x]); R = np.array([x for x in R if x])
+    stats[k] = {"l_top": float(np.median(L[:, 0])), "l_hh": float(np.median(L[:, 1])),
+                "r_top": float(np.median(R[:, 0])), "r_hh": float(np.median(R[:, 1])),
+                "r_cx": float(np.median(R[:, 2]))}
+    st = stats[k]
+    # r = right/left scale so head sizes are consistent
+    r = a.head_ratio * st["l_hh"] / st["r_hh"]
+    # real height gap in the left person's head units (adult head ~1/7.5 of body height)
+    g = (a.left_cm - a.right_cm) / (a.left_cm / 7.5) * st["l_hh"]
+    T = st["l_top"]  # keep the left person's headroom
+    # smallest left scale sL such that BOTH layers still reach the bottom edge (no floating bodies):
+    #   left:  T - sL*l_top + sL*H >= H        right: T + g*sL - r*sL*r_top + r*sL*H >= H
+    sL = max(1.0, (H - T) / (H - st["l_top"]), (H - T) / (g + r * (H - st["r_top"])))
+    st["ls"], st["rs"] = sL, r * sL
+    st["ly"] = T - sL * st["l_top"]
+    st["ry"] = T + g * sL - st["rs"] * st["r_top"]
+    st["lx"] = PW / 2 - sL * PW / 2  # scale the left person about their own centre
+    st["rx"] = RX0 + st["r_cx"] - st["rs"] * st["r_cx"]  # keep her head centre in place
+    st["l_bottom_gap"] = H - (st["ly"] + sL * H)
+    st["r_bottom_gap"] = H - (st["ry"] + st["rs"] * H)
+# a turned head (back of the head) under-measures, which blows the scale up: clamp each shot's
+# right/left scale ratio to +/-15% of the median across shots and re-solve that shot
+ratios = [s["rs"] / s["ls"] for s in stats.values()]
+med = float(np.median(ratios))
+for k, st in stats.items():
+    r = st["rs"] / st["ls"]
+    if abs(r / med - 1) > 0.15:
+        r = min(max(r, med * 0.85), med * 1.15)
+        g = (a.left_cm - a.right_cm) / (a.left_cm / 7.5) * st["l_hh"]
+        T = st["l_top"]
+        sL = max(1.0, (H - T) / (g + r * (H - st["r_top"])))
+        st.update(ls=sL, rs=r * sL, ly=T - sL * st["l_top"], ry=T + g * sL - r * sL * st["r_top"],
+                  lx=PW / 2 - sL * PW / 2, rx=RX0 + st["r_cx"] - r * sL * st["r_cx"], clamped=1.0)
+        st["r_bottom_gap"] = H - (st["ry"] + st["rs"] * H)
+print(json.dumps({k: {kk: round(v, 2) for kk, v in s.items()} for k, s in stats.items()}, indent=1))
+
+out = tmp / "o"
+out.mkdir()
+for i in range(n):
+    st = stats[shot_of(i)]
+    canvas = plates[shot_of(i)].copy()
+    lc = Image.open(Lf[i]).convert("RGB"); lm = Image.open(Lm[i]).convert("L").resize((PW, H))
+    lw, lh = int(PW * st["ls"]), int(H * st["ls"])
+    lc, lm = lc.resize((lw, lh), Image.LANCZOS), lm.resize((lw, lh), Image.LANCZOS)
+    canvas.paste(lc, (int(st["lx"]), int(st["ly"])), lm)
+    rc = Image.open(Rf[i]).convert("RGB"); rm = Image.open(Rm[i]).convert("L").resize((PW, H))
+    sw, sh = int(PW * st["rs"]), int(H * st["rs"])
+    rc, rm = rc.resize((sw, sh), Image.LANCZOS), rm.resize((sw, sh), Image.LANCZOS)
+    canvas.paste(rc, (int(st["rx"]), int(st["ry"])), rm)
+    canvas.save(out / f"{i:04d}.png")
+
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(a.fps), "-i", str(out / "%04d.png"), "-i", a.audio,
+                "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-crf", "16", "-preset", "slow", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", "-shortest", a.out], check=True)
+subprocess.run(["rm", "-rf", str(tmp)])
+print("wrote", a.out)
