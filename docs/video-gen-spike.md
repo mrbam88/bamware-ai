@@ -184,6 +184,12 @@ scene, plus **Kling Motion Control** (image + trend clip, audio kept) at
 $0.07–0.17/s, templated per trend, then upscaled and converted to 24–30 fps.
 COGS is ~$0.50–1 per clip against $5–10/week subscriptions.
 
+Film grade (Bilal: keep it on):
+
+```
+ffmpeg -i IN.mp4 -vf "eq=contrast=1.06:saturation=0.9:gamma=0.97,colorbalance=rs=0.05:gs=0.01:bs=-0.05:rm=0.03:bm=-0.03,curves=preset=medium_contrast,noise=alls=7:allf=t,vignette=PI/5" -c:v libx264 -crf 17 -preset slow -c:a copy OUT.mp4
+```
+
 **Rule: preview before any long render.** Any new size, step count or
 framing gets a 17-frame preview (~5–10 min) before the full 49-frame run
 (~30–50 min per pass). The W4 black output cost 1.5 hours that a preview

@@ -8,6 +8,19 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-28 — Video spike: first viable clip; recipe saved as a skill
+
+- Bilal called the 10 s Hotel Lobby clip of an older couple "the first viable
+  video": Kling v3 Pro Motion Control per person (sync), a face lock from the
+  curated album, and height-true widescreen stitching over per-shot plates,
+  plus a film grade. Kling O1 one-pass gave the best faces but loose sync.
+- **Recipe: `skills/trend-video`** (tool routing, steps, gotchas). Results
+  log: `docs/video-gen-spike.md`. Business: `docs/family-video-prd.md` + the
+  market/Apple-policy pass (`docs/family-video-market.md`): web-only keepsake
+  studio first, GO at 10 paid orders in 14 days. Possible new Bamware app.
+- **Iterating on the first 10 s only** until Bilal says done (don't push the
+  full clip). Spend ~$15.40 of $20. Draft PR #58.
+
 ## 2026-09-27 — New spike: AI video generation (#57)
 
 - Bilal launched a hands-on spike: cost per second, quality, market

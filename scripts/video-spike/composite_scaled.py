@@ -32,13 +32,17 @@ p.add_argument("--right-cm", type=float, default=163)  # 5'4"
 p.add_argument("--head-ratio", type=float, default=0.95, help="right head size / left head size")
 p.add_argument("--h", type=int, default=1936)
 p.add_argument("--fps", type=int, default=30)
+p.add_argument("--canvas-x0", type=float, default=1157, help="canvas left edge in master px (0 = full widescreen)")
+p.add_argument("--canvas-w", type=float, default=1858, help="canvas width in master px (3840 = full widescreen)")
+p.add_argument("--space", type=float, default=0, help="extra gap: move the right person right by this many master px")
 a = p.parse_args()
 
 H = a.h
 s0 = H / 2160
-CW = int(round(1858 * s0 / 2)) * 2
+CW = int(round(a.canvas_w * s0 / 2)) * 2
 PW = int(round(1215 * s0 / 2)) * 2
-RX0 = int(round((1800 - 1157) * s0))
+LX0 = (1157 - a.canvas_x0) * s0
+RX0 = int(round((1800 - a.canvas_x0 + a.space) * s0))
 
 tmp = Path(tempfile.mkdtemp())
 
@@ -73,8 +77,21 @@ starts = [t for _, t in parts]
 
 Lf, Rf = frames(a.left, "l"), frames(a.right, "r")
 n = min(len(Lf), len(Rf))
-Lm = sorted(Path(a.left + ".masks").glob("*.png"))
-Rm = sorted(Path(a.right + ".masks").glob("*.png"))
+def ensure_masks(clip, fr):
+    d = Path(clip + ".masks")
+    if d.exists() and len(list(d.glob("*.png"))) >= len(fr):
+        return sorted(d.glob("*.png"))
+    d.mkdir(exist_ok=True)
+    half = tmp / (Path(clip).stem + "-half"); half.mkdir()
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", clip, "-vf", f"fps={a.fps},scale={PW // 2}:{H // 2}",
+                    str(half / "%04d.png")], check=True)
+    subprocess.run([str(Path.home() / "tools/rembgenv/bin/rembg"), "p", "-om", "-m", "birefnet-general-lite",
+                    str(half), str(d)], check=True, capture_output=True)
+    return sorted(d.glob("*.png"))
+
+
+Lm = ensure_masks(a.left, Lf)
+Rm = ensure_masks(a.right, Rf)
 
 
 def shot_of(i):
@@ -104,7 +121,7 @@ for k in range(len(parts)):
     st["ls"], st["rs"] = sL, r * sL
     st["ly"] = T - sL * st["l_top"]
     st["ry"] = T + g * sL - st["rs"] * st["r_top"]
-    st["lx"] = PW / 2 - sL * PW / 2  # scale the left person about their own centre
+    st["lx"] = LX0 + PW / 2 - sL * PW / 2  # scale the left person about their own centre
     st["rx"] = RX0 + st["r_cx"] - st["rs"] * st["r_cx"]  # keep her head centre in place
     st["l_bottom_gap"] = H - (st["ly"] + sL * H)
     st["r_bottom_gap"] = H - (st["ry"] + st["rs"] * H)
@@ -120,7 +137,7 @@ for k, st in stats.items():
         T = st["l_top"]
         sL = max(1.0, (H - T) / (g + r * (H - st["r_top"])))
         st.update(ls=sL, rs=r * sL, ly=T - sL * st["l_top"], ry=T + g * sL - r * sL * st["r_top"],
-                  lx=PW / 2 - sL * PW / 2, rx=RX0 + st["r_cx"] - r * sL * st["r_cx"], clamped=1.0)
+                  lx=LX0 + PW / 2 - sL * PW / 2, rx=RX0 + st["r_cx"] - r * sL * st["r_cx"], clamped=1.0)
         st["r_bottom_gap"] = H - (st["ry"] + st["rs"] * H)
 print(json.dumps({k: {kk: round(v, 2) for kk, v in s.items()} for k, s in stats.items()}, indent=1))
 
