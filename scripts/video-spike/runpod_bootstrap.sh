@@ -26,7 +26,7 @@ uv pip install -q onnxruntime
 get() {  # repo path subdir
   mkdir -p "$C/models/$3"; curl -sfL -o "$C/models/$3/$(basename "$2")" "https://huggingface.co/$1/resolve/main/$2"
 }
-get QuantStack/Wan2.2-Animate-14B-GGUF Wan2.2-Animate-14B-Q8_0.gguf unet &
+get QuantStack/Wan2.2-Animate-14B-GGUF "${UNET:-Wan2.2-Animate-14B-Q8_0.gguf}" unet &
 get city96/umt5-xxl-encoder-gguf umt5-xxl-encoder-Q8_0.gguf text_encoders &
 get Comfy-Org/Wan_2.1_ComfyUI_repackaged split_files/clip_vision/clip_vision_h.safetensors clip_vision &
 get Comfy-Org/Wan_2.1_ComfyUI_repackaged split_files/vae/wan_2.1_vae.safetensors vae &
