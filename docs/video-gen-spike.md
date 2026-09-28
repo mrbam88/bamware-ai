@@ -131,6 +131,14 @@ usable yes/no, notes):
 
 | S1 | FaceFusion 3.9.0 face swap (hyperswap_1b_256 + GFPGAN), 2 passes onto the real COLORS clip (10 s, 1080p) | 10 s + real song | 335 s + 301 s | 0 | no | real song and real motion fixed; likeness poor because only the inner face changes (hair, sunglasses, clothes, skin stay the performers') |
 
+| W1 | Wan 2.2 Animate 14B Q4_K_M GGUF, Replace mode, ComfyUI on MPS, lightx2v 4-step + relight LoRAs; 4K official COLORS master (0:12–0:36) downscaled to 832×480 | 3.06 s (49 f @ 16 fps) + real song, left performer only | 1801 s (~6.5 min per step) | 0 | **yes, big step up** | whole person replaced (cap, sunglasses, moustache, shirt), lighting matched, no face/hair blend; other performer untouched |
+
+Wan Animate on the M3 Pro, gotchas: SAM2 must run `fp32` on MPS (fp16 needs
+CUDA autocast); ONNX pose runs on CPU; the pose node takes the top detection
+per frame, so for two-person clips feed it a copy with the other person
+blacked out (`--pose-video`). Script: `scripts/video-spike/wan_animate_replace.py`.
+~10 min of M3 Pro time per second of 480p video.
+
 **Bilal's verdict on V2 (2026-09-27):** visuals and audio "pretty decent";
 the failure is instruction-following: the faces don't match the references and
 the song was invented. Root causes: the song was never given to the model
