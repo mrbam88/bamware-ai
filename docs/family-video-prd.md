@@ -3,6 +3,26 @@
 Status: **WAIT → GO on trigger** (2026-09-28). Owner: Bilal. Spike: #57,
 evidence in `docs/video-gen-spike.md`.
 
+## Update 2026-09-28 (after the market pass: `docs/family-video-market.md`)
+
+- **Saturated as a trend app.** 9+ apps sell the Hotel Lobby clip right now
+  at $4.99–6.99 a clip, and the top indie seller runs on the same Kling Motion
+  Control. The tech is not a moat.
+- **The gap is likeness.** The top 1–2★ complaint after the paywall is
+  "doesn't look like us". Nobody found sells a done-for-you, checked video of
+  your *living* parents.
+- **The blocker is rights, not competition.** The Hotel Lobby song, the COLORS
+  footage and the late performer's voice are unlicensed for commercial use.
+  CapCut music is non-commercial.
+- **Apple (guidelines of 2026-06-08):** 4.3(b) spam is the likely rejection;
+  5.2.1 blocks unlicensed songs and footage; 5.1.2(i) needs explicit opt-in
+  naming the third-party AI (Kling), including the parents' consent.
+- **Revised plan:** web-only concierge keepsake studio at $19.99–29.99 with a
+  "looks like them or we redo it" guarantee. Move to occasion formats
+  (birthday, anniversary, Eid, holidays) with **our own driving footage and
+  cleared music**, and consider a $49–99 wedding/event tier. **No iOS app
+  until one of these sells.** The GO trigger below stands.
+
 ## One line
 
 People send photos of the people they love (parents, grandparents, a couple
