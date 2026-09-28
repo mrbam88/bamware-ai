@@ -151,6 +151,8 @@ unchanged, 59 s, $0); 6 sampling steps instead of 4.
 
 | W5 | both together, square 624×624, 6 steps, two passes (pass-1 black check) | 3.06 s + real song | 2582 s + 2537 s (~85 min) | 0 | pending Bilal | both recognizable in one frame; her green kurta, red dupatta and gold bling carry through; mouths move with the lyrics |
 
+| F1 | fal.ai `fal-ai/wan/v2.2-14b/animate/replace`, 720p, 20 steps, two passes via split-and-composite (half blacked out) | 6.0 s, 1440² out + real song | 1362 s | ~0.72 | **no: Bilal "not good at all… kind of worse" than the M3** | fal picks the person itself and exposes no pose/face/mask inputs; the blacked half bled a dark seam and his likeness took the rapper's hair shape. Lesson: a hosted endpoint without control inputs loses to our own pipeline even at higher res |
+
 **Rule: preview before any long render.** Any new size, step count or
 framing gets a 17-frame preview (~5–10 min) before the full 49-frame run
 (~30–50 min per pass). The W4 black output cost 1.5 hours that a preview
