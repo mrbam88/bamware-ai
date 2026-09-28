@@ -199,6 +199,16 @@ fal.ai unless noted; not yet tested; Kling is the only one with a face-lock slot
 
 A 5 s single-person bake-off of the first four costs ~$1.20.
 
+**Hugging Face Spaces test (2026-09-28): not usable anonymously.** The only
+Space found running the official Wan Animate 2 weights
+(`brnawy2/Wan_Animate_2_motion_transfer_V2V`, ZeroGPU, loads
+`Comfy-Org/Wan-Animate-2`) always requests 225 s of GPU. That is over the
+anonymous ZeroGPU cap even for a 1.5 s 360p clip, and its upload endpoint
+returned 502s. The popular `alexnasa/Wan2.2-Animate-ZEROGPU` runs Animate 1.
+Next path, if wanted: a logged-in HF Pro account ($9/month) or the same
+weights on the rented GPU. Test subjects were public-domain official
+portraits of two public figures, a private parody test, never published.
+
 Film grade (Bilal: keep it on):
 
 ```
