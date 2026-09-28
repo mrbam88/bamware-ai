@@ -184,6 +184,21 @@ scene, plus **Kling Motion Control** (image + trend clip, audio kept) at
 $0.07–0.17/s, templated per trend, then upscaled and converted to 24–30 fps.
 COGS is ~$0.50–1 per clip against $5–10/week subscriptions.
 
+**Cheaper motion-transfer candidates** (image + driving video, 2026-09-28,
+fal.ai unless noted; not yet tested; Kling is the only one with a face-lock slot):
+
+| Endpoint | $/s | Notes |
+|---|---|---|
+| `fal-ai/bytedance/dreamactor/v2` | 0.05 | motion, expressions and lip movement; ≤30 s driving clip |
+| Runway Act-Two (Runway API) | 0.05 | extra vendor; limits unverified |
+| `fal-ai/kling-video/v2.6/standard/motion-control` | 0.07 | same API as v3 Pro, has `elements` |
+| `fal-ai/wan/v2.2-14b/animate/move` | 0.04–0.08 | 480p/580p/720p |
+| `fal-ai/wan-motion` | 0.06 | +$0.08 with `enhance_identity` |
+| `bytedance/seedance-2.5/reference-to-video` | 0.13–0.28 | multimodal refs; may re-synthesize audio |
+| `minimax/h3/reference-to-video` | 0.05–0.16 | enterprise-gated |
+
+A 5 s single-person bake-off of the first four costs ~$1.20.
+
 Film grade (Bilal: keep it on):
 
 ```
