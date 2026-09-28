@@ -161,6 +161,16 @@ unchanged, 59 s, $0); 6 sampling steps instead of 4.
 | K5 | v4 height-true composite (`composite_scaled.py`): per-shot head metrics from cached masks; her scale ~0.87–0.91× and set ~0.8 head-heights lower (6'0" vs 5'4"); solver keeps both bodies touching the bottom edge; ±15% clamp for turned heads | 10 s + real song | ~3 min | 0 | pending Bilal | he now reads clearly taller; no floating bodies |
 | O1 | **Kling O1 video edit, ONE pass, two people** (`fal_kling_o1_edit.py`): 4:3 crop of the original 3–13 s, two face-lock elements plus her outfit image, prompt states the heights | 10 s, 1660×1244 @ 24 fps + real song | 354 s | ~1.68 | pending Bilal | one consistent scene (lighting, mic, camera kept, no seams) at half the per-person cost; **height prompt ignored** (keeps the source bodies' proportions); his outfit drifted to a face-lock photo's sweater vest. A film-grade variant (eq/colorbalance/grain/vignette) was also posted |
 
+**Bilal on O1:** likeness a "huge difference", with him "identical… almost
+shocking" and her almost there but too young (she is 66, he is 71). But the lip
+sync and beat got worse than with Motion Control. The O1 picture's cuts landed
+1.87 s early (2.17/5.50 s vs 4.04/7.36 s); re-laying the song
+(`resync_audio.sh`, `cut_offset.py`) did not fix it ("he is way out of sync
+with the mic"). **Conclusion:** O1 re-imagines the performance; Motion Control
+copies the mouth and motion frame by frame. Use O1 for likeness, Motion Control
+for sync. The height-true O1 iteration was stopped before spending
+(`height_true_driver.py` kept for later).
+
 Reference Reels studied (2026-09-28): the Obama Short (keeps the full widescreen
 original, wide shots included; flaw: she is scaled too big), a Lakers Reel
 (4:3, one-pass look, clean), a Godfather Reel (film grade, themed wardrobe, own
