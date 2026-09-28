@@ -149,6 +149,8 @@ more bling". Fix: a deck photo of her in a green kurta and red dupatta, with
 FLUX.2-klein edit adding gold chains, a pendant, bangles and earrings (face
 unchanged, 59 s, $0); 6 sampling steps instead of 4.
 
+| W5 | both together, square 624×624, 6 steps, two passes (pass-1 black check) | 3.06 s + real song | 2582 s + 2537 s (~85 min) | 0 | pending Bilal | both recognizable in one frame; her green kurta, red dupatta and gold bling carry through; mouths move with the lyrics |
+
 **Rule: preview before any long render.** Any new size, step count or
 framing gets a 17-frame preview (~5–10 min) before the full 49-frame run
 (~30–50 min per pass). The W4 black output cost 1.5 hours that a preview
