@@ -153,6 +153,13 @@ unchanged, 59 s, $0); 6 sampling steps instead of 4.
 
 | F1 | fal.ai `fal-ai/wan/v2.2-14b/animate/replace`, 720p, 20 steps, two passes via split-and-composite (half blacked out) | 6.0 s, 1440² out + real song | 1362 s | ~0.72 | **no: Bilal "not good at all… kind of worse" than the M3** | fal picks the person itself and exposes no pose/face/mask inputs; the blacked half bled a dark seam and his likeness took the rapper's hair shape. Lesson: a hosted endpoint without control inputs loses to our own pipeline even at higher res |
 
+| K1 | Kling v3 Pro Motion Control on fal (`fal-ai/kling-video/v3/pro/motion-control`), image = his half of the W5 frame, video = 6 s vertical 1080×1920 25 fps crop of the left performer | 6.0 s, **1072×1936 @ 30 fps** + real song | **167 s** | ~1.01 | pending Bilal | clear quality jump: sharp face, glasses, moustache, natural lip shapes. Rejects any clip with two people ("No complete upper body detected"), so it is one person per run |
+
+How the trend apps do it (2026-09-28): a strong image of the people in the
+scene, plus **Kling Motion Control** (image + trend clip, audio kept) at
+$0.07–0.17/s, templated per trend, then upscaled and converted to 24–30 fps.
+COGS is ~$0.50–1 per clip against $5–10/week subscriptions.
+
 **Rule: preview before any long render.** Any new size, step count or
 framing gets a 17-frame preview (~5–10 min) before the full 49-frame run
 (~30–50 min per pass). The W4 black output cost 1.5 hours that a preview
