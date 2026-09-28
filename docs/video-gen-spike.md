@@ -149,6 +149,11 @@ more bling". Fix: a deck photo of her in a green kurta and red dupatta, with
 FLUX.2-klein edit adding gold chains, a pendant, bangles and earrings (face
 unchanged, 59 s, $0); 6 sampling steps instead of 4.
 
+**Rule: preview before any long render.** Any new size, step count or
+framing gets a 17-frame preview (~5–10 min) before the full 49-frame run
+(~30–50 min per pass). The W4 black output cost 1.5 hours that a preview
+would have caught in 5 minutes.
+
 Wan Animate on the M3 Pro, gotchas: SAM2 must run `fp32` on MPS (fp16 needs
 CUDA autocast); ONNX pose runs on CPU; the pose node takes the top detection
 per frame, so for two-person clips feed it a copy with the other person
