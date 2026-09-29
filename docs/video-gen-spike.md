@@ -453,6 +453,44 @@ stitching route is retired.** The goal is now app-quality one-pass
 two-person generation (the Starrd recipe: one two-person still + a video
 reference), using models that accept real faces.
 
+### Retrospective 2026-09-29: what we did wrong (no more paid experiments until a path is chosen)
+
+1. **Wrong tool class.** Kling Motion Control, Wan Animate and Runway
+   Act-Two are single-subject by design. Kling's guide: only "the person with
+   the largest on-screen presence" is used, even if the start frame has two
+   people. We then tried to fix a two-person job in compositing, which is the
+   source of the glitches and bad sync.
+2. **Copied the original's edit, not the trend.** Nine camera cuts forced
+   per-shot calls, plates and truncation.
+3. **Bottom-up.** Local models, RunPod, HF and bake-offs came before copying a
+   known-working recipe or buying one app result as the benchmark.
+4. **Over-optimised details** (face lock, exact height, mic anchor) while the
+   core was broken.
+
+**How it's actually done** (research with sources, 2026-09-29):
+- **Route A, Higgsfield Genjutsu Motion Transfer.** Upload the original clip
+  (4–30 s) plus a character sheet per person (front portrait, full body front
+  and back, face close-up). Tag each image and assign sides in the prompt
+  ("replace the performer who begins on the left with @A… keep the assignment
+  through every cut"). Both people are swapped in one pass; cuts and audio are
+  kept. API ~$0.32/s at 480p, ~$0.68/s at 720p; the model is not disclosed.
+  Real-face policy: unverified.
+- **Route B, Seedance 2.x with a two-person still + booth clip** (Starrd,
+  Dreamina). For real people the legitimate route is ByteDance real-person
+  verification: each person passes a liveness check themselves (ComfyUI
+  "Seedance 2.0 Real Human" nodes; BytePlus ModelArk for vetted clients; fal
+  by sales approval). Relying on a generated still to get past the face
+  check is off-limits.
+- Pitfalls creators report: side-swaps (label left/right in uploads AND the
+  prompt), face blending on head turns, outfit drift across joined parts.
+
+Sources: kling.ai/quickstart/motion-control-user-guide,
+higgsfield.ai/blog/higgsfield-genjutsu,
+videoaihub.substack.com/p/how-to-make-the-viral-hotel-lobby,
+kavel.ai/blog/hotel-lobby-ai-trend,
+docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0-real-human,
+getstarrd.app/blog/how-to-make-hotel-lobby-colors-ai-video.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that

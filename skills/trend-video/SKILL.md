@@ -61,6 +61,13 @@ gotcha is in `docs/video-gen-spike.md`, and the business case is in
 
 ## Gotchas that cost hours
 
+- **Two performers = a multi-subject model, one pass.** Kling Motion
+  Control, Wan Animate and Act-Two animate ONE person by design. Stitching two
+  solo renders looked glitchy and unsynced, and that route is retired
+  (Bilal, 2026-09-29). Use a two-person swap (Higgsfield Genjutsu Motion
+  Transfer) or Seedance with consented real-person verification. See the
+  retrospective in `docs/video-gen-spike.md`.
+
 - Kling Motion Control rejects any clip with two people: "No complete upper
   body detected".
 - Kling Motion Control can silently return a clip shorter than its driver
