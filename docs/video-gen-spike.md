@@ -381,6 +381,16 @@ Diagnosis:
 - **Subtle expressions:** our prompts ask for singing and mouthing, which
   exaggerates. The references look driven by the source faces at low strength.
 
+- **The mic is the anchor** (Bilal's catch). In the Scarface reel the mic
+  hangs centred at the top, the lead's mouth sits right under it, and the
+  second performer's gestures cross the centre towards it. The frame is 4:3
+  and tight around the mic, with both bodies cropped at the thigh. Ours: the
+  mic floats in empty space above-right of his mouth; the widescreen canvas
+  plus our `--space`/`--left-shift` spread them apart, so her reach points at
+  nothing. Fix (free, re-stitch only): position both from their original
+  offsets to the mic (his mouth under it) and crop 4:3 around the mic.
+  Note: this reverses the earlier "widescreen + space helps" feedback.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
