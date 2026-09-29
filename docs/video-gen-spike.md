@@ -435,6 +435,17 @@ use another model or a consent/verification flow with ByteDance; unverified.
   start photos. Kling MC stops at camera cuts: one call per shot. O1 returns
   3–9% short: stretch each shot back to its length to stay on the song.
 
+**Bilal on v2 (2026-09-29):** "very entertaining… decent but still needs
+work": the performers aren't in sync with each other, they don't feel next to
+each other, and she's way too big. Measured:
+- Timing is fine: each render lags its driver by 1–3 frames, both the same way.
+- Size: her face was 0.87–1.0 of his and she was drawn in front of him.
+
+**v3** (free re-stitch, `--head-ratio 0.82 --right-behind`,
+`t37/mc-37-v3-film.mp4`, posted). The remaining "not together" is interaction:
+separate renders face the camera instead of each other, and a fix needs paid
+re-renders.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
