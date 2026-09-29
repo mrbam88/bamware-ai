@@ -64,8 +64,10 @@ gotcha is in `docs/video-gen-spike.md`, and the business case is in
 - Kling Motion Control rejects any clip with two people: "No complete upper
   body detected".
 - Kling Motion Control can silently return a clip shorter than its driver
-  (her 20 s run came back 11.2 s). Check both durations before stitching;
-  `composite_scaled.py` now refuses mismatched lengths.
+  (her 20 s run came back 11.2 s; the 8.8 s re-render of the rest came back
+  3.7 s). Both stops fell exactly on camera cuts (11.2 s, 14.92 s wide shot),
+  so render one shot per call when a clip spans hard cuts. Check durations
+  before stitching; `composite_scaled.py` refuses mismatched lengths.
 - O1's picture can run early against the kept song. Compare cut times
   (`cut_offset.py`), but a re-sync won't restore its loose lip sync.
 - Per-person renders have unrelated scales: always stitch height-true, and
