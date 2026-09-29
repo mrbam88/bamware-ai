@@ -176,6 +176,11 @@ original, wide shots included; flaw: she is scaled too big), a Lakers Reel
 (4:3, one-pass look, clean), a Godfather Reel (film grade, themed wardrobe, own
 shot sequence, 29 s = chained segments). Bilal: widescreen helps; the motion is
 subtle slow hip-hop; space between the two people helps.
+Added 2026-09-29: a Scarface Reel by the zeis.ai account (Tony and Manny,
+29 s, 1448×1080 ≈ 4:3). It keeps the original orange set, mic and the COLORS
+shot list including the wide shots. Both wear matching cream suits (themed
+wardrobe), the pair looks rendered together in one pass (shared lighting, no
+seam), and the natural gap sits between the two performers.
 
 | R3 | RunPod RTX 4090 secure ($0.74/h), SSH-driven (`runpod_ssh_test.sh`, keeps `/start.sh`) | nothing | ~70 min | ~0.85 | **no render, but the method works** | SSH and live logs worked (the R1/R2 bug is fixed). This host downloaded at ~8 MB/s, so ~35 GB of setup (venv + models) never finished before the safety delete. **Cold start dominates renting:** pre-load the models on a network volume (~$3.50/mo) or pick a fast host before paying for GPU time |
 | R1/R2 | RunPod self-host (A100 community, then H100 secure) via `scripts/video-spike/runpod_run.sh` | nothing | 25 + 21 min | ~1.47 | **no: never rendered** | community pod never started its container; the secure pod ran but sat at 0% CPU, so the start-command bootstrap most likely never executed (REST `dockerStartCmd` apparently ignored). Both pods were deleted. Next attempt: a RunPod ComfyUI template or an SSH-driven setup, with logs visible |
