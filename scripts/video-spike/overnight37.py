@@ -127,8 +127,12 @@ yunet = cv2.FaceDetectorYN.create(str(HOME / "tools/models/face_detection_yunet_
 
 
 def is_wide(k):
+    """Full-body wide shot: the yellow floor fills the bottom of the frame (small faces are unreliable to detect)."""
     img = cv2.imread(str(O / f"shot{k}-src.png"))
     h, w = img.shape[:2]
+    hsv = cv2.cvtColor(img[int(0.93 * h):], cv2.COLOR_BGR2HSV)
+    if ((hsv[..., 0] >= 18) & (hsv[..., 0] <= 35) & (hsv[..., 1] > 120)).mean() > 0.4:
+        return True
     small = cv2.resize(img, (w // 2, h // 2))
     yunet.setInputSize((w // 2, h // 2))
     _, faces = yunet.detect(small)
