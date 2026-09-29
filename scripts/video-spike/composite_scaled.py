@@ -123,6 +123,8 @@ starts = [t for _, t in parts]
 
 Lf, Rf = frames(a.left, "l"), frames(a.right, "r")
 n = min(len(Lf), len(Rf))
+if abs(len(Lf) - len(Rf)) > a.fps:  # Kling MC can silently return a clip shorter than its driver
+    raise SystemExit(f"clip lengths differ: left {len(Lf) / a.fps:.1f}s vs right {len(Rf) / a.fps:.1f}s; re-render the short one")
 def ensure_masks(clip, fr):
     d = Path(clip + ".masks")
     if d.exists() and len(list(d.glob("*.png"))) >= len(fr):
@@ -146,12 +148,27 @@ def shot_of(i):
 
 
 # per-shot medians of head metrics
+def shot_faces(fr, k):
+    idx = [i for i in range(n) if shot_of(i) == k]
+    got = [m for m in (face_metrics(fr[i]) for i in idx[::3]) if m]
+    if not got:  # short shot or turned head: try every frame
+        got = [m for m in (face_metrics(fr[i]) for i in idx) if m]
+    return np.array(got).reshape(-1, 3)
+
+
+raw = {k: (shot_faces(Lf, k), shot_faces(Rf, k)) for k in range(len(parts))}
+for side in (0, 1):  # no face in a shot at all: borrow the nearest shot's framing
+    for k in range(len(parts)):
+        if not len(raw[k][side]):
+            near = sorted((abs(j - k), j) for j in raw if len(raw[j][side]))
+            if not near:
+                raise SystemExit(f"no face found in any shot for side {side}")
+            print(f"shot {k}: no {'left' if side == 0 else 'right'} face, borrowing shot {near[0][1]}")
+            raw[k] = tuple(raw[near[0][1]][side] if s == side else raw[k][s] for s in (0, 1))
+
 stats = {}
 for k in range(len(parts)):
-    idx = [i for i in range(n) if shot_of(i) == k][::3]
-    L = [face_metrics(Lf[i]) for i in idx]
-    R = [face_metrics(Rf[i]) for i in idx]
-    L = np.array([x for x in L if x]); R = np.array([x for x in R if x])
+    L, R = raw[k]
     stats[k] = {"l_top": float(np.median(L[:, 0])), "l_hh": float(np.median(L[:, 1])),
                 "r_top": float(np.median(R[:, 0])), "r_hh": float(np.median(R[:, 1])),
                 "r_cx": float(np.median(R[:, 2]))}
