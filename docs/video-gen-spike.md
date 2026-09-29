@@ -363,6 +363,33 @@ restaurant/menu video, local-business ads, e-commerce product video), priced
 $49–199/mo as SaaS, where the moat is the integration and distribution.
 Expect a profitable niche, not venture scale.
 
+### Pause 2026-09-29: gap to the polished reels
+
+Bilal, after the Scarface and Godfather reels by the zeis.ai account: both
+performers sync, the cinematography is polished and seamless, expressions are
+subtle. Ours is "halfway there": he is decent, she is out of sync, too zoomed
+out, or "not quite there".
+
+Diagnosis:
+- **Stitching two solo renders is the root cause.** Kling MC takes one person
+  per call, so she comes from a separate render, and her timing drifts against
+  him. The height-true scaler shrinks her, which reads as "zoomed out".
+- **The reels swap people in place, per shot, in one pass.** Their pairs match
+  the originals' build, so nothing needs rescaling. Both bodies stay driven by
+  the source shot, so sync and camera come for free. Consumer apps (Summrs,
+  LightX) run the same flow: 2 photos → both staged in one frame → animated.
+- **Subtle expressions:** our prompts ask for singing and mouthing, which
+  exaggerates. The references look driven by the source faces at low strength.
+
+Next test when resumed (not started; needs a budget): per camera shot,
+(1) edit the shot's first frame to put both of them in the performers' places
+(FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
+shot (Kling O1 edit was closest: best faces), with neutral prompts, then
+(3) cut the shots together on the original audio. Trade-off: exact height
+truth has to be set in the first frame; no compositing afterwards.
+Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`) posted; her last
+5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
