@@ -387,7 +387,7 @@ Next test when resumed (not started; needs a budget): per camera shot,
 shot (Kling O1 edit was closest: best faces), with neutral prompts, then
 (3) cut the shots together on the original audio. Trade-off: exact height
 truth has to be set in the first frame; no compositing afterwards.
-Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`) posted; her last
+Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`, auto-posts to Discord); her last
 5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
 
 ## 7. Open questions
