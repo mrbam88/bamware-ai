@@ -179,10 +179,15 @@ tiles, labels = [a.video] + [results[n]["path"] for n in ok], ["driving"] + ok
 TW, TH = 270, 480
 header = Image.new("RGB", (TW * len(tiles), 40), (20, 20, 20))
 d = ImageDraw.Draw(header)
+from PIL import ImageFont
+try:
+    FONT = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 15)
+except OSError:
+    FONT = None
 for i, lab in enumerate(labels):
     sc = results.get(lab, {})
     extra = f" L{sc.get('likeness')} T{sc.get('timing')}" if lab != "driving" else ""
-    d.text((i * TW + 6, 12), (lab + extra)[:40], fill=(255, 255, 255))
+    d.text((i * TW + 6, 11), (lab + extra)[:34], fill=(255, 255, 255), font=FONT)
 header.save(OUT / "header.png")
 inputs = sum([["-i", t] for t in tiles], [])
 fc = "".join(f"[{i}:v]fps=25,scale={TW}:{TH}:force_original_aspect_ratio=decrease,pad={TW}:{TH}:(ow-iw)/2:(oh-ih)/2,setsar=1[v{i}];"

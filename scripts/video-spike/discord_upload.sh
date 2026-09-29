@@ -7,8 +7,28 @@ HOOK=$(aws --profile "${BAMWARE_AWS_PROFILE:-bamware}" --region "${BAMWARE_AWS_R
   ssm get-parameter --name /bamware/shared/discord-webhook-status --with-decryption --query Parameter.Value --output text)
 TMP=$(mktemp -d)
 LIMIT=9500000
+HERE=$(cd "$(dirname "$0")" && pwd)
+PY=${LABEL_PY:-$HOME/tools/rembgenv/bin/python}
+label_for() {  # model name burned onto the video (override with LABEL=...)
+  [ -n "${LABEL:-}" ] && { echo "$LABEL"; return; }
+  case "$(basename "$1")" in
+    *grid*) echo "" ;;  # bake-off grids carry per-tile labels
+    *o1-lipsync*) echo "Kling O1 edit + Sync Labs lipsync-2-pro" ;;
+    *before-after*) echo "Kling O1 edit (re-synced) | + Sync Labs lipsync-2-pro" ;;
+    *hybrid*|*shared*) echo "Kling v3 Pro Motion Control x2 + height-true composite" ;;
+    *kling-o1*) echo "Kling O1 edit" ;;
+    *kling*) echo "Kling v3 Pro Motion Control" ;;
+    *fal-both*) echo "fal.ai Wan 2.2 Animate Replace" ;;
+    *wan-replace*|*wan-both*) echo "Wan 2.2 Animate (local, M3)" ;;
+    *) echo "" ;;
+  esac
+}
 for item in "$@"; do
-  caption=${item%%|*}; f=${item#*|}
+  caption=${item%|*}; f=${item##*|}   # split at the LAST | (captions may contain markdown tables)
+  lab=$(label_for "$f")
+  if [ -n "$lab" ]; then
+    "$PY" "$HERE/label_video.py" "$f" "$TMP/labelled-$(basename "$f")" "$lab" >/dev/null && f="$TMP/labelled-$(basename "$f")"
+  fi
   up="$f"
   if [ "$(stat -f%z "$f")" -gt $LIMIT ]; then
     dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")
