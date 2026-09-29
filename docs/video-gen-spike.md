@@ -195,6 +195,23 @@ start image. (3) `--left-shift/--space` for a real gap on the widescreen
 canvas. (4) FLUX can invent a second mic in a plate: paste the original mic
 back (`paste_mic.py` pattern: low-saturation pixels from the source frame).
 
+**Bake-off #1 (2026-09-29, `bakeoff.py`, same 5 s single-person test; the
+Kling v3 Pro row reuses the earlier render):**
+
+| Model | $/s | Likeness (SFace cos ↑) | Timing (head-track r ↑) | Render | Output |
+|---|---|---|---|---|---|
+| kling-v3-pro (face lock) | 0.168 | 0.441 | 0.927 | ~5 min | 1088×1904 @ 30 |
+| **kling-v2.6-std** | **0.07** | **0.489** | 0.930 | 3.4 min | 720×1248 @ 30 |
+| dreamactor-v2 | 0.05 | 0.434 | −0.317 | 6.8 min | 694×1198 @ 25 |
+| wan-animate-move-720 | 0.08 | 0.382 | **0.979** | 14 min | 720×1248 @ 25 |
+| wan-motion | 0.06 | 0.358 | 0.673 | 14 min | 720×1248 @ 25 |
+
+Read: the cheap Kling tier matches v3 Pro on both proxies at 42% of the price
+(it answers the PRD margin question, pending Bilal's eye). DreamActor tracks
+against the performer; the Wan models time well but lose likeness.
+**Recipe B** (the O1 clip + Sync Labs lipsync-2-pro, ~$0.70, 109 s) was posted
+as a before/after for Bilal to judge.
+
 **Cheaper motion-transfer candidates** (image + driving video, 2026-09-28,
 fal.ai unless noted; not yet tested; Kling is the only one with a face-lock slot):
 
