@@ -86,6 +86,16 @@ Toonapp, FaceAI.
 - **Indies can chart.** Starrd (a solo dev on credit packs) is #79 top
   grossing six months after launch.
 - Sensor Tower: AI app in-app revenue expected to top $4B in H1 2026 (+36% vs H2 2025).
+- **The template is the product** (spike lesson, 2026-09-29). Users pay per
+  video for one generation call. The real work is building each template:
+  - a shot list cut at the camera cuts;
+  - driving clips with one performer per clip;
+  - clean background plates with the mic kept;
+  - framing anchored on the mic, plus a grade.
+
+  Our one Hotel Lobby template took days of hand work. That cost is paid
+  once per trend and spread over every user; speed to the next trend is the
+  moat. A Bamware play needs a template pipeline, not just a model call.
 
 ## 2. Gift / keepsake / personalized segment
 
