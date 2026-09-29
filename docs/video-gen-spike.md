@@ -408,6 +408,13 @@ credits per video. Their stated reason: "motion-control tools are built to
 puppeteer one subject". That is exactly our Kling MC wall. Seedance
 reference-to-video is on fal (`bytedance/seedance-2.5/reference-to-video`,
 $0.13–0.28/s) and was listed in our candidates but never tested.
+**Tested 2026-09-29: blocked.** fal/ByteDance partner validation rejects real
+people's photos: `content_policy_violation`, "may contain likenesses of real
+people or other private information that cannot be processed"
+(`partner_validation_failed`). The request was rejected at submission, before
+rendering. This is a policy on real faces, not a bug; don't route around it.
+Kling (O1 edit, v3 MC) accepts these photos. Apps selling this template must
+use another model or a consent/verification flow with ByteDance; unverified.
 
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
