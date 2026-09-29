@@ -38,6 +38,7 @@ p.add_argument("--space", type=float, default=0, help="extra gap: move the right
 p.add_argument("--left-shift", type=float, default=0, help="move the left person left by this many master px")
 p.add_argument("--mic-center", action="store_true",
                help="per shot, centre a canvas-w window on the mic found in that shot's plate (keeps original offsets)")
+p.add_argument("--right-behind", action="store_true", help="draw the right person behind the left one where they overlap")
 p.add_argument("--stills", default="", help="comma list of frame indices: write PNG stills next to OUT and skip the video")
 p.add_argument("--max-drop", type=float, default=0.9, help="cap: right head top at most this many left-head-heights below the left head top")
 a = p.parse_args()
@@ -233,11 +234,12 @@ for i in todo:
     lc = Image.open(Lf[i]).convert("RGB"); lm = main_blob(smooth_mask(Lm, i, (PW, H)))
     lw, lh = int(PW * st["ls"]), int(H * st["ls"])
     lc, lm = lc.resize((lw, lh), Image.LANCZOS), lm.resize((lw, lh), Image.LANCZOS)
-    canvas.paste(lc, (int(st["lx"]), int(st["ly"])), lm)
     rc = Image.open(Rf[i]).convert("RGB"); rm = main_blob(smooth_mask(Rm, i, (PW, H)))
     sw, sh = int(PW * st["rs"]), int(H * st["rs"])
     rc, rm = rc.resize((sw, sh), Image.LANCZOS), rm.resize((sw, sh), Image.LANCZOS)
-    canvas.paste(rc, (int(st["rx"]), int(st["ry"])), rm)
+    layers = [(lc, (int(st["lx"]), int(st["ly"])), lm), (rc, (int(st["rx"]), int(st["ry"])), rm)]
+    for img, xy, m in (layers[::-1] if a.right_behind else layers):  # last pasted = in front
+        canvas.paste(img, xy, m)
     canvas.save(out / f"{i:04d}.png")
 
 if a.stills:
