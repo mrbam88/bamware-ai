@@ -416,6 +416,25 @@ rendering. This is a policy on real faces, not a bug; don't route around it.
 Kling (O1 edit, v3 MC) accepts these photos. Apps selling this template must
 use another model or a consent/verification flow with ByteDance; unverified.
 
+**Overnight 37 s build (2026-09-29, `overnight37.py`, COLORS 0:15–0:52,
+9 shots, $12.72 incl. one retry; total spend ≈ $42.60 of the $45 cap):**
+- **O1 one pass per shot: failed as a product.** It swapped both people
+  correctly in only 3 of 9 shots. The rest kept Quavo on the right, or
+  re-dressed the man in a blue shirt. The O1 wide-shot test that worked was
+  luck. The same prompt on the same shot failed overnight.
+- **Stitched (Kling MC ×2 per shot, mic-centred 4:3): consistent** in all 7
+  medium shots. Its wide shots came from O1 and were bad, so they were
+  replaced by the verified O1 wide test (shot 4) and one O1 retry (shot 6,
+  $0.73). The retry used a stronger prompt: "dressed exactly as in @Image1/2",
+  plus the two start photos as extra refs, and it worked. She reads about as
+  tall as him in that wide shot.
+- Final: `~/Movies/video-spike/t37/mc-37-v2-film.mp4` (posted). Rejects:
+  `o1-37-film.mp4`, `mc-37-film.mp4`.
+- Lessons: verify identity per shot before splicing (a face check is too
+  noisy on wide shots; review contact sheets). O1 needs outfit anchoring via
+  start photos. Kling MC stops at camera cuts: one call per shot. O1 returns
+  3–9% short: stretch each shot back to its length to stay on the song.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that

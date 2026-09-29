@@ -68,6 +68,10 @@ gotcha is in `docs/video-gen-spike.md`, and the business case is in
   3.7 s). Both stops fell exactly on camera cuts (11.2 s, 14.92 s wide shot),
   so render one shot per call when a clip spans hard cuts. Check durations
   before stitching; `composite_scaled.py` refuses mismatched lengths.
+- Kling O1 one-pass is inconsistent across shots: overnight it left an
+  original performer in 6 of 9 shots. Anchor outfits with the start photos as
+  `--image` refs ("dressed exactly as in @Image1"), and review a contact sheet
+  per shot before splicing; face-match scores are too noisy on wide shots.
 - O1's picture can run early against the kept song. Compare cut times
   (`cut_offset.py`), but a re-sync won't restore its loose lip sync.
 - Per-person renders have unrelated scales: always stitch height-true, and

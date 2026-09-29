@@ -8,6 +8,20 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-29 — Video spike: full 37 s built overnight; avatars "solved", video craft is next
+
+- Bilal: the avatar part is solved; the next step is a better hip-hop video,
+  a faithful remake of the Migos COLORS original (mic as the anchor, wide shot
+  where it falls in the song).
+- Full 37 s (COLORS 0:15–0:52) built overnight: stitched Kling MC ×2 per
+  shot, mic-centred 4:3, verified O1 wide shots. File `t37/mc-37-v2-film.mp4`,
+  posted to Discord; awaiting Bilal's review. O1 one-pass per shot failed
+  (3/9 shots swapped correctly).
+- Seedance 2.5 (the apps' one-pass recipe) blocks real-person photos. Harness
+  now scores lip sync (mouth match); Wan Motion + enhance_identity is best on
+  lips.
+- Spend ≈ $42.60 of the $45 cap. Details: `docs/video-gen-spike.md`.
+
 ## 2026-09-28 — Video spike: first viable clip; recipe saved as a skill
 
 - Bilal called the 10 s Hotel Lobby clip of an older couple "the first viable
