@@ -184,6 +184,16 @@ scene, plus **Kling Motion Control** (image + trend clip, audio kept) at
 $0.07–0.17/s, templated per trend, then upscaled and converted to 24–30 fps.
 COGS is ~$0.50–1 per clip against $5–10/week subscriptions.
 
+**Hybrid (2026-09-28):** his start image from an O1 frame plus Kling Motion
+Control for both (Bilal: "the main performer… looks actually pretty good, the
+syncing is actually pretty good"). Stitching fixes in `composite_scaled.py`:
+(1) scale and height from **YuNet face detection**, not silhouettes. The
+silhouette method mis-read heads at 1080p and scaled her UP 1.2–1.6×.
+(2) `main_blob`: keep the largest matte blob, which drops stray fists from the
+start image. (3) `--left-shift/--space` for a real gap on the widescreen
+canvas. (4) FLUX can invent a second mic in a plate: paste the original mic
+back (`paste_mic.py` pattern: low-saturation pixels from the source frame).
+
 **Cheaper motion-transfer candidates** (image + driving video, 2026-09-28,
 fal.ai unless noted; not yet tested; Kling is the only one with a face-lock slot):
 

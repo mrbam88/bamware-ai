@@ -35,13 +35,15 @@ p.add_argument("--fps", type=int, default=30)
 p.add_argument("--canvas-x0", type=float, default=1157, help="canvas left edge in master px (0 = full widescreen)")
 p.add_argument("--canvas-w", type=float, default=1858, help="canvas width in master px (3840 = full widescreen)")
 p.add_argument("--space", type=float, default=0, help="extra gap: move the right person right by this many master px")
+p.add_argument("--left-shift", type=float, default=0, help="move the left person left by this many master px")
+p.add_argument("--max-drop", type=float, default=0.9, help="cap: right head top at most this many left-head-heights below the left head top")
 a = p.parse_args()
 
 H = a.h
 s0 = H / 2160
 CW = int(round(a.canvas_w * s0 / 2)) * 2
 PW = int(round(1215 * s0 / 2)) * 2
-LX0 = (1157 - a.canvas_x0) * s0
+LX0 = (1157 - a.canvas_x0 - a.left_shift) * s0
 RX0 = int(round((1800 - a.canvas_x0 + a.space) * s0))
 
 tmp = Path(tempfile.mkdtemp())
@@ -53,6 +55,40 @@ def frames(clip, name):
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", clip, "-vf", f"fps={a.fps},scale={PW}:{H}",
                     str(d / "%04d.png")], check=True)
     return sorted(d.glob("*.png"))
+
+
+from scipy import ndimage
+
+
+def main_blob(mask_img):
+    """Keep the largest connected shape (the person); drop stray bits like a floating fist."""
+    m = np.asarray(mask_img)
+    lab, n = ndimage.label(m > 64)
+    if n <= 1:
+        return mask_img
+    sizes = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1))
+    keep = lab == (1 + int(np.argmax(sizes)))
+    keep = ndimage.binary_dilation(keep, iterations=3)
+    return Image.fromarray((m * keep).astype(np.uint8))
+
+
+import cv2
+
+_YUNET = cv2.FaceDetectorYN.create(str(Path.home() / "tools/models/face_detection_yunet_2023mar.onnx"), "", (320, 320),
+                                   score_threshold=0.6)
+
+
+def face_metrics(frame_path):
+    """(head_top_y, head_h, head_cx) from real face detection on a PW x H frame, or None.
+    YuNet's box runs ~brow to chin; head top sits ~0.3 box-heights above it, head height ~1.3 box-heights."""
+    img = cv2.imread(str(frame_path))
+    h, w = img.shape[:2]
+    _YUNET.setInputSize((w, h))
+    _, faces = _YUNET.detect(img)
+    if faces is None or len(faces) == 0:
+        return None
+    x, y, fw, fh = max(faces, key=lambda f: f[2] * f[3])[:4]
+    return y - 0.3 * fh, 1.3 * fh, x + fw / 2
 
 
 def head_metrics(mask):
@@ -103,8 +139,8 @@ def shot_of(i):
 stats = {}
 for k in range(len(parts)):
     idx = [i for i in range(n) if shot_of(i) == k][::3]
-    L = [head_metrics(Image.open(Lm[i]).convert("L")) for i in idx]
-    R = [head_metrics(Image.open(Rm[i]).convert("L")) for i in idx]
+    L = [face_metrics(Lf[i]) for i in idx]
+    R = [face_metrics(Rf[i]) for i in idx]
     L = np.array([x for x in L if x]); R = np.array([x for x in R if x])
     stats[k] = {"l_top": float(np.median(L[:, 0])), "l_hh": float(np.median(L[:, 1])),
                 "r_top": float(np.median(R[:, 0])), "r_hh": float(np.median(R[:, 1])),
@@ -113,7 +149,7 @@ for k in range(len(parts)):
     # r = right/left scale so head sizes are consistent
     r = a.head_ratio * st["l_hh"] / st["r_hh"]
     # real height gap in the left person's head units (adult head ~1/7.5 of body height)
-    g = (a.left_cm - a.right_cm) / (a.left_cm / 7.5) * st["l_hh"]
+    g = min((a.left_cm - a.right_cm) / (a.left_cm / 7.5), a.max_drop) * st["l_hh"]
     T = st["l_top"]  # keep the left person's headroom
     # smallest left scale sL such that BOTH layers still reach the bottom edge (no floating bodies):
     #   left:  T - sL*l_top + sL*H >= H        right: T + g*sL - r*sL*r_top + r*sL*H >= H
@@ -133,7 +169,7 @@ for k, st in stats.items():
     r = st["rs"] / st["ls"]
     if abs(r / med - 1) > 0.15:
         r = min(max(r, med * 0.85), med * 1.15)
-        g = (a.left_cm - a.right_cm) / (a.left_cm / 7.5) * st["l_hh"]
+        g = min((a.left_cm - a.right_cm) / (a.left_cm / 7.5), a.max_drop) * st["l_hh"]
         T = st["l_top"]
         sL = max(1.0, (H - T) / (g + r * (H - st["r_top"])))
         st.update(ls=sL, rs=r * sL, ly=T - sL * st["l_top"], ry=T + g * sL - r * sL * st["r_top"],
@@ -146,11 +182,11 @@ out.mkdir()
 for i in range(n):
     st = stats[shot_of(i)]
     canvas = plates[shot_of(i)].copy()
-    lc = Image.open(Lf[i]).convert("RGB"); lm = Image.open(Lm[i]).convert("L").resize((PW, H))
+    lc = Image.open(Lf[i]).convert("RGB"); lm = main_blob(Image.open(Lm[i]).convert("L").resize((PW, H)))
     lw, lh = int(PW * st["ls"]), int(H * st["ls"])
     lc, lm = lc.resize((lw, lh), Image.LANCZOS), lm.resize((lw, lh), Image.LANCZOS)
     canvas.paste(lc, (int(st["lx"]), int(st["ly"])), lm)
-    rc = Image.open(Rf[i]).convert("RGB"); rm = Image.open(Rm[i]).convert("L").resize((PW, H))
+    rc = Image.open(Rf[i]).convert("RGB"); rm = main_blob(Image.open(Rm[i]).convert("L").resize((PW, H)))
     sw, sh = int(PW * st["rs"]), int(H * st["rs"])
     rc, rm = rc.resize((sw, sh), Image.LANCZOS), rm.resize((sw, sh), Image.LANCZOS)
     canvas.paste(rc, (int(st["rx"]), int(st["ry"])), rm)
