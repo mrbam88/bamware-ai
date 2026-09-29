@@ -26,4 +26,6 @@ put /bamware/video-spike/fal-key "fal.ai" "https://fal.ai/dashboard/keys" \
   "Sign in, add a card under Billing (pay as you go), then Keys -> Add key (scope: API). Copy it."
 put /bamware/video-spike/runpod-api-key "RunPod" "https://www.runpod.io/console/user/settings" \
   "Sign in, add ~\$10 credit under Billing, then Settings -> API Keys -> Create (read/write). Copy it."
+put /bamware/video-spike/higgsfield-key "Higgsfield (paste as KEY_ID:KEY_SECRET)" "https://console.higgsfield.ai" \
+  "Sign in, add ~\$5 credit, then API keys -> Create. Paste the key ID, a colon, then the secret."
 echo "Done. Tell Claude 'keys are in'."

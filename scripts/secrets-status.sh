@@ -24,6 +24,7 @@ MANIFEST='
 /bamware/venue-engine/admin-key              | venue-engine moderation                | Vercel ADMIN_KEY
 /bamware/video-spike/fal-key                 | video spike paid renders (fal.ai)      | read at run time (scripts/video-spike/keys.sh fills it)
 /bamware/video-spike/runpod-api-key          | video spike self-hosted GPU (RunPod)   | read at run time (scripts/video-spike/keys.sh fills it)
+/bamware/video-spike/higgsfield-key          | video spike two-person swap (Higgsfield) | read at run time (scripts/video-spike/keys.sh fills it)
 '
 printf '%-46s %-8s %s\n' "KEY (vault path)" "STATUS" "CONSUMER → DELIVERY"
 echo "$MANIFEST" | sed '/^\s*$/d' | while IFS='|' read -r path consumer delivery; do
