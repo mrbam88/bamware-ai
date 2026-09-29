@@ -220,10 +220,24 @@ rap lip shapes track the song's loudness poorly. Use mouth match.
 Gotcha: MediaPipe 1.0.1 aborts on macOS ("graph_service … Service is
 unavailable"); pin `mediapipe<1` (0.10.35 works).
 
-**Bake-off #2 (her, 5 s):** prepped (`bakeoff-2/`, Kling v3 baseline = first
-5 s of `t20/kling-her-20s.mp4`, adds `wan-motion-id` = enhance_identity).
-Blocked 2026-09-29: fal account locked, "Exhausted balance". It needs a top-up;
-the run is ~$1.68. Re-run (from `~/Movies/video-spike`):
+**Bake-off #2 (2026-09-29, her, 5 s, $1.68; Kling v3 row = first 5 s of
+`t20/kling-her-20s.mp4`, same driver):**
+
+| Model | $/s | Likeness ↑ | Timing ↑ | Mouth match ↑ | Render |
+|---|---|---|---|---|---|
+| **kling-v3-pro (face lock)** | 0.168 | **0.626** | **0.981** | 0.665 | ~5 min |
+| kling-v2.6-std | 0.07 | 0.396 | 0.974 | 0.607 | 4.5 min |
+| dreamactor-v2 | 0.05 | 0.504 | 0.622 | 0.364 | 2.2 min |
+| wan-animate-move-720 | 0.08 | 0.445 | 0.746 | 0.423 | 13 min |
+| wan-motion | 0.06 | 0.394 | 0.666 | 0.484 | 6 min |
+| **wan-motion-id** (enhance_identity) | 0.06 +$0.08 | 0.454 | 0.638 | **0.803** | 7 min |
+
+Read: on her (the harder likeness), Kling's face lock matters. v3 Pro is far
+ahead on likeness, and v2.6 Std (no face lock) drops to 0.40; the cheap tier
+held up on him, not on her. `enhance_identity` is worth its $0.08: Wan Motion
+likeness went 0.39 → 0.45 and mouth match 0.48 → 0.80 (best of all). The
+driver's own mouth-vs-song r is 0.30, which confirms that metric's low ceiling.
+Re-run (from `~/Movies/video-spike`):
 `bash <repo>/scripts/video-spike/fal_env.sh <repo>/scripts/video-spike/bakeoff.py --image fal/her-start-v3.png --video t20/bake-drive-her-5s.mp4 --face-front fal/el/her-front.jpg --face-ref fal/el/her-b.jpg --face-ref fal/el/her-mountain.jpg --prompt "<older, modest dress, gold bling, glasses, subtle expression, slow sway>" --out bakeoff-2`
 **Recipe B** (the O1 clip + Sync Labs lipsync-2-pro, ~$0.70, 109 s) was posted
 as a before/after for Bilal to judge.
