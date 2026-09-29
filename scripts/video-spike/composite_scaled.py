@@ -36,6 +36,9 @@ p.add_argument("--canvas-x0", type=float, default=1157, help="canvas left edge i
 p.add_argument("--canvas-w", type=float, default=1858, help="canvas width in master px (3840 = full widescreen)")
 p.add_argument("--space", type=float, default=0, help="extra gap: move the right person right by this many master px")
 p.add_argument("--left-shift", type=float, default=0, help="move the left person left by this many master px")
+p.add_argument("--mic-center", action="store_true",
+               help="per shot, centre a canvas-w window on the mic found in that shot's plate (keeps original offsets)")
+p.add_argument("--stills", default="", help="comma list of frame indices: write PNG stills next to OUT and skip the video")
 p.add_argument("--max-drop", type=float, default=0.9, help="cap: right head top at most this many left-head-heights below the left head top")
 a = p.parse_args()
 
@@ -43,8 +46,16 @@ H = a.h
 s0 = H / 2160
 CW = int(round(a.canvas_w * s0 / 2)) * 2
 PW = int(round(1215 * s0 / 2)) * 2
-LX0 = (1157 - a.canvas_x0 - a.left_shift) * s0
-RX0 = int(round((1800 - a.canvas_x0 + a.space) * s0))
+
+
+def mic_x(im):
+    """Mic column in master px (3840 wide): low-saturation pixels in the top third of the orange set."""
+    hsv = np.asarray(im.convert("HSV")).astype(int)
+    top = hsv[: im.size[1] // 3]
+    cols = ((top[..., 1] < 70) & (top[..., 2] > 60)).sum(0)
+    if cols.max() < im.size[1] * 0.03:
+        return None
+    return float(np.median(np.where(cols > cols.max() * 0.4)[0])) * 3840 / im.size[0]
 
 tmp = Path(tempfile.mkdtemp())
 
@@ -118,7 +129,16 @@ def head_metrics(mask):
 
 # shots from the bg spec
 parts = [(x.split("@")[0], float(x.split("@")[1])) for x in a.bg.split(",")]
-plates = [Image.open(pl).convert("RGB").resize((CW, H), Image.LANCZOS) for pl, _ in parts]
+full_plates = [Image.open(pl).convert("RGB") for pl, _ in parts]
+x0s = []  # canvas left edge in master px, per shot
+for im in full_plates:
+    m = mic_x(im) if a.mic_center else None
+    x0s.append(min(max(m - a.canvas_w / 2, 0), 3840 - a.canvas_w) if m is not None else a.canvas_x0)
+print("canvas x0 per shot:", [round(x) for x in x0s])
+plates = [im.crop((x0 * im.size[0] / 3840, 0, (x0 + a.canvas_w) * im.size[0] / 3840, im.size[1])).resize((CW, H), Image.LANCZOS)
+          for im, x0 in zip(full_plates, x0s)]
+LX0s = [(1157 - x0 - a.left_shift) * s0 for x0 in x0s]
+RX0s = [int(round((1800 - x0 + a.space) * s0)) for x0 in x0s]
 starts = [t for _, t in parts]
 
 Lf, Rf = frames(a.left, "l"), frames(a.right, "r")
@@ -184,8 +204,8 @@ for k in range(len(parts)):
     st["ls"], st["rs"] = sL, r * sL
     st["ly"] = T - sL * st["l_top"]
     st["ry"] = T + g * sL - st["rs"] * st["r_top"]
-    st["lx"] = LX0 + PW / 2 - sL * PW / 2  # scale the left person about their own centre
-    st["rx"] = RX0 + st["r_cx"] - st["rs"] * st["r_cx"]  # keep her head centre in place
+    st["lx"] = LX0s[k] + PW / 2 - sL * PW / 2  # scale the left person about their own centre
+    st["rx"] = RX0s[k] + st["r_cx"] - st["rs"] * st["r_cx"]  # keep her head centre in place
     st["l_bottom_gap"] = H - (st["ly"] + sL * H)
     st["r_bottom_gap"] = H - (st["ry"] + st["rs"] * H)
 # a turned head (back of the head) under-measures, which blows the scale up: clamp each shot's
@@ -200,13 +220,14 @@ for k, st in stats.items():
         T = st["l_top"]
         sL = max(1.0, (H - T) / (g + r * (H - st["r_top"])))
         st.update(ls=sL, rs=r * sL, ly=T - sL * st["l_top"], ry=T + g * sL - r * sL * st["r_top"],
-                  lx=LX0 + PW / 2 - sL * PW / 2, rx=RX0 + st["r_cx"] - r * sL * st["r_cx"], clamped=1.0)
+                  lx=LX0s[k] + PW / 2 - sL * PW / 2, rx=RX0s[k] + st["r_cx"] - r * sL * st["r_cx"], clamped=1.0)
         st["r_bottom_gap"] = H - (st["ry"] + st["rs"] * H)
 print(json.dumps({k: {kk: round(v, 2) for kk, v in s.items()} for k, s in stats.items()}, indent=1))
 
 out = tmp / "o"
 out.mkdir()
-for i in range(n):
+todo = [int(x) for x in a.stills.split(",")] if a.stills else range(n)
+for i in todo:
     st = stats[shot_of(i)]
     canvas = plates[shot_of(i)].copy()
     lc = Image.open(Lf[i]).convert("RGB"); lm = main_blob(smooth_mask(Lm, i, (PW, H)))
@@ -218,6 +239,12 @@ for i in range(n):
     rc, rm = rc.resize((sw, sh), Image.LANCZOS), rm.resize((sw, sh), Image.LANCZOS)
     canvas.paste(rc, (int(st["rx"]), int(st["ry"])), rm)
     canvas.save(out / f"{i:04d}.png")
+
+if a.stills:
+    for i in todo:
+        Image.open(out / f"{i:04d}.png").save(f"{a.out}.still{i:04d}.jpg", quality=90)
+    print("stills:", a.out + ".still*.jpg")
+    raise SystemExit
 
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(a.fps), "-i", str(out / "%04d.png"), "-i", a.audio,
                 "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-crf", "16", "-preset", "slow", "-pix_fmt", "yuv420p",

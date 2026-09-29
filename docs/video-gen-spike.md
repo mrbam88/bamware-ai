@@ -391,6 +391,14 @@ Diagnosis:
   offsets to the mic (his mouth under it) and crop 4:3 around the mic.
   Note: this reverses the earlier "widescreen + space helps" feedback.
 
+**Direction (Bilal, 2026-09-29):** the avatar problem (a person from photos)
+is mostly solved; every model run was "pretty decent". The remaining work is
+making a good hip-hop video: a faithful remake of the original Migos COLORS
+video, nothing outside the box. Keep the original shot list, the wide shot
+where it falls in the song, both on one stage, and the mic as the anchor.
+Resumed the same day with the free mic-centred re-stitch (`--mic-center`) and
+her last 2 shots rendered one Kling call per shot (~$1.10).
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
