@@ -34,7 +34,7 @@ for item in "$@"; do
     dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")
     # target ~9 MB total: video bitrate = 9 MB*8/duration - 128k audio
     vb=$(python3 -c "print(int(9.0e6*8/float('$dur') - 128e3))")
-    up="$TMP/$(basename "$f")"
+    up="$TMP/fit-$(basename "$f")"
     ffmpeg -y -loglevel error -i "$f" -vf "scale='min(1080,iw)':-2" -c:v libx264 -b:v "$vb" -maxrate "$vb" -bufsize "$((vb*2))" \
       -preset slow -c:a aac -b:a 128k -movflags +faststart "$up"
   fi
