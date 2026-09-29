@@ -446,6 +446,13 @@ each other, and she's way too big. Measured:
 separate renders face the camera instead of each other, and a fix needs paid
 re-renders.
 
+**Decision (Bilal, 2026-09-29, on v3):** "overall this is pretty bad…
+the actors are doing a good job individually… the entire video looks glitchy
+and not synced… I want to reproduce what others have done." **The per-person
+stitching route is retired.** The goal is now app-quality one-pass
+two-person generation (the Starrd recipe: one two-person still + a video
+reference), using models that accept real faces.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
