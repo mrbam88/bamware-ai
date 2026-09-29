@@ -198,17 +198,33 @@ back (`paste_mic.py` pattern: low-saturation pixels from the source frame).
 **Bake-off #1 (2026-09-29, `bakeoff.py`, same 5 s single-person test; the
 Kling v3 Pro row reuses the earlier render):**
 
-| Model | $/s | Likeness (SFace cos ↑) | Timing (head-track r ↑) | Render | Output |
-|---|---|---|---|---|---|
-| kling-v3-pro (face lock) | 0.168 | 0.441 | 0.927 | ~5 min | 1088×1904 @ 30 |
-| **kling-v2.6-std** | **0.07** | **0.489** | 0.930 | 3.4 min | 720×1248 @ 30 |
-| dreamactor-v2 | 0.05 | 0.434 | −0.317 | 6.8 min | 694×1198 @ 25 |
-| wan-animate-move-720 | 0.08 | 0.382 | **0.979** | 14 min | 720×1248 @ 25 |
-| wan-motion | 0.06 | 0.358 | 0.673 | 14 min | 720×1248 @ 25 |
+| Model | $/s | Likeness (SFace cos ↑) | Timing (head-track r ↑) | Mouth match ↑ | Render | Output |
+|---|---|---|---|---|---|---|
+| kling-v3-pro (face lock) | 0.168 | 0.441 | 0.927 | 0.586 | ~5 min | 1088×1904 @ 30 |
+| **kling-v2.6-std** | **0.07** | **0.489** | 0.930 | 0.631 | 3.4 min | 720×1248 @ 30 |
+| dreamactor-v2 | 0.05 | 0.434 | −0.317 | 0.254 | 6.8 min | 694×1198 @ 25 |
+| wan-animate-move-720 | 0.08 | 0.382 | **0.979** | 0.713 | 14 min | 720×1248 @ 25 |
+| wan-motion | 0.06 | 0.358 | 0.673 | **0.731** | 14 min | 720×1248 @ 25 |
 
 Read: the cheap Kling tier matches v3 Pro on both proxies at 42% of the price
 (it answers the PRD margin question, pending Bilal's eye). DreamActor tracks
 against the performer; the Wan models time well but lose likeness.
+Bilal's eye picked **wan-motion** for lip detail. The mouth metric added
+afterwards agrees: it ranks wan-motion first.
+
+**Mouth match** (added 2026-09-29) is MediaPipe FaceLandmarker inner-lip gap
+(landmarks 13/14 ÷ face height) at 12 fps. It is the best Pearson r against the
+driving performer's own mouth, within ±0.25 s of lag. The harness also logs
+mouth vs song loudness, but it stays low for every model (0.08–0.29) because
+rap lip shapes track the song's loudness poorly. Use mouth match.
+Gotcha: MediaPipe 1.0.1 aborts on macOS ("graph_service … Service is
+unavailable"); pin `mediapipe<1` (0.10.35 works).
+
+**Bake-off #2 (her, 5 s):** prepped (`bakeoff-2/`, Kling v3 baseline = first
+5 s of `t20/kling-her-20s.mp4`, adds `wan-motion-id` = enhance_identity).
+Blocked 2026-09-29: fal account locked, "Exhausted balance". It needs a top-up;
+the run is ~$1.68. Re-run (from `~/Movies/video-spike`):
+`bash <repo>/scripts/video-spike/fal_env.sh <repo>/scripts/video-spike/bakeoff.py --image fal/her-start-v3.png --video t20/bake-drive-her-5s.mp4 --face-front fal/el/her-front.jpg --face-ref fal/el/her-b.jpg --face-ref fal/el/her-mountain.jpg --prompt "<older, modest dress, gold bling, glasses, subtle expression, slow sway>" --out bakeoff-2`
 **Recipe B** (the O1 clip + Sync Labs lipsync-2-pro, ~$0.70, 109 s) was posted
 as a before/after for Bilal to judge.
 

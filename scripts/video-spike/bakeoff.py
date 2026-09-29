@@ -42,6 +42,7 @@ CANDIDATES = [
     ("wan-animate-move-720", "fal-ai/wan/v2.2-14b/animate/move", 0.08,
      {"resolution": "720p", "video_quality": "high"}, False),
     ("wan-motion", "fal-ai/wan-motion", 0.06, {"enhance_identity": False}, False),
+    ("wan-motion-id", "fal-ai/wan-motion", 0.06, {"enhance_identity": True, "_flat": 0.08}, False),
 ]
 
 p = argparse.ArgumentParser()
@@ -58,7 +59,7 @@ OUT = Path(a.out); OUT.mkdir(parents=True, exist_ok=True)
 cands = [c for c in CANDIDATES if not a.only or c[0] in a.only.split(",")]
 dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", a.video],
                            capture_output=True, text=True).stdout)
-quote = {c[0]: round(c[2] * dur, 2) for c in cands}
+quote = {c[0]: round(c[2] * dur + c[3].get("_flat", 0), 2) for c in cands}
 print(f"driving clip {dur:.1f}s; quote: {quote}; total ${sum(quote.values()):.2f}")
 if a.dry_run:
     raise SystemExit(0)
@@ -76,7 +77,7 @@ def run(c):
     name, ep, price, extra, face_lock = c
     if (OUT / f"{name}.mp4").exists():  # reuse: re-score without paying again
         return name, str(OUT / f"{name}.mp4"), 0, None
-    args = {"image_url": up["image"], "video_url": up["video"], **extra}
+    args = {"image_url": up["image"], "video_url": up["video"], **{k: v for k, v in extra.items() if not k.startswith("_")}}
     if "prompt" in ep or name.startswith(("kling", "wan-motion")):
         args["prompt"] = ("@Element1 " if face_lock else "") + a.prompt
     if face_lock:
@@ -146,6 +147,50 @@ def track(imgs):
     return np.array(pts)
 
 
+import mediapipe as mp
+from mediapipe.tasks.python import BaseOptions, vision
+
+LMK = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
+    base_options=BaseOptions(model_asset_path=str(MODELS / "face_landmarker.task"), delegate=BaseOptions.Delegate.CPU), num_faces=1))
+MFPS = 12
+
+
+def mouth_series(path):
+    """Inner-lip gap / face height per frame at MFPS (NaN where no face)."""
+    out = []
+    for im in frames(path, fps=MFPS):
+        res = LMK.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=cv2.cvtColor(im, cv2.COLOR_BGR2RGB)))
+        if not res.face_landmarks:
+            out.append(np.nan); continue
+        L = res.face_landmarks[0]
+        gap = abs(L[14].y - L[13].y); face = abs(L[152].y - L[10].y) or 1
+        out.append(gap / face)
+    return np.array(out)
+
+
+def audio_env(path):
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", path, "-vn", "-ac", "1", "-ar", "16000",
+                          "-af", "highpass=f=300,lowpass=f=3000", "-f", "s16le", "-"], capture_output=True).stdout
+    x = np.frombuffer(raw, np.int16).astype(np.float32)
+    hop = 16000 // MFPS
+    return np.array([np.sqrt(np.mean(x[i:i + hop] ** 2)) for i in range(0, len(x) - hop, hop)])
+
+
+def lagcorr(x, y, max_lag=3):
+    """Best Pearson r within +/-max_lag frames (lip timing tolerance ~0.25 s)."""
+    best = None
+    for L in range(-max_lag, max_lag + 1):
+        a_, b_ = (x[L:], y[:len(y) - L]) if L >= 0 else (x[:L], y[-L:])
+        n = min(len(a_), len(b_)); a_, b_ = a_[:n], b_[:n]
+        ok = ~(np.isnan(a_) | np.isnan(b_))
+        if ok.sum() > 8 and np.std(a_[ok]) > 1e-6 and np.std(b_[ok]) > 1e-6:
+            r = float(np.corrcoef(a_[ok], b_[ok])[0, 1])
+            best = r if best is None else max(best, r)
+    return best
+
+
+drv_mouth, song = mouth_series(a.video), audio_env(a.video)
+print("driver mouth-vs-song r (ceiling):", lagcorr(drv_mouth, song))
 drv = track(frames(a.video))
 for name, r in results.items():
     if not r["path"]:
@@ -169,6 +214,9 @@ for name, r in results.items():
                            capture_output=True, text=True).stdout
     pj = json.loads(probe)
     st = pj["streams"][0]
+    om = mouth_series(r["path"])
+    mm, ma = lagcorr(om, drv_mouth), lagcorr(om, song)
+    r.update(mouth=round(mm, 3) if mm is not None else None, mouth_audio=round(ma, 3) if ma is not None else None)
     r.update(likeness=round(float(np.median(sims)), 3) if sims else None, timing=round(float(np.mean(rs)), 3) if rs else None,
              res=f"{st['width']}x{st['height']}", fps=st["r_frame_rate"], out_s=round(float(pj["format"]["duration"]), 2),
              cost=quote[name])
@@ -186,7 +234,7 @@ except OSError:
     FONT = None
 for i, lab in enumerate(labels):
     sc = results.get(lab, {})
-    extra = f" L{sc.get('likeness')} T{sc.get('timing')}" if lab != "driving" else ""
+    extra = f" L{sc.get('likeness')} T{sc.get('timing')} M{sc.get('mouth')}" if lab != "driving" else ""
     d.text((i * TW + 6, 11), (lab + extra)[:34], fill=(255, 255, 255), font=FONT)
 header.save(OUT / "header.png")
 inputs = sum([["-i", t] for t in tiles], [])
@@ -198,13 +246,14 @@ subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-loop", "1", "-i
                check=True)
 
 # ---- scorecard ----
-rows = ["| model | $/s | cost | wall | output | likeness ↑ | timing ↑ | note |", "|---|---|---|---|---|---|---|---|"]
+rows = ["| model | $/s | cost | wall | output | likeness ↑ | timing ↑ | mouth match ↑ | mouth vs song ↑ | note |",
+        "|---|---|---|---|---|---|---|---|---|---|"]
 for name, ep, price, _, fl in cands:
     r = results[name]
     if r["path"]:
-        rows.append(f"| {name} | {price} | ${r['cost']} | {r['wall_s']} s | {r['res']} @ {r['fps']} | {r['likeness']} | {r['timing']} | {'face lock' if fl else ''} |")
+        rows.append(f"| {name} | {price} | ${r['cost']} | {r['wall_s']} s | {r['res']} @ {r['fps']} | {r['likeness']} | {r['timing']} | {r.get('mouth')} | {r.get('mouth_audio')} | {'face lock' if fl else ''} |")
     else:
-        rows.append(f"| {name} | {price} | – | {r['wall_s']} s | FAILED | – | – | {r['error']} |")
+        rows.append(f"| {name} | {price} | – | {r['wall_s']} s | FAILED | – | – | – | – | {r['error']} |")
 (OUT / "scorecard.md").write_text("\n".join(rows) + "\n")
 print("\n".join(rows))
 print("grid:", OUT / "grid.mp4")
