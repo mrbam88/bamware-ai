@@ -19,7 +19,7 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 p = argparse.ArgumentParser()
 p.add_argument("left")
@@ -89,6 +89,16 @@ def face_metrics(frame_path):
         return None
     x, y, fw, fh = max(faces, key=lambda f: f[2] * f[3])[:4]
     return y - 0.3 * fh, 1.3 * fh, x + fw / 2
+
+
+def smooth_mask(masks, i, size):
+    """Temporal smoothing (0.25/0.5/0.25 over neighbouring frames) + a slight feather: kills edge flicker."""
+    def load(j):
+        j = min(max(j, 0), len(masks) - 1)
+        return np.asarray(Image.open(masks[j]).convert("L").resize(size)).astype(np.float32)
+    m = 0.25 * load(i - 1) + 0.5 * load(i) + 0.25 * load(i + 1)
+    img = Image.fromarray(np.clip(m, 0, 255).astype(np.uint8))
+    return img.filter(ImageFilter.GaussianBlur(1.2))
 
 
 def head_metrics(mask):
@@ -182,11 +192,11 @@ out.mkdir()
 for i in range(n):
     st = stats[shot_of(i)]
     canvas = plates[shot_of(i)].copy()
-    lc = Image.open(Lf[i]).convert("RGB"); lm = main_blob(Image.open(Lm[i]).convert("L").resize((PW, H)))
+    lc = Image.open(Lf[i]).convert("RGB"); lm = main_blob(smooth_mask(Lm, i, (PW, H)))
     lw, lh = int(PW * st["ls"]), int(H * st["ls"])
     lc, lm = lc.resize((lw, lh), Image.LANCZOS), lm.resize((lw, lh), Image.LANCZOS)
     canvas.paste(lc, (int(st["lx"]), int(st["ly"])), lm)
-    rc = Image.open(Rf[i]).convert("RGB"); rm = main_blob(Image.open(Rm[i]).convert("L").resize((PW, H)))
+    rc = Image.open(Rf[i]).convert("RGB"); rm = main_blob(smooth_mask(Rm, i, (PW, H)))
     sw, sh = int(PW * st["rs"]), int(H * st["rs"])
     rc, rm = rc.resize((sw, sh), Image.LANCZOS), rm.resize((sw, sh), Image.LANCZOS)
     canvas.paste(rc, (int(st["rx"]), int(st["ry"])), rm)
