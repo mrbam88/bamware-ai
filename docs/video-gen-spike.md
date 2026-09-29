@@ -399,6 +399,16 @@ where it falls in the song, both on one stage, and the mic as the anchor.
 Resumed the same day with the free mic-centred re-stitch (`--mic-center`) and
 her last 2 shots rendered one Kling call per shot (~$1.10).
 
+**How the apps do it (Starrd's published recipe, 2026-09-29):** one image
+model still with BOTH people in the booth (full body, clear gap, no overlap),
+then **Seedance 2.0** with that still as the image reference plus the booth clip
+as the video reference, rendering both people in one pass. It's one continuous
+shot, 15 s, 9:16, rendered silent with the real song laid on top; ~$5 in
+credits per video. Their stated reason: "motion-control tools are built to
+puppeteer one subject". That is exactly our Kling MC wall. Seedance
+reference-to-video is on fal (`bytedance/seedance-2.5/reference-to-video`,
+$0.13–0.28/s) and was listed in our candidates but never tested.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
