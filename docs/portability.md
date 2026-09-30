@@ -126,6 +126,22 @@ optional; comp figures are in the private repo and it should ask rather than
 guess. A vendor that answers from memory, guesses a number, or claims not to know
 where to look has not picked up the pointer.
 
+## Generation vendors: always keep an open route (Bilal, 2026-09-30)
+
+Set after the video spike. Hosted video models (Higgsfield, Kling, Seedance,
+Runway, Veo, Sora) each carry their own content rules and can refuse or
+change terms at any time; agents carry rules of their own too. Bamware
+requires options:
+
+- Every generation capability keeps **an open-weights route that runs on a
+  rented GPU under our control**, documented as a runbook with scripts in
+  this repo, runnable by any person or agent from a terminal.
+- Prefer open/Chinese models (Wan, SCAIL, Hunyuan, Kling-class APIs) where
+  they match quality; the hosted premium model is a convenience, not the
+  dependency.
+- Procedures live here, never only in a chat with one vendor's agent. The
+  first instance: `docs/self-hosted-two-person.md` (SCAIL-2).
+
 ## Rule
 
 If a vendor ever offers to "remember" these facts for you, decline. That is how
