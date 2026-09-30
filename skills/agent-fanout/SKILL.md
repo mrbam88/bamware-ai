@@ -55,6 +55,13 @@ cd ~/code/<repo> && git worktree add <scratch>/wt-issueN -b feat/N-slug origin/m
 # after push: git worktree remove --force <scratch>/wt-issueN
 ```
 
+**One background job = one repo (2026-09-30).** Claude Code background jobs
+are worktree-isolated and their guard refuses git aimed at any other
+directory, including creating a new repo, and it also refuses shell commands
+it can't parse (loops, variables). Root cause of the `bamware-video` block.
+Rule: anything that creates a repo or spans repos runs in an **interactive**
+session, never a background job. Detail: `docs/agent-permission-blocks.md`.
+
 ## Prompt block per agent (adapt, don't skip)
 
 1. `gh issue view N` — the spec is the source of truth.
