@@ -23,6 +23,12 @@ clear and warned me"*.
 | editing `~/.claude/settings.json` to allow it | `[Self-Modification]` |
 | `gh pr view --json state,mergedAt` | no reason given |
 | `gh pr list --state merged` | **allowed** — use this |
+| any `git`/`gh repo create` outside the job's worktree (2026-09-30) | "worktree-isolated session's git operations must target its own worktree" |
+
+The last row is specific to **background jobs**: Claude Code runs them inside
+a git worktree and refuses git aimed at any other repo, including a new one
+(hit while creating `bamware-video`). Interactive sessions don't have it.
+Fix: Bilal runs the one line, or opens an interactive session in that repo.
 
 The denial text says "the user can add a Bash permission rule to their
 settings", but editing those settings is itself denied. **An agent cannot
