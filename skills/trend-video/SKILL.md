@@ -23,7 +23,25 @@ gotcha is in `docs/video-gen-spike.md`, and the business case is in
 - **Consent and rights:** the family's consent for their likeness. Trend
   songs and footage are unlicensed for commercial use (market doc §4).
 
-## Tool routing
+## The recipe that works (2026-09-30, Bilal: "this is really what I was looking for")
+
+**Two people = one pass.** Give ONE model the original clip and both people;
+never render them separately and stitch. Three models pass, all on the same
+15 s (`docs/video-gen-spike.md`, overnight #2):
+
+| Model | Inputs | Cost / 15 s | Notes |
+|---|---|---|---|
+| Higgsfield Genjutsu Motion Transfer (`higgs_genjutsu.py`) | original clip (4–30 s) + one reference sheet per person (face, full body front/back, second face; back views via local FLUX) | $10.21 at 720p, $4.77 at 480p (web app ≈ half) | safe premium; prompt assigns left/right and holds it "through every cut" |
+| DreamActor M2 (`fal_simple.py fal-ai/bytedance/dreamactor/v2`) | one FLUX still of both in the booth + original clip | $0.75 | cheapest by far; background comes from the still |
+| Kling O1 edit (`fal_kling_o1_edit.py`) | original clip ≤10 s per call + elements + start photos as `--image` ("dressed exactly as in @Image1") | $2.51 | 1080p; the outfit anchoring is required |
+
+Steps: cut the clip at a camera cut → make the reference sheets or the booth
+still (free, local) → one call per model → lay the original song back on →
+label and post to Discord (`discord_upload.sh`, `LABEL=`). Everything below
+this line is the earlier per-person pipeline, kept for the parts that still
+apply (likeness refs, grade, harness).
+
+## Tool routing (per-person tools; retired for two-person videos)
 
 | Need | Tool | Why |
 |---|---|---|

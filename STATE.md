@@ -8,6 +8,18 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-30 — Video spike: SOLVED. Two people in one pass; Bilal: "we did it"
+
+- The stitched per-person route was retired (glitchy, unsynced). The fix
+  was framing the job as "both people in one pass": Higgsfield Genjutsu
+  ($10.21/15 s at 720p), DreamActor M2 ($0.75/15 s) and outfit-anchored
+  Kling O1 ($2.51/15 s) all produced a coherent pair through the cuts.
+  Bilal: "all of these newer videos are way better!! this is really what I
+  was looking for finally!!! we did it!" Recipe: `skills/trend-video` (top).
+- Open: Bilal's pick among the three; the full 37 s on the winner; Seedance
+  via each person's selfie verification (link expires ~30 min).
+- Spend: fal ≈ $45.90, Higgsfield ≈ $13.40, RunPod $2.32. Draft PR #58.
+
 ## 2026-09-29 — Video spike: full 37 s built overnight; avatars "solved", video craft is next
 
 - Bilal: the avatar part is solved; the next step is a better hip-hop video,
