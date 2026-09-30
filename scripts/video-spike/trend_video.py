@@ -104,9 +104,9 @@ if a.dry_run:
 
 # 3. prompt
 prompt = (f"Replace the performer who begins on the LEFT{(' (' + a.orig_left + ')') if a.orig_left else ''} with the person in "
-          f"image 1: {a.left}; keep their face, hair, glasses and clothes exactly as in image 1, nothing from the original performer (no dreadlocks, no sunglasses unless image 1 has them). "
+          f"image 1: {a.left}; keep their face, hair, glasses and clothes exactly as in image 1. "
           f"Replace the performer who begins on the RIGHT{(' (' + a.orig_right + ')') if a.orig_right else ''} with the person in "
-          f"image 2: {a.right}; keep their face, hair, glasses and clothes exactly as in image 2, nothing from the original performer (no dreadlocks, no sunglasses unless image 2 has them). "
+          f"image 2: {a.right}; keep their face, hair, glasses and clothes exactly as in image 2. "
           "Keep this assignment through every camera cut and every turn. ")
 if a.height_ref:
     prompt += f"Image 3 shows their true relative heights: {a.height}; keep that height difference in every shot. "
