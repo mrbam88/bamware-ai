@@ -2,7 +2,7 @@ BILAL MALIK
 Lead Mobile Engineer, AI-Native
 
 bmalik.ee@gmail.com | New York, NY
-bamware.io | github.com/mrbam88
+bamware.io | github.com/mrbam88 | linkedin.com/in/bilal-malik-797abb35
 
 SUMMARY
 
@@ -65,7 +65,7 @@ Stack: SwiftUI, Combine, Kotlin, Jetpack Compose, React Native, Node.js, AWS Ser
 - Built APIs and microservices supporting the mobile platform using Node.js,
   Express, AWS Serverless, PHP and SQL.
 
-Senior Full Stack Developer - Cognosante Inc., Remote
+Senior Full Stack Developer - Cognosante (now part of Accenture Federal Services), Remote
 Mar 2018 - Nov 2020
 Stack: React Native, Flutter, SwiftUI, HealthKit, GraphQL, AWS, Terraform
 - Built React Native and Flutter applications for managing personal health
@@ -74,7 +74,7 @@ Stack: React Native, Flutter, SwiftUI, HealthKit, GraphQL, AWS, Terraform
   built supporting microservices with Node.js, GraphQL, AWS Serverless,
   DynamoDB, and PostgreSQL.
 
-iOS Software Engineer - Allscripts Inc., Raleigh, NC
+iOS Software Engineer - Veradigm (formerly Allscripts), Raleigh, NC
 Nov 2016 - Feb 2018
 Stack: Swift, Objective-C, Vidyo SDK, Jenkins, Fastlane
 FollowMyHealth is a personal health record used by more than one million
