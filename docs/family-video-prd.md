@@ -3,6 +3,22 @@
 Status: **WAIT → GO on trigger** (2026-09-28). Owner: Bilal. Spike: #57,
 evidence in `docs/video-gen-spike.md`.
 
+## Verdict 2026-09-30 (spike solved; Bilal asked "is it worth it?")
+
+**Not a business for Bamware; a capability worth keeping.**
+- Tech: solved. Two people in one pass on Higgsfield Genjutsu ($10/15 s at
+  720p), DreamActor M2 ($0.75/15 s) or anchored Kling O1. A full 37 s costs
+  $2–13 against a $19.99 price. Cost is not the constraint.
+- Why not a business: saturated (10+ apps sell this template on weekly subs
+  and ad spend); no moat (our recipe is an API call plus prep, copied in a
+  week); rights (unlicensed song and footage; Apple 4.3(b) and likeness
+  rules); trend-chasing is content ops, not a solo-founder product.
+- Keep: `skills/trend-video` as a one-week feature for any Bamware app; the
+  consent-first handling of real faces as the differentiator if ever used.
+- Demand test stays available and cheap: the WAIT → GO trigger below (10 paid
+  orders in 14 days from a web page, zero build before that).
+- Spike spend: fal ≈ $46, Higgsfield ≈ $39, RunPod ≈ $2; ~4 days of effort.
+
 ## Update 2026-09-28 (after the market pass: `docs/family-video-market.md`)
 
 - **Saturated as a trend app.** 9+ apps sell the Hotel Lobby clip right now
