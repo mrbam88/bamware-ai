@@ -520,6 +520,23 @@ things that matter are the sync of both performers together and each
 person's lip sync, and "this model does both really well". All three are an
 improvement over the stitched route.
 
+**Full 37 s on Higgsfield (2026-09-30):**
+- First attempt (2 calls, 21.3 + 15.7 s, height-reference image, continuity
+  frame): part A clean and the height difference held; part B drifted, her
+  badly (the original performer's dreads), him a little. Bilal: glitchy from
+  the start, redo.
+- Redo through `trend_video.py` (3 calls ≤15 s, no height image, no
+  continuity frame): parts 1–2 clean. **Part 3 (25.6–37 s) rejected by
+  Higgsfield moderation three times (`nsfw`, no reason)**, with two prompt
+  wordings; the same footage passed yesterday from a 21.3 s boundary. Black
+  box; the vendor-lock argument in miniature.
+- Finish: last 11.4 s on Kling O1 outfit-anchored (~$2). Bilal: O1 is
+  actually better for her. The Mac dropped network twice mid-run, which is
+  why the pipeline now lives on `omarchy` (`docs/machines.md`).
+- Learned: 15 s calls stay clean, 21 s drift; the generated height image and
+  continuity frame did not help; hosted moderation can refuse harmless
+  footage without appeal.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
