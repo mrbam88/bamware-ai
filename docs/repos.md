@@ -19,6 +19,7 @@ this when you are about to work in a repo, not at session start.
 | `bamware-mcp` | MCP server exposing platform ops as agent tools: `create_tenant`, `seed_demo_data`, `board_ops`, `provision_dedicated` (renders Terraform + opens PR; `apply` stays human-gated). GitHub auth rides on `gh` CLI; never handles tokens. pnpm, tsup, vitest. | local (any MCP harness) |
 | `interviews` | Private. Job-search tracker (one file per application) plus PII, EEO, and compensation answers. | n/a |
 | `bamware-ai` | The constitution: AGENTS.md, STATE.md, shared skills, context CI. | n/a |
+| `bamware-video` | **Private.** Pay-per-video trend clips of real people: two photos in, one music video out. Next.js 16 + Tailwind (pnpm): landing page, free-preview order form, `/api/order`, template catalog in `templates/<id>.json` (shared with the render tool). Fulfilment via `scripts/video-spike/trend_video.py` on `omarchy`; business case in `docs/family-video-prd.md`. | Vercel later (not yet deployed); `pnpm dev` locally |
 | `bamware-crm` | **Local repo; publication pending.** Expo RN web/mobile business workspace, role-scoped offline Tasks module, Express + SQLite. Source at sibling `code/bamware-crm`; first slice tracked in bamware-ai#31. | local demo only: web/API 4310, Metro 8093; web + iOS verified |
 
 ## Live endpoints (dev)
