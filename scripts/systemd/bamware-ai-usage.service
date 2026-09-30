@@ -1,0 +1,8 @@
+[Unit]
+Description=Bamware AI usage collector (bamware-web#12)
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
+ExecStart=%h/code/bamware-ai/scripts/ai-usage-collect.py
