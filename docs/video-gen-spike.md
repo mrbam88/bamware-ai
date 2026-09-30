@@ -502,6 +502,21 @@ outfit held. Max input 30 s, so the 37 s needs two calls split at a cut
 (creators feed a still from part 1 into part 2 to stop outfit drift).
 Full 37 s: ~$11.80 at 480p, ~$25.20 at 720p.
 
+**Overnight #2 (2026-09-30, same 15 s = COLORS 0:15–0:30, three two-person
+one-pass models, $13.47, 20 min total; all three posted to Discord):**
+
+| Model | Input | Output | Cost | Time | Contact-sheet check |
+|---|---|---|---|---|---|
+| Higgsfield Genjutsu 720p | original clip + 2 reference sheets | 1280×720 | $10.21 | 7.3 min | both consistent in all 10 frames |
+| DreamActor M2 (`fal-ai/bytedance/dreamactor/v2`) | one FLUX booth still of both + original clip | 1214×694 | $0.75 | 5 min | both consistent; background = the still's |
+| Kling O1 edit, outfit-anchored (2 calls at the 7.36 s cut) | original clip + elements + start photos | 1920×1080 | $2.51 | 7 min | both consistent; anchoring holds (3/3 now) |
+
+Read: once the job is framed as "both people in one pass", three different
+models deliver a coherent pair through the cuts. DreamActor at $0.05/s is the
+cost story (a 37 s video ≈ $1.85) if its faces and lip sync hold up to
+Bilal's eye; Genjutsu is the safe premium; O1 is the 1080p option but needs
+the outfit anchoring and ≤10 s calls. Bilal to judge faces/lips.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
