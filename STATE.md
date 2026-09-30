@@ -694,6 +694,11 @@ its no-execution status; hosted activation and spend remain separate gates.
   ID web session, no API-key path) → Bilal enters the 7 rows from
   submission/1.1/metadata/privacy-label.md, then Submit. Contributions
   stay open signed-out (as built and tested; review notes say so).
+- 2026-09-30: **BrewDesk 1.1 SUBMITTED** — Bilal entered the App Privacy
+  label and hit Submit from his X1; ASC version 02b2835c… = WAITING_FOR_REVIEW
+  (build 32). Session cron polls the state every 2 h (7-day limit); outcome
+  goes here. Next after approval: release is AFTER_APPROVAL (auto), then
+  1.1 marketing posts + web city pages per the post-approval order.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
