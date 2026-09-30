@@ -38,6 +38,16 @@ if exists "/bamware/shared/discord-webhook-status"; then
   say "Discord webhook -> ~/.config/bamware/discord.env"
 fi
 
+# --- AI usage collector (docs/ai-usage.md) ---------------------------------
+# Rewrites only the token line; AI_USAGE_HOST and AI_USAGE_URL are kept.
+if exists "/bamware/shared/ai-usage-ingest-token"; then
+  f=~/.config/bamware/ai-usage.env
+  mkdir -p ~/.config/bamware && touch "$f" && chmod 600 "$f"
+  sed -i '/^AI_USAGE_INGEST_TOKEN=/d' "$f"
+  echo "AI_USAGE_INGEST_TOKEN=$(get /bamware/shared/ai-usage-ingest-token)" >>"$f"
+  say "AI usage ingest token -> ~/.config/bamware/ai-usage.env"
+fi
+
 # --- Terraform (bamware-infra) ---------------------------------------------
 # Nothing to materialize: terraform reads data.aws_ssm_parameter directly
 # using the same profile. Kept here as documentation.

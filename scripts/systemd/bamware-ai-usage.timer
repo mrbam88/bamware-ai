@@ -1,0 +1,12 @@
+[Unit]
+Description=Post Claude Code token usage every 2 minutes
+
+[Timer]
+# Short interval so "running now" on the dashboard stays current; a run that
+# finds no changed transcripts reads nothing and posts nothing.
+OnBootSec=1min
+OnUnitActiveSec=2min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

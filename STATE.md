@@ -8,6 +8,20 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-30 — web#12 AI usage dashboard UNBLOCKED (PRs open, setup pending)
+
+- Design decided with Bilal: **DynamoDB** (`bamware-dev-ai-usage`, table-scoped
+  IAM user for Vercel) and collection on the **omarchy server** as a systemd
+  timer. Full design + runbook: `docs/ai-usage.md`.
+- Built: collector `scripts/ai-usage-collect.py` (+ tests, installer, timer,
+  `secrets-pull.sh` entry); bamware-web `/admin/ai-usage` + ingest + CSV
+  import; bamware-infra table + IAM user. Verified end to end on the ThinkPad
+  against DynamoDB Local with real transcripts (desktop + mobile checked).
+- **Blocked on Bilal:** merge the three PRs, `terraform apply`, create the
+  access key, put the ingest token in SSM, set 4 Vercel env vars, run
+  `scripts/install-ai-usage.sh omarchy` on the server (Tailscale SSH re-auth
+  stopped the agent). Window limit (1.5M) is still the unverified figure.
+
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 
 - Bilal requested full integration with Bamware remaining canonical. Installed
@@ -1344,8 +1358,7 @@ QA-merges only.
   secondary**; Bilal types into ASC (Human-only).
 - Submission candidate: **recut TF from current main**, then bd#69 reviewer
   sim, then bd#33 runbook; do not submit an older TF build.
-- web#12 (AI usage dashboard): **hold** — needs secrets/ingest design;
-  supervised session later.
+- web#12 (AI usage dashboard): ~~hold~~ unblocked 2026-09-30, see top.
 
 **Harness note:** background web subagent died mid-run with
 `WritableIterable is closed` (Cursor harness stream closed — **not** Claude
@@ -1590,7 +1603,7 @@ Spend: $0. All supervisor QA'd with visual evidence; worktrees cleaned.
   45s, aliased to bamware.io. Live-verified 200: `/`, `/brewdesk`,
   `/brewdesk/privacy|support|terms`, `/sign-up`, `/baat`, `/admin/login`.
 - **Web queue now:** 0 open PRs; next picks web#7 (Baat case study) then
-  #20 (11a). web#12 still held (secrets/ingest design). web#3 (waitlist
+  #20 (11a). web#12 unblocked 2026-09-30 (see top). web#3 (waitlist
   keep-or-kill) needs a 1-min Bilal call. Spend: $0.
 
 ## 2026-08-28 (night) — Flutter parity wave: 12/12 merged, Play prep done
