@@ -22,7 +22,6 @@ from pathlib import Path
 
 S = Path(__file__).resolve().parent
 PRICE = {"480p": 0.318, "720p": 0.681, "1080p": 1.632}
-MAXCALL = 30.0
 
 p = argparse.ArgumentParser()
 p.add_argument("source")
@@ -38,6 +37,8 @@ p.add_argument("--height", default="", help="sentence about their relative heigh
 p.add_argument("--orig-left", default="", help="optional: how the original left performer looks, to disambiguate")
 p.add_argument("--orig-right", default="")
 p.add_argument("--resolution", default="720p", choices=list(PRICE))
+p.add_argument("--max-call", type=float, default=15.0, help="max seconds per Higgsfield call (15 s stayed clean; 21 s drifted)")
+p.add_argument("--continuity", action="store_true", help="pass the last frame of each part into the next (did not help on Hotel Lobby)")
 p.add_argument("--label", default="Higgsfield Genjutsu - both people, one pass")
 p.add_argument("--no-post", action="store_true")
 p.add_argument("--dry-run", action="store_true")
@@ -76,6 +77,7 @@ ff("-i", clip, "-vn", "-c:a", "copy", song)
 
 # 2. parts (<= 30 s each, split at scene cuts)
 cuts = []
+MAXCALL = min(a.max_call, 30.0)
 if a.dur > MAXCALL:
     err = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(clip), "-vf", "scale=480:-2,select='gte(scene,0)',metadata=print:key=lavfi.scene_score",
                           "-an", "-f", "null", "-"], capture_output=True, text=True).stderr
@@ -102,9 +104,9 @@ if a.dry_run:
 
 # 3. prompt
 prompt = (f"Replace the performer who begins on the LEFT{(' (' + a.orig_left + ')') if a.orig_left else ''} with the person in "
-          f"image 1: {a.left}; keep their face, hair, glasses and clothes exactly as in image 1. "
+          f"image 1: {a.left}; keep their face, hair, glasses and clothes exactly as in image 1, nothing from the original performer (no dreadlocks, no sunglasses unless image 1 has them). "
           f"Replace the performer who begins on the RIGHT{(' (' + a.orig_right + ')') if a.orig_right else ''} with the person in "
-          f"image 2: {a.right}; keep their face, hair, glasses and clothes exactly as in image 2. "
+          f"image 2: {a.right}; keep their face, hair, glasses and clothes exactly as in image 2, nothing from the original performer (no dreadlocks, no sunglasses unless image 2 has them). "
           "Keep this assignment through every camera cut and every turn. ")
 if a.height_ref:
     prompt += f"Image 3 shows their true relative heights: {a.height}; keep that height difference in every shot. "
@@ -119,7 +121,7 @@ for i, (s, e) in enumerate(parts):
     out_i = work / f"out-{i}.mp4"
     images = [a.left_sheet, a.right_sheet] + ([a.height_ref] if a.height_ref else [])
     pr = prompt
-    if i > 0:
+    if i > 0 and a.continuity:
         last = work / f"out-{i - 1}-last.png"
         ff("-sseof", "-0.1", "-i", rendered[-1], "-frames:v", "1", "-update", "1", last)
         images.append(str(last))
