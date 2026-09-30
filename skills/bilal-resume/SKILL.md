@@ -52,7 +52,7 @@ oversight.
 | Lead Mobile Developer | Photobucket (remote) | Jan 2024 – Dec 2024 |
 | Senior iOS Developer | NuvoAir (remote) | May 2023 – Nov 2023 |
 | Mobile Engineering Manager | FreedomCare (NYC) | Mar 2021 – Feb 2023 |
-| Senior Full Stack Developer | Accenture Federal Services, formerly Cognosante (remote) | Mar 2018 – Nov 2020 |
+| Senior Full Stack Developer | Accenture, formerly Cognosante (remote) | Mar 2018 – Nov 2020 |
 | iOS Software Engineer | Veradigm, formerly Allscripts (Raleigh, NC) | Nov 2016 – Feb 2018 |
 
 Earlier: Computer Software Inc. (Mar 2015 – Oct 2016), WM Robots
@@ -83,6 +83,6 @@ Expo, SwiftUI, Terraform, Vercel.
 - Company names (2026-09-30). Allscripts renamed itself Veradigm in Jan 2023: write
   "Veradigm (formerly Allscripts)". Cognosante was acquired and merged into Accenture
   Federal Services in May 2024, after Bilal left (he chose Accenture-first wording):
-  write "Accenture Federal Services (formerly Cognosante)", never bare "Accenture".
+  write "Accenture (formerly Cognosante)".
   On forms with a single employer field or a background-check employer field, use
   "Cognosante", the legal employer at the time, so records match.
