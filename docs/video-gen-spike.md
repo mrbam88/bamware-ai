@@ -491,6 +491,17 @@ kavel.ai/blog/hotel-lobby-ai-trend,
 docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0-real-human,
 getstarrd.app/blog/how-to-make-hotel-lobby-colors-ai-video.
 
+**Higgsfield Genjutsu test (2026-09-30, $3.18, `higgs_genjutsu.py`):** 10 s
+of the original (COLORS 0:15–0:25, 3 cuts) + one reference sheet per person
+(face, full body front, full body back, second face; back views made with
+local FLUX). Result at 480p in 437 s: **both swapped in one pass, consistent
+through every cut, original camera, set, mic and timing kept**. First output
+that looks like the apps'. Notes: output 9.7 s for 10 s in; she got dark
+sunglasses from the original performer instead of her clear glasses; his
+outfit held. Max input 30 s, so the 37 s needs two calls split at a cut
+(creators feed a still from part 1 into part 2 to stop outfit drift).
+Full 37 s: ~$11.80 at 480p, ~$25.20 at 720p.
+
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
 (FLUX edit), then (2) run a two-person, one-pass video-to-video model on that
