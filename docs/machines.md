@@ -68,6 +68,15 @@ machine that can usefully host a local model. Bilal considered making the M3
 the always-on server and decided against it (2026-09-25): it still travels
 sometimes. Always-on work (Discord timers and bot) lives on `omarchy`.
 
+**Routing rule (Bilal, 2026-09-30):** the M3 is a daily driver too (it goes to
+cafés), so `omarchy` is the true build server. Anything that must stay
+connected for more than a few minutes (API render pipelines, GPU-pod
+orchestration, watchdogs) runs on `omarchy`. The M3 is used only for what
+needs Apple Silicon or macOS: Xcode, simulators, signing, local models
+(mlx-serve FLUX). A run on the M3 that lost network mid-way (2026-09-30, the
+37 s Higgsfield redo) is the incident behind this. Setup:
+`scripts/video-spike/server_setup.sh`.
+
 **Usage clarification (Bilal, 2026-09-24):** Bilal uses all three laptops in
 varying situations and tries to keep them in sync. The roles below are
 capability/availability defaults, not exclusive assignments: any machine may
