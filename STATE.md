@@ -8,6 +8,78 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-30 (evening) — Hotel Lobby 37 s finished; business ON HOLD
+
+- Bilal: business idea on hold (one template is not enough for an app; needs
+  more templates first). Finish this one template to a postable video, then stop.
+- Full 37 s assembled: 0–25.6 s Higgsfield Genjutsu 720p, 25.6–37 s Kling O1
+  anchored. Frame review found two drifted shots (7.4–11.2 s she → dreads;
+  18.4–21.3 s he → dreads + sunglasses) and the COLORS logo left in the O1
+  parts. Both shots redone on Kling O1 anchored ($1.18, Bilal OK'd $2.30),
+  logo removed with ffmpeg delogo. Result:
+  `~/Movies/video-spike/higgs/hotel-lobby-37-v4.mp4` (omarchy + Mac), posted
+  to Discord. Frame sheets clean; **lip sync not yet judged by Bilal.**
+- Night: 21 s all-Kling-O1 per shot with FLUX anchors ($3.64) FAILED: likeness
+  lost (O1 copied FLUX's faces from the anchor still), lip sync gone. Lesson in
+  `docs/video-gen-spike.md`. Best remains v4 hybrid; 21.3 s trim made. Total
+  video spend today ≈ $4.82 of $6.50 OK'd. Template work stops here (hold).
+- Script: `~/Movies/video-spike/o1fix.sh` on omarchy (per-shot O1 redo +
+  splice). Lesson: per camera shot, O1 anchored holds where Higgsfield drifts;
+  O1 keeps the source logo, delogo box x42 y591 86×90 at 1280×720.
+- `bamware-video` site is on GitHub (private): landing, order persistence
+  (Vercel Blob or local JSONL), Stripe link wired (needs the Payment Link URL).
+  Not deployed. Parked with the hold.
+
+## 2026-09-30 — Video spike: SOLVED. Two people in one pass; Bilal: "we did it"
+
+- The stitched per-person route was retired (glitchy, unsynced). The fix
+  was framing the job as "both people in one pass": Higgsfield Genjutsu
+  ($10.21/15 s at 720p), DreamActor M2 ($0.75/15 s) and outfit-anchored
+  Kling O1 ($2.51/15 s) all produced a coherent pair through the cuts.
+  Bilal: "all of these newer videos are way better!! this is really what I
+  was looking for finally!!! we did it!" Recipe: `skills/trend-video` (top).
+- Open: Bilal's pick among the three; the full 37 s on the winner; Seedance
+  via each person's selfie verification (link expires ~30 min).
+- Spend: fal ≈ $45.90, Higgsfield ≈ $13.40, RunPod $2.32. Draft PR #58.
+
+## 2026-09-29 — Video spike: full 37 s built overnight; avatars "solved", video craft is next
+
+- Bilal: the avatar part is solved; the next step is a better hip-hop video,
+  a faithful remake of the Migos COLORS original (mic as the anchor, wide shot
+  where it falls in the song).
+- Full 37 s (COLORS 0:15–0:52) built overnight: stitched Kling MC ×2 per
+  shot, mic-centred 4:3, verified O1 wide shots. File `t37/mc-37-v2-film.mp4`,
+  posted to Discord; awaiting Bilal's review. O1 one-pass per shot failed
+  (3/9 shots swapped correctly).
+- Seedance 2.5 (the apps' one-pass recipe) blocks real-person photos. Harness
+  now scores lip sync (mouth match); Wan Motion + enhance_identity is best on
+  lips.
+- Spend ≈ $42.60 of the $45 cap. Details: `docs/video-gen-spike.md`.
+
+## 2026-09-28 — Video spike: first viable clip; recipe saved as a skill
+
+- Bilal called the 10 s Hotel Lobby clip of an older couple "the first viable
+  video": Kling v3 Pro Motion Control per person (sync), a face lock from the
+  curated album, and height-true widescreen stitching over per-shot plates,
+  plus a film grade. Kling O1 one-pass gave the best faces but loose sync.
+- **Recipe: `skills/trend-video`** (tool routing, steps, gotchas). Results
+  log: `docs/video-gen-spike.md`. Business: `docs/family-video-prd.md` + the
+  market/Apple-policy pass (`docs/family-video-market.md`): web-only keepsake
+  studio first, GO at 10 paid orders in 14 days. Possible new Bamware app.
+- **Iterating on the first 10 s only** until Bilal says done (don't push the
+  full clip). Spend ~$15.40 of $20. Draft PR #58.
+
+## 2026-09-27 — New spike: AI video generation (#57)
+
+- Bilal launched a hands-on spike: cost per second, quality, market
+  economics. Findings and results log: `docs/video-gen-spike.md`. Verdict
+  **WAIT** until the local runs are measured.
+- Free-first: LTX-2.5 22B 4-bit via `mlx-serve` on the M3 Pro (36 GB
+  pack, ~24 GB RAM). Test brief: the "Hotel Lobby" AI trend. Paid
+  comparison approved up to **$20**, quote before spend. Spend so far $0.
+- Sora 2 API is dead (shutdown 2026-09-24, no replacement). Wan 2.5+ are
+  API-only; open weights stop at Wan 2.2.
+
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 
 - Bilal requested full integration with Bamware remaining canonical. Installed

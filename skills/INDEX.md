@@ -50,6 +50,7 @@ status flow. Roles will grow (Architect, Product) as the team builds up.
 | `night-supervisor` | The bedtime loop: run `night`-labelled tickets sequentially overnight, one Sonnet agent per ticket, QA-merge, morning STATE.md report. |
 | `native-ios-workspace` | The Xcode workspace for the shared Swift packages. |
 | `simulator-driving` | Driving the iOS simulator. |
+| `trend-video` | Realistic AI trend videos of real people from photos: Kling Motion Control per person + height-true stitching; tool routing, steps, gotchas. |
 
 ### QA
 
