@@ -35,9 +35,20 @@ never render them separately and stitch. Three models pass, all on the same
 | DreamActor M2 (`fal_simple.py fal-ai/bytedance/dreamactor/v2`) | one FLUX still of both in the booth + original clip | $0.75 | cheapest by far; background comes from the still |
 | Kling O1 edit (`fal_kling_o1_edit.py`) | original clip ≤10 s per call + elements + start photos as `--image` ("dressed exactly as in @Image1") | $2.51 | 1080p; the outfit anchoring is required |
 
-Steps: cut the clip at a camera cut → make the reference sheets or the booth
-still (free, local) → one call per model → lay the original song back on →
-label and post to Discord (`discord_upload.sh`, `LABEL=`). Everything below
+**One command (first take):**
+```
+# once per person (free; the back view is generated locally if not given)
+python3 scripts/video-spike/make_sheet.py him.jpg --face FACE.jpg --body FULLBODY.png --face2 FACE2.jpg --describe "hair, clothes"
+# the video (quote first with --dry-run; URL or file; >30 s is split at a scene cut)
+bash scripts/video-spike/higgs_env.sh scripts/video-spike/trend_video.py SOURCE START DUR out.mp4 \
+  --left "who + clothes" --left-sheet him.jpg --right "who + clothes" --right-sheet her.jpg \
+  [--height-ref both.png --height "he is six feet, she is five foot four"] [--resolution 720p]
+```
+It cuts, prompts, calls Higgsfield per part, retimes, lays the song back on
+and posts to Discord. Manual steps behind it: cut the clip at a camera cut →
+make the reference sheets or the booth still (free, local) → one call per
+model → lay the original song back on → label and post
+(`discord_upload.sh`, `LABEL=`). Everything below
 this line is the earlier per-person pipeline, kept for the parts that still
 apply (likeness refs, grade, harness).
 
