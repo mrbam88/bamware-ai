@@ -1,6 +1,6 @@
 # PRD: Family trend videos ("put your parents in the video")
 
-Status: **WAIT → GO on trigger** (2026-09-28). Owner: Bilal. Spike: #57,
+Status: **ON HOLD** (Bilal, 2026-09-30): one template is not enough to build an app around; more templates first. Previously WAIT → GO on trigger (2026-09-28). Owner: Bilal. Spike: #57,
 evidence in `docs/video-gen-spike.md`.
 
 ## Verdict 2026-09-30 (spike solved; Bilal asked "is it worth it?")

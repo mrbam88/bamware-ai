@@ -8,6 +8,24 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-30 (evening) — Hotel Lobby 37 s finished; business ON HOLD
+
+- Bilal: business idea on hold (one template is not enough for an app; needs
+  more templates first). Finish this one template to a postable video, then stop.
+- Full 37 s assembled: 0–25.6 s Higgsfield Genjutsu 720p, 25.6–37 s Kling O1
+  anchored. Frame review found two drifted shots (7.4–11.2 s she → dreads;
+  18.4–21.3 s he → dreads + sunglasses) and the COLORS logo left in the O1
+  parts. Both shots redone on Kling O1 anchored ($1.18, Bilal OK'd $2.30),
+  logo removed with ffmpeg delogo. Result:
+  `~/Movies/video-spike/higgs/hotel-lobby-37-v4.mp4` (omarchy + Mac), posted
+  to Discord. Frame sheets clean; **lip sync not yet judged by Bilal.**
+- Script: `~/Movies/video-spike/o1fix.sh` on omarchy (per-shot O1 redo +
+  splice). Lesson: per camera shot, O1 anchored holds where Higgsfield drifts;
+  O1 keeps the source logo, delogo box x42 y591 86×90 at 1280×720.
+- `bamware-video` site is on GitHub (private): landing, order persistence
+  (Vercel Blob or local JSONL), Stripe link wired (needs the Payment Link URL).
+  Not deployed. Parked with the hold.
+
 ## 2026-09-30 — Video spike: SOLVED. Two people in one pass; Bilal: "we did it"
 
 - The stitched per-person route was retired (glitchy, unsynced). The fix

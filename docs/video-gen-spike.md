@@ -543,6 +543,16 @@ Next test when resumed (not started; needs a budget): per camera shot,
 shot (Kling O1 edit was closest: best faces), with neutral prompts, then
 (3) cut the shots together on the original audio. Trade-off: exact height
 truth has to be set in the first frame; no compositing afterwards.
+**Per-shot fix (2026-09-30 evening, $1.18):** frame review of the assembled
+37 s showed Higgsfield drifting inside two medium shots (7.36–11.20 s her,
+18.44–21.32 s him: the original performers' dreads come back when a head
+drops or turns). Both shots redone on Kling O1 outfit-anchored with the
+tail's prompt and refs (`o1finish.sh` → `o1fix.sh`); both held. O1 keeps the
+COLORS logo the source carries, Higgsfield does not: `delogo` on the O1
+ranges. Final `higgs/hotel-lobby-37-v4.mp4`. Camera cuts (scene 0.15): 4.04,
+7.36, 11.20, 14.92, 18.44, 21.32, 25.64, 30.12. Rule of thumb: Higgsfield for
+the pair through cuts, O1 per shot where a face turns away.
+
 Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`, auto-posts to Discord); her last
 5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
 
