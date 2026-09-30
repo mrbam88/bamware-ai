@@ -9,6 +9,8 @@ TMP=$(mktemp -d)
 LIMIT=9500000
 HERE=$(cd "$(dirname "$0")" && pwd)
 PY=${LABEL_PY:-$HOME/tools/rembgenv/bin/python}
+[ -x "$PY" ] || PY=$HOME/tools/falenv/bin/python  # the server has only the fal venv (PIL is in both)
+fsize() { wc -c < "$1" | tr -d " "; }
 label_for() {  # model name burned onto the video (override with LABEL=...)
   [ -n "${LABEL:-}" ] && { echo "$LABEL"; return; }
   case "$(basename "$1")" in
@@ -30,7 +32,7 @@ for item in "$@"; do
     "$PY" "$HERE/label_video.py" "$f" "$TMP/labelled-$(basename "$f")" "$lab" >/dev/null && f="$TMP/labelled-$(basename "$f")"
   fi
   up="$f"
-  if [ "$(stat -f%z "$f")" -gt $LIMIT ]; then
+  if [ "$(fsize "$f")" -gt $LIMIT ]; then
     dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")
     # target ~9 MB total: video bitrate = 9 MB*8/duration - 128k audio
     vb=$(python3 -c "print(int(9.0e6*8/float('$dur') - 128e3))")
@@ -41,7 +43,7 @@ for item in "$@"; do
   code=$(curl -s -o "$TMP/resp.json" -w '%{http_code}' \
     --form-string "payload_json=$(jq -n --arg c "$caption" '{username: "Bamware", content: $c}')" \
     -F "files[0]=@$up" "$HOOK")
-  printf '%s  %s  (%.1f MB)\n' "$code" "$(basename "$f")" "$(echo "$(stat -f%z "$up") / 1000000" | bc -l)"
+  printf '%s  %s  (%.1f MB)\n' "$code" "$(basename "$f")" "$(python3 -c "print($(fsize "$up")/1e6)")"
   [[ "$code" == 20[04] ]] || head -c 300 "$TMP/resp.json"
 done
 rm -rf "$TMP"

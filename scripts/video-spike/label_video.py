@@ -16,11 +16,12 @@ W, H = st["width"], st["height"]
 size = max(18, int(min(W, H) * 0.035))
 font = None
 for f in ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", "/System/Library/Fonts/Supplemental/Arial.ttf",
-          "/System/Library/Fonts/Helvetica.ttc"):
+          "/System/Library/Fonts/Helvetica.ttc", "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
+          "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "/usr/share/fonts/liberation/LiberationSans-Bold.ttf"):
     if Path(f).exists():
         font = ImageFont.truetype(f, size)
         break
-font = font or ImageFont.load_default()
+font = font or ImageFont.load_default(size)  # PIL >= 10.1 scales the built-in font
 bar = int(size * 1.8)
 img = Image.new("RGBA", (W, bar), (0, 0, 0, 150))
 d = ImageDraw.Draw(img)
