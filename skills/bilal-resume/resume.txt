@@ -65,7 +65,7 @@ Stack: SwiftUI, Combine, Kotlin, Jetpack Compose, React Native, Node.js, AWS Ser
 - Built APIs and microservices supporting the mobile platform using Node.js,
   Express, AWS Serverless, PHP and SQL.
 
-Senior Full Stack Developer - Accenture Federal Services (formerly Cognosante), Remote
+Senior Full Stack Developer - Accenture (formerly Cognosante), Remote
 Mar 2018 - Nov 2020
 Stack: React Native, Flutter, SwiftUI, HealthKit, GraphQL, AWS, Terraform
 - Built React Native and Flutter applications for managing personal health
