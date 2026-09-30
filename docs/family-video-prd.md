@@ -89,6 +89,25 @@ shares it.
 Out of scope for the MVP: a mobile app, accounts, self-serve generation,
 subscriptions, more than two people, and clips over 30 s.
 
+## Update 2026-09-30: pay-per-video, free teaser, template engine
+
+Bilal, after the spike solved the tech: not ready to give up on the idea.
+- **Sell one video at a time.** No subscription (too expensive for a buyer,
+  churn for us). Full 37 s video at $19.99–29.99; cost ≈ $13 on Higgsfield
+  720p (≈ $2 on DreamActor if its faces pass).
+- **Free or $0.99 teaser:** a 3–6 s watermarked clip of the buyer's own two
+  people (≈ $1.60 on Higgsfield, < $0.30 on DreamActor). Ladder: free taste →
+  full video.
+- **Fulfilment is one command** (`scripts/video-spike/trend_video.py`, run on
+  `omarchy`): clip + two reference sheets → Higgsfield → song → delivered.
+  ~15 min per video, hand-checked before delivery.
+- **The open question is the template engine.** One template exists (Hotel
+  Lobby). Each new trend needs: the source clip and window, the split points
+  at camera cuts, who-replaces-whom wording, and a demo. Target: a new trend
+  in under an hour, so the catalogue can follow what's viral each week.
+  `trend_video.py` already finds cuts and splits calls; missing are a
+  template file format (clip URL, window, sides, prompt, demo) and a catalog.
+
 ## Pricing and unit economics (estimates; costs measured in the spike)
 
 | | Per video (2 people, ~15 s) |
