@@ -162,6 +162,42 @@ marked **unverified**. Compiled 2026-09-28.
 | 4 | ByteDance DreamActor V2 (non-human/multi-character capable) | `fal-ai/bytedance/dreamactor/v2` | Pricing unconfirmed — budget ~$0.75–1.00, **unverified**, confirm on fal page before running |
 | 5 | Sync Labs lipsync-2-pro (finishing pass on #1–3 output) | `fal-ai/sync-lipsync/v2/pro` | $5/min → $0.083/s × 5 = **$0.42** (min. billing unit may apply — check fal page) |
 
+## 5. Two people in one pass (survey 2026-09-30)
+
+The job: replace BOTH performers of a 24–37 s clip in one pass, driven by
+the original footage, with real private people (consented). Single-subject
+motion control (Kling MC, Wan Animate, Act-Two, Luma Modify) is out; see the
+retrospective in `video-gen-spike.md`. Verified = official docs; claimed =
+vendor or creator posts.
+
+| Rank | Option | Multi-person | Driven by video | Real faces | API | Price | Notes |
+|---|---|---|---|---|---|---|---|
+| 1 | **Higgsfield Genjutsu Motion Transfer** | claimed; **worked in our test** | yes, 4–30 s | allowed with consent (ToU) | own API | API $0.318/s 480p, $0.681/s 720p, $1.632/s 1080p; **web ~$2 / $5.20 / $7.20 per 15 s** | up to 30 refs, 1080p; two calls for 37 s |
+| 2 | SCAIL-2 (Zhipu, open, Apache-2.0, Wan 2.1-14B) | verified: replacement mode + multi-reference by mask colour | yes | self-host, no platform policy | fal/WaveSpeed single-ref only; multi = self-host or RunComfy | $0.04–0.20/s hosted; ~$1–2 GPU-hour self-host | 512/704p, 81-frame windows; no Hotel Lobby example yet |
+| 3 | Seedance 2.x reference-to-video | claimed (Starrd, Dreamina) | approximate: regenerates | needs each person's own liveness verification; fal/BytePlus reject otherwise | fal, BytePlus, ComfyUI partner node | $0.13–0.28/s | only after both people verify |
+| 4 | ByteDance DreamActor M2.0 | claimed on fal, unproven | yes, ≤30 s | unknown | fal, Replicate, WaveSpeed | $0.05/s | background comes from the still: needs a booth still of both |
+| 5 | Viggle Multi-Track | verified feature, up to 7 characters | yes | allowed with consent | web only (API is single-character) | Pro $7.99/mo | photoreal face fidelity historically weak |
+
+Checked and out: Runway Act-Two (single), Runway Aleph (~5 s, unproven),
+Luma Ray3 Modify (single), Pika Swap Anything (consumer, unverified),
+Hailuo H3 V2V (multi unknown), Vidu Q2/Q3, Veo 3.1 and Sora 2 (no driving
+video; Veo blocks real faces, Sora cameos need in-app verification), Kling MC
+(one subject), Kling O1 (inconsistent), Wan Animate replace (single), Wan
+VACE (DIY, weak on real faces), audio-driven models (OmniHuman 1.5, HuMo,
+MultiTalk, InfiniteTalk, HunyuanVideo-Avatar), prompt-only multi-subject
+(Phantom, SkyReels-A2, Stand-In), WeLike2Party (paper, no code).
+
+Cheapest next tests: Genjutsu via the **web app** for a full 30 s at 720p
+(~$10.40 vs $20.43 by API); DreamActor M2 on fal, 5 s = $0.25 (needs a booth
+still); SCAIL-2 single-ref on WaveSpeed, 5 s = $0.20, then multi-ref self-host.
+
+Sources: github.com/zai-org/SCAIL-2, wavespeed.ai/docs/docs-api/wavespeed-ai/scail-2,
+fal.ai/models/fal-ai/bytedance/dreamactor/v2/api, viggle.ai/motion-control,
+viggle.ai/developers, higgsfield.ai/blog/higgsfield-genjutsu,
+imageat.com/trends/hotel-lobby-swap-ai-video, help.runwayml.com (Act-Two
+multi-character), kling.ai/quickstart/motion-control-user-guide,
+docs.comfy.org/tutorials/partner-nodes/bytedance/seedance-2-0-real-human.
+
 ## Sources (accessed 2026-09-28)
 
 - https://fal.ai/models/fal-ai/kling-video/v3/pro/text-to-video
