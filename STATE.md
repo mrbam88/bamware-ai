@@ -19,6 +19,10 @@
   logo removed with ffmpeg delogo. Result:
   `~/Movies/video-spike/higgs/hotel-lobby-37-v4.mp4` (omarchy + Mac), posted
   to Discord. Frame sheets clean; **lip sync not yet judged by Bilal.**
+- Night: 21 s all-Kling-O1 per shot with FLUX anchors ($3.64) FAILED: likeness
+  lost (O1 copied FLUX's faces from the anchor still), lip sync gone. Lesson in
+  `docs/video-gen-spike.md`. Best remains v4 hybrid; 21.3 s trim made. Total
+  video spend today ≈ $4.82 of $6.50 OK'd. Template work stops here (hold).
 - Script: `~/Movies/video-spike/o1fix.sh` on omarchy (per-shot O1 redo +
   splice). Lesson: per camera shot, O1 anchored holds where Higgsfield drifts;
   O1 keeps the source logo, delogo box x42 y591 86×90 at 1280×720.

@@ -553,6 +553,18 @@ ranges. Final `higgs/hotel-lobby-37-v4.mp4`. Camera cuts (scene 0.15): 4.04,
 7.36, 11.20, 14.92, 18.44, 21.32, 25.64, 30.12. Rule of thumb: Higgsfield for
 the pair through cuts, O1 per shot where a face turns away.
 
+**Single-model per-shot run (2026-09-30 night, $3.64): FAILED.** All six shots
+of a 21 s cut on Kling O1 anchored, each with a FLUX-edited first frame as
+the @Image reference. Consistency across shots was perfect, but Bilal's
+verdict: "they look like different people", graphics worse, lip sync gone.
+Cause: the FLUX anchor still carries FLUX's invented faces, and O1 copied the
+still over the real reference crops; O1 also does not hold lip movement the
+way Higgsfield does. Lesson: never hand a generated still of the people to
+the video model as a reference; the only likeness inputs are real photos.
+Consistency and sync still live in different models. Best output for this
+template remains the hybrid `higgs/hotel-lobby-37-v4.mp4` (and its 21.3 s
+trim `hotel-lobby-21-from-v4.mp4`). Stopped here on the hold.
+
 Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`, auto-posts to Discord); her last
 5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
 

@@ -1,4 +1,6 @@
 #!/bin/bash
+# DO NOT feed these stills to the video model as a people reference: on 2026-09-30 Kling O1 copied FLUX's
+# invented faces and the real likeness was lost. Kept for layout/height planning only.
 # One anchor still per camera shot: the shot's first frame with the two people painted into the performers'
 # places by local FLUX (mlx-serve, free, ~200 s each on the M3). Same two reference photos for every shot, so
 # clothes, jewelry, hair and height stay identical across shots. Run on the Mac; copy keys/ to the render server.
