@@ -3,9 +3,9 @@ name: bilal-resume
 description: Bilal Malik's current resume content and the rules for attaching it to an application. Use when uploading a resume, pasting resume text, filling work-history fields, or answering questions about his roles, dates, stack, or accomplishments.
 ---
 
-# Resume, current as of 2026-09-16
+# Resume, current as of 2026-09-30
 
-Source: `Resume_BilalMalik_20269(1).pdf`, supplied by Bilal on 2026-09-16.
+Source: `Resume_BilalMalik_2026.pdf`, updated 2026-09-30 (company renames + LinkedIn in header).
 Supersedes all earlier resume versions.
 
 ## Upload rules
@@ -52,8 +52,8 @@ oversight.
 | Lead Mobile Developer | Photobucket (remote) | Jan 2024 – Dec 2024 |
 | Senior iOS Developer | NuvoAir (remote) | May 2023 – Nov 2023 |
 | Mobile Engineering Manager | FreedomCare (NYC) | Mar 2021 – Feb 2023 |
-| Senior Full Stack Developer | Cognosante (remote) | Mar 2018 – Nov 2020 |
-| iOS Software Engineer | Allscripts (Raleigh, NC) | Nov 2016 – Feb 2018 |
+| Senior Full Stack Developer | Cognosante, now part of Accenture Federal Services (remote) | Mar 2018 – Nov 2020 |
+| iOS Software Engineer | Veradigm, formerly Allscripts (Raleigh, NC) | Nov 2016 – Feb 2018 |
 
 Earlier: Computer Software Inc. (Mar 2015 – Oct 2016), WM Robots
 (Sep 2013 – Mar 2015), Two Technologies (May 2011 – Jun 2013).
@@ -80,3 +80,8 @@ Expo, SwiftUI, Terraform, Vercel.
 - The current PDF replaces CrewAI with Node in the project stack.
 - VPG emphasizes sole mobile ownership and a configurable survey engine.
 - FreedomCare emphasizes hiring, mentoring, modernization, and direct delivery.
+- Company names (2026-09-30). Allscripts renamed itself Veradigm in Jan 2023: write
+  "Veradigm (formerly Allscripts)". Cognosante was acquired by Accenture Federal
+  Services in May 2024, after Bilal left: write "Cognosante (now part of Accenture
+  Federal Services)". Never list Accenture as the employer. On forms with a single
+  employer field, use "Veradigm (formerly Allscripts)" and "Cognosante".
