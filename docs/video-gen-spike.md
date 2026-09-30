@@ -515,7 +515,10 @@ Read: once the job is framed as "both people in one pass", three different
 models deliver a coherent pair through the cuts. DreamActor at $0.05/s is the
 cost story (a 37 s video ≈ $1.85) if its faces and lip sync hold up to
 Bilal's eye; Genjutsu is the safe premium; O1 is the 1080p option but needs
-the outfit anchoring and ≤10 s calls. Bilal to judge faces/lips.
+the outfit anchoring and ≤10 s calls. **Bilal's verdict (2026-09-30):** Higgsfield Genjutsu is the best. The two
+things that matter are the sync of both performers together and each
+person's lip sync, and "this model does both really well". All three are an
+improvement over the stitched route.
 
 Next test when resumed (not started; needs a budget): per camera shot,
 (1) edit the shot's first frame to put both of them in the performers' places
