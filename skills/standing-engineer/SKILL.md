@@ -1,6 +1,6 @@
 ---
 name: standing-engineer
-description: The DEV agent loop a headless Claude Code runner executes on the Mac — pull one Agent-ready ticket off board 2, implement it in an isolated worktree, open a PR, and hand off to QA. Use when running or debugging the unattended engineering runner, or when deciding whether a ticket is safe to hand it.
+description: The DEV agent loop a headless Claude Code runner executes on the `omarchy` build server — pull one Agent-ready ticket off board 2, implement it in an isolated worktree, open a PR, and hand off to QA. Use when running or debugging the unattended engineering runner, or when deciding whether a ticket is safe to hand it.
 ---
 
 # Standing engineer — the DEV loop
@@ -27,11 +27,17 @@ that check now lives in grooming.)
 
 ## The runtime contract
 
-This loop runs on the Mac, under Claude Code CLI, because it is the only
-runtime with Xcode (docs/runtimes.md). Requires: `gh` authenticated, Xcode
-installed, permissions pre-cleared per the `agent-fanout` preconditions. If
-one is missing, log it, comment it on the ticket you would have taken, exit
-non-zero.
+This loop runs on the `omarchy` build server, under Claude Code CLI, from a
+systemd user timer (`scripts/install-agent-runner.sh`). Bilal, 2026-09-30:
+the runner belongs on the always-on server, not the M3, which travels and
+sleeps. Requires: `gh` authenticated, `claude` logged in, permissions
+pre-cleared per the `agent-fanout` preconditions. If one is missing, log it,
+comment it on the ticket you would have taken, exit non-zero.
+
+**The server has no Xcode.** Skip any card whose gates need it
+(`bamware-brewdesk`, `bamware-ios`, any SwiftUI target): leave it in `Todo`,
+untouched, and take the next eligible card. Those cards are the Mac's, run by
+Bilal or `night-supervisor` there. A skip is not a failure; don't comment.
 
 ## Hard stops — the ONLY three reasons to abort a wake
 

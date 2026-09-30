@@ -1,22 +1,33 @@
 #!/usr/bin/env bash
-# Standing engineer — launchd entry point.
+# Standing engineer — timer entry point. Runs on the `omarchy` build server
+# under a systemd user timer (Bilal, 2026-09-30: the runner belongs on the
+# always-on server, not the M3).
 #
 # Thin on purpose. This script owns the things bash is good at: not running
 # twice, failing when the machine can't do the job, and leaving a trace.
 # The engineering judgment lives in skills/standing-engineer/SKILL.md.
 #
 # Install:  scripts/install-agent-runner.sh
-# Watch:    tail -f ~/Library/Logs/bamware/agent-runner.log
-# Stop:     launchctl bootout gui/$(id -u)/io.bamware.agent-runner
+# Watch:    tail -f ~/.local/state/bamware/agent-runner.log
+# Stop:     systemctl --user disable --now bamware-agent-runner.timer
 #
-# Run by hand: narrates to the terminal. Under launchd: log only.
+# Run by hand: narrates to the terminal. Under a timer: log only.
 
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "${BASH_SOURCE[0]%/*}" && pwd)"
 BAMWARE_AI_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-LOG_DIR="$HOME/Library/Logs/bamware"
+# Schedulers hand jobs a bare PATH. launchd did, and the runner aborted every
+# wake from 2026-08-19 to 2026-09-30 with "'claude' not on PATH". Never again.
+PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH
+
+if [ "$(uname -s)" = Darwin ]; then
+  LOG_DIR="$HOME/Library/Logs/bamware"
+else
+  LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/bamware"
+fi
 LOG="$LOG_DIR/agent-runner.log"
 HEARTBEAT="$LOG_DIR/agent-runner.heartbeat"
 LOCK="${TMPDIR:-/tmp}/bamware-agent-runner.lock"
@@ -38,7 +49,7 @@ beat() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" >"$HEARTBEAT"; }
 [ "$INTERACTIVE" = 1 ] && printf 'log: %s\n' "$LOG"
 
 # --- one at a time ---------------------------------------------------------
-# mkdir is atomic on macOS; flock is not available here.
+# mkdir is atomic everywhere; flock is not available on macOS.
 if ! mkdir "$LOCK" 2>/dev/null; then
   log "skip: lock held ($LOCK) — a wake is still working, or one died."
   log "      If nothing is running: rmdir $LOCK"
@@ -54,7 +65,13 @@ fail() { log "abort: $*"; beat "abort"; exit 1; }
 for bin in git gh claude; do
   command -v "$bin" >/dev/null 2>&1 || fail "'$bin' not on PATH"
 done
-command -v xcodebuild >/dev/null 2>&1 || log "warn: no xcodebuild — Mobile cards will abort in-loop"
+if command -v xcodebuild >/dev/null 2>&1; then
+  APPLE_NOTE="This machine has Xcode."
+else
+  APPLE_NOTE="This machine has NO Xcode (Linux build server). Skip any card whose
+gates need Xcode (bamware-brewdesk, bamware-ios, or any SwiftUI target): leave it
+untouched in Todo for the Mac and take the next eligible card."
+fi
 gh auth status >/dev/null 2>&1 || fail "gh not authenticated (run: gh auth login)"
 curl -fsS -m 10 -o /dev/null https://api.github.com || fail "no network"
 
@@ -75,6 +92,7 @@ PROMPT="Run the standing-engineer skill from $BAMWARE_AI_DIR/skills/standing-eng
 You are the unattended runner. Nobody is awake. Take exactly one Agent-ready
 card, honour every hard stop, and open a PR — never a merge. If anything is
 missing or ambiguous, comment on the issue and stop rather than guessing.
+$APPLE_NOTE
 Context-Version: $CONTEXT_VERSION"
 
 if [ "$INTERACTIVE" = 1 ]; then

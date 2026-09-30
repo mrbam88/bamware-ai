@@ -8,6 +8,21 @@
 > Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-09-30 — Standing engineer moves to the `omarchy` build server
+
+**Decision (Bilal): the runner belongs on the build server, not the M3.**
+
+- Found dead: the M3's launchd runner had aborted every 15 min since
+  2026-08-19 (3,259 wakes) with `'claude' not on PATH`. launchd's bare PATH
+  lacked `~/.local/bin`. The heartbeat still updated, just to `abort`, so
+  nothing alarmed. No card was worked by it in six weeks.
+- Now: systemd user timer `bamware-agent-runner.timer` on `omarchy`, its own
+  detached worktree on `origin/main`, PATH set in both the unit and the
+  script. It skips Xcode cards (`bamware-brewdesk`, `bamware-ios`) and leaves
+  them for the Mac.
+- Open: an alert when the heartbeat reads `abort`, and a cross-machine
+  `fleet` status view. Proposed, not built.
+
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 
 - Bilal requested full integration with Bamware remaining canonical. Installed

@@ -46,8 +46,9 @@ been verified. Do not reinstall merely because the earlier audit lacked access.
 - fastlane, App Store Connect upload, signing — the **free local rail** that
   replaces GitHub Actions macOS runners (Actions is BACKUP only, 2026-08-21;
   see the HARD SPEND RULE in AGENTS.md)
-- The headless DEV/QA runners: `skills/standing-engineer`,
-  `skills/night-supervisor`
+- `skills/night-supervisor` for Xcode cards. The unattended standing
+  engineer moved to the `omarchy` server on 2026-09-30; do not reinstall it
+  here
 - Android local rail: JDK 21 (Android Studio's JBR — newer system JDKs break
   AGP), `ANDROID_HOME=~/Library/Android/sdk`
 - Physical iPhone 15 Pro pairs here (device smokes, App Review screen recordings)
@@ -170,14 +171,20 @@ Good for the same work as the ThinkPad, with more headroom (RAM, disk, no
 glibc ceiling — rolling release, glibc 2.44).
 
 Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
-despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
-(`launchd`), so the headless runners are not installed here.
+despite its "any Mac" header.
+
+**The standing engineer runs here** (Bilal, 2026-09-30): systemd user timer
+`bamware-agent-runner.timer`, 15 min after each wake ends, from its own
+detached worktree `~/code/worktrees/bamware-ai-runner` on `origin/main`.
+Log: `~/.local/state/bamware/agent-runner.log`. Install or repair:
+`scripts/install-agent-runner.sh`. It skips cards that need Xcode.
 
 **Roles, in Bilal's words (2026-09-23):** this Intel MacBook is **the server** —
 always on, lid shut or not, sitting at his desk on a **6K display**. The X1 is
 his **daily laptop**, and he reaches the server from it over Tailscale SSH. The
-M3 MacBook is the only machine that can ship Apple work. Assume a session here
-is Bilal at a terminal, not an unattended runner.
+M3 MacBook is the only machine that can ship Apple work. An interactive session
+here is Bilal at a terminal; the one unattended runner is the standing-engineer
+timer, whose sessions start from `~/code/worktrees/bamware-ai-runner`.
 
 ⚠️ **Sessions here are not crash-proof by default.** Tailscale SSH parents the
 shell (`tailscaled -> login -> bash -> claude`), and the agent runs in the

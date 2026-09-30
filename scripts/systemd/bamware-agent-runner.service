@@ -1,0 +1,13 @@
+[Unit]
+Description=Bamware standing engineer: one Agent-ready card, one PR
+After=network-online.target
+
+[Service]
+Type=oneshot
+# systemd user units get a bare PATH; gh and claude live in these dirs.
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
+# The runner's own checkout, detached on origin/main (install-agent-runner.sh).
+# Never Bilal's interactive ~/code/bamware-ai, which may be on a feature branch.
+ExecStart=%h/code/worktrees/bamware-ai-runner/scripts/agent-runner.sh
+# One wake is one card. A wake still going after 3h is hung.
+TimeoutStartSec=3h
