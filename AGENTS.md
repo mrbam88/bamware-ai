@@ -101,6 +101,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 |---|---|
 | **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
 | **Engineering operating contract** | **docs/engineering-operating-contract.md** |
+| **Release manager contract** | **docs/release-manager-contract.md** |
 | All repos: purpose, deploy targets, endpoints | docs/repos.md |
 | Venue Engine release route | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
