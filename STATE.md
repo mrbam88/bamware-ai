@@ -23,6 +23,12 @@
   lost (O1 copied FLUX's faces from the anchor still), lip sync gone. Lesson in
   `docs/video-gen-spike.md`. Best remains v4 hybrid; 21.3 s trim made. Total
   video spend today ≈ $4.82 of $6.50 OK'd. Template work stops here (hold).
+- 2026-10-01 03:40 DONE (37 min, not 2 h): v5 = v4 + FaceFusion identity pass.
+  Frame sheets: every shot intact, both faces consistent, mouths untouched.
+  Files `~/Movies/video-spike/repair/hotel-lobby-{37,21}-v5.mp4`, compare
+  `v4-vs-v5.jpg` (scratch) and `repair/faces-before-after.jpg`; posted to
+  Discord. **Bilal to judge in motion.** Recipe below is the reusable
+  "identity pass" for any render.
 - 2026-10-01 ~02:40, OVERNIGHT on the M3 ($0): identity repair pass over the
   v4 hybrid with FaceFusion (hyperswap_1a_256, weight 0.8, GFPGAN blend 50,
   lips/mouth EXCLUDED from the mask so Higgsfield's lip sync survives; one pass

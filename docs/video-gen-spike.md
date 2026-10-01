@@ -582,6 +582,18 @@ posts the API-format prompt with `extra_data.api_key_comfy_org`).
   trip the same. Real faces are allowed with consent; other people's footage is
   not. Untested: prompt-only (no video/audio reference) with the verified asset.
 
+**Identity repair pass (2026-10-01 overnight, $0, M3 CPU/CoreML):** FaceFusion
+(`~/facefusion`, uv Python 3.12) over the finished hybrid instead of
+re-rendering: `hyperswap_1a_256`, pixel boost 512, swapper weight 0.8,
+GFPGAN 1.4 blend 50, **mask regions skin/brows/eyes/nose/glasses only** (lips
+and mouth excluded, so the video model's lip sync survives; with the default
+mask the swap closed open mouths), selector `one` + `left-right`/`right-left`
++ gender per person, two passes. 2.85 s/frame single-threaded smoke, ~19 min
+per pass for 1110 frames with 6 threads. Reference mode at distance 0.6
+swapped both people; positional + gender was reliable. Output
+`repair/hotel-lobby-37-v5.mp4`. Script `repair/overnight.sh` (local, has no
+secrets; to be folded into scripts/video-spike).
+
 Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`, auto-posts to Discord); her last
 5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
 
