@@ -99,3 +99,4 @@ Current adapters:
   - Android / Flutter client (paused): `docs/release-manager-adapters/brewdesk-android.md`
 - Bamware Web: `docs/release-manager-adapters/bamware-web.md`
 - Bamware CRM (development/pre-production): `docs/release-manager-adapters/bamware-crm.md`
+- Bamware Video (active development/pre-production): `docs/release-manager-adapters/bamware-video.md`
