@@ -95,4 +95,5 @@ The core state machine and rules above should stay shared across Bamware.
 
 Current adapters:
 - BrewDesk iOS: first implementation (repo: `mrbam88/bamware-brewdesk`)
+  - Venue Engine service: `docs/release-manager-adapters/brewdesk-venue-engine.md`
 - Bamware Web: `docs/release-manager-adapters/bamware-web.md`
