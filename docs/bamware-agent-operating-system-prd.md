@@ -301,6 +301,200 @@ The Chief of Staff should:
 - Prioritize urgent and high-impact decisions.
 - Prefer a small queue of high-value decisions over a large backlog.
 
+
+## Decision Domain Model
+
+A `Decision` exists only when the system cannot safely infer the answer from existing policy, precedent, or delegated authority.
+
+Routine choices should never become CEO work.
+
+### Decision escalation filter
+
+Before creating a CEO decision, the Chief of Staff should evaluate:
+
+```text
+Can existing policy answer it?
+  yes -> execute
+
+Has Bilal already made an equivalent decision?
+  yes -> reuse precedent
+
+Is this within an executive's delegated authority?
+  yes -> executive decides
+
+Is it low impact and reversible?
+  yes -> proceed and log
+
+Otherwise
+  -> create CEO Decision
+```
+
+Typical CEO-level escalation reasons include:
+
+- Missing policy.
+- High impact.
+- High cost.
+- Irreversible action.
+- Cross-project conflict.
+- Executive disagreement.
+- Explicit CEO gate.
+
+Typical non-CEO decisions include:
+
+- Library selection.
+- Test retries.
+- Variable naming.
+- Routine implementation choices.
+- Agent assignment.
+- QA reruns.
+
+### Proposed Decision type
+
+```ts
+type Decision = {
+  id: string
+
+  projectId?: string
+  featureId?: string
+
+  title: string
+  context: string
+
+  escalationReason:
+    | "policy_missing"
+    | "high_impact"
+    | "high_cost"
+    | "irreversible"
+    | "cross_project_conflict"
+    | "executive_disagreement"
+    | "explicit_ceo_gate"
+
+  options: DecisionOption[]
+
+  recommendation?: {
+    optionId: string
+    rationale: string
+  }
+
+  urgency: "low" | "medium" | "high"
+
+  status: "pending" | "answered" | "dismissed"
+
+  source: {
+    executive?: string
+    projectId?: string
+    taskId?: string
+    traceId?: string
+  }
+
+  answer?: {
+    optionId: string
+    decidedAt: string
+    note?: string
+  }
+}
+```
+
+The key property is `escalationReason`: every CEO decision must explain why it reached the CEO.
+
+## Policy and Precedent Loop
+
+The system should reduce future CEO work by converting repeated decisions into durable policy.
+
+Core loop:
+
+```text
+Decision
+  -> precedent
+  -> repeated precedent
+  -> proposed policy
+  -> approved policy
+  -> fewer future decisions
+```
+
+Example:
+
+1. The CEO approves the same category of low-risk infrastructure change several times.
+2. The Chief of Staff detects a stable pattern.
+3. It proposes a standing policy.
+4. The CEO approves the policy.
+5. Future equivalent cases are handled automatically and logged instead of escalated.
+
+The Chief of Staff should be able to ask:
+
+> You've consistently approved this class of decision. Should I make it a standing policy?
+
+A policy should define:
+
+- Scope.
+- Trigger conditions.
+- Allowed action.
+- Limits.
+- Exceptions.
+- Owner.
+- Source decisions or precedent.
+- Effective date.
+- Review date where appropriate.
+
+### Proposed Policy type
+
+```ts
+type Policy = {
+  id: string
+  title: string
+  scope: {
+    projectId?: string
+    executiveRole?: string
+    category?: string
+  }
+
+  conditions: string[]
+  action: string
+
+  limits?: {
+    maxCostUsd?: number
+    reversibleOnly?: boolean
+    riskLevel?: "low" | "medium" | "high"
+  }
+
+  exceptions?: string[]
+
+  sourceDecisionIds: string[]
+  approvedAt: string
+  approvedBy: "ceo"
+
+  status: "active" | "paused" | "retired"
+}
+```
+
+Policy matching must be explainable. When the system auto-handles something based on policy, it should record which policy authorized the action.
+
+## Decision Learning Objective
+
+The Decision Queue should shrink over time.
+
+A healthy system should gradually move recurring judgment from:
+
+```text
+CEO decision
+```
+
+to:
+
+```text
+executive precedent
+```
+
+to:
+
+```text
+standing policy
+```
+
+without removing the ability to inspect or override any automated action.
+
+The long-term measure of success is not the number of decisions processed. It is the reduction in repeated CEO decisions while preserving safety and accountability.
+
 ## Core Operating Loop
 
 ```text
