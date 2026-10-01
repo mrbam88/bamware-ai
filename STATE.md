@@ -23,6 +23,15 @@
   lost (O1 copied FLUX's faces from the anchor still), lip sync gone. Lesson in
   `docs/video-gen-spike.md`. Best remains v4 hybrid; 21.3 s trim made. Total
   video spend today ≈ $4.82 of $6.50 OK'd. Template work stops here (hold).
+- 2026-10-01 ~02:40, OVERNIGHT on the M3 ($0): identity repair pass over the
+  v4 hybrid with FaceFusion (hyperswap_1a_256, weight 0.8, GFPGAN blend 50,
+  lips/mouth EXCLUDED from the mask so Higgsfield's lip sync survives; one pass
+  per person, positional + gender selection). Output
+  `~/Movies/video-spike/repair/hotel-lobby-37-v5.mp4` + 21.3 s trim + contact
+  sheets, posted to Discord. Log `repair/overnight.log`. Smoke test (2 s) looked
+  right: same people, mouths intact. Bilal's ask: repair what we have rather
+  than render anew. Wan 2.2 Animate local run NOT started (disk 27 GB free,
+  weights ~20 GB; parked).
 - 2026-10-01 early: Seedance 2.5 real-human via local ComfyUI. Bilal's selfie
   verification passed; the COLORS reference clip was refused as copyrighted
   content at upload ($0 spent). Details in `docs/video-gen-spike.md`.
