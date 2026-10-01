@@ -2,20 +2,44 @@
 
 Parent product: BrewDesk
 
-## Repository
+## Repository and queue
 
 - Service repo: `mrbam88/bamware-venue-engine`
 - Default branch: `main`
 - Role: backend API and venue-intelligence service for BrewDesk
 - Production: existing Vercel project `venuekit`
 - Canonical deployment procedure: `docs/venue-engine-deployment.md`
+- Execution queue: Venue Engine GitHub issues/project state in `mrbam88/bamware-venue-engine`
 
 This adapter is subordinate to the BrewDesk product release flow. Venue Engine is not a separate top-level product queue.
+
+## Queue semantics
+
+Venue Engine issues participate in the same shared Release Manager state machine:
+`Backlog → Ready → In Progress → Review → Release Ready → Shipped`
+
+The BrewDesk Release Manager may pull Venue Engine issues independently from iOS issues, while still rolling both up to one BrewDesk product outcome.
+
+Do not infer that every open Venue Engine issue is Ready. Respect explicit deferred, human-only, spend-gated, cross-repo-contract, and epic/subtask dependencies.
+
+## Current queue examples
+
+Examples observed in the repo include:
+
+- production filtering/data-quality defects,
+- small agent-ready dependency updates,
+- database migration epic/subtasks,
+- cross-repo API contract work,
+- privacy/observability human-only work,
+- research/data-quality improvements.
+
+These categories must be triaged by readiness, not age.
 
 ## When the BrewDesk Release Manager should invoke this adapter
 
 Use this service adapter when a BrewDesk work item:
 
+- is a Ready Venue Engine issue,
 - changes Venue Engine code or data,
 - changes an API response shape or request contract,
 - depends on backend behavior that must be live before the client ships,
