@@ -98,3 +98,4 @@ Current adapters:
   - Venue Engine service: `docs/release-manager-adapters/brewdesk-venue-engine.md`
   - Android / Flutter client (paused): `docs/release-manager-adapters/brewdesk-android.md`
 - Bamware Web: `docs/release-manager-adapters/bamware-web.md`
+- Bamware CRM (development/pre-production): `docs/release-manager-adapters/bamware-crm.md`
