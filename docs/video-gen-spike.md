@@ -565,6 +565,23 @@ Consistency and sync still live in different models. Best output for this
 template remains the hybrid `higgs/hotel-lobby-37-v4.mp4` (and its 21.3 s
 trim `hotel-lobby-21-from-v4.mp4`). Stopped here on the hold.
 
+**Seedance 2.5 real-human route (2026-10-01, $0): blocked by copyright
+fingerprinting, not by faces.** Ran through local ComfyUI's ByteDance partner
+node (ComfyUI Desktop needs a screen; headless `main.py --cpu` + SSH tunnel
+works from the X1; terminal submitter `~/Movies/video-spike/comfy/submit_seedance.py`
+posts the API-format prompt with `extra_data.api_key_comfy_org`).
+- Liveness: the node waits only 120 s for the phone selfie
+  (`_VERIFICATION_POLL_TIMEOUT_SEC`); raised locally to 900. Two selfies
+  passed; group ids saved outside git (`~/Movies/video-spike/seedance-group-ids.txt`).
+- `FaceMismatch` twice against 768 px library previews of Bilal; a photo passed
+  on the third try with the group id supplied. Use a fresh, full-res, straight-on
+  photo and pass the group id so no new selfie is required.
+- The reference video (COLORS clip) was refused at asset upload:
+  `InputVideoSensitiveContentDetected.PolicyViolation` "may be related to
+  copyright restrictions". Content fingerprinting on the source; the song would
+  trip the same. Real faces are allowed with consent; other people's footage is
+  not. Untested: prompt-only (no video/audio reference) with the verified asset.
+
 Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`, auto-posts to Discord); her last
 5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
 

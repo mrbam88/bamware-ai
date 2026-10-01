@@ -23,6 +23,9 @@
   lost (O1 copied FLUX's faces from the anchor still), lip sync gone. Lesson in
   `docs/video-gen-spike.md`. Best remains v4 hybrid; 21.3 s trim made. Total
   video spend today ≈ $4.82 of $6.50 OK'd. Template work stops here (hold).
+- 2026-10-01 early: Seedance 2.5 real-human via local ComfyUI. Bilal's selfie
+  verification passed; the COLORS reference clip was refused as copyrighted
+  content at upload ($0 spent). Details in `docs/video-gen-spike.md`.
 - Script: `~/Movies/video-spike/o1fix.sh` on omarchy (per-shot O1 redo +
   splice). Lesson: per camera shot, O1 anchored holds where Higgsfield drifts;
   O1 keeps the source logo, delogo box x42 y591 86×90 at 1280×720.
