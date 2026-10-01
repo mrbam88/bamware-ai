@@ -78,6 +78,98 @@ Derive project health from the executive objects, not raw ticket count.
 
 Set `needsBilal = true` only when there is at least one pending Decision or human-only Blocker requiring Bilal specifically.
 
+
+## Executive Severity and Briefing Thresholds
+
+The executive layer must optimize for attention, not completeness.
+
+### Item classes
+
+Every executive item must be classified as exactly one primary type:
+
+- `decision`: Bilal must choose between materially different paths.
+- `action`: Bilal must perform a concrete step, but judgment is minimal.
+- `blocker`: an active Outcome cannot progress.
+- `risk`: an active Outcome can progress, but success is threatened.
+- `watch`: noteworthy signal with no current intervention required.
+- `info`: meaningful change worth preserving in history, not briefing by default.
+
+A human-only issue is not automatically a Decision. If Bilal simply needs to perform a known console/configuration step, classify it as an `action`.
+
+### Severity
+
+Use four severity levels:
+
+- `S0` — immediate: active customer/security/privacy/release harm, destructive risk, or a hard deadline within 24 hours.
+- `S1` — important: materially blocks an active Outcome or requires Bilal's judgment soon.
+- `S2` — watch: material risk or action that matters, but work can continue.
+- `S3` — background: useful context with no near-term executive intervention.
+
+Severity describes executive urgency, not engineering difficulty.
+
+### Escalation rules
+
+An item reaches the default Chief of Staff briefing only when:
+
+- it is an open `S0` or `S1` item; or
+- it is an `S2` item whose state materially changed since the last briefing; or
+- Bilal explicitly asked to watch that item.
+
+`S3` items stay in project history and drill-down views.
+
+### Briefing caps
+
+Default morning/on-demand briefing:
+
+- maximum **3 Needs You** items.
+- maximum **3 Watchlist** items.
+- maximum **3 Recent Changes** items.
+- collapse the remainder into counts, e.g. "7 other items progressing normally."
+
+If more than 3 S0/S1 items exist, rank by:
+
+1. irreversible or safety/privacy impact.
+2. deadline.
+3. number of Outcomes blocked.
+4. financial impact.
+5. opportunity cost.
+
+### Stability / anti-flapping
+
+Do not repeatedly surface the same unchanged item.
+
+- An unresolved item stays visible until acknowledged once.
+- After acknowledgement, resurface only when severity increases, deadline approaches, evidence changes, or Bilal asks.
+- Do not mark a project `at_risk` because of a single low-severity bug.
+- Project health changes only from material Outcome-level state.
+
+### Decision vs Action
+
+Use this test:
+
+```text
+Does Bilal need to choose between materially different consequences?
+  yes -> Decision
+
+Does Bilal simply need to perform or authorize a known step?
+  yes -> Action
+
+Can the project team resolve it within delegated policy?
+  yes -> keep below executive layer
+```
+
+### BrewDesk calibration
+
+Using the 2026-10-01 pilot snapshot:
+
+- Account-platform console/configuration work -> `action`, S1 while it blocks the active account rollout.
+- Venue filtering regression -> `risk`, S1 if it materially affects live trust; otherwise S2.
+- Map-pan performance regression -> `risk`, S2 unless evidence shows severe user impact.
+- Database migration epic -> below executive briefing by default; escalate only hosting/spend/cutover/privacy decisions.
+- Auth seeded-user repair -> engineering risk, S2 while remediation PR is active; no CEO attention by default.
+
+A good default briefing should therefore contain roughly one Needs You item and one or two Watchlist items, not every open concern.
+
 ## BrewDesk Source Set
 
 Initial ingestion sources:
