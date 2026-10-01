@@ -92,3 +92,7 @@ Each product may define:
 - release verification method.
 
 The core state machine and rules above should stay shared across Bamware.
+
+Current adapters:
+- BrewDesk iOS: first implementation (repo: `mrbam88/bamware-brewdesk`)
+- Bamware Web: `docs/release-manager-adapters/bamware-web.md`
