@@ -100,6 +100,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Need | Where |
 |---|---|
 | **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
+| **Engineering operating contract** | **docs/engineering-operating-contract.md** |
 | All repos: purpose, deploy targets, endpoints | docs/repos.md |
 | Venue Engine release route | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
