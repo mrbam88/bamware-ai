@@ -5,8 +5,27 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
+> Last updated: 2026-09-30 — **BrewDesk brand-led marketing agreed; Instagram identity and publishing-permission-gated read verified. No posts published; automation unfinished.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-09-30 — BrewDesk marketing and Instagram API milestone
+
+- Canonical plan, evidence, non-secret IDs and continuation:
+  [docs/brewdesk-marketing.md](docs/brewdesk-marketing.md).
+- Bilal wants anonymous, online-only, agent-executed brand marketing: no personal
+  promotion, friend outreach or in-person work. No ad spend. Approve batches
+  before public posts, messages or profile changes.
+- Existing `_brew.desk` Business account linked to **BrewDesk Marketing** Meta
+  app. Human entered the token locally outside git; real identity GET confirmed
+  the correct account. Publishing-limit GET passed (usage 0, quota 100/24 h).
+- **Not a completed publishing system:** no actual publish test, scheduler,
+  approval queue, token-expiry/renewal verification, webhook or remote rollout.
+  No content posted. Credential/helper exist only on this Linux host.
+- Next: expiry/renewal and minimal approved-post tooling, approval of proposed
+  profile copy, then storefront fixes and the first consumer content pack.
+  Live API profile still named/bioed `Bamware.io`, with zero posts.
+- Preview input repeatedly no-oped; normal-browser token generation worked.
+  Do not repeat clicks or restart the user's app to hide that tool limitation.
 
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 
