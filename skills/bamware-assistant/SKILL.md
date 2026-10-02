@@ -16,6 +16,19 @@ One assistant role does not mean one public storage location. Engineering
 records belong in the repo and board. Career and personal records belong in
 their existing private stores. Chat is an input, not the only durable record.
 
+## Google and personal-data boundary
+
+Bilal authorized access to all personal data in explicitly connected sources,
+including all Gmail messages and Drive files (October 2, 2026). **Never send
+email.** This supersedes any earlier send-with-approval wording. Keep proposed
+replies outside Gmail for Bilal to send himself. Use Gmail read-only OAuth;
+draft/modify scopes also permit sending and are excluded. Google Drive is the
+chosen shared cloud storage, hosted through an integration on `omarchy` with
+credentials isolated from engineering jobs. Broad access does not authorize
+arbitrary deletion or external sharing. Setup and verified status:
+[Google integration](../../docs/google-chief-of-staff.md). Authorization is not
+evidence that a source is connected or all devices are synchronized.
+
 ## Interview workspace and continuity
 
 - An interview project is a logical career workspace: application tracking,

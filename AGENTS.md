@@ -99,6 +99,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
 | Current state | STATE.md |
+| Chief of Staff Google access and no-send policy | docs/google-chief-of-staff.md |
 | CRM | docs/bamware-crm.md |
 | All skills (procedures) | skills/INDEX.md |
 | Interview prep | docs/interview-prep/README.md |
