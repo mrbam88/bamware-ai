@@ -24,3 +24,17 @@ test('existing collector sample produces real percentages without invented token
   assert.equal((await claudeMaxAdapter({quotaSamplesFile:file}))[0].source.kind,'unsupported');
  } finally {await rm(dir,{recursive:true,force:true});}
 });
+
+test('Codex percentage snapshots preserve provider timestamps and missing data is unavailable', async () => {
+ const {codexQuotaAdapter}=await import('../lib/providers/codex-quota-adapter.mjs');
+ const dir=await mkdtemp(join(tmpdir(),'codex-quota-'));
+ try {
+  const file=join(dir,'quota.json');const now=Date.now();
+  await writeFile(file,JSON.stringify({windows:[{provider:'codex',scope:'primary-10080min',utilizationPct:34,source:{kind:'live',fetchedAt:new Date(now).toISOString()},secret:'excluded'}]}));
+  const [raw]=await codexQuotaAdapter({codexQuotaFile:file});
+  assert.equal(buildWindow(raw,{now}).utilizationPct,34);
+  assert.equal(buildWindow(raw,{now:now+16*60000}).state,'stale');
+  assert.ok(!JSON.stringify(raw).includes('excluded'));
+  assert.equal((await codexQuotaAdapter({codexQuotaFile:file+'.missing'}))[0].source.kind,'unsupported');
+ } finally {await rm(dir,{recursive:true,force:true});}
+});

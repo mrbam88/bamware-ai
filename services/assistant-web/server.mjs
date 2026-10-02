@@ -26,6 +26,7 @@ import {
   SESSION_ID_RE,
 } from "./lib.mjs";
 import { buildSnapshot } from "./lib/rate-limits.mjs";
+import { codexQuotaAdapter } from "./lib/providers/codex-quota-adapter.mjs";
 import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
 import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
 import { buildWorkUsageSnapshot } from "./lib/work-usage.mjs";
@@ -60,6 +61,7 @@ export function loadConfig(env = process.env) {
     hermesHome: get("HERMES_HOME", path.join(os.homedir(), ".hermes")),
     maxQueue: Number(get("ASSISTANT_WEB_MAX_QUEUE", "3")),
     publicDir: path.join(HERE, "public"),
+    codexQuotaFile: get("ASSISTANT_WEB_CODEX_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/codex-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),
@@ -280,8 +282,8 @@ export function createServer(cfg, { log = defaultLog } = {}) {
       // it never substitutes for or blends with the live snapshot.
       if (route === "GET /api/rate-limits") {
         const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
-        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }];
-        const snapshot = await buildSnapshot(adapters, { quotaSamplesFile: cfg.quotaSamplesFile }, { now: Date.now() });
+        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }, { name: "codex", run: codexQuotaAdapter }];
+        const snapshot = await buildSnapshot(adapters, { quotaSamplesFile: cfg.quotaSamplesFile, codexQuotaFile: cfg.codexQuotaFile }, { now: Date.now() });
         return send(res, 200, { ...snapshot, mode });
       }
 

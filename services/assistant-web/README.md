@@ -101,6 +101,17 @@ Assistant reads only the last 64 KiB; it does not read provider credentials or
 transcripts. Provider percentages remain separate from token totals. Samples
 older than 15 minutes are stale; after a reported reset the old percentage is
 hidden until a new sample arrives. The existing collector runs every ten minutes.
-A missing/malformed sample remains unavailable. Codex quota is not connected by
-this adapter. The upstream collector uses an undocumented Claude usage endpoint;
+A missing/malformed sample remains unavailable. Codex uses a separate sanitized snapshot adapter. The upstream collector uses an undocumented Claude usage endpoint;
 endpoint/schema changes must be treated as missing data, never an inferred cap.
+
+### Codex quota feed
+The X1 runs `scripts/export-codex-quota.py` via the supplied user systemd timer
+every two minutes. It exports only provider quota percentages, window lengths,
+reset times and original event timestamps from recent Codex events to
+`~/.local/state/bamware/codex-quota.json` on the server over existing SSH.
+No credentials, prompts, responses, file paths or token transcripts are copied.
+SSH failure leaves the old timestamp intact; after 15 minutes the UI marks it
+stale. Laptop sleep/offline or expired SSH authentication therefore cannot
+masquerade as a fresh reading. This reads the most recent provider event; it
+does not spend tokens to force a quota update. Override server snapshot path
+with `ASSISTANT_WEB_CODEX_QUOTA_FILE`.

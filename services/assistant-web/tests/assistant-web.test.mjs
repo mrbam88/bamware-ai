@@ -192,7 +192,7 @@ test("GET /api/rate-limits defaults to live mode: honest unsupported, no fake ca
     const body = await res.json();
     assert.equal(body.mode, "live");
     assert.ok(body.version);
-    assert.equal(body.windows.length, 1);
+    assert.equal(body.windows.length, 2);
     assert.equal(body.windows[0].state, "unsupported");
     assert.equal(body.windows[0].usedTokens, null);
     assert.ok(!JSON.stringify(body).includes("1500000"), "must never present the old unverified 1.5M cap as fact");
