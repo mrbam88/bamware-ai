@@ -4,6 +4,15 @@ Decision and evidence: 2026-09-30. Canonical continuation point for this effort.
 Supersedes the marketing channel suggestions in `brewdesk-gameplan-2026-09.md`;
 that older document's release assumptions are historical, not current gates.
 
+## October 2 research continuation
+
+The [NYC audience and competitor brief](brewdesk-marketing-research-2026-10-02.md)
+records the first application of the shared marketing skills and a proposed
+seven-day Instagram checklist experiment. Research is complete for that bounded
+pass; creative production and publishing approval remain pending. Apple lookup
+verified public version 1.1 on October 2, superseding the historical submission
+status below. This is listing verification, not an installed-build walkthrough.
+
 ## Bilal's direction
 
 - BrewDesk is on the App Store; Bilal reports zero users and no acquisition effort.

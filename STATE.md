@@ -8,6 +8,15 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-02 — BrewDesk marketing research pass complete (#72)
+
+- Source-linked [NYC research brief](docs/brewdesk-marketing-research-2026-10-02.md):
+  four audience threads, three alternatives and one proposed measurable experiment.
+- Recommendation: policy-first laptop checklist on the existing brand Instagram;
+  no campaign approval or publication. Small sample; no validated personas.
+- Apple public lookup verified 1.1 availability. Next: prepare exact creative,
+  verify measurement/destination/cost constraints, then request batch approval.
+
 ## 2026-10-02 — Shared marketing skills added (#72)
 
 - Bilal explicitly requested adding reusable community marketing skills to Bamware context.
