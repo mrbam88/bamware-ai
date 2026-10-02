@@ -65,6 +65,41 @@ Use TDD when failure is costly, subtle, regression-prone, or core to business lo
 
 DEV does not self-certify. A separate QA or review pass verifies acceptance criteria and required gates.
 
+### MVP delivery default — founder decision, 2026-10-02
+
+Bamware is in its MVP phase. Bias toward publishing and deploying useful,
+reversible work through the existing release rail. Routine publication, merge
+and reversible application deployment within approved feature scope do not need
+another founder confirmation merely because optional QA is incomplete.
+
+- Publish completed code and a useful result report promptly. Failed or partial
+  QA must not hide commits, test evidence, limitations or the actionable failure.
+  Never publish credentials or private data as part of a diagnostic report.
+- Distinguish an actual defect, an unavailable check, and an orchestration/tool
+  failure. A QA process exit code alone is not a product verdict. Evaluate the
+  recorded evidence and the relevance of any missing coverage to this change.
+- Run the applicable automated checks and a proportionate smoke check. Ship
+  reversible MVP improvements when available evidence supports them; disclose
+  optional coverage gaps and follow up. Do not add a new approval gate because
+  a browser tool or reviewer was unavailable. Required external branch rules
+  still apply; do not bypass enforced protections.
+- Preserve a known-good revision and concrete rollback procedure, verify the
+  deployed behavior, and roll back a failed smoke check. Rollback is operational
+  recovery, not a reason to avoid ordinary deployment indefinitely.
+- Actual auth/privacy failures, credible data-loss risks or broken core flows
+  must be fixed or isolated before release. Destructive data changes, new spend,
+  account/security-access changes and store submissions retain their specific
+  authorization requirements; this default is not blanket authority for them.
+- Completion reports must separate published, tested and deployed. A partial
+  report states exactly what works, what is missing and the next action. Missing
+  live data cannot be described as a working live integration.
+
+This decision supersedes older blanket “QA unavailable means stop” or
+“production rollout always needs another approval” assumptions for routine,
+reversible application delivery. It does not weaken verification or authorize
+invented success. Keep the nightly delivery report available even when code
+publication or deployment fails.
+
 ## 3. Execution and Executive Control
 
 ### GitHub owns execution

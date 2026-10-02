@@ -14,6 +14,15 @@ This contract sits under the Chief of Staff layer and above product-specific eng
 
 A ticket may also be `Deferred`, `Human Only`, or `Not Planned`.
 
+## MVP delivery policy
+
+Apply `docs/engineering-operating-contract.md` → “MVP delivery default”
+(founder decision, 2026-10-02). Publish code and reports even when optional QA
+coverage is unavailable. For reversible MVP application changes, proceed through
+the existing release rail after relevant checks, preserve rollback, and verify
+delivery; do not invent another founder approval step. Distinguish defects from
+missing coverage and tool failures. Required branch checks remain required.
+
 ## Hard rules
 
 1. **WIP limit = 2.** Never have more than two agent-ready implementation items in progress for a product.
@@ -23,7 +32,7 @@ A ticket may also be `Deferred`, `Human Only`, or `Not Planned`.
 5. **Do not clean the board by lying.** Never close valid future/deferred work merely to reduce counts.
 6. **Use the engineering operating contract.** SOLID/DRY/KISS/YAGNI, explicit ownership/dependencies, testability, single source of truth, lightweight spec-first flow when ambiguity warrants it.
 7. **PR + evidence before merge.** Small tested changes; QA/review and CI evidence must support merge.
-8. **Release only coherent green batches.** A batch becomes Release Ready when all selected items are merged and required checks are green.
+8. **Release coherent verified increments.** Required checks must pass. An independently useful reversible increment may ship while unrelated items or optional QA coverage remain pending; do not hold the entire batch for an unrelated tool failure.
 9. **Use the existing product release rail.** Do not rebuild deployment. For BrewDesk, use the established automated agent/TestFlight path.
 10. **Verify delivery before Shipped.** A merged commit is not a shipped release. Confirm the build/deployment state before marking the batch Shipped.
 11. **Exceptions wake Bilal; routine work does not.** Surface only human decisions/actions, failed release rails, or meaningful release outcomes.
