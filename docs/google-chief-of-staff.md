@@ -17,19 +17,71 @@ The server has staged tools under `/home/bilal/srv/google-chief-of-staff/bin`:
 | gog | 0.43.0 | `a16d4b8b917e36b96b09b30ecb7a5049d06ff1e88b856a101eec12b86b33fe05` |
 | rclone | 1.74.2 | `72a806370072015ccbe4d81bcd348cc5eaf3beca6c65ba693fd43fb31fcca5b1` |
 
-Both version commands passed. A credential-free synthetic invocation with an invalid recipient was rejected by gog's no-send guard before authentication. The setup dry-run selected only Gmail and Drive APIs with read-only access. This does **not** verify granted Google scopes or a live account connection.
+Gmail and Drive live reads passed on the server at 2026-10-02T22:05:11Z,
+recorded in `/var/lib/bamware-google-status/status.json`. The original manual
+keyring setup was unsuitable for unattended use and caused repeated password
+prompts. Its files are preserved. The working store is `gog-managed`; its random
+key is root-owned under `/etc/bamware-google`, never in chat or git. Recovery and
+verification scripts currently live only on the server and the ThinkPad's `/tmp`.
+Do not ask the user for the abandoned keyring passphrase or rerun OAuth to test
+an already connected account.
 
-Google credentials have not been created/imported. No agent attachment, device sync, background schedule, or Google data access is active. The current Assistant and engineering workers share Linux user `bilal`; separate directories under that user do not isolate credentials. No new credentials should be stored there as an alleged isolation boundary.
+## Integration prepared, activation pending
 
-## Next steps
+`services/google-access` contains a Unix-socket read broker, client, installer,
+systemd unit and Hermes skill. It exposes only Gmail search/get and Drive
+list/search/get/download, with limits and untrusted-content marking. No arbitrary
+command, write API, or credential export is exposed. The service runs as
+`bamware-google`; systemd supplies its key through `LoadCredential`. The installer
+checks stored OAuth scopes are an exact subset of Gmail/Drive reads and identity,
+then verifies real Gmail/Drive reads and rejection of ordinary worker access.
 
-1. Human reviews and runs `sudo bash /home/bilal/srv/google-chief-of-staff/setup-google-isolation.sh` on the server. It creates `bamware-google`, private home `/var/lib/bamware-google`, and root-owned verified binaries. It does not grant the build user passwordless access. Sudo currently requires the human's password.
-2. Human selects a Google Cloud project, enables Gmail and Drive APIs, configures a personal-use OAuth consent app, and obtains a Desktop OAuth client on the server. Do not paste the client JSON or tokens into chat. Existing app credentials must not be repurposed without checking their owner and scope.
-3. Import client credentials interactively as `bamware-google` with `/opt/bamware-google/bin/gog --home /var/lib/bamware-google/gog auth credentials set <server-local-client-json>`; arrange encrypted unattended storage under that separate identity before starting a background service. No plaintext password in a command, repository, or agent environment.
-4. Authorize Gmail and Drive reads with `gog --home /var/lib/bamware-google/gog auth add <account> --services gmail,drive --gmail-scope readonly --drive-scope readonly --readonly --gmail-no-send --manual`, as the service identity. Human completes OAuth and supplies the callback directly to the interactive terminal. Never send the callback through chat or logs. Verify granted scopes contain no Gmail send/compose/modify/full-mail permissions. Reject scope widening.
-5. Build an authenticated narrow read broker for the Chief of Staff, with no arbitrary URL/command execution or token export. Existing shared-user builds must not inherit broker access. Verify caller isolation before connecting Discord or Assistant. The service account alone is not proof of a secure broker.
-6. Device storage credentials are separate from the assistant's read credentials. Configure native Google Drive on the Mac/mobile devices and rclone on Linux. Each device authorizes locally; do not transfer tokens between machines. Start with online file access and a dedicated local sync folder. Inspect existing contents and run a dry-run before any bidirectional sync; do not treat an empty local folder as authority to delete cloud files.
-7. Verify correct account, Gmail search/read, Drive list/download/export, no-send scopes, caller isolation, and a harmless user-approved file round trip across devices. Only then claim connected/synchronized. No send endpoint test using a real recipient.
+Caller policy allows root verification and processes under the existing
+`assistant-web.service` / `hermes-gateway.service` cgroups owned by the expected
+user. **This is defense in depth, not strong isolation from the shared Linux
+user:** that user owns the Assistant code and user-service definitions. A hostile
+process with that user's control could alter those services. Strong isolation
+requires migrating the Assistant runtime to a distinct trusted OS identity and
+protecting its deployment path. No such migration is claimed here.
+
+Prepared server bundle: `/home/bilal/srv/google-chief-of-staff/service`.
+Activation command (human sudo required):
+
+```sh
+sudo python3 /home/bilal/srv/google-chief-of-staff/service/install.py
+```
+
+Installation writes a content-free receipt to
+`/var/lib/bamware-google-status/broker.json`. A real Assistant/Discord tool call
+must still be checked after installation; a loaded skill alone is not proof.
+Seven boundary tests currently pass; no live broker activation is yet claimed.
+
+## Device storage prepared, not yet synchronized
+
+- ThinkPad: rclone 1.74.2 installed in `~/.local/bin/rclone`, checksum verified.
+  `services/google-access/device/setup-linux-drive.sh` is staged as
+  `/tmp/bamware-drive-setup.sh`. It creates a separate local Drive authorization,
+  private config, and user mount service at `~/GoogleDrive` after consent. This
+  is online file access with a write cache, **not a full offline mirror**.
+  Desktop/Documents are left in place. It refuses to hide a nonempty local mount
+  folder and uses Drive trash. No sync or authorization has yet been activated.
+- Mac: reachable; native Google Drive was not found in `/Applications` during
+  inspection. Official installer downloaded to `~/Downloads/GoogleDrive-Bamware-setup.dmg`;
+  `hdiutil verify` passed. Installation and native sign-in remain required.
+- Phone/tablet: Google Drive app sign-in and optional offline folders remain
+  user steps; neither device has been inspected or configured.
+- Server: the assistant uses the read broker. Do not install a broad write token
+  or personal file mount under the shared engineering user merely for symmetry.
+
+Device credentials are separate from the assistant's read credentials. Never
+copy account tokens between machines. A harmless file round trip is required
+before claiming that device sync works. Do not automatically upload existing
+personal folders or mirror deletions.
+
+The chosen OAuth project was in Testing during consent. Resolve the testing-mode
+refresh-token lifetime before calling this durable unattended operation; do not
+silently publish a shared app or change its audience. No Google API billing or
+paid plan was enabled by these scripts.
 
 ## References
 

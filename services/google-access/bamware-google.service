@@ -1,0 +1,33 @@
+[Unit]
+Description=Chief of Staff read-only Google access
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bamware-google
+Group=bamware-google
+RuntimeDirectory=bamware-google
+RuntimeDirectoryMode=0755
+LoadCredential=keyring:/etc/bamware-google/keyring.passphrase
+ExecStart=/usr/bin/python3 /opt/bamware-google/broker.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/bamware-google/gog-managed
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+LimitCORE=0
+LimitFSIZE=16777216
+MemoryMax=256M
+TasksMax=32
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
