@@ -14,7 +14,7 @@ linking. Written from a Claude Code session running **on `omarchy` itself**
 | Auth (owner password → signed cookie) | Implemented, tested (401 paths, rate limit) |
 | Export / delete of a web session | Implemented via `hermes sessions`; export verified |
 | Browser voice (STT/TTS, barge-in) | Implemented, **not human-tested**; iPhone needs HTTPS (#66) |
-| Langfuse trace | Plugin enabled + SDK installed; **no keys, no deployment, ingestion unverified** (#65) |
+| Langfuse trace | Self-host **implemented** (`services/langfuse`, secrets generated), **not running**: Docker needs one root step; Hermes not yet pointed at it; ingestion **unverified** (#65) |
 | Deployed as a service | **No.** Unit file only; enabling is Bilal's (#67) |
 | Streaming via Hermes API server | **No.** Needs `API_SERVER_KEY` + gateway restart (#64) |
 | Chief of Staff coordination | **Does not exist** as software; see below |
@@ -92,14 +92,39 @@ own ticket with guards (#68). Langfuse traces are **not** memory (#62 rule).
   Caveat: plausible-but-wrong keys build a client and only fail at flush;
   set `HERMES_LANGFUSE_DEBUG=true` when verifying #65.
 - Trace shape: name "Hermes turn", `session_id` = Hermes session id,
-  metadata platform/provider/model/task_id, **input = last user message**
-  truncated to `HERMES_LANGFUSE_MAX_CHARS` (12000). No metadata-only mode;
-  the founder's "metadata first" means a small `MAX_CHARS` or accepting text.
+  metadata platform/provider/model/task_id; full content inventory below
+  (the earlier "input = last user message" summary understated it).
+  No metadata-only mode exists in the plugin.
 - Website correlation: `POST /api/chat` returns
   `trace.langfuseSessionId` (= Hermes session id) and tags turns
   `HERMES_LANGFUSE_ENV=assistant-web` unless the operator set a global tag.
-- Cheapest path: Langfuse Cloud Hobby (free). Self-host needs root for Docker.
-  Both are Bilal's call (#65). **Not verified: any trace ingestion.**
+- Bilal chose **self-host on omarchy** (2026-10-01). Implemented in
+  `services/langfuse` (README there): upstream compose pinned to main
+  9a29212e855c with loopback-only ports, telemetry off, required secrets;
+  `~/.config/bamware/langfuse.env` generated (chmod 600, headless-init org
+  `bamware`, project `hermes`, `pk-lf-`/`sk-lf-` keys, first user); scripts
+  `up.sh` → `connect-hermes.sh` → `verify.sh`. `docker compose config` renders.
+- **Not running.** Exact blocked step: `docker.service` is inactive/disabled,
+  `bilal` is not in group `docker`, `systemctl start docker` is refused by
+  polkit, sudo needs a password, and rootless Docker is not packaged
+  (no rootlesskit/slirp4netns). Gate: `sudo systemctl enable --now docker &&
+  sudo usermod -aG docker bilal`, then a new login shell. `up.sh` exits 2 with
+  `BLOCKED: cannot reach the Docker daemon` until then.
+- Hermes is **not** connected yet on purpose: the plugin blocks on flush, so
+  keys pointing at a dead URL would slow every website/CLI turn.
+  `connect-hermes.sh` refuses unless Langfuse is healthy and the keys
+  authenticate. `~/.hermes/.env` still holds only `DISCORD_*`.
+- **What the plugin records** (read from the installed source, not the
+  docstring): trace input = last user message (which carries the injected
+  Bamware context block); each `LLM call N` generation = the **last 12
+  request messages incl. system prompt on short sessions**, assistant
+  content, reasoning, tool calls with arguments, usage/cost; each `Tool:`
+  span = arguments in, result out (`read_file` reduced to head/tail);
+  trace output = final assistant text. Only `data:` URIs are redacted;
+  all else is **truncated per field** to `HERMES_LANGFUSE_MAX_CHARS`.
+  Truncation is a size cap, not redaction. Mitigation: local, loopback-only
+  store; `MAX_CHARS=500` set by `connect-hermes.sh`.
+- **Not verified: any trace ingestion, the failure case, Discord traces.**
 
 ## 6. Network and deployment
 
@@ -125,7 +150,7 @@ own ticket with guards (#68). Langfuse traces are **not** memory (#62 rule).
 | Page render | headless Chromium 390×844 and 1280×800 | login view renders, `data-view="login"` |
 | Model calls made | 3 turns on the ChatGPT subscription (`openai-codex`) | $0 marginal; no paid service touched |
 
-Not verified: voice by a human, Langfuse ingestion, iPhone access, service
+Not verified: voice by a human, Langfuse ingestion (stack not running: Docker root gate), iPhone access, service
 survival across reboot, Discord↔web linking, API-server streaming.
 
 ## 8. Chief of Staff: does coordination exist?
