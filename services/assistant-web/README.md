@@ -168,3 +168,24 @@ checkout, never copy a worktree over it. Restart `assistant-web`, then run the
 readback verifier above. Roll back code with a revert on the release branch;
 remove only `server-quota.conf` and reload systemd to detach the new collection.
 The old Claude collector, X1 timer and other services remain untouched.
+
+#### Verified release evidence (2026-10-02, #81)
+
+- Implementation `538c04b` published to `feat/quota-coverage-81` and
+  `worktree-assistant-web-slice`; production fast-forwarded after fetch/rebase.
+- `assistant-web` restarted and is active. Existing quota service ran its new
+  pre-step with exit 0; existing ten-minute timer still active. No new scheduler.
+- 92/92 Node tests, 8/8 server-collector Python tests, 1/1 X1-exporter test;
+  `node --check public/app.js`, context check and diff check passed.
+- Real production verifier: health 200; unauthenticated and wrong-password
+  401; authenticated readback 200; module/meter assets and demo isolation pass.
+  Claude, X1 and independent server observations read back fresh. Missing
+  secondary allowance remains unknown; hosted OpenCode provider remains unsupported.
+- Optional visual browser QA **not verified**: direct Chromium CDP handshakes
+  failed/pipe startup timed out; the browser tool independently reported
+  `CDP WebSocket connect failed: ... Handshake not finished`. No screenshot or
+  visual pass is claimed. Meter DOM/ARIA semantics are regression-tested.
+- Worker-written pickup/result receipts live under the private local state
+  directory `~/.local/state/bamware/chief-of-staff/81/`; public evidence is in
+  [issue #81](https://github.com/mrbam88/bamware-ai/issues/81). This is a bounded
+  direct assignment, not evidence that recurring Chief of Staff sweep #79 runs.

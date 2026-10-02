@@ -8,6 +8,19 @@
 > Last updated: 2026-10-02 — **Assistant quota coverage #81: independent server Hermes/OpenCode collection and visual meters implemented; release/deployment evidence in #81. Existing assistant-web service is running. Recurring Chief of Staff sweep #79 remains separate and unimplemented by this task.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-02 — Quota meters and independent server coverage (#81)
+
+- `538c04b` published on the assistant release branch and deployed to the
+  existing `assistant-web` service, with real authenticated endpoint readback.
+- Hermes/OpenCode share provider-proven account windows, not duplicate meters.
+  Server reads do not depend on the X1; the existing ten-minute collector timer
+  is reused. Missing identity, capacity and spend controls remain explicit gaps.
+- Tests and exact remaining visual-QA/source gaps:
+  [assistant README](services/assistant-web/README.md#verified-release-evidence-2026-10-02-81).
+- Worker pickup/result receipts are private local state; public progress is in
+  [#81](https://github.com/mrbam88/bamware-ai/issues/81). Recurring sweep #79
+  was not implemented, enabled or claimed by this task.
+
 ## 2026-10-01 — Assistant website: first vertical slice on real Hermes (#62, #63)
 
 - Canonical findings, gates, evidence: [docs/assistant-website.md](docs/assistant-website.md).
