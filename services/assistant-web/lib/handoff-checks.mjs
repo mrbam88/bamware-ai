@@ -86,7 +86,7 @@ export function agentCheckRunner(runner) {
     const r=await runner.run(['chat','-Q','--toolsets','none','--ignore-rules','--max-turns','1','-q',prompt],{requestId:job.id});
     const parsed=parseHermesOutput(r.stdout,r.stderr);
     if(r.code!==0 || !parsed.reply) throw new Error('Chief-of-staff agent failed; inspect server logs for this check ID.');
-    return {summary:parsed.reply,sessionId:parsed.sessionId};
+    return {summary:parsed.reply.replace(/^Warning: Unknown toolsets: none\s*/i, ""),sessionId:parsed.sessionId};
   };
 }
 

@@ -71,7 +71,7 @@ export function loadConfig(env = process.env) {
     serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     overnightUsageFile: get("ASSISTANT_WEB_OVERNIGHT_USAGE_FILE", path.join(os.homedir(), ".local/state/bamware/overnight/usage.json")),
-    handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "1") === "1",
+    handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "0") === "1",
     handoffChecksDir: get("ASSISTANT_WEB_HANDOFF_CHECKS_DIR", path.join(os.homedir(), ".local/state/bamware/handoff-checks")),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),

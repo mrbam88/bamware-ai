@@ -77,6 +77,8 @@ async function withServer(fn, extraEnv = {}) {
     ASSISTANT_WEB_SERVER_QUOTA_FILE: "/nonexistent",
     ASSISTANT_WEB_QUOTA_SAMPLES_FILE: "/nonexistent",
     ASSISTANT_WEB_OVERNIGHT_USAGE_FILE: "/nonexistent",
+    ASSISTANT_WEB_HANDOFF_CHECKS: "0",
+    ASSISTANT_WEB_HANDOFF_CHECKS_DIR: path.join(decisionsDir, "checks"),
     ASSISTANT_WEB_DECISIONS_FILE: path.join(decisionsDir, "decisions.json"),
     ASSISTANT_WEB_DECISIONS_DEMO_FILE: path.join(decisionsDir, "decisions.demo.json"),
     ...extraEnv,
