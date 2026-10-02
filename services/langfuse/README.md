@@ -83,6 +83,15 @@ result. Secrets in tool output rely on Hermes' own `redact_secrets` running
 before hooks, which is not verified here. Mitigation is that the store is
 local and loopback-only; a metadata-only mode would need a plugin change.
 
+## Reading traces programmatically (v4)
+
+Langfuse 4 runs in `events_only` mode: the public `/api/public/traces`,
+`/sessions`, `/observations` and `/metrics` read endpoints answer 404 by
+design. The UI works normally (`/project/hermes/traces/<trace_id>`), and
+`verify.sh` reads stored spans from the stack's own ClickHouse on
+`127.0.0.1:8123` (`events_full`, one row per span, `session_id` on the root
+`CHAIN` row). Ingestion is OTLP at `/api/public/otel/v1/traces`.
+
 ## Operate
 
 ```sh

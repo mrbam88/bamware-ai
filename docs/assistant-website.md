@@ -10,12 +10,12 @@ linking. Written from a Claude Code session running **on `omarchy` itself**
 
 | Layer | State as of 2026-10-01 |
 |---|---|
-| Website text → real Hermes → reply | **Implemented and verified** (loopback, 8.2 s, session `20261001_211656_1f0aff`) |
+| Website text → real Hermes → reply | **Deployed and verified** on the tailnet URL (11.2 s, session `20261002_000131_177661`; 2026-10-02) |
 | Auth (owner password → signed cookie) | Implemented, tested (401 paths, rate limit) |
 | Export / delete of a web session | Implemented via `hermes sessions`; export verified |
 | Browser voice (STT/TTS, barge-in) | Implemented, **not human-tested**; iPhone needs HTTPS (#66) |
-| Langfuse trace | Self-host **implemented** (`services/langfuse`, secrets generated), **not running**: Docker needs one root step; Hermes not yet pointed at it; ingestion **unverified** (#65) |
-| Deployed as a service | **Authorized 2026-10-01, not running.** Deploy clone `~/srv/bamware-ai` + `scripts/deploy-assistant-web.sh` ready; the omarchy Claude Code session was denied the unit install and `tailscale serve` by its own classifier (#67) |
+| Langfuse trace | **Running and verified** (self-host 4.49.0 on omarchy, loopback): website turn `20261002_001227_923a76` → trace `83602cc719c629c6b57a1ba0c70100e8`, env `assistant-web`; wrong-key turn → 401 at export, no row (#65) |
+| Deployed as a service | **Yes, 2026-10-02** — `assistant-web.service` enabled, bound to `100.88.99.117:8765` (tailnet only, HTTP). Bilal ran `scripts/deploy-assistant-web.sh`; restart survival verified; reboot pending; HTTPS blocked (tailnet certs disabled) (#67) |
 | Streaming via Hermes API server | **No.** Needs `API_SERVER_KEY` + gateway restart (#64) |
 | Chief of Staff coordination | **Does not exist** as software; see below |
 
@@ -124,7 +124,25 @@ own ticket with guards (#68). Langfuse traces are **not** memory (#62 rule).
   all else is **truncated per field** to `HERMES_LANGFUSE_MAX_CHARS`.
   Truncation is a size cap, not redaction. Mitigation: local, loopback-only
   store; `MAX_CHARS=500` set by `connect-hermes.sh`.
-- **Not verified: any trace ingestion, the failure case, Discord traces.**
+- **Verified 2026-10-02 (Bilal ran `up.sh`/`connect-hermes.sh`; checks by the
+  omarchy session):** Langfuse 4.49.0 healthy on `127.0.0.1:3000`; headless
+  init created org `bamware` / project `hermes`; `HERMES_LANGFUSE_*` written to
+  `~/.hermes/.env` (`MAX_CHARS=500`); `/api/me` → `keysPresent: true`.
+  Stored spans read from the stack's ClickHouse (`events_full`): website turn
+  session `20261002_001227_923a76` → trace `83602cc719c629c6b57a1ba0c70100e8`
+  (`Hermes turn` + `LLM call 1`, environment `assistant-web`, output
+  `WEB-DEPLOY-OK`); CLI turn `20261002_001157_1fdfa6` → trace
+  `1b86afe7bf708e202ed8fbec431696ee`. UI route
+  `http://127.0.0.1:3000/project/hermes/traces/<id>` serves 200.
+- **Failure case verified:** wrong `sk-lf-` in `~/.hermes/.env` (restored
+  after) → turn still answered `PONG`, `agent.log`: `Failed to export spans
+  batch code: 401, reason: Unauthorized`, zero rows for that session.
+  Note: an exported env var does **not** work for this test because Hermes
+  loads `~/.hermes/.env` with `override=True`; `verify.sh` swaps the file.
+- **Langfuse v4 runs in `events_only` mode:** `/api/public/traces`,
+  `/sessions`, `/observations`, `/metrics` return 404 by design. Programmatic
+  verification reads ClickHouse on loopback (`verify.sh`); the UI is unaffected.
+- **Not verified: Discord traces** (gateway not restarted; same restart as #64).
 
 ## 6. Network and deployment
 
@@ -152,8 +170,18 @@ own ticket with guards (#68). Langfuse traces are **not** memory (#62 rule).
   `tailscale serve --bg --https=443 http://127.0.0.1:8765`
   (operator user is already `bilal`, no sudo). Until then the tailnet URL is
   plain HTTP: text only, no microphone, cookies non-Secure.
-- Expected URL once started: `http://100.88.99.117:8765` or
-  `http://omarchy.tailb7fa1e.ts.net:8765` (MagicDNS). **Unverified.**
+- **Deployed 2026-10-02 by Bilal running the script.** `scripts/verify-assistant-web.sh`
+  against `http://100.88.99.117:8765`: health OK, unauth chat 401, wrong
+  password 401, login OK, real turn `WEB-DEPLOY-OK` (session
+  `20261002_001227_923a76`, export 32,649 bytes containing the turn),
+  `systemctl --user restart` → healthy, `active`. MagicDNS name
+  `http://omarchy.tailb7fa1e.ts.net:8765` not exercised from another device.
+- **Context hook under systemd:** the first website turns carried
+  `[BAMWARE_CONTEXT_BLOCKED]` because the unit's `PrivateTmp=true` breaks
+  git-over-SSH (isolated with `systemd-run`: `PrivateTmp` fails, `NoNewPrivileges`
+  passes). Fix in the drop-in: `GIT_CONFIG_*` rewrite of `git@github.com:` to
+  HTTPS for the service only (verified with the same reproduction). Needs one
+  re-run of `scripts/deploy-assistant-web.sh` to apply.
 - Reboot persistence: pending (no reboot authorized); linger is on.
 
 - `omarchy` Tailscale IP `100.88.99.117`, MagicDNS, `tailscale serve`: no

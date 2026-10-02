@@ -21,9 +21,17 @@ cat > "$U/assistant-web.service.d/override.conf" <<CONF
 WorkingDirectory=
 WorkingDirectory=$HERE/services/assistant-web
 Environment=HERMES_CWD=$HERMES_CWD
+# The unit's PrivateTmp=true breaks git-over-SSH, so the context hook reported
+# [BAMWARE_CONTEXT_BLOCKED] on every website turn (verified with systemd-run,
+# 2026-10-02). Fetch the public repo over HTTPS inside this service instead;
+# nothing in the service pushes, so the rewrite costs nothing.
+Environment=GIT_CONFIG_COUNT=1
+Environment=GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf
+Environment=GIT_CONFIG_VALUE_0=git@github.com:
 CONF
 systemctl --user daemon-reload
-systemctl --user enable --now assistant-web.service
+systemctl --user enable assistant-web.service
+systemctl --user restart assistant-web.service
 HOST=$(grep -E '^ASSISTANT_WEB_HOST=' "$ENV_FILE" | cut -d= -f2-); HOST=${HOST:-127.0.0.1}
 PORT=$(grep -E '^ASSISTANT_WEB_PORT=' "$ENV_FILE" | cut -d= -f2-); PORT=${PORT:-8765}
 for _ in $(seq 1 30); do curl -fsS "http://$HOST:$PORT/api/health" >/dev/null 2>&1 && break; sleep 1; done
