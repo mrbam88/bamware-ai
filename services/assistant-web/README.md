@@ -44,6 +44,11 @@ Service unit (not enabled by agents; see gates below):
 | `POST /api/login` `{password}` | no | sets `aw_session` cookie (HttpOnly, SameSite=Strict, 7 days); 5 failures / 15 min per client → 429 |
 | `POST /api/logout` | no | clears cookie |
 | `GET /api/me` | cookie | Hermes bin/cwd and Langfuse **presence booleans** (never values) |
+| `GET /api/rate-limits[?mode=demo]` | cookie | Rate-limit/reset snapshot (bamware-ai#75). Default `mode=live` reports real providers honestly — today just Claude Max, always `"unsupported"` (no read-only quota source is wired; see `lib/providers/claude-max-adapter.mjs`). `mode=demo` returns only synthetic fixtures covering fresh/stale/exhausted/unknown/reset-transition states, always tagged `source.kind:"synthetic"`, for widget preview/QA — never blended with live data. |
+| `GET /api/work-usage[?mode=demo]` | cookie | Work/agents-analytics snapshot (bamware-ai#76): usage by project/ticket (with an explicit unallocated bucket), active agents with heartbeat freshness, active-vs-waiting time, outcomes/rework, and a routing-recommendation signal. Default `mode=live` reports only a safe, credential-free self-correlation (this service's own repo/branch/machine identity via `lib/providers/work-usage-self-adapter.mjs`) with no usage numbers — the only real collector (bamware-ai#60 → bamware-web#45) needs AWS DynamoDB credentials this service doesn't have, same gap as the rate-limits adapter. `mode=demo` returns the full synthetic fixture set (implementation → retry → QA, dedup, stale vs active agents), always tagged `source.kind:"synthetic"`. |
+| `GET /api/decisions[?mode=demo]` | cookie | Command Center Decisions deck (bamware-ai#78): a small explicit, hand-curated set of founder-level decision candidates (`lib/providers/decision-candidates.mjs`), each merged with any durable response on file. Default `mode=live` serves 3 real candidates grounded in already-verified repo facts (issue #77, and the Langfuse/Tailscale blockers documented in `docs/assistant-website.md`) — never an extraction over every open issue. `mode=demo` serves one clearly `source.kind:"synthetic"` fixture decision for previewing the full lifecycle. |
+| `POST /api/decisions/:id/respond[?mode=demo]` `{action, selectedOptionId?, note?, candidateVersion}` | cookie | Records a durable, versioned response (`approve｜reject｜discuss｜defer`) to a decision in a file-backed store (`~/.config/bamware/assistant-web-decisions*.json`, path overridable via `ASSISTANT_WEB_DECISIONS_FILE`/`_DEMO_FILE`). `candidateVersion` must match the current candidate or the call is `409 stale_decision`. Only `approve` attempts a handoff; in `mode=live` there is no confirmed worker interface, so it always and honestly records `handoff.status:"handoff_pending"` — never a fabricated pickup. Resubmitting an identical response is idempotent (`duplicate:true`, no second handoff dispatch); submitting a different action is a legitimate reconsideration. `mode=demo` can also dispatch to a fixture worker (`simulateWorker:"unavailable"` or the default accepting fixture) to prove `pickup_confirmed`/`completed` exist as real, reachable states — synthetic only. |
+| `POST /api/decisions/:id/handoff/refresh[?mode=demo]` | cookie | Re-checks a `pickup_confirmed` handoff against the worker (fixture-only in `mode=demo`; a no-op in `mode=live` since no worker is wired). Never self-promotes a status without worker evidence. |
 | `POST /api/chat` `{text, sessionId?}` | cookie | runs one Hermes turn → `{reply, sessionId, requestId, elapsedMs, trace}` |
 | `GET /api/sessions/:id/export` | cookie | `hermes sessions export --format jsonl -` (download) |
 | `DELETE /api/sessions/:id` | cookie | `hermes sessions delete --yes` |
@@ -71,7 +76,7 @@ the button explains when it is unavailable.
 ## Test
 
 ```sh
-cd services/assistant-web && npm test      # 13 tests, fake Hermes fixture
+cd services/assistant-web && npm test      # 82 tests: fake Hermes fixture + rate-limit + work-usage + decisions contract/fixtures
 ```
 
 Mocked tests are not integration proof. The real check is one authenticated
@@ -84,3 +89,7 @@ Mocked tests are not integration proof. The real check is one authenticated
 - Langfuse keys in `~/.hermes/.env` (account/project creation).
 - Enabling Hermes' built-in API server (`API_SERVER_KEY`, gateway restart):
   the streaming/SSE upgrade path, see `docs/assistant-website.md`.
+
+## Recovery release (2026-10-02)
+
+Live Agents usage now includes an allowlisted metadata export of the four overnight implementation/QA runs, via `scripts/export-overnight-metrics.py`. It includes runtime-reported token totals and list-price cost estimates, never conversation content. This is a recorded batch snapshot, not continuous fleet ingestion. Active versus waiting time remains unknown where unavailable. Provider quota remains unsupported. Obsolete Langfuse/HTTPS decision cards were removed; the backlog-planning decision remains. Real worker dispatch is still pending.

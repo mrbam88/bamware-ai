@@ -2,8 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { parseEnvFile, parseHermesOutput, validateChatInput, signSession, verifySession, safeEqual, LoginLimiter } from "../lib.mjs";
 import { createServer, loadConfig } from "../server.mjs";
+import { DECISION_CANDIDATES } from "../lib/providers/decision-candidates.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FAKE = path.join(HERE, "fixtures", "fake-hermes.sh");
@@ -61,6 +64,7 @@ test("loadConfig refuses weak secrets", () => {
 
 // ------------------------------------------------------------ HTTP flow ---
 async function withServer(fn, extraEnv = {}) {
+  const decisionsDir = mkdtempSync(path.join(tmpdir(), "aw-decisions-http-"));
   const { cfg, problems } = loadConfig({
     ASSISTANT_WEB_ENV_FILE: "/nonexistent",
     ASSISTANT_WEB_PASSWORD: PASSWORD,
@@ -69,6 +73,8 @@ async function withServer(fn, extraEnv = {}) {
     HERMES_CWD: HERE,
     HERMES_HOME: path.join(HERE, "fixtures", "hermes-home-missing"),
     HERMES_TIMEOUT_MS: "2000",
+    ASSISTANT_WEB_DECISIONS_FILE: path.join(decisionsDir, "decisions.json"),
+    ASSISTANT_WEB_DECISIONS_DEMO_FILE: path.join(decisionsDir, "decisions.demo.json"),
     ...extraEnv,
   });
   assert.deepEqual(problems, []);
@@ -94,7 +100,7 @@ async function login(base) {
 
 test("unauthenticated clients get 401 on every /api route except health and login", async () => {
   await withServer(async (base) => {
-    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"]]) {
+    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"], ["GET", "/api/work-usage"], ["GET", "/api/decisions"]]) {
       const res = await fetch(base + p, { method: m, headers: { "content-type": "application/json" }, body: m === "POST" ? "{}" : undefined });
       assert.equal(res.status, 401, `${m} ${p}`);
     }
@@ -175,5 +181,214 @@ test("me reports Langfuse presence booleans only", async () => {
     const me = await (await fetch(`${base}/api/me`, { headers: { cookie } })).json();
     assert.deepEqual(Object.keys(me.langfuse).sort(), ["hermesHome", "keysPresent", "pluginEnabled"]);
     assert.equal(me.langfuse.keysPresent, false);
+  });
+});
+
+test("GET /api/rate-limits defaults to live mode: honest unsupported, no fake cap", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/rate-limits`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "live");
+    assert.ok(body.version);
+    assert.equal(body.windows.length, 1);
+    assert.equal(body.windows[0].state, "unsupported");
+    assert.equal(body.windows[0].usedTokens, null);
+    assert.ok(!JSON.stringify(body).includes("1500000"), "must never present the old unverified 1.5M cap as fact");
+  });
+});
+
+test("GET /api/rate-limits?mode=demo returns only synthetic, clearly tagged windows", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/rate-limits?mode=demo`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "demo");
+    assert.ok(body.windows.length >= 5);
+    for (const w of body.windows) assert.equal(w.source.kind, "synthetic");
+    const states = new Set(body.windows.map((w) => w.state));
+    for (const required of ["fresh", "stale", "exhausted", "unknown"]) assert.ok(states.has(required));
+  });
+});
+
+test("GET /api/work-usage defaults to live mode: real repo/branch/machine correlation, no fabricated numbers", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/work-usage`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "live");
+    assert.ok(body.version);
+    assert.equal(body.adapterNotes[0].name, "self");
+    assert.equal(body.adapterNotes[0].ok, true);
+    // The self adapter has no project/task (batch branch), so it must land as unallocated, not fabricated into a task total.
+    assert.equal(body.usageByProjectTask.length, 0);
+    assert.ok(body.unallocatedUsage);
+    assert.equal(body.unallocatedUsage.usage.input, null);
+    assert.equal(body.routing.length, 0, "no routing rules are configured for live mode");
+  });
+});
+
+test("GET /api/work-usage?mode=demo returns the full synthetic widget feature set", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/work-usage?mode=demo`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "demo");
+    assert.equal(body.duplicatesDropped, 1, "the rewritten-transcript duplicate must be collapsed, not summed");
+    assert.equal(body.usageByProjectTask.length, 3, "tasks #76, #77 and #78 each get their own scope");
+    const task76 = body.usageByProjectTask.find((s) => s.task.id === "76");
+    assert.equal(task76.attempts.length, 3, "implementation + retry + qa, deduplicated");
+    assert.equal(task76.retryCount, 1);
+    assert.equal(task76.qaAttemptCount, 1);
+    assert.ok(task76.usage.input > 0);
+    assert.ok(body.unallocatedUsage, "the project/task-less event must surface as unallocated, not be dropped");
+    assert.equal(body.unallocatedUsage.usage.input, 5000);
+    const active = body.activeAgents.find((a) => a.sessionId === "demo-session-5");
+    assert.equal(active.state, "active");
+    const stale = body.activeAgents.find((a) => a.sessionId === "demo-session-6");
+    assert.equal(stale.state, "stale", "an old heartbeat must never read as active");
+    assert.ok(body.timing.activeMsTotal > 0);
+    assert.ok(body.timing.waitMsTotal > 0);
+    assert.ok(body.timing.waitByReason.qa > 0);
+    assert.equal(body.outcomes.counts["verified-pass"], 2);
+    assert.equal(body.outcomes.counts["qa-fail"], 1);
+    assert.ok(body.routing.length >= 2);
+    const insufficient = body.routing.find((r) => r.evidence === "insufficient");
+    assert.ok(insufficient, "a rule with no matching verified evidence must say so, not claim a recommendation");
+  });
+});
+
+// -------------------------------------------------------------- decisions -
+test("GET /api/decisions (live) lists the real, explicit candidates, all pending", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/decisions`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "live");
+    assert.equal(body.decisions.length, DECISION_CANDIDATES.length);
+    for (const d of body.decisions) {
+      assert.notEqual(d.source.kind, "synthetic");
+      assert.equal(d.response, null);
+      assert.equal(d.handoff.status, "not_applicable");
+    }
+  });
+});
+
+test("GET /api/decisions?mode=demo lists only clearly-tagged synthetic candidates", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/decisions?mode=demo`, { headers: { cookie } });
+    const body = await res.json();
+    assert.equal(body.mode, "demo");
+    assert.ok(body.decisions.length >= 1);
+    for (const d of body.decisions) assert.equal(d.source.kind, "synthetic");
+  });
+});
+
+test("respond -> reload: a durable response survives a fresh GET (restart simulation)", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const candidate = DECISION_CANDIDATES[0];
+    const r = await fetch(`${base}/api/decisions/${candidate.id}/respond`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ action: "defer", candidateVersion: candidate.version }),
+    });
+    assert.equal(r.status, 200);
+    const body = await r.json();
+    assert.equal(body.decision.response.action, "defer");
+    assert.equal(body.decision.handoff.status, "not_applicable");
+
+    const after = await (await fetch(`${base}/api/decisions`, { headers: { cookie } })).json();
+    const found = after.decisions.find((d) => d.id === candidate.id);
+    assert.equal(found.response.action, "defer");
+  });
+});
+
+test("duplicate respond calls are idempotent over HTTP; real mode never claims a worker picked it up", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const candidate = DECISION_CANDIDATES.find((c) => c.options.some((o) => o.id === "approve")) ?? DECISION_CANDIDATES[0];
+    const approveOption = candidate.options.find((o) => o.id === "approve")?.id ?? candidate.options[0].id;
+    const payload = JSON.stringify({ action: "approve", selectedOptionId: approveOption, candidateVersion: candidate.version });
+    const first = await fetch(`${base}/api/decisions/${candidate.id}/respond`, { method: "POST", headers: { "content-type": "application/json", cookie }, body: payload });
+    const firstBody = await first.json();
+    assert.equal(firstBody.duplicate, false);
+    assert.equal(firstBody.decision.handoff.status, "handoff_pending", "no confirmed live worker interface exists in real mode");
+
+    const second = await fetch(`${base}/api/decisions/${candidate.id}/respond`, { method: "POST", headers: { "content-type": "application/json", cookie }, body: payload });
+    const secondBody = await second.json();
+    assert.equal(secondBody.duplicate, true);
+  });
+});
+
+test("a stale candidateVersion is rejected over HTTP with 409", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const candidate = DECISION_CANDIDATES[0];
+    const res = await fetch(`${base}/api/decisions/${candidate.id}/respond`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ action: "defer", candidateVersion: "0-stale" }),
+    });
+    assert.equal(res.status, 409);
+    const body = await res.json();
+    assert.equal(body.code, "stale_decision");
+  });
+});
+
+test("demo mode proves the full handoff lifecycle: recorded -> pickup_confirmed -> completed, clearly synthetic", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const list = await (await fetch(`${base}/api/decisions?mode=demo`, { headers: { cookie } })).json();
+    const candidate = list.decisions[0];
+    const approveOption = candidate.options.find((o) => o.id === "integrate_partner" || o.id === "approve")?.id ?? candidate.options[0].id;
+
+    const respond = await fetch(`${base}/api/decisions/${candidate.id}/respond?mode=demo`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ action: "approve", selectedOptionId: approveOption, candidateVersion: candidate.version }),
+    });
+    const respondBody = await respond.json();
+    assert.equal(respondBody.decision.handoff.status, "pickup_confirmed");
+    assert.ok(respondBody.decision.handoff.receiptId);
+
+    const refresh = await fetch(`${base}/api/decisions/${candidate.id}/handoff/refresh?mode=demo`, { method: "POST", headers: { cookie } });
+    const refreshBody = await refresh.json();
+    assert.equal(refreshBody.refreshed, true);
+    assert.equal(refreshBody.decision.handoff.status, "completed");
+  });
+});
+
+test("demo mode can also simulate an unavailable worker on request, still honest about it", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const list = await (await fetch(`${base}/api/decisions?mode=demo`, { headers: { cookie } })).json();
+    const candidate = list.decisions[0];
+    const approveOption = candidate.options.find((o) => o.id === "integrate_partner" || o.id === "approve")?.id ?? candidate.options[0].id;
+    const res = await fetch(`${base}/api/decisions/${candidate.id}/respond?mode=demo`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ action: "approve", selectedOptionId: approveOption, candidateVersion: candidate.version, simulateWorker: "unavailable" }),
+    });
+    const body = await res.json();
+    assert.equal(body.decision.handoff.status, "handoff_pending");
+  });
+});
+
+test("an unknown decision id is 404, not silently ignored", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/decisions/does-not-exist/respond`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify({ action: "defer", candidateVersion: "1" }),
+    });
+    assert.equal(res.status, 404);
   });
 });

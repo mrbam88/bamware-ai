@@ -25,6 +25,17 @@ import {
   LoginLimiter,
   SESSION_ID_RE,
 } from "./lib.mjs";
+import { buildSnapshot } from "./lib/rate-limits.mjs";
+import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
+import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
+import { buildWorkUsageSnapshot } from "./lib/work-usage.mjs";
+import { overnightUsageAdapter } from "./lib/providers/overnight-usage-adapter.mjs";
+import { workUsageSelfAdapter } from "./lib/providers/work-usage-self-adapter.mjs";
+import { workUsageDemoAdapter, demoRoutingRules } from "./lib/providers/work-usage-demo-fixtures.mjs";
+import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
+import { loadDecisionStore } from "./lib/decision-store.mjs";
+import { DECISION_CANDIDATES } from "./lib/providers/decision-candidates.mjs";
+import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAccepting } from "./lib/providers/decision-candidates-demo-fixtures.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..", "..");
@@ -49,6 +60,8 @@ export function loadConfig(env = process.env) {
     hermesHome: get("HERMES_HOME", path.join(os.homedir(), ".hermes")),
     maxQueue: Number(get("ASSISTANT_WEB_MAX_QUEUE", "3")),
     publicDir: path.join(HERE, "public"),
+    decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
+    decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),
   };
   const problems = [];
   if (cfg.password.length < 12) problems.push("ASSISTANT_WEB_PASSWORD must be at least 12 characters.");
@@ -209,6 +222,9 @@ function hermesStatus(cfg) {
 export function createServer(cfg, { log = defaultLog } = {}) {
   const runner = new HermesRunner(cfg, log);
   const limiter = new LoginLimiter();
+  // One fixture-worker instance per server process so a dispatch's receiptId
+  // can later be found by a refresh check (demo lifecycle proof only).
+  const demoAcceptingWorker = makeFixtureWorkerAccepting();
 
   const authed = (req) => {
     const cookies = parseCookies(req.headers.cookie);
@@ -256,6 +272,78 @@ export function createServer(cfg, { log = defaultLog } = {}) {
 
       if (route === "GET /api/me") {
         return send(res, 200, { ok: true, hermes: { bin: cfg.hermesBin, cwd: cfg.hermesCwd }, langfuse: hermesStatus(cfg) });
+      }
+
+      // Rate-limit / reset visibility (Agents view, bamware-ai#75). `mode=demo`
+      // serves only synthetic, clearly-labelled fixtures for UI preview/QA;
+      // it never substitutes for or blends with the live snapshot.
+      if (route === "GET /api/rate-limits") {
+        const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
+        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }];
+        const snapshot = await buildSnapshot(adapters, {}, { now: Date.now() });
+        return send(res, 200, { ...snapshot, mode });
+      }
+
+      // Work/agents analytics (Agents view, bamware-ai#76): usage by
+      // project/ticket, active agents, work-vs-waiting and outcomes/rework.
+      // `mode=demo` is an explicit opt-in synthetic preview, never blended
+      // with the live snapshot (same rule as /api/rate-limits).
+      if (route === "GET /api/work-usage") {
+        const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
+        const adapters =
+          mode === "demo"
+            ? [{ name: "demo", run: workUsageDemoAdapter }]
+            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }, { name: "overnight", run: () => overnightUsageAdapter() }];
+        const workCtx = { repoDir: cfg.hermesCwd, repoName: path.basename(REPO_ROOT) };
+        const snapshot = await buildWorkUsageSnapshot(adapters, workCtx, {
+          now: Date.now(),
+          mode,
+          routingRules: mode === "demo" ? demoRoutingRules : [],
+        });
+        return send(res, 200, snapshot);
+      }
+
+      // Decisions card deck (Command Center MVP, bamware-ai#78). `mode=demo`
+      // serves the synthetic candidate deck and a fixture worker so the full
+      // response/handoff lifecycle can be exercised safely; the real deck
+      // never dispatches to that fixture and always reports an honest
+      // "handoff_pending" because no live worker interface is confirmed.
+      const decisionsMatch = url.pathname.match(/^\/api\/decisions(?:\/([^/]+)(\/respond|\/handoff\/refresh)?)?$/);
+      if (decisionsMatch) {
+        const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
+        const candidates = mode === "demo" ? demoDecisionCandidates() : DECISION_CANDIDATES;
+        const storeFile = mode === "demo" ? cfg.decisionsDemoFile : cfg.decisionsFile;
+        const [, decisionId, action] = decisionsMatch;
+
+        if (req.method === "GET" && !decisionId) {
+          const store = loadDecisionStore(storeFile);
+          return send(res, 200, { ...buildDecisionsSnapshot(candidates, store), mode });
+        }
+
+        if (decisionId) {
+          const candidate = candidates.find((c) => c.id === decisionId);
+          if (!candidate) return send(res, 404, { error: "Unknown decision id for this mode." });
+
+          if (req.method === "POST" && action === "/respond") {
+            const body = await readJson(req);
+            const worker = mode === "demo" ? (body.simulateWorker === "unavailable" ? fixtureWorkerUnavailable : demoAcceptingWorker) : undefined;
+            try {
+              const { decision, duplicate } = await respondToDecision(storeFile, candidate, body, { worker });
+              log({ event: "decision.respond", requestId, mode, decisionId, action: body.action, duplicate });
+              return send(res, 200, { decision, duplicate, mode });
+            } catch (err) {
+              if (err.status) return send(res, err.status, { error: err.message, code: err.code });
+              throw err;
+            }
+          }
+
+          if (req.method === "POST" && action === "/handoff/refresh") {
+            const worker = mode === "demo" ? demoAcceptingWorker : undefined;
+            const { decision, refreshed } = await refreshHandoff(storeFile, candidate, { worker });
+            return send(res, 200, { decision, refreshed, mode });
+          }
+        }
+        return send(res, 404, { error: "Not found." });
       }
 
       if (route === "POST /api/chat") {

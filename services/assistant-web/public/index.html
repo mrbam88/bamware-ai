@@ -17,6 +17,12 @@
       <div class="status" id="statusText" role="status" aria-live="polite">Checking…</div>
     </header>
 
+    <nav class="tabs" id="tabs" hidden>
+      <button type="button" class="tab" id="tabChat" data-tab="chat">Chat</button>
+      <button type="button" class="tab" id="tabAgents" data-tab="agents">Agents</button>
+      <button type="button" class="tab" id="tabDecisions" data-tab="decisions">Decisions</button>
+    </nav>
+
     <!-- Login -->
     <section class="view login" id="loginView" hidden>
       <form id="loginForm" autocomplete="off">
@@ -55,6 +61,88 @@
         <label class="toggle"><input type="checkbox" id="speakToggle" /> Speak replies</label>
         <button type="button" class="link" id="logoutBtn">Sign out</button>
       </footer>
+    </section>
+
+    <!-- Agents -->
+    <section class="view agents" id="agentsView" hidden>
+      <div class="widget" id="rateLimitsWidget">
+        <div class="widgetHead">
+          <h2>Rate limits &amp; resets</h2>
+          <div class="widgetActions">
+            <span class="hint" id="rateLimitsGenerated"></span>
+            <label class="toggle" title="Load synthetic fixture data to preview every state; never real usage">
+              <input type="checkbox" id="rateLimitsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="rateLimitsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="rateLimitsDemoBanner" hidden>
+          ⚠ Synthetic demo data for preview only — not a real provider reading.
+        </p>
+        <ul class="rateLimitList" id="rateLimitList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="workUsageControls">
+        <div class="widgetHead">
+          <h2>Work &amp; agents</h2>
+          <div class="widgetActions">
+            <label class="toggle">Project:
+              <select id="workUsageProjectFilter"><option value="">All</option></select>
+            </label>
+            <span class="hint" id="workUsageGenerated"></span>
+            <label class="toggle" title="Load synthetic fixture data to preview every widget state; never real usage">
+              <input type="checkbox" id="workUsageDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="workUsageRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="workUsageDemoBanner" hidden>
+          ⚠ Synthetic demo data for preview only — not real project/agent usage.
+        </p>
+        <p class="hint" id="workUsageCoverage"></p>
+      </div>
+
+      <div class="widget" id="usageByTaskWidget">
+        <div class="widgetHead"><h2>Usage by project &amp; ticket</h2></div>
+        <ul class="wuList" id="usageByTaskList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="activeAgentsWidget">
+        <div class="widgetHead"><h2>Active agents</h2></div>
+        <ul class="wuList" id="activeAgentsList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="workVsWaitWidget">
+        <div class="widgetHead"><h2>Work vs waiting</h2></div>
+        <ul class="wuList" id="workVsWaitList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="outcomesWidget">
+        <div class="widgetHead"><h2>Outcomes &amp; rework</h2></div>
+        <ul class="wuList" id="outcomesList" aria-live="polite"></ul>
+        <h3 class="wuSubhead">Model routing signal (recommendation only — no automatic switching)</h3>
+        <ul class="wuList" id="routingList" aria-live="polite"></ul>
+      </div>
+    </section>
+
+    <!-- Decisions -->
+    <section class="view decisions" id="decisionsView" hidden>
+      <div class="widget" id="decisionsControls">
+        <div class="widgetHead">
+          <h2>Decisions</h2>
+          <div class="widgetActions">
+            <span class="hint" id="decisionsGenerated"></span>
+            <label class="toggle" title="Load a synthetic fixture deck to preview the response/handoff lifecycle; never a real decision">
+              <input type="checkbox" id="decisionsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="decisionsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="decisionsDemoBanner" hidden>
+          ⚠ Synthetic demo deck for preview only — not a real decision or handoff.
+        </p>
+      </div>
+      <ol class="decisionList" id="decisionList" aria-live="polite"></ol>
     </section>
   </main>
   <script src="/app.js" defer></script>
