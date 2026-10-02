@@ -14,6 +14,38 @@
 export const REPO_URL = "https://github.com/mrbam88/bamware-ai";
 
 export const DECISION_CANDIDATES = Object.freeze([
+{
+  "id": "brewdesk-marketing-research-72",
+  "version": "1",
+  "title": "BrewDesk #72: research complete \u2014 review the proposed experiment",
+  "project": "BrewDesk marketing",
+  "context": "Completed: shared marketing skills and NYC audience/competitor research (commit ddb3009). Brief: https://github.com/mrbam88/bamware-ai/blob/main/docs/brewdesk-marketing-research-2026-10-02.md . Recommendation: one seven-day Instagram laptop-work checklist test. Ticket remains open: actual slides, measurement and destination checks remain before publishing approval. Nothing posted. Research owner: Codex; no next-stage worker pickup confirmed.",
+  "source": {
+    "kind": "github-issue",
+    "ref": "mrbam88/bamware-ai#72",
+    "url": "https://github.com/mrbam88/bamware-ai/issues/72"
+  },
+  "recommendation": {
+    "optionId": "review_research",
+    "rationale": "Review the completed evidence and proposed experiment. This card does not authorize publishing, outreach or spend."
+  },
+  "options": [
+    {
+      "id": "review_research",
+      "action": "discuss",
+      "label": "Discuss the research and next step"
+    },
+    {
+      "id": "defer",
+      "action": "defer",
+      "label": "Review later"
+    }
+  ],
+  "urgency": "medium",
+  "owner": "Bilal Malik",
+  "blockedWork": [],
+  "escalationReason": "requested_completion_handoff"
+},
   {
     id: "backlog-triage-view-77",
     version: "2",
