@@ -67,8 +67,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## Shared storage — confirmed 2026-10-02
 
-Google Drive is the shared file-storage and working-storage location for all
-agents. They may use it for task inputs, working files and generated artifacts
+Google Drive is the shared file and working storage for all agents. They may use it for task inputs, working files and generated artifacts
 without asking again for ordinary task-related storage. Prefer local filesystem
 access and deterministic transfer tools on the build server. Read
 `docs/shared-storage.md` for the archive boundary and verified rollout status.
