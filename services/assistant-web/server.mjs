@@ -60,6 +60,7 @@ export function loadConfig(env = process.env) {
     hermesHome: get("HERMES_HOME", path.join(os.homedir(), ".hermes")),
     maxQueue: Number(get("ASSISTANT_WEB_MAX_QUEUE", "3")),
     publicDir: path.join(HERE, "public"),
+    quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),
   };
@@ -280,7 +281,7 @@ export function createServer(cfg, { log = defaultLog } = {}) {
       if (route === "GET /api/rate-limits") {
         const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
         const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }];
-        const snapshot = await buildSnapshot(adapters, {}, { now: Date.now() });
+        const snapshot = await buildSnapshot(adapters, { quotaSamplesFile: cfg.quotaSamplesFile }, { now: Date.now() });
         return send(res, 200, { ...snapshot, mode });
       }
 

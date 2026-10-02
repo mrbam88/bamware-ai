@@ -187,13 +187,13 @@
     detail.textContent =
       w.usedTokens != null && w.limitTokens != null
         ? `${w.usedTokens.toLocaleString()} / ${w.limitTokens.toLocaleString()} tokens · ${w.utilizationPct}%`
-        : "Usage unknown";
+        : w.utilizationPct != null ? `${w.utilizationPct}% used · ${Math.max(0, 100 - w.utilizationPct).toFixed(1)}% remaining` : "Usage unknown";
     li.appendChild(detail);
 
     const meta = document.createElement("div");
     meta.className = "rl-meta";
     const resetText = w.resetAt
-      ? `Resets ${new Date(w.resetAt).toLocaleString()}${w.resetTimezone ? ` (${w.resetTimezone})` : ""}`
+      ? `Resets ${new Date(w.resetAt).toLocaleString("en-US", {timeZone: w.resetTimezone || "UTC"})}${w.resetTimezone ? ` (${w.resetTimezone})` : ""}`
       : "Reset time unknown";
     const sourceLabel = (w.source && (w.source.label || w.source.kind)) || "unknown source";
     const freshText = w.freshnessSec != null ? `${sourceLabel} · ${Math.round(w.freshnessSec)}s old` : sourceLabel;

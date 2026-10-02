@@ -1,38 +1,38 @@
-// Real-provider adapter for Bilal's Claude Max subscription.
-//
-// Investigated 2026-10-02 (overnight batch, task #75), read-only, no account
-// authorization or token reads:
-//   - `claude --help` exposes no usage/quota/limit subcommand or flag.
-//   - Anthropic's usage API covers API-billed orgs, not Max subscriptions
-//     (docs/ai-usage.md, confirmed again here).
-//   - The existing collector (bamware-ai PR#60 `scripts/ai-usage-collect.py`
-//     -> DynamoDB -> bamware-web `/admin/ai-usage`, bamware-web PR#45) is the
-//     only place with a real reconstructed 5-hour-window number, and it needs
-//     AWS DynamoDB credentials this service does not have and must not
-//     acquire (no new credentials per batch rules).
-//   - `hermes --help` was denied by the local permission layer before this
-//     could be checked the same way; reported as a gap, not retried.
-//
-// Conclusion: no authoritative read-only source is reachable from this
-// service today. Report "unsupported", not a guessed number — this directly
-// replaces the old unverified 1.5M-token default cap.
+// Read the existing server collector's sanitized samples. No credentials or transcript reads.
+import { open } from "node:fs/promises";
 import { unsupportedWindow } from "../rate-limits.mjs";
-
-export const CLAUDE_MAX_UNSUPPORTED_REASON =
-  "No authoritative read-only quota source is wired for Claude Max from assistant-web. " +
-  "`claude --help` has no usage/quota command; Anthropic's usage API covers API-billed orgs, not Max; " +
-  "the existing collector (bamware-ai#60, bamware-web#45) requires AWS DynamoDB credentials not available here.";
-
-/**
- * @returns {Promise<object[]>} always a single honest "unsupported" window.
- */
-export async function claudeMaxAdapter() {
-  return [
-    unsupportedWindow({
-      provider: "claude-max",
-      account: "bilal",
-      scope: "5h-window",
-      reason: CLAUDE_MAX_UNSUPPORTED_REASON,
-    }),
-  ];
+export const CLAUDE_MAX_UNSUPPORTED_REASON = "No authoritative read-only quota source sample is available.";
+export async function claudeMaxAdapter({ quotaSamplesFile } = {}) {
+  const unavailable = () => [unsupportedWindow({ provider: "claude-max", scope: "quota", reason: CLAUDE_MAX_UNSUPPORTED_REASON })];
+  if (!quotaSamplesFile) return unavailable();
+  let file;
+  try {
+    file = await open(quotaSamplesFile, "r");
+    const { size } = await file.stat();
+    const start = Math.max(0, size - 65536);
+    const buffer = Buffer.alloc(size - start);
+    await file.read(buffer, 0, buffer.length, start);
+    const lines = buffer.toString("utf8").split("\n");
+    if (start) lines.shift();
+    for (const line of lines.reverse()) {
+      if (!line.trim()) continue;
+      let sample;
+      try { sample = JSON.parse(line); } catch { continue; }
+      if (!Number.isFinite(Date.parse(sample.at)) || !Array.isArray(sample.meters)) continue;
+      const windows = sample.meters.filter(m =>
+        ["session", "weekly", "weekly-fable"].includes(m.kind) &&
+        typeof m.percent === "number" && Number.isFinite(m.percent) && m.percent >= 0
+      ).map(m => ({
+        provider: "claude-max", scope: m.kind, utilizationPct: m.percent,
+        usedTokens: null, limitTokens: null,
+        resetAt: Number.isFinite(Date.parse(m.resetsAt)) ? m.resetsAt : null,
+        resetTimezone: "America/New_York",
+        source: {kind: "live", label: "Claude usage endpoint · server collector (10-minute sampling)", fetchedAt: sample.at},
+        notes: "Provider-reported allowance percentage; this is not a token cap."
+      }));
+      return windows.length ? windows : unavailable();
+    }
+    return unavailable();
+  } catch { return unavailable(); }
+  finally { await file?.close(); }
 }

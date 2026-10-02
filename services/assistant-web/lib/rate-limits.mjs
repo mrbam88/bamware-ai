@@ -77,13 +77,14 @@ export function buildWindow(raw, opts = {}) {
 
   let usedTokens = isFiniteNumber(raw?.usedTokens) ? raw.usedTokens : null;
   let limitTokens = isFiniteNumber(raw?.limitTokens) ? raw.limitTokens : null;
+  let reportedPct = isFiniteNumber(raw?.utilizationPct) && raw.utilizationPct >= 0 ? raw.utilizationPct : null;
   let notes = raw && typeof raw.notes === "string" ? raw.notes : null;
 
   let state;
   let supersededByReset = false;
   if (kind === "unsupported") {
     state = "unsupported";
-  } else if (usedTokens == null || limitTokens == null || fetchedAtMs == null) {
+  } else if (((usedTokens == null || limitTokens == null) && reportedPct == null) || fetchedAtMs == null) {
     state = "unknown";
   } else if (resetAtMs != null && fetchedAtMs < resetAtMs && now >= resetAtMs) {
     // The reading was taken before the window's own reset time, and that
@@ -96,9 +97,9 @@ export function buildWindow(raw, opts = {}) {
       .filter(Boolean)
       .join(" ");
   } else {
-    const pct = deriveUtilizationPct(usedTokens, limitTokens);
-    if (pct != null && pct >= 100) state = "exhausted";
-    else if (freshnessSec != null && freshnessSec > staleAfterSec) state = "stale";
+    const pct = reportedPct ?? deriveUtilizationPct(usedTokens, limitTokens);
+    if (freshnessSec != null && freshnessSec > staleAfterSec) state = "stale";
+    else if (pct != null && pct >= 100) state = "exhausted";
     else state = "fresh";
   }
 
@@ -106,11 +107,12 @@ export function buildWindow(raw, opts = {}) {
   // any, and a reading superseded by its own window's reset no longer
   // describes anything current.
   if (state === "unknown" || state === "unsupported" || supersededByReset) {
+    reportedPct = null;
     usedTokens = null;
     limitTokens = null;
   }
 
-  const utilizationPct = state === "unknown" || state === "unsupported" ? null : deriveUtilizationPct(usedTokens, limitTokens);
+  const utilizationPct = state === "unknown" || state === "unsupported" ? null : reportedPct ?? deriveUtilizationPct(usedTokens, limitTokens);
   const warning = state === "exhausted" || (utilizationPct != null && utilizationPct >= warningPct);
 
   return {
