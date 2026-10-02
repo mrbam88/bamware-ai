@@ -195,3 +195,23 @@ The old Claude collector, X1 timer and other services remain untouched.
   directory `~/.local/state/bamware/chief-of-staff/81/`; public evidence is in
   [issue #81](https://github.com/mrbam88/bamware-ai/issues/81). This is a bounded
   direct assignment, not evidence that recurring Chief of Staff sweep #79 runs.
+
+### Automatic chief-of-staff checks
+
+Each saved live card response queues a durable coordination check, keyed by
+candidate version, response timestamp and signature. All four actions trigger a
+check; duplicates reuse the receipt. Hermes runs through the existing serialized
+runner with no toolset and a one-turn bound. The input is the card and recorded
+response; the check does not claim fresh external-source inspection or dispatch.
+Its completion is separate from the downstream worker handoff.
+
+`handoffCheck` on live Decisions responses exposes queued/running/completed/failed/
+interrupted/superseded state, summary, session ID and Discord delivery receipt.
+Jobs live in `~/.local/state/bamware/handoff-checks`. Queued jobs recover on restart;
+running jobs become interrupted rather than silently rerun. New responses supersede
+older in-flight results. Discord send/read-back failures are visible on the card;
+ambiguous sends are not retried automatically. Phone push receipt is not observable.
+Set `ASSISTANT_WEB_HANDOFF_CHECKS=0` to disable; custom storage can use
+`ASSISTANT_WEB_HANDOFF_CHECKS_DIR`. The existing app service owns execution; no
+second cron or bot instance is introduced. Refresh the deck to see asynchronous
+results. An agent recommendation is not confirmed worker pickup.

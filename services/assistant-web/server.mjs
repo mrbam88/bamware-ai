@@ -41,6 +41,8 @@ import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAcce
 import { loadAdminConfig } from "./lib/admin/config.mjs";
 import { createAdminRouter } from "./lib/admin/router.mjs";
 
+import { createHandoffChecks, agentCheckRunner, notifyHandoffCheck } from './lib/handoff-checks.mjs';
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..", "..");
 const COOKIE = "aw_session";
@@ -69,6 +71,8 @@ export function loadConfig(env = process.env) {
     serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     overnightUsageFile: get("ASSISTANT_WEB_OVERNIGHT_USAGE_FILE", path.join(os.homedir(), ".local/state/bamware/overnight/usage.json")),
+    handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "1") === "1",
+    handoffChecksDir: get("ASSISTANT_WEB_HANDOFF_CHECKS_DIR", path.join(os.homedir(), ".local/state/bamware/handoff-checks")),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),
   };
@@ -233,6 +237,9 @@ function hermesStatus(cfg) {
 // ---------------------------------------------------------------- server ---
 export function createServer(cfg, { log = defaultLog, adminService } = {}) {
   const runner = new HermesRunner(cfg, log);
+  const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES,run:agentCheckRunner(runner),notify:notifyHandoffCheck,log}) : null;
+  checks?.recover();
+  const withCheck = decision => ({...decision, handoffCheck: checks?.snapshot(decision) ?? null});
   const limiter = new LoginLimiter();
   // One fixture-worker instance per server process so a dispatch's receiptId
   // can later be found by a refresh check (demo lifecycle proof only).
@@ -336,7 +343,9 @@ export function createServer(cfg, { log = defaultLog, adminService } = {}) {
 
         if (req.method === "GET" && !decisionId) {
           const store = loadDecisionStore(storeFile);
-          return send(res, 200, { ...buildDecisionsSnapshot(candidates, store), mode });
+          const snapshot=buildDecisionsSnapshot(candidates,store);
+          if(mode==='live') snapshot.decisions=snapshot.decisions.map(withCheck);
+          return send(res, 200, { ...snapshot, mode });
         }
 
         if (decisionId) {
@@ -349,7 +358,8 @@ export function createServer(cfg, { log = defaultLog, adminService } = {}) {
             try {
               const { decision, duplicate } = await respondToDecision(storeFile, candidate, body, { worker });
               log({ event: "decision.respond", requestId, mode, decisionId, action: body.action, duplicate });
-              return send(res, 200, { decision, duplicate, mode });
+              if(mode==='live') checks?.enqueue(candidate);
+              return send(res, 200, { decision: mode==='live'?withCheck(decision):decision, duplicate, mode });
             } catch (err) {
               if (err.status) return send(res, err.status, { error: err.message, code: err.code });
               throw err;

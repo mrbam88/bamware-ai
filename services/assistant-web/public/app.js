@@ -666,6 +666,14 @@ import { renderQuotaMeter } from './quota-meter.js';
       if (d.handoff.status === "pickup_confirmed" && d.handoff.receiptId) handoff.textContent += ` · receipt ${d.handoff.receiptId}`;
       if (d.handoff.status === "completed" && d.handoff.completedAt) handoff.textContent += ` · ${new Date(d.handoff.completedAt).toLocaleString()}`;
       li.appendChild(handoff);
+      if (d.handoffCheck) {
+        const check = document.createElement("div");
+        check.className = "dc-handoff";
+        check.style.whiteSpace = "pre-wrap";
+        const c = d.handoffCheck;
+        check.textContent = `Chief of Staff check: ${c.status}\n${c.summary || c.error || "Queued for a bounded agent check."}\nDiscord: ${c.notification?.status || "not sent yet"}`;
+        li.appendChild(check);
+      }
       if (d.handoff.status === "pickup_confirmed") {
         const refreshBtn = document.createElement("button");
         refreshBtn.type = "button";
