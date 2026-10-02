@@ -10,6 +10,21 @@ report. This session IS both DEV-launcher and QA — see `agent-fanout` for
 isolation/prompt mechanics, `qa-engineer` for the merge rules it inherits
 unchanged.
 
+## Overnight Mode handoff (2026-10-02)
+
+For the Linux server, use the bounded executor in
+`services/overnight/runner.py`; its manifest and readiness contract live in
+`services/overnight/README.md`. This adds execution evidence to this procedure;
+it does not relax QA, spend, authentication or permission gates.
+
+The user's explicit completion signal is **“Ready, good night.”** Never say it
+until preflight passes and the independent server service confirms real worker
+pickup. Confirm MacBookPro16,4 hardware, not the shared `omarchy` hostname.
+Select the actual batch with the user and surface unresolved questions before
+handoff. Synthetic tests never count as a real engineering batch. A command
+whose permission cannot safely be checked must be reported as unresolved, not
+“dry-run verified.” Routine auth checks do not prove merge/deploy permission.
+
 ## 1. Preconditions (verify before the first agent)
 
 - **PERMISSION PRE-FLIGHT — the single worst failure this queue can have is
