@@ -92,6 +92,26 @@ retirement flags. This is a partial migration, not acceptance closure.
 
 ## Verification and rollback
 
+Production evidence (2026-10-02T19:57Z):
+
+- Assistant implementation `2fc7f26174517515d635122d1b48f9e398b4c30f` was
+  fetched/fast-forwarded into the existing production checkout; isolated
+  dependencies installed; existing service restarted and active. Later
+  concurrent `45dcb9a` was preserved and the read-only smoke passed again.
+- Owner page/AI-spend 200; unauthorized APIs 401; same-origin account-disconnect
+  200 for the verification session. Fresh snapshot 19:52:44Z; seven quota
+  windows and server coverage remain present; existing timer is active/success.
+- Web `edc1a3e7b9c85cbafe7569621a7b8e92e830ce9b` deployed through existing
+  main→Vercel rail. GitHub deployment `6816979747` reports Production success.
+  Domain readback: moved notice 200; AI-spend bookmark 303 and API 410; pending
+  tools retain original auth, footer and login. Seventeen route checks passed,
+  including public branding/contact/products/utility pages.
+- Assistant 103/103 tests; web 15/15 tests, lint and production build passed.
+  Independent Claude Max review pickup/result confirmed; dependency-install and
+  error-handling findings addressed. Optional browser CDP handshake failed.
+- No seed/user-data/ingest writes, Gmail, account grants or paid services used.
+  Issue remains open for the explicitly missing capabilities listed above.
+
 `npm test` in Assistant includes synthetic seed mutations, owner/machine auth,
 CSRF, JWT/tenant/expiry isolation, CSV idempotency, snapshot dedup, redaction and
 real server wiring. No real seed or user-data mutations are performed.

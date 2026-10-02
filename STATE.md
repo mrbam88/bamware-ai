@@ -5,8 +5,21 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-02 — **Assistant quota coverage #81: independent server Hermes/OpenCode collection and visual meters implemented; release/deployment evidence in #81. Existing assistant-web service is running. Recurring Chief of Staff sweep #79 remains separate and unimplemented by this task.**
+> Last updated: 2026-10-02 — **Private admin MVP #82 deployed; AI-spend public retirement verified. Stats/seed, profiles and PR45 store cutover remain explicitly incomplete. #81 meters/collectors preserved. Existing assistant-web service is running; recurring Chief of Staff sweep #79 remains separate.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-02 — Private admin migration (#82)
+
+Preceding milestone: **admin migration #82 is partially deployed, not closed**.
+Assistant `2fc7f26` and public web `edc1a3e` are published on their existing
+release rails and production-verified. Independent concurrent Assistant commit
+`45dcb9a` was preserved and admin/auth/quota smoke re-run successfully.
+103 Assistant tests; 15 web tests plus lint/build; private owner 200/unauth 401;
+fresh PR43 snapshot and seven #81 quota windows; public AI-spend page 303/API
+410 and branding/contact/product routes intact. Missing existing capabilities
+block only remaining cutover, so public tools stay accessible behind their
+existing auth. [Inventory, limitations and rollback](docs/admin-migration.md).
+Receipts: `~/.local/state/bamware/chief-of-staff/82/`; exact evidence in #82.
 
 ## 2026-10-02 — Quota meters and independent server coverage (#81)
 
