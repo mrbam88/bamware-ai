@@ -23,8 +23,11 @@ there. Discord conversations must feed durable decisions back into Notion.
 **Discord is the primary way to reach Bilal:** critical alerts, time-sensitive
 requests, scheduled reminders, daily briefings and completion notices. He relies
 on its phone notifications. Include the actionable summary and relevant Notion
-link. Agents may send Bilal drafts and alerts there; this does not authorize
-messages to other people. Do not claim phone delivery from API acceptance.
+link. Report actionable blockers proactively: blocked outcome, accountable owner,
+concrete next step, and whether Bilal must act. Do not silently wait for a status
+request. Deduplicate unchanged alerts and report material changes or resolution;
+record delivery evidence separately from phone push receipt. Agents may send
+Bilal drafts and alerts there; this does not authorize messages to other people. Do not claim phone delivery from API acceptance.
 
 **Gmail is read-only for agents. Never send email or create Gmail drafts.**
 When asked to draft an email, put its subject and body in Notion. The same human
