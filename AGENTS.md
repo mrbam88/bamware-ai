@@ -27,8 +27,7 @@ every switch.** Never rely on model memory.
 
 ## 1. Where is the truth?
 
-This repo: github.com/mrbam88/bamware-ai (public). Everything durable about
-Bilal and Bamware lives here or is linked from here.
+Public operating map: github.com/mrbam88/bamware-ai.
 
 - Notion is the organizational source of truth and shared working canvas.
   Discord is the primary channel for alerts, reminders and direct communication.
@@ -36,8 +35,7 @@ Bilal and Bamware lives here or is linked from here.
   Vendor memories are caches, not substitutes for these authoritative stores.
   Read `skills/bamware-assistant/SKILL.md` for drafting and email boundaries.
 - Staleness check: fetch CONTEXT_VERSION and state its contents in your
-  first reply as `context: <marker>`. An answer without a version is an
-  unverifiable claim.
+  first reply as `context: <marker>`.
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION
 - Can't reach the repo? Say so and STOP. Never work from memory or a cache.
 
