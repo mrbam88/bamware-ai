@@ -5,23 +5,12 @@ Entry map for every session; details in `docs/` and `skills/`.
 
 ## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
 
-Set by Bilal 2026-09-24. Claude-specific diagnoses below apply only to Claude;
-other runtimes identify the actual denying component. Never bypass a denial. Detail:
-[docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
-
-1. **A denial is CLAUDE'S restriction, never Bilal's setup** — he has no
-   permission rules. Say that in one sentence on the FIRST denial.
-2. **Hand him the line to paste, then STOP.** No retries, no other routes, no
-   `/permissions` UI (he finds it confusing).
-3. **A denial NEVER stalls a batch.** Park that action; continue independent,
-   authorized work on the other tickets.
-4. **Before any unattended run, dry-run every gated command** (`gh pr create`,
-   `gh pr merge`, `git push`, deploy). `bypassPermissions` does NOT beat the
-   classifier. If one fails, tell him *while he is awake* and do not start.
-5. **Verify merge state with `gh pr list --state merged`.** Silent output
-   is not failure; ve#149 had merged when reported blocked.
-6. **Prefer routes with no gated step** — Venue Engine deploys by pushing
-   `main` (Vercel Git integration), no merge needed.
+Set by Bilal 2026-09-24. Before a merge, unattended run, or blocked-work
+report, read [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
+Never bypass a denial. Identify the actual denying component immediately,
+give Bilal the command to run, and stop that action; continue independent,
+authorized work. Preflight gated commands before unattended work. Verify merge
+state before reporting failure. Claude-specific diagnoses apply only to Claude.
 
 ## First-class principle: continuity across agents
 
