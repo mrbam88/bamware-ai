@@ -82,3 +82,20 @@ closed, a synthetic failing task exited 3, a hung task timed out, and independen
 work wrote an artifact that a separate command checked. Reconnection showed
 `phase=finished`, task states failed/timed_out/verified and systemd Result=success.
 No real engineering agent was launched; no production work was claimed complete.
+
+## Reporting recovery (2026-10-02)
+
+`finalize.py` is the installed reporting adapter for batch PR #80 (its repository,
+branch, PR and issue ids are batch-specific constants, not automatic discovery).
+QA tool process status and QA publication verdict are separate: an explicit
+`approved_for_publish: true` can publish reviewable code even if the tool process
+returned a permission-denial status. Diff/push failures are reported; regardless
+of code publication, the finalizer attempts to publish the detailed report and
+per-ticket limitations. Timeouts also reach reporting. No merge/deploy happens in
+this adapter. Future batches must configure their own destinations before launch.
+
+Regression coverage includes QA denial with approved artifacts, missing approval,
+QA timeout, failed diff, failed push and failed report update. Six reporting tests
+passed on the actual server; ten combined local runner/reporting tests passed.
+This fixes the observed reporting/publication bug, not every possible runtime,
+provider or deployment failure.
