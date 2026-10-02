@@ -15,7 +15,7 @@ linking. Written from a Claude Code session running **on `omarchy` itself**
 | Export / delete of a web session | Implemented via `hermes sessions`; export verified |
 | Browser voice (STT/TTS, barge-in) | Implemented, **not human-tested**; iPhone needs HTTPS (#66) |
 | Langfuse trace | Self-host **implemented** (`services/langfuse`, secrets generated), **not running**: Docker needs one root step; Hermes not yet pointed at it; ingestion **unverified** (#65) |
-| Deployed as a service | **No.** Unit file only; enabling is Bilal's (#67) |
+| Deployed as a service | **Authorized 2026-10-01, not running.** Deploy clone `~/srv/bamware-ai` + `scripts/deploy-assistant-web.sh` ready; the omarchy Claude Code session was denied the unit install and `tailscale serve` by its own classifier (#67) |
 | Streaming via Hermes API server | **No.** Needs `API_SERVER_KEY` + gateway restart (#64) |
 | Chief of Staff coordination | **Does not exist** as software; see below |
 
@@ -127,6 +127,34 @@ own ticket with guards (#68). Langfuse traces are **not** memory (#62 rule).
 - **Not verified: any trace ingestion, the failure case, Discord traces.**
 
 ## 6. Network and deployment
+
+### Deployment state (2026-10-01, late)
+
+- Bilal authorized enabling the service and private Tailscale HTTPS in #67.
+- Done without privileges: deploy clone `~/srv/bamware-ai` (branch
+  `worktree-assistant-web-slice`; switch to `main` after #69 merges) so the
+  service does not run out of an auto-cleaned `.claude/worktrees/` path;
+  `~/.config/bamware/assistant-web.env` now binds `ASSISTANT_WEB_HOST=100.88.99.117`
+  (Tailscale IP, tailnet-only; backup `*.bak-deploy-*` beside it);
+  `scripts/deploy-assistant-web.sh` installs the unit plus a drop-in
+  (`WorkingDirectory` → deploy clone, `HERMES_CWD` → `~/code/bamware-ai` so the
+  context hook activates) and enables it; `scripts/verify-assistant-web.sh`
+  runs the #67 checks and prints the session id.
+- **Blocked in the agent session by the Claude Code auto-mode classifier**
+  (Claude's restriction, not Bilal's setup): `cp … ~/.config/systemd/user/ &&
+  systemctl --user enable --now assistant-web` ("Modify Shared Resources"),
+  `tailscale serve …` ("External Ingress Tunnel"), and even read-only
+  MagicDNS/sqlite checks ("Expose Local Services"). Not retried.
+- **HTTPS is blocked independently:** `tailscale cert omarchy.tailb7fa1e.ts.net`
+  → "your Tailscale account does not support getting TLS certs". Enable
+  HTTPS certificates on the tailnet DNS page of the Tailscale admin console,
+  then set the bind back to `127.0.0.1` and run
+  `tailscale serve --bg --https=443 http://127.0.0.1:8765`
+  (operator user is already `bilal`, no sudo). Until then the tailnet URL is
+  plain HTTP: text only, no microphone, cookies non-Secure.
+- Expected URL once started: `http://100.88.99.117:8765` or
+  `http://omarchy.tailb7fa1e.ts.net:8765` (MagicDNS). **Unverified.**
+- Reboot persistence: pending (no reboot authorized); linger is on.
 
 - `omarchy` Tailscale IP `100.88.99.117`, MagicDNS, `tailscale serve`: no
   config. Ports 80/443/8642/8765/9119 free. No reverse proxy. Docker inactive.
