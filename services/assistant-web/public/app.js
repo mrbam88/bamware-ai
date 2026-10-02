@@ -852,6 +852,9 @@
   els.tabDecisions.addEventListener("click", () => showView("decisions"));
   els.decisionsRefresh.addEventListener("click", loadDecisions);
   els.decisionsDemoToggle.addEventListener("change", (e) => { decisionsDemoMode = e.target.checked; loadDecisions(); });
+  setInterval(() => {
+    if (!document.hidden && !els.agentsView.hidden) loadRateLimits();
+  }, 60_000);
   els.rateLimitsRefresh.addEventListener("click", loadRateLimits);
   els.rateLimitsDemoToggle.addEventListener("change", (e) => { demoMode = e.target.checked; loadRateLimits(); });
   els.workUsageRefresh.addEventListener("click", loadWorkUsage);
