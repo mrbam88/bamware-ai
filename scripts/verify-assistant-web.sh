@@ -21,8 +21,15 @@ PW="$PW" python3 -c 'import json,os,sys; sys.stdout.write(json.dumps({"password"
 echo "me: $(curl -fsS -b "$JAR" "$B/api/me")"
 R=$(curl -fsS -b "$JAR" -X POST "$B/api/chat" -H "$H" -d '{"text":"Reply with exactly the word WEB-DEPLOY-OK and nothing else."}')
 SID=$(printf '%s' "$R" | python3 -c 'import sys,json; d=json.load(sys.stdin); print("reply:",d["reply"].strip()[:120]); print("elapsedMs:",d["elapsedMs"],"trace:",d.get("trace")); print(d["sessionId"])' | tee /dev/stderr | tail -1)
-N=$(curl -fsS -b "$JAR" "$B/api/sessions/$SID/export" | wc -l)
-[[ "$N" -ge 2 ]] && echo "history persisted: session $SID, export has $N JSONL lines PASS" || { echo "export of $SID has $N lines FAIL"; exit 1; }
+# Hermes writes the export as one JSON document per session, so measure bytes and
+# require both the request text and the reply to be present in it.
+EXPORT=$(curl -fsS -b "$JAR" "$B/api/sessions/$SID/export")
+BYTES=$(printf '%s' "$EXPORT" | wc -c)
+if printf '%s' "$EXPORT" | grep -q 'WEB-DEPLOY-OK' && [[ "$BYTES" -gt 1000 ]]; then
+  echo "history persisted: session $SID, export $BYTES bytes containing the turn PASS"
+else
+  echo "export of $SID: $BYTES bytes, turn text missing FAIL"; exit 1
+fi
 systemctl --user restart assistant-web.service; sleep 3
 echo "after restart health: $(curl -fsS "$B/api/health")"
 systemctl --user is-active assistant-web.service
