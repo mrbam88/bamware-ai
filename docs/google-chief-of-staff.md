@@ -26,7 +26,7 @@ verification scripts currently live only on the server and the ThinkPad's `/tmp`
 Do not ask the user for the abandoned keyring passphrase or rerun OAuth to test
 an already connected account.
 
-## Integration prepared, activation pending
+## Integration service activated; assistant turn pending
 
 `services/google-access` contains a Unix-socket read broker, client, installer,
 systemd unit and Hermes skill. It exposes only Gmail search/get and Drive
@@ -54,9 +54,12 @@ sudo python3 /home/bilal/srv/google-chief-of-staff/service/install.py
 Installation writes a content-free receipt to
 `/var/lib/bamware-google-status/broker.json`. A real Assistant/Discord tool call
 must still be checked after installation; a loaded skill alone is not proof.
-Seven boundary tests currently pass; no live broker activation is yet claimed.
+Seven boundary tests pass. Live server receipt confirms the broker is active,
+Gmail and Drive reads passed, stored scopes are read-only, the ordinary worker
+was denied, and the Hermes skill is installed. A real assistant turn remains
+unverified.
 
-## Device storage prepared, not yet synchronized
+## Device storage — ThinkPad active; other devices pending
 
 - ThinkPad: rclone 1.74.2 installed in `~/.local/bin/rclone`, checksum verified.
   `services/google-access/device/setup-linux-drive.sh` is staged as
@@ -64,7 +67,13 @@ Seven boundary tests currently pass; no live broker activation is yet claimed.
   private config, and user mount service at `~/GoogleDrive` after consent. This
   is online file access with a write cache, **not a full offline mirror**.
   Desktop/Documents are left in place. It refuses to hide a nonempty local mount
-  folder and uses Drive trash. No sync or authorization has yet been activated.
+  folder and uses Drive trash. The user completed authorization; `bamware-drive.service` is active and
+  `~/GoogleDrive` is verified as a mountpoint. A small upload/read-back check
+  encountered HTTP 403 RATE_LIMIT_EXCEEDED on rclone's shared default OAuth
+  project; end-to-end sync is not yet verified. The non-private test file is
+  `bamware-sync-check-41e0876fcdb6405b87cf8140629d4069.txt`; preserve the VFS
+  cache until pending writes are confirmed. If this persists, configure a
+  dedicated device OAuth client without modifying the server read-only token.
 - Mac: reachable; native Google Drive was not found in `/Applications` during
   inspection. Official installer downloaded to `~/Downloads/GoogleDrive-Bamware-setup.dmg`;
   `hdiutil verify` passed. Installation and native sign-in remain required.
