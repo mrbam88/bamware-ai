@@ -30,8 +30,11 @@ every switch.** Never rely on model memory.
 This repo: github.com/mrbam88/bamware-ai (public). Everything durable about
 Bilal and Bamware lives here or is linked from here.
 
-- Any copy outside git (Claude Project, vendor account, chat) is a CACHE.
-  If a cache and the repo disagree, the repo wins. Never edit the cache.
+- Notion is the organizational source of truth and shared working canvas.
+  Discord is the primary channel for alerts, reminders and direct communication.
+  Git owns code and versioned operating instructions; Drive owns shared files.
+  Vendor memories are caches, not substitutes for these authoritative stores.
+  Read `skills/bamware-assistant/SKILL.md` for drafting and email boundaries.
 - Staleness check: fetch CONTEXT_VERSION and state its contents in your
   first reply as `context: <marker>`. An answer without a version is an
   unverifiable claim.
@@ -52,8 +55,9 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   Check the connector first.
 - No write path at all? STOP and hand Bilal the patch. Never write durable
   context into a vendor cache instead.
-- New facts go to this repo, never to chat. Ending a session that made
-  decisions? Run the session-handoff skill.
+- Save facts in their authoritative store, not only chat. Publish operating
+  rules here; organization and working drafts belong in Notion. Run the
+  session-handoff skill after durable decisions.
 
 ## 3. How does Bilal work?
 
@@ -67,12 +71,9 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## Shared storage — confirmed 2026-10-02
 
-Google Drive is the shared file and working storage for all agents. They may use it for task inputs, working files and generated artifacts
-without asking again for ordinary task-related storage. Prefer local filesystem
-access and deterministic transfer tools on the build server. Read
-`docs/shared-storage.md` for the archive boundary and verified rollout status.
-**Never send email.** Gmail is read-only; this storage authorization does not
-change that rule.
+Drive is shared agent file storage; ordinary task storage is authorized.
+Prefer local filesystem access and deterministic transfers. Archive boundaries
+and rollout: `docs/shared-storage.md`. Gmail stays read-only: no sends or drafts.
 
 ## Before you touch these, read the linked doc first
 

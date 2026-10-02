@@ -8,6 +8,19 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-02 — Notion canvas and Discord communication policy
+
+- Notion owns organization and collaborative drafts across CEO, chief of staff
+  and agents; Discord is the primary channel for urgent and scheduled contact.
+- Gmail stays read-only: no sending and no Gmail drafts. Outgoing correspondence
+  is drafted in Notion; Bilal manually transfers and sends it. Discord may deliver
+  drafts and alerts to Bilal. Full inbox organization is deferred.
+- Application email is evidence for the private Notion Job Tracker. Rules are in
+  `skills/bamware-assistant/SKILL.md`; this update does not deploy email tracking,
+  schedule alerts, migrate existing assets or prove access for every runtime.
+- Next: connect the authorized read service to application reconciliation and
+  verify Notion updates and Discord delivery with source-linked evidence.
+
 ## 2026-10-02 — BrewDesk marketing research pass complete (#72)
 
 - Source-linked [NYC research brief](docs/brewdesk-marketing-research-2026-10-02.md):
