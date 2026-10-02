@@ -25,6 +25,9 @@ import {
   LoginLimiter,
   SESSION_ID_RE,
 } from "./lib.mjs";
+import { buildSnapshot } from "./lib/rate-limits.mjs";
+import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
+import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..", "..");
@@ -256,6 +259,16 @@ export function createServer(cfg, { log = defaultLog } = {}) {
 
       if (route === "GET /api/me") {
         return send(res, 200, { ok: true, hermes: { bin: cfg.hermesBin, cwd: cfg.hermesCwd }, langfuse: hermesStatus(cfg) });
+      }
+
+      // Rate-limit / reset visibility (Agents view, bamware-ai#75). `mode=demo`
+      // serves only synthetic, clearly-labelled fixtures for UI preview/QA;
+      // it never substitutes for or blends with the live snapshot.
+      if (route === "GET /api/rate-limits") {
+        const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
+        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }];
+        const snapshot = await buildSnapshot(adapters, {}, { now: Date.now() });
+        return send(res, 200, { ...snapshot, mode });
       }
 
       if (route === "POST /api/chat") {

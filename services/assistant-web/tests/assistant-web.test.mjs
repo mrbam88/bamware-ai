@@ -94,7 +94,7 @@ async function login(base) {
 
 test("unauthenticated clients get 401 on every /api route except health and login", async () => {
   await withServer(async (base) => {
-    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"]]) {
+    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"]]) {
       const res = await fetch(base + p, { method: m, headers: { "content-type": "application/json" }, body: m === "POST" ? "{}" : undefined });
       assert.equal(res.status, 401, `${m} ${p}`);
     }
@@ -175,5 +175,34 @@ test("me reports Langfuse presence booleans only", async () => {
     const me = await (await fetch(`${base}/api/me`, { headers: { cookie } })).json();
     assert.deepEqual(Object.keys(me.langfuse).sort(), ["hermesHome", "keysPresent", "pluginEnabled"]);
     assert.equal(me.langfuse.keysPresent, false);
+  });
+});
+
+test("GET /api/rate-limits defaults to live mode: honest unsupported, no fake cap", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/rate-limits`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "live");
+    assert.ok(body.version);
+    assert.equal(body.windows.length, 1);
+    assert.equal(body.windows[0].state, "unsupported");
+    assert.equal(body.windows[0].usedTokens, null);
+    assert.ok(!JSON.stringify(body).includes("1500000"), "must never present the old unverified 1.5M cap as fact");
+  });
+});
+
+test("GET /api/rate-limits?mode=demo returns only synthetic, clearly tagged windows", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/rate-limits?mode=demo`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "demo");
+    assert.ok(body.windows.length >= 5);
+    for (const w of body.windows) assert.equal(w.source.kind, "synthetic");
+    const states = new Set(body.windows.map((w) => w.state));
+    for (const required of ["fresh", "stale", "exhausted", "unknown"]) assert.ok(states.has(required));
   });
 });

@@ -44,6 +44,7 @@ Service unit (not enabled by agents; see gates below):
 | `POST /api/login` `{password}` | no | sets `aw_session` cookie (HttpOnly, SameSite=Strict, 7 days); 5 failures / 15 min per client → 429 |
 | `POST /api/logout` | no | clears cookie |
 | `GET /api/me` | cookie | Hermes bin/cwd and Langfuse **presence booleans** (never values) |
+| `GET /api/rate-limits[?mode=demo]` | cookie | Rate-limit/reset snapshot (bamware-ai#75). Default `mode=live` reports real providers honestly — today just Claude Max, always `"unsupported"` (no read-only quota source is wired; see `lib/providers/claude-max-adapter.mjs`). `mode=demo` returns only synthetic fixtures covering fresh/stale/exhausted/unknown/reset-transition states, always tagged `source.kind:"synthetic"`, for widget preview/QA — never blended with live data. |
 | `POST /api/chat` `{text, sessionId?}` | cookie | runs one Hermes turn → `{reply, sessionId, requestId, elapsedMs, trace}` |
 | `GET /api/sessions/:id/export` | cookie | `hermes sessions export --format jsonl -` (download) |
 | `DELETE /api/sessions/:id` | cookie | `hermes sessions delete --yes` |
@@ -71,7 +72,7 @@ the button explains when it is unavailable.
 ## Test
 
 ```sh
-cd services/assistant-web && npm test      # 13 tests, fake Hermes fixture
+cd services/assistant-web && npm test      # 32 tests: fake Hermes fixture + rate-limit contract/fixtures
 ```
 
 Mocked tests are not integration proof. The real check is one authenticated

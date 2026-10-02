@@ -17,6 +17,11 @@
       <div class="status" id="statusText" role="status" aria-live="polite">Checking…</div>
     </header>
 
+    <nav class="tabs" id="tabs" hidden>
+      <button type="button" class="tab" id="tabChat" data-tab="chat">Chat</button>
+      <button type="button" class="tab" id="tabAgents" data-tab="agents">Agents</button>
+    </nav>
+
     <!-- Login -->
     <section class="view login" id="loginView" hidden>
       <form id="loginForm" autocomplete="off">
@@ -55,6 +60,26 @@
         <label class="toggle"><input type="checkbox" id="speakToggle" /> Speak replies</label>
         <button type="button" class="link" id="logoutBtn">Sign out</button>
       </footer>
+    </section>
+
+    <!-- Agents -->
+    <section class="view agents" id="agentsView" hidden>
+      <div class="widget" id="rateLimitsWidget">
+        <div class="widgetHead">
+          <h2>Rate limits &amp; resets</h2>
+          <div class="widgetActions">
+            <span class="hint" id="rateLimitsGenerated"></span>
+            <label class="toggle" title="Load synthetic fixture data to preview every state; never real usage">
+              <input type="checkbox" id="rateLimitsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="rateLimitsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="rateLimitsDemoBanner" hidden>
+          ⚠ Synthetic demo data for preview only — not a real provider reading.
+        </p>
+        <ul class="rateLimitList" id="rateLimitList" aria-live="polite"></ul>
+      </div>
     </section>
   </main>
   <script src="/app.js" defer></script>

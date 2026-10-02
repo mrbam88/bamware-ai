@@ -6,11 +6,14 @@
   const app = $("app");
   const els = {
     dot: $("statusDot"), status: $("statusText"),
+    tabs: $("tabs"), tabChat: $("tabChat"), tabAgents: $("tabAgents"),
     loginView: $("loginView"), loginForm: $("loginForm"), password: $("password"), loginHint: $("loginHint"),
     chatView: $("chatView"), transcript: $("transcript"), composer: $("composer"), text: $("text"), sendBtn: $("sendBtn"),
     micBtn: $("micBtn"), stopBtn: $("stopBtn"), voiceBar: $("voiceBar"), voiceState: $("voiceState"), interim: $("interim"),
     sessionLabel: $("sessionLabel"), traceLabel: $("traceLabel"), newBtn: $("newBtn"), exportBtn: $("exportBtn"), deleteBtn: $("deleteBtn"),
     speakToggle: $("speakToggle"), logoutBtn: $("logoutBtn"),
+    agentsView: $("agentsView"), rateLimitList: $("rateLimitList"), rateLimitsDemoBanner: $("rateLimitsDemoBanner"),
+    rateLimitsDemoToggle: $("rateLimitsDemoToggle"), rateLimitsRefresh: $("rateLimitsRefresh"), rateLimitsGenerated: $("rateLimitsGenerated"),
   };
 
   const store = {
@@ -31,8 +34,13 @@
     app.dataset.view = name;
     els.loginView.hidden = name !== "login";
     els.chatView.hidden = name !== "chat";
+    els.agentsView.hidden = name !== "agents";
+    els.tabs.hidden = name !== "chat" && name !== "agents";
+    els.tabChat.setAttribute("aria-current", String(name === "chat"));
+    els.tabAgents.setAttribute("aria-current", String(name === "agents"));
     if (name === "chat") els.text.focus();
     if (name === "login") els.password.focus();
+    if (name === "agents") loadRateLimits();
   }
 
   // ---------------------------------------------------------------- api -----
@@ -94,6 +102,102 @@
     els.traceLabel.textContent = has ? `trace: ${sessionId}` : "";
     els.exportBtn.disabled = !has;
     els.deleteBtn.disabled = !has;
+  }
+
+  // ---------------------------------------------------------------- agents -
+  // Rate-limit widget (bamware-ai#75). `demoMode` only ever flips which query
+  // the client asks for; it can never relabel a live reading as demo or vice
+  // versa — that distinction is made server-side per window (source.kind).
+  let demoMode = false;
+  let rateLimitsLoading = false;
+
+  const RL_STATE_LABEL = {
+    fresh: "Fresh", stale: "Stale", exhausted: "Exhausted", unknown: "Unknown", unsupported: "Unsupported",
+  };
+
+  async function loadRateLimits() {
+    if (rateLimitsLoading) return;
+    rateLimitsLoading = true;
+    els.rateLimitList.innerHTML = "";
+    const loading = document.createElement("li");
+    loading.className = "rl-item rl-loading";
+    loading.textContent = "Loading…";
+    els.rateLimitList.appendChild(loading);
+    try {
+      const data = await api("GET", `/api/rate-limits${demoMode ? "?mode=demo" : ""}`);
+      renderRateLimits(data);
+    } catch (err) {
+      els.rateLimitList.innerHTML = "";
+      const li = document.createElement("li");
+      li.className = "rl-item rl-error";
+      li.textContent = `Could not load rate limits: ${err.message}`;
+      els.rateLimitList.appendChild(li);
+      els.rateLimitsDemoBanner.hidden = true;
+    } finally {
+      rateLimitsLoading = false;
+    }
+  }
+
+  function renderRateLimits(data) {
+    els.rateLimitsDemoBanner.hidden = data.mode !== "demo";
+    els.rateLimitList.innerHTML = "";
+    if (!data.windows || !data.windows.length) {
+      const li = document.createElement("li");
+      li.className = "rl-item rl-empty";
+      li.textContent = "No providers reported.";
+      els.rateLimitList.appendChild(li);
+    } else {
+      for (const w of data.windows) els.rateLimitList.appendChild(renderRateLimitItem(w));
+    }
+    els.rateLimitsGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
+  }
+
+  function renderRateLimitItem(w) {
+    const li = document.createElement("li");
+    li.className = `rl-item rl-${w.state}`;
+
+    const title = document.createElement("div");
+    title.className = "rl-title";
+    const name = document.createElement("span");
+    name.textContent = `${w.provider} · ${w.scope}`;
+    title.appendChild(name);
+    const badge = document.createElement("span");
+    badge.className = `rl-badge rl-badge-${w.state}`;
+    badge.textContent = RL_STATE_LABEL[w.state] || w.state;
+    title.appendChild(badge);
+    if (w.source && w.source.kind === "synthetic") {
+      const tag = document.createElement("span");
+      tag.className = "rl-demo-tag";
+      tag.textContent = "SYNTHETIC";
+      title.appendChild(tag);
+    }
+    li.appendChild(title);
+
+    const detail = document.createElement("div");
+    detail.className = "rl-detail";
+    detail.textContent =
+      w.usedTokens != null && w.limitTokens != null
+        ? `${w.usedTokens.toLocaleString()} / ${w.limitTokens.toLocaleString()} tokens · ${w.utilizationPct}%`
+        : "Usage unknown";
+    li.appendChild(detail);
+
+    const meta = document.createElement("div");
+    meta.className = "rl-meta";
+    const resetText = w.resetAt
+      ? `Resets ${new Date(w.resetAt).toLocaleString()}${w.resetTimezone ? ` (${w.resetTimezone})` : ""}`
+      : "Reset time unknown";
+    const sourceLabel = (w.source && (w.source.label || w.source.kind)) || "unknown source";
+    const freshText = w.freshnessSec != null ? `${sourceLabel} · ${Math.round(w.freshnessSec)}s old` : sourceLabel;
+    meta.textContent = `${resetText} · ${freshText}`;
+    li.appendChild(meta);
+
+    if (w.notes) {
+      const notes = document.createElement("div");
+      notes.className = "rl-notes";
+      notes.textContent = w.notes;
+      li.appendChild(notes);
+    }
+    return li;
   }
 
   function setBusy(v) {
@@ -232,6 +336,10 @@
     catch (err) { addMessage("error", `Delete failed: ${err.message}`); }
   });
   els.logoutBtn.addEventListener("click", async () => { voice.stop(); try { await api("POST", "/api/logout"); } catch {} showView("login"); setStatus("ok", "Signed out"); });
+  els.tabChat.addEventListener("click", () => showView("chat"));
+  els.tabAgents.addEventListener("click", () => showView("agents"));
+  els.rateLimitsRefresh.addEventListener("click", loadRateLimits);
+  els.rateLimitsDemoToggle.addEventListener("change", (e) => { demoMode = e.target.checked; loadRateLimits(); });
   window.addEventListener("offline", () => setStatus("error", "Offline"));
   window.addEventListener("online", () => setStatus("ok", "Connected to Hermes"));
 
