@@ -8,6 +8,15 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-02 — Shared marketing skills added (#72)
+
+- Bilal explicitly requested adding reusable community marketing skills to Bamware context.
+- Added pinned MIT-licensed customer research, competitor profiling, content strategy
+  and social workflows, plus `skills/bamware-marketing` for routing and project rules.
+- Sources and hashes: `docs/marketing-skills-sources.json`. Static validation only;
+  no claim of marketing outcomes, Hermes retrieval, campaign selection or publishing.
+- Next: apply audience research and competitor profiling to a bounded NYC brief.
+
 ## 2026-10-02 — Assistant role and interview continuity
 
 - Bilal clarified that Bamware Assistant should be his chief-of-staff point of
