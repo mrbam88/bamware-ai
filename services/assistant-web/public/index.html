@@ -20,6 +20,7 @@
     <nav class="tabs" id="tabs" hidden>
       <button type="button" class="tab" id="tabChat" data-tab="chat">Chat</button>
       <button type="button" class="tab" id="tabAgents" data-tab="agents">Agents</button>
+      <button type="button" class="tab" id="tabDecisions" data-tab="decisions">Decisions</button>
     </nav>
 
     <!-- Login -->
@@ -122,6 +123,26 @@
         <h3 class="wuSubhead">Model routing signal (recommendation only — no automatic switching)</h3>
         <ul class="wuList" id="routingList" aria-live="polite"></ul>
       </div>
+    </section>
+
+    <!-- Decisions -->
+    <section class="view decisions" id="decisionsView" hidden>
+      <div class="widget" id="decisionsControls">
+        <div class="widgetHead">
+          <h2>Decisions</h2>
+          <div class="widgetActions">
+            <span class="hint" id="decisionsGenerated"></span>
+            <label class="toggle" title="Load a synthetic fixture deck to preview the response/handoff lifecycle; never a real decision">
+              <input type="checkbox" id="decisionsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="decisionsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="decisionsDemoBanner" hidden>
+          ⚠ Synthetic demo deck for preview only — not a real decision or handoff.
+        </p>
+      </div>
+      <ol class="decisionList" id="decisionList" aria-live="polite"></ol>
     </section>
   </main>
   <script src="/app.js" defer></script>

@@ -6,7 +6,7 @@
   const app = $("app");
   const els = {
     dot: $("statusDot"), status: $("statusText"),
-    tabs: $("tabs"), tabChat: $("tabChat"), tabAgents: $("tabAgents"),
+    tabs: $("tabs"), tabChat: $("tabChat"), tabAgents: $("tabAgents"), tabDecisions: $("tabDecisions"),
     loginView: $("loginView"), loginForm: $("loginForm"), password: $("password"), loginHint: $("loginHint"),
     chatView: $("chatView"), transcript: $("transcript"), composer: $("composer"), text: $("text"), sendBtn: $("sendBtn"),
     micBtn: $("micBtn"), stopBtn: $("stopBtn"), voiceBar: $("voiceBar"), voiceState: $("voiceState"), interim: $("interim"),
@@ -18,6 +18,8 @@
     workUsageRefresh: $("workUsageRefresh"), workUsageGenerated: $("workUsageGenerated"), workUsageCoverage: $("workUsageCoverage"),
     usageByTaskList: $("usageByTaskList"), activeAgentsList: $("activeAgentsList"), workVsWaitList: $("workVsWaitList"),
     outcomesList: $("outcomesList"), routingList: $("routingList"),
+    decisionsView: $("decisionsView"), decisionList: $("decisionList"), decisionsGenerated: $("decisionsGenerated"),
+    decisionsDemoToggle: $("decisionsDemoToggle"), decisionsDemoBanner: $("decisionsDemoBanner"), decisionsRefresh: $("decisionsRefresh"),
   };
 
   const store = {
@@ -39,12 +41,15 @@
     els.loginView.hidden = name !== "login";
     els.chatView.hidden = name !== "chat";
     els.agentsView.hidden = name !== "agents";
-    els.tabs.hidden = name !== "chat" && name !== "agents";
+    els.decisionsView.hidden = name !== "decisions";
+    els.tabs.hidden = name !== "chat" && name !== "agents" && name !== "decisions";
     els.tabChat.setAttribute("aria-current", String(name === "chat"));
     els.tabAgents.setAttribute("aria-current", String(name === "agents"));
+    els.tabDecisions.setAttribute("aria-current", String(name === "decisions"));
     if (name === "chat") els.text.focus();
     if (name === "login") els.password.focus();
     if (name === "agents") { loadRateLimits(); loadWorkUsage(); }
+    if (name === "decisions") loadDecisions();
   }
 
   // ---------------------------------------------------------------- api -----
@@ -504,6 +509,208 @@
     }
   }
 
+  // ---------------------------------------------------------------- decisions -
+  // Command Center Decisions card deck (bamware-ai#78). `demoMode` only ever
+  // changes which deck/store the client asks for; the server decides
+  // source.kind and handoff status, same rule as the Agents widgets.
+  let decisionsDemoMode = false;
+  let decisionsLoading = false;
+
+  const URGENCY_LABEL = { low: "Low", medium: "Medium", high: "High" };
+  const HANDOFF_LABEL = {
+    not_applicable: "No handoff (no consequential action taken)",
+    handoff_pending: "Handoff pending — no confirmed live worker interface",
+    pickup_confirmed: "Picked up by worker",
+    completed: "Completed by worker",
+  };
+
+  async function loadDecisions() {
+    if (decisionsLoading) return;
+    decisionsLoading = true;
+    els.decisionList.innerHTML = "";
+    const loading = document.createElement("li");
+    loading.className = "decision-card dc-loading";
+    loading.textContent = "Loading…";
+    els.decisionList.appendChild(loading);
+    try {
+      const data = await api("GET", `/api/decisions${decisionsDemoMode ? "?mode=demo" : ""}`);
+      renderDecisions(data);
+    } catch (err) {
+      els.decisionList.innerHTML = "";
+      const li = document.createElement("li");
+      li.className = "decision-card dc-error";
+      li.textContent = `Could not load decisions: ${err.message}`;
+      els.decisionList.appendChild(li);
+      els.decisionsDemoBanner.hidden = true;
+    } finally {
+      decisionsLoading = false;
+    }
+  }
+
+  function renderDecisions(data) {
+    els.decisionsDemoBanner.hidden = data.mode !== "demo";
+    els.decisionsGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
+    els.decisionList.innerHTML = "";
+    if (!data.decisions || !data.decisions.length) {
+      const li = document.createElement("li");
+      li.className = "decision-card dc-empty";
+      li.textContent = "No decisions need your input right now.";
+      els.decisionList.appendChild(li);
+      return;
+    }
+    for (const d of data.decisions) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+  }
+
+  function renderDecisionCard(d, mode) {
+    const li = document.createElement("li");
+    li.className = `decision-card urgency-${d.urgency}`;
+
+    const head = document.createElement("div");
+    head.className = "dc-head";
+    const title = document.createElement("div");
+    title.className = "dc-title";
+    title.textContent = d.title;
+    head.appendChild(title);
+    const badges = document.createElement("div");
+    badges.className = "dc-badges";
+    const ub = document.createElement("span");
+    ub.className = `dc-badge dc-badge-${d.urgency}`;
+    ub.textContent = `${URGENCY_LABEL[d.urgency] || d.urgency} urgency`;
+    badges.appendChild(ub);
+    if (d.source && d.source.kind === "synthetic") {
+      const tag = document.createElement("span");
+      tag.className = "dc-synthetic";
+      tag.textContent = "SYNTHETIC";
+      badges.appendChild(tag);
+    }
+    head.appendChild(badges);
+    li.appendChild(head);
+
+    const meta = document.createElement("div");
+    meta.className = "dc-meta";
+    const sourceText = d.source && d.source.url
+      ? d.source.ref
+      : (d.source && d.source.ref) || "unknown source";
+    meta.textContent = `${d.project} · ${sourceText} · owner: ${d.owner}`;
+    li.appendChild(meta);
+    if (d.source && d.source.url) {
+      const link = document.createElement("a");
+      link.href = d.source.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = "dc-meta";
+      link.style.display = "block";
+      link.textContent = "Open source →";
+      li.appendChild(link);
+    }
+
+    const context = document.createElement("div");
+    context.className = "dc-context";
+    context.textContent = d.context;
+    li.appendChild(context);
+
+    if (d.recommendation) {
+      const rec = document.createElement("div");
+      rec.className = "dc-recommendation";
+      const opt = (d.options || []).find((o) => o.id === d.recommendation.optionId);
+      rec.textContent = `Recommendation: ${opt ? opt.label : d.recommendation.optionId} — ${d.recommendation.rationale}`;
+      li.appendChild(rec);
+    }
+
+    if (d.blockedWork && d.blockedWork.length) {
+      const blocked = document.createElement("div");
+      blocked.className = "dc-blocked";
+      blocked.textContent = `Blocked work: ${d.blockedWork.join("; ")}`;
+      li.appendChild(blocked);
+    }
+
+    // Answer / handoff state for an existing response -----------------------
+    if (d.response) {
+      const answer = document.createElement("div");
+      answer.className = `dc-answer${d.stale ? " dc-stale" : ""}`;
+      const optLabel = (d.options || []).find((o) => o.id === d.response.selectedOptionId)?.label;
+      answer.textContent = d.stale
+        ? `Previously ${d.response.action}${optLabel ? ` (${optLabel})` : ""} — the source changed since then; reconsider below.`
+        : `${d.response.action.charAt(0).toUpperCase()}${d.response.action.slice(1)}${optLabel ? `: ${optLabel}` : ""} — ${new Date(d.response.decidedAt).toLocaleString()}`;
+      li.appendChild(answer);
+      if (d.response.note) {
+        const noteShown = document.createElement("div");
+        noteShown.className = "dc-meta";
+        noteShown.textContent = `Note: ${d.response.note}`;
+        li.appendChild(noteShown);
+      }
+      const handoff = document.createElement("div");
+      handoff.className = "dc-handoff";
+      handoff.textContent = HANDOFF_LABEL[d.handoff.status] || d.handoff.status;
+      if (d.handoff.status === "handoff_pending" && d.handoff.reason) handoff.textContent += ` (${d.handoff.reason})`;
+      if (d.handoff.status === "pickup_confirmed" && d.handoff.receiptId) handoff.textContent += ` · receipt ${d.handoff.receiptId}`;
+      if (d.handoff.status === "completed" && d.handoff.completedAt) handoff.textContent += ` · ${new Date(d.handoff.completedAt).toLocaleString()}`;
+      li.appendChild(handoff);
+      if (d.handoff.status === "pickup_confirmed") {
+        const refreshBtn = document.createElement("button");
+        refreshBtn.type = "button";
+        refreshBtn.className = "link";
+        refreshBtn.textContent = "Check handoff status";
+        refreshBtn.addEventListener("click", () => refreshDecisionHandoff(d.id, mode));
+        li.appendChild(refreshBtn);
+      }
+    }
+
+    // Response controls -------------------------------------------------------
+    if (!d.response || d.stale) {
+      const select = document.createElement("select");
+      for (const o of d.options || []) {
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = o.label;
+        if (d.recommendation && d.recommendation.optionId === o.id) opt.selected = true;
+        select.appendChild(opt);
+      }
+      const note = document.createElement("textarea");
+      note.className = "dc-note";
+      note.placeholder = "Optional note…";
+      li.appendChild(select);
+      li.appendChild(note);
+
+      const actions = document.createElement("div");
+      actions.className = "dc-actions";
+      for (const action of ["approve", "reject", "discuss", "defer"]) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `dc-${action}`;
+        btn.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+        btn.addEventListener("click", () => respondToDecision(d, action, select.value, note.value, mode));
+        actions.appendChild(btn);
+      }
+      li.appendChild(actions);
+    }
+
+    return li;
+  }
+
+  async function respondToDecision(d, action, selectedOptionId, note, mode) {
+    try {
+      await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/respond${mode === "demo" ? "?mode=demo" : ""}`, {
+        action,
+        selectedOptionId: selectedOptionId || null,
+        note: note || null,
+        candidateVersion: d.version,
+      });
+      loadDecisions();
+    } catch (err) {
+      alert(`Could not record response: ${err.message}`);
+    }
+  }
+
+  async function refreshDecisionHandoff(id, mode) {
+    try {
+      await api("POST", `/api/decisions/${encodeURIComponent(id)}/handoff/refresh${mode === "demo" ? "?mode=demo" : ""}`);
+      loadDecisions();
+    } catch (err) {
+      alert(`Could not check handoff status: ${err.message}`);
+    }
+  }
+
   function setBusy(v) {
     busy = v;
     els.sendBtn.disabled = v;
@@ -642,6 +849,9 @@
   els.logoutBtn.addEventListener("click", async () => { voice.stop(); try { await api("POST", "/api/logout"); } catch {} showView("login"); setStatus("ok", "Signed out"); });
   els.tabChat.addEventListener("click", () => showView("chat"));
   els.tabAgents.addEventListener("click", () => showView("agents"));
+  els.tabDecisions.addEventListener("click", () => showView("decisions"));
+  els.decisionsRefresh.addEventListener("click", loadDecisions);
+  els.decisionsDemoToggle.addEventListener("change", (e) => { decisionsDemoMode = e.target.checked; loadDecisions(); });
   els.rateLimitsRefresh.addEventListener("click", loadRateLimits);
   els.rateLimitsDemoToggle.addEventListener("change", (e) => { demoMode = e.target.checked; loadRateLimits(); });
   els.workUsageRefresh.addEventListener("click", loadWorkUsage);

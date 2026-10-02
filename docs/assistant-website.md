@@ -17,6 +17,7 @@ linking. Written from a Claude Code session running **on `omarchy` itself**
 | Langfuse trace | **Running and verified** (self-host 4.49.0 on omarchy, loopback): website turn `20261002_001227_923a76` → trace `83602cc719c629c6b57a1ba0c70100e8`, env `assistant-web`; wrong-key turn → 401 at export, no row (#65) |
 | Deployed as a service | **Yes, 2026-10-02** — `assistant-web.service` enabled, bound to `100.88.99.117:8765` (tailnet only, HTTP). Bilal ran `scripts/deploy-assistant-web.sh`; restart survival verified; reboot pending; HTTPS blocked (tailnet certs disabled) (#67) |
 | Streaming via Hermes API server | **No.** Needs `API_SERVER_KEY` + gateway restart (#64) |
+| Decisions card deck (#78, Command Center MVP) | **Implemented and tested** (82/82 `npm test`), not yet run through a local dev server or browser (permission gap below). 3 explicit, real candidates sourced from #77 and this doc's own Langfuse/Tailscale gaps; durable file-backed responses; `approve` always honestly reports `handoff_pending` in live mode — no confirmed worker interface exists. See `services/assistant-web/README.md` |
 | Chief of Staff coordination | **Does not exist** as software; see below |
 
 Distinguish: *edited locally* (worktree) → *published* (merged to main) →
