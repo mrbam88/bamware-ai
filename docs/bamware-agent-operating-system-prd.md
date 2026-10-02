@@ -114,10 +114,56 @@ Responsibilities:
 - Suppress low-value noise.
 - Produce on-demand and scheduled briefings.
 - Route CEO requests to the correct executive, project, or tool.
+- Own recurring board follow-through: recover orphaned work and stalled handoffs,
+  verify pickup and outcomes, and keep every active ticket moving toward a
+  documented next action (founder decision, 2026-10-02).
 
 Primary question:
 
 > What needs my attention?
+
+### Chief of Staff board follow-through
+
+Founder decision, 2026-10-02: the Chief of Staff should have a standing drive
+to clear the board by resolving work, not by hiding or prematurely closing it.
+Bilal should not have to remember to ask about forgotten tickets.
+
+- Sweep the authoritative board and linked issues/PRs on a bounded recurring
+  schedule, before briefings, and after batch handoffs. Use existing scheduling
+  infrastructure; deployment and actual schedule execution need separate proof.
+- Every active ticket needs an accountable owner (or explicit unassigned state),
+  next action, blocker/dependency if any, last evidence and a next-check time.
+  Deliberately deferred backlog is different from forgotten active work.
+- Detect missing owners, requested dispatch without pickup, expired follow-up
+  times, stale worker heartbeats, unresolved dependencies, unclaimed QA and
+  completed research/code whose result was never returned to its requester.
+- Recover available artifacts and evidence before asking Bilal to reconstruct
+  context. Route authorized follow-up through the existing execution interface;
+  confirm receipt and actual pickup. An issue comment, label or approval is not
+  worker execution. No usable execution interface means handoff pending.
+- Resolve routine coordination within existing authority. For a real founder
+  decision, create a bounded Decision Queue card with context, recommendation,
+  options and affected work. Keep independent work moving while it waits.
+- Respect explicit pauses, scope/permission/spend boundaries and worker leases.
+  Do not repeatedly nudge an active worker or silently start duplicate agents.
+  Deduplicate reminders and cap retries; distinguish source outage from no work.
+- Close only with acceptance evidence or an explicit cancellation/deferral
+  decision, preserving the reason and outcome. Never optimize for an empty board
+  by marking unfinished tickets done.
+- Briefings should show recovered handoffs, remaining stuck work, real decision
+  requests and next checks. Record a sweep receipt with time, coverage, source
+  failures and actions; a design document is not evidence a sweep ran.
+
+Concrete first regression case: bamware-ai#72 reports completed marketing
+research whose detailed shortlist has not been reconciled into the shared
+record. Recover the shortlist and present an installation recommendation before
+calling this blocked on Bilal. Do not install skills or publish marketing content
+without the separately applicable authorization.
+
+Implementation status: responsibility recorded; recurring supervisor deployment,
+worker routing and live sweep verification remain unconfirmed. This requirement
+does not turn the existing Hermes personal assistant into a deployed Chief of
+Staff automatically.
 
 ### Head of Product
 
