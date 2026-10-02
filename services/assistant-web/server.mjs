@@ -27,6 +27,7 @@ import {
 } from "./lib.mjs";
 import { buildSnapshot } from "./lib/rate-limits.mjs";
 import { codexQuotaAdapter } from "./lib/providers/codex-quota-adapter.mjs";
+import { readServerQuota } from "./lib/providers/server-quota-adapter.mjs";
 import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
 import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
 import { buildWorkUsageSnapshot } from "./lib/work-usage.mjs";
@@ -62,7 +63,9 @@ export function loadConfig(env = process.env) {
     maxQueue: Number(get("ASSISTANT_WEB_MAX_QUEUE", "3")),
     publicDir: path.join(HERE, "public"),
     codexQuotaFile: get("ASSISTANT_WEB_CODEX_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/codex-quota.json")),
+    serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
+    overnightUsageFile: get("ASSISTANT_WEB_OVERNIGHT_USAGE_FILE", path.join(os.homedir(), ".local/state/bamware/overnight/usage.json")),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),
   };
@@ -147,6 +150,7 @@ const STATIC = {
   "/": ["index.html", "text/html; charset=utf-8"],
   "/index.html": ["index.html", "text/html; charset=utf-8"],
   "/app.js": ["app.js", "text/javascript; charset=utf-8"],
+  "/quota-meter.js": ["quota-meter.js", "text/javascript; charset=utf-8"],
   "/app.css": ["app.css", "text/css; charset=utf-8"],
 };
 
@@ -282,9 +286,10 @@ export function createServer(cfg, { log = defaultLog } = {}) {
       // it never substitutes for or blends with the live snapshot.
       if (route === "GET /api/rate-limits") {
         const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
-        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }, { name: "codex", run: codexQuotaAdapter }];
+        const serverQuota = mode === "live" ? await readServerQuota({ serverQuotaFile: cfg.serverQuotaFile }) : { coverage: [], windows: [] };
+        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }, { name: "codex", run: codexQuotaAdapter }, { name: "server", run: () => serverQuota.windows }];
         const snapshot = await buildSnapshot(adapters, { quotaSamplesFile: cfg.quotaSamplesFile, codexQuotaFile: cfg.codexQuotaFile }, { now: Date.now() });
-        return send(res, 200, { ...snapshot, mode });
+        return send(res, 200, { ...snapshot, mode, coverage: serverQuota.coverage });
       }
 
       // Work/agents analytics (Agents view, bamware-ai#76): usage by
@@ -296,7 +301,7 @@ export function createServer(cfg, { log = defaultLog } = {}) {
         const adapters =
           mode === "demo"
             ? [{ name: "demo", run: workUsageDemoAdapter }]
-            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }, { name: "overnight", run: () => overnightUsageAdapter() }];
+            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }, { name: "overnight", run: () => overnightUsageAdapter(cfg.overnightUsageFile) }];
         const workCtx = { repoDir: cfg.hermesCwd, repoName: path.basename(REPO_ROOT) };
         const snapshot = await buildWorkUsageSnapshot(adapters, workCtx, {
           now: Date.now(),

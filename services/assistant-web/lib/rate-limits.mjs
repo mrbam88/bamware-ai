@@ -119,6 +119,9 @@ export function buildWindow(raw, opts = {}) {
     id: `${raw?.provider ?? "unknown-provider"}:${raw?.scope ?? "unknown-scope"}`,
     provider: raw?.provider ?? "unknown-provider",
     account: raw?.account ?? null,
+    identityEvidence: raw?.identityEvidence ?? null,
+    harness: raw?.harness ?? null,
+    machine: raw?.machine ?? null,
     scope: raw?.scope ?? "unknown-scope",
     state,
     usedTokens,
@@ -186,7 +189,22 @@ export async function buildSnapshot(adapters, ctx = {}, opts = {}) {
       );
     }
   }
-  return { version: RATE_LIMIT_CONTRACT_VERSION, generatedAt: new Date(now).toISOString(), windows };
+  // Only explicit provider account identity proves sharing. Provider names,
+  // display aliases and coincidentally equal percentages are not evidence.
+  const grouped = new Map();
+  for (const [index, w] of windows.entries()) {
+    const proven = w.account && w.identityEvidence === "provider-account-id-sha256";
+    const key = proven ? JSON.stringify([w.provider, w.account, w.scope, w.source.kind]) : `unmatched:${index}`;
+    const observation = { harness: w.harness, machine: w.machine, source: w.source };
+    const previous = grouped.get(key);
+    if (!previous) {
+      grouped.set(key, { ...w, id: `${w.id}:${index}`, observations: [observation] });
+    } else {
+      const newest = (parseMs(w.source.fetchedAt) ?? -Infinity) > (parseMs(previous.source.fetchedAt) ?? -Infinity) ? w : previous;
+      grouped.set(key, { ...newest, id: previous.id, observations: [...previous.observations, observation] });
+    }
+  }
+  return { version: RATE_LIMIT_CONTRACT_VERSION, generatedAt: new Date(now).toISOString(), windows: [...grouped.values()] };
 }
 
 /** Human label for a reset time, explicit about timezone; null-safe. */

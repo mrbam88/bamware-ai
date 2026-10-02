@@ -23,7 +23,7 @@ export async function claudeMaxAdapter({ quotaSamplesFile } = {}) {
         ["session", "weekly", "weekly-fable"].includes(m.kind) &&
         typeof m.percent === "number" && Number.isFinite(m.percent) && m.percent >= 0
       ).map(m => ({
-        provider: "claude-max", scope: m.kind, utilizationPct: m.percent,
+        provider: "claude-max", harness: "claude-code", machine: "server", scope: m.kind, utilizationPct: m.percent,
         usedTokens: null, limitTokens: null,
         resetAt: Number.isFinite(Date.parse(m.resetsAt)) ? m.resetsAt : null,
         resetTimezone: "America/New_York",

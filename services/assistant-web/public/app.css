@@ -81,6 +81,14 @@ body { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%;
 .rl-demo-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; border: 1px dashed var(--warn); color: var(--warn); }
 .rl-detail { font-size: 13px; margin-top: 4px; }
 .rl-meta, .rl-notes { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.quota-meter { margin: 8px 0; font-variant-numeric: tabular-nums; }
+.quota-track { height: 12px; margin-top: 6px; border: 1px solid var(--muted); border-radius: 8px; overflow: hidden; background: var(--line); }
+.quota-fill { display: block; height: 100%; background: var(--accent); }
+.quota-warning .quota-fill { background: var(--warn); }
+.quota-exhausted .quota-fill { background: var(--err); }
+.quota-stale .quota-fill { background: repeating-linear-gradient(135deg, var(--muted) 0 5px, var(--line) 5px 10px); }
+.quota-unknown { border-style: dashed; background: transparent; }
+.rl-meta, .rl-notes { overflow-wrap: anywhere; }
 
 .wuList { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
 .wuSubhead { font-size: 13px; font-weight: 600; margin: 14px 0 0; color: var(--muted); }

@@ -73,6 +73,10 @@ async function withServer(fn, extraEnv = {}) {
     HERMES_CWD: HERE,
     HERMES_HOME: path.join(HERE, "fixtures", "hermes-home-missing"),
     HERMES_TIMEOUT_MS: "2000",
+    ASSISTANT_WEB_CODEX_QUOTA_FILE: "/nonexistent",
+    ASSISTANT_WEB_SERVER_QUOTA_FILE: "/nonexistent",
+    ASSISTANT_WEB_QUOTA_SAMPLES_FILE: "/nonexistent",
+    ASSISTANT_WEB_OVERNIGHT_USAGE_FILE: "/nonexistent",
     ASSISTANT_WEB_DECISIONS_FILE: path.join(decisionsDir, "decisions.json"),
     ASSISTANT_WEB_DECISIONS_DEMO_FILE: path.join(decisionsDir, "decisions.demo.json"),
     ...extraEnv,
@@ -192,7 +196,8 @@ test("GET /api/rate-limits defaults to live mode: honest unsupported, no fake ca
     const body = await res.json();
     assert.equal(body.mode, "live");
     assert.ok(body.version);
-    assert.equal(body.windows.length, 2);
+    assert.equal(body.windows.length, 4);
+    assert.deepEqual(body.coverage.map(c => c.harness), ["hermes", "opencode"]);
     assert.equal(body.windows[0].state, "unsupported");
     assert.equal(body.windows[0].usedTokens, null);
     assert.ok(!JSON.stringify(body).includes("1500000"), "must never present the old unverified 1.5M cap as fact");

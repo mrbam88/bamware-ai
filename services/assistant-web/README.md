@@ -33,7 +33,7 @@ repo root), `HERMES_TIMEOUT_MS` (180000), `HERMES_HOME` (`~/.hermes`),
 `ASSISTANT_WEB_SECURE_COOKIES=1` when behind HTTPS, `ASSISTANT_WEB_MAX_QUEUE` (3).
 Environment variables override the env file.
 
-Service unit (not enabled by agents; see gates below):
+Service unit (already deployed on the server; existing-service updates authorized in #81):
 `scripts/systemd/assistant-web.service`.
 
 ## API
@@ -44,8 +44,8 @@ Service unit (not enabled by agents; see gates below):
 | `POST /api/login` `{password}` | no | sets `aw_session` cookie (HttpOnly, SameSite=Strict, 7 days); 5 failures / 15 min per client → 429 |
 | `POST /api/logout` | no | clears cookie |
 | `GET /api/me` | cookie | Hermes bin/cwd and Langfuse **presence booleans** (never values) |
-| `GET /api/rate-limits[?mode=demo]` | cookie | Rate-limit/reset snapshot (bamware-ai#75). Default `mode=live` reports real providers honestly — today just Claude Max, always `"unsupported"` (no read-only quota source is wired; see `lib/providers/claude-max-adapter.mjs`). `mode=demo` returns only synthetic fixtures covering fresh/stale/exhausted/unknown/reset-transition states, always tagged `source.kind:"synthetic"`, for widget preview/QA — never blended with live data. |
-| `GET /api/work-usage[?mode=demo]` | cookie | Work/agents-analytics snapshot (bamware-ai#76): usage by project/ticket (with an explicit unallocated bucket), active agents with heartbeat freshness, active-vs-waiting time, outcomes/rework, and a routing-recommendation signal. Default `mode=live` reports only a safe, credential-free self-correlation (this service's own repo/branch/machine identity via `lib/providers/work-usage-self-adapter.mjs`) with no usage numbers — the only real collector (bamware-ai#60 → bamware-web#45) needs AWS DynamoDB credentials this service doesn't have, same gap as the rate-limits adapter. `mode=demo` returns the full synthetic fixture set (implementation → retry → QA, dedup, stale vs active agents), always tagged `source.kind:"synthetic"`. |
+| `GET /api/rate-limits[?mode=demo]` | cookie | Live Claude sample feed, X1 Codex events, and independent server Hermes/OpenCode OpenAI usage readings. Windows carry harness/machine/account provenance and accessible visual meters; additive `coverage` lists server capability gaps and observed credit controls. Proven shared account/scope windows merge; unknown identity never merges or adds capacity. Missing capacity stays unknown. Demo fixtures are isolated and always synthetic. See feeds below. |
+| `GET /api/work-usage[?mode=demo]` | cookie | Work/agents analytics (#76): safe self-correlation plus the sanitized overnight metadata export (not continuous fleet ingestion). Project/ticket usage, unallocated bucket, heartbeat freshness, timing and outcomes retain unknowns. Demo fixtures remain isolated and synthetic. Override the overnight metadata path with `ASSISTANT_WEB_OVERNIGHT_USAGE_FILE`. |
 | `GET /api/decisions[?mode=demo]` | cookie | Command Center Decisions deck (bamware-ai#78): a small explicit, hand-curated set of founder-level decision candidates (`lib/providers/decision-candidates.mjs`), each merged with any durable response on file. Default `mode=live` serves 3 real candidates grounded in already-verified repo facts (issue #77, and the Langfuse/Tailscale blockers documented in `docs/assistant-website.md`) — never an extraction over every open issue. `mode=demo` serves one clearly `source.kind:"synthetic"` fixture decision for previewing the full lifecycle. |
 | `POST /api/decisions/:id/respond[?mode=demo]` `{action, selectedOptionId?, note?, candidateVersion}` | cookie | Records a durable, versioned response (`approve｜reject｜discuss｜defer`) to a decision in a file-backed store (`~/.config/bamware/assistant-web-decisions*.json`, path overridable via `ASSISTANT_WEB_DECISIONS_FILE`/`_DEMO_FILE`). `candidateVersion` must match the current candidate or the call is `409 stale_decision`. Only `approve` attempts a handoff; in `mode=live` there is no confirmed worker interface, so it always and honestly records `handoff.status:"handoff_pending"` — never a fabricated pickup. Resubmitting an identical response is idempotent (`duplicate:true`, no second handoff dispatch); submitting a different action is a legitimate reconsideration. `mode=demo` can also dispatch to a fixture worker (`simulateWorker:"unavailable"` or the default accepting fixture) to prove `pickup_confirmed`/`completed` exist as real, reachable states — synthetic only. |
 | `POST /api/decisions/:id/handoff/refresh[?mode=demo]` | cookie | Re-checks a `pickup_confirmed` handoff against the worker (fixture-only in `mode=demo`; a no-op in `mode=live` since no worker is wired). Never self-promotes a status without worker evidence. |
@@ -76,7 +76,12 @@ the button explains when it is unavailable.
 ## Test
 
 ```sh
-cd services/assistant-web && npm test      # 82 tests: fake Hermes fixture + rate-limit + work-usage + decisions contract/fixtures
+cd services/assistant-web && npm test      # auth, contracts, quota dedup, meter semantics, usage and decisions
+python3 scripts/test_collect_server_quota.py
+python3 scripts/test_export_codex_quota.py
+# Existing credentials remain in memory; no model call, transcript or password output:
+node scripts/verify-quota.mjs --local       # this checkout on loopback
+node scripts/verify-quota.mjs               # configured production endpoint
 ```
 
 Mocked tests are not integration proof. The real check is one authenticated
@@ -84,15 +89,15 @@ Mocked tests are not integration proof. The real check is one authenticated
 
 ## Gates (Bilal)
 
-- Enabling the systemd unit (always-on service on the server).
-- Binding to the Tailscale IP or `tailscale serve` HTTPS (network config).
-- Langfuse keys in `~/.hermes/.env` (account/project creation).
+- New services, network bindings, accounts and spend remain gated. The existing
+  assistant-web service and quota timer are already enabled; #81 authorizes
+  reversible updates on that same deployment, not new services.
 - Enabling Hermes' built-in API server (`API_SERVER_KEY`, gateway restart):
   the streaming/SSE upgrade path, see `docs/assistant-website.md`.
 
 ## Recovery release (2026-10-02)
 
-Live Agents usage now includes an allowlisted metadata export of the four overnight implementation/QA runs, via `scripts/export-overnight-metrics.py`. It includes runtime-reported token totals and list-price cost estimates, never conversation content. This is a recorded batch snapshot, not continuous fleet ingestion. Active versus waiting time remains unknown where unavailable. Provider quota remains unsupported. Obsolete Langfuse/HTTPS decision cards were removed; the backlog-planning decision remains. Real worker dispatch is still pending.
+Live Agents usage now includes an allowlisted metadata export of the four overnight implementation/QA runs, via `scripts/export-overnight-metrics.py`. It includes runtime-reported token totals and list-price cost estimates, never conversation content. This is a recorded batch snapshot, not continuous fleet ingestion. Active versus waiting time remains unknown where unavailable. Provider quota is connected through the feeds below. Obsolete Langfuse/HTTPS decision cards were removed; the backlog-planning decision remains. Real decision-card worker dispatch is still pending; #81's direct worker pickup does not change that flow or implement recurring sweep #79.
 
 ### Claude quota feed
 `ASSISTANT_WEB_QUOTA_SAMPLES_FILE` points to the existing server collector's
@@ -115,3 +120,51 @@ stale. Laptop sleep/offline or expired SSH authentication therefore cannot
 masquerade as a fresh reading. This reads the most recent provider event; it
 does not spend tokens to force a quota update. Override server snapshot path
 with `ASSISTANT_WEB_CODEX_QUOTA_FILE`.
+
+### Independent server coverage (#81)
+
+`scripts/collect-server-quota.py` reads existing default-profile Hermes and
+OpenCode OpenAI OAuth capabilities in memory and GETs the same usage endpoint
+used by installed Hermes `agent/account_usage.py`. No model call, OAuth refresh,
+provider switch, token copying, credit redemption or new grant occurs. Requests
+are pinned to the provider host and redirects are refused. It never reads
+transcripts; OpenCode inventory selects only provider IDs from SQLite metadata.
+
+The collector writes only allowlisted percentages, scopes, resets, credit
+booleans/numbers, observation times and opaque account aliases to
+`~/.local/state/bamware/server-quota.json` (atomic, mode 0600). The web process
+reads that sanitized snapshot, not provider auth. Override with
+`ASSISTANT_WEB_SERVER_QUOTA_FILE`. Both harnesses' account identifiers matched
+locally during #81; aliases are a domain-separated SHA-256 digest, never an
+email, name or raw identifier. Distinct/unknown accounts stay separate. An
+ambiguous Hermes credential pool is not silently resolved to another account.
+
+Known account + provider + quota scope + source kind identifies one meter. The
+newest reading wins, all observation sources remain attached, percentages are
+never summed. The X1 feed does not yet carry identity evidence: it is explicitly
+unmatched and potentially overlapping, not an extra allowance. OpenCode-hosted
+provider usage is observed in metadata but has no authoritative quota collector.
+Credit/spend fields unavailable from a source remain unknown (including Claude
+credit controls absent from the existing sample schema); token usage is not a cap.
+
+Meters show used/remaining, warning/exhausted labels, reset timezone and age.
+Stale numbers are labelled historical; a passed reset hides the old percentage.
+Unknowns render a dashed placeholder with no numeric ARIA meter. The browser
+refreshes visible widgets every minute; it does not call a provider on refresh.
+
+Reuse the existing ten-minute `ai-quota-sample.timer` on the server, with a
+drop-in that collects OpenAI first so Claude ingestion failures cannot block it:
+
+```sh
+install -Dm644 services/assistant-web/systemd/ai-quota-sample-server.conf \
+  ~/.config/systemd/user/ai-quota-sample.service.d/server-quota.conf
+systemctl --user daemon-reload
+systemctl --user start ai-quota-sample.service
+```
+
+The template intentionally targets the existing `~/srv/bamware-ai` production
+checkout. Fetch/reconcile `worktree-assistant-web-slice` before moving that
+checkout, never copy a worktree over it. Restart `assistant-web`, then run the
+readback verifier above. Roll back code with a revert on the release branch;
+remove only `server-quota.conf` and reload systemd to detach the new collection.
+The old Claude collector, X1 timer and other services remain untouched.

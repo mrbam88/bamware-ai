@@ -1,6 +1,7 @@
 // Bamware assistant website client. Text chat against the real Hermes
 // runtime, plus browser-side voice (Web Speech API STT, speechSynthesis TTS).
 // Voice needs a secure context (HTTPS or localhost); the UI says so when absent.
+import { renderQuotaMeter } from './quota-meter.js';
 (() => {
   const $ = (id) => document.getElementById(id);
   const app = $("app");
@@ -13,6 +14,7 @@
     sessionLabel: $("sessionLabel"), traceLabel: $("traceLabel"), newBtn: $("newBtn"), exportBtn: $("exportBtn"), deleteBtn: $("deleteBtn"),
     speakToggle: $("speakToggle"), logoutBtn: $("logoutBtn"),
     agentsView: $("agentsView"), rateLimitList: $("rateLimitList"), rateLimitsDemoBanner: $("rateLimitsDemoBanner"),
+    quotaCoverage: $("quotaCoverage"),
     rateLimitsDemoToggle: $("rateLimitsDemoToggle"), rateLimitsRefresh: $("rateLimitsRefresh"), rateLimitsGenerated: $("rateLimitsGenerated"),
     workUsageProjectFilter: $("workUsageProjectFilter"), workUsageDemoToggle: $("workUsageDemoToggle"), workUsageDemoBanner: $("workUsageDemoBanner"),
     workUsageRefresh: $("workUsageRefresh"), workUsageGenerated: $("workUsageGenerated"), workUsageCoverage: $("workUsageCoverage"),
@@ -142,6 +144,7 @@
       li.textContent = `Could not load rate limits: ${err.message}`;
       els.rateLimitList.appendChild(li);
       els.rateLimitsDemoBanner.hidden = true;
+      els.quotaCoverage.textContent = "Coverage unavailable until refresh succeeds.";
     } finally {
       rateLimitsLoading = false;
     }
@@ -159,6 +162,24 @@
       for (const w of data.windows) els.rateLimitList.appendChild(renderRateLimitItem(w));
     }
     els.rateLimitsGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
+    els.quotaCoverage.replaceChildren();
+    const seenControls = new Set();
+    for (const c of data.coverage || []) {
+      const row = document.createElement("p");
+      row.className = "rl-meta";
+      const age = c.freshnessSec == null ? "observation time unknown" : `${Math.round(c.freshnessSec)}s old`;
+      let text = `${c.harness} · ${c.machine} · ${c.provider} · ${c.account || "account unknown"}: ${c.status} · ${age}`;
+      if (c.reason) text += ` · ${c.reason}`;
+      const key = c.account && c.identityEvidence ? c.account : `${c.harness}:${c.provider}`;
+      if (!seenControls.has(key)) {
+        const controls = c.controls || {};
+        const yesNo = value => value == null ? "unknown" : value ? "yes" : "no";
+        text += ` · Credits available: ${yesNo(controls.hasCredits)} · Balance: ${controls.balance ?? "unknown"} · Unlimited credits: ${yesNo(controls.unlimited)} · Banked resets: ${controls.resetCredits ?? "unknown"} · Spend limit: ${controls.spendLimit ?? "unknown"}`;
+        seenControls.add(key);
+      } else text += " · Shares the account meters and credit controls above";
+      row.textContent = text;
+      els.quotaCoverage.appendChild(row);
+    }
   }
 
   function renderRateLimitItem(w) {
@@ -172,7 +193,7 @@
     title.appendChild(name);
     const badge = document.createElement("span");
     badge.className = `rl-badge rl-badge-${w.state}`;
-    badge.textContent = RL_STATE_LABEL[w.state] || w.state;
+    badge.textContent = w.state === "fresh" && w.warning ? "Warning" : RL_STATE_LABEL[w.state] || w.state;
     title.appendChild(badge);
     if (w.source && w.source.kind === "synthetic") {
       const tag = document.createElement("span");
@@ -182,18 +203,17 @@
     }
     li.appendChild(title);
 
-    const detail = document.createElement("div");
-    detail.className = "rl-detail";
-    detail.textContent =
-      w.usedTokens != null && w.limitTokens != null
-        ? `${w.usedTokens.toLocaleString()} / ${w.limitTokens.toLocaleString()} tokens · ${w.utilizationPct}%`
-        : w.utilizationPct != null ? `${w.utilizationPct}% used · ${Math.max(0, 100 - w.utilizationPct).toFixed(1)}% remaining` : "Usage unknown";
-    li.appendChild(detail);
+    const identity = document.createElement("div");
+    identity.className = "rl-meta";
+    const origins = (w.observations || [w]).map(o => `${o.harness || "harness unknown"} / ${o.machine || "machine unknown"}`);
+    identity.textContent = `${[...new Set(origins)].join(" + ")} · ${w.account || "Account unknown — matching unproven"}`;
+    li.appendChild(identity);
+    li.appendChild(renderQuotaMeter(w));
 
     const meta = document.createElement("div");
     meta.className = "rl-meta";
     const resetText = w.resetAt
-      ? `Resets ${new Date(w.resetAt).toLocaleString("en-US", {timeZone: w.resetTimezone || "UTC"})}${w.resetTimezone ? ` (${w.resetTimezone})` : ""}`
+      ? `Resets ${new Date(w.resetAt).toLocaleString("en-US", {timeZone: w.resetTimezone || "UTC"})} (${w.resetTimezone || "UTC"})`
       : "Reset time unknown";
     const sourceLabel = (w.source && (w.source.label || w.source.kind)) || "unknown source";
     const freshText = w.freshnessSec != null ? `${sourceLabel} · ${Math.round(w.freshnessSec)}s old` : sourceLabel;

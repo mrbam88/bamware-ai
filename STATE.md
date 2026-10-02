@@ -5,7 +5,7 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-01 — **Assistant website slice built and verified on omarchy: authenticated text → real Hermes → reply (8 s). Langfuse traces, HTTPS voice, always-on service and API streaming are gated on Bilal (#65–#67, #64).**
+> Last updated: 2026-10-02 — **Assistant quota coverage #81: independent server Hermes/OpenCode collection and visual meters implemented; release/deployment evidence in #81. Existing assistant-web service is running. Recurring Chief of Staff sweep #79 remains separate and unimplemented by this task.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
 ## 2026-10-01 — Assistant website: first vertical slice on real Hermes (#62, #63)
