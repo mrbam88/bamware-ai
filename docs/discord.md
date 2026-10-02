@@ -136,3 +136,22 @@ invokes the configured Claude summarizer; it is not a no-model test.
 - ~~Board data needs a `read:project` gh scope on the posting machine.~~
   Done 2026-09-26: the server's gh has `project`, so the assistant can file
   delegated tickets onto board 2 and the digests can read it.
+
+
+## Completion handoffs — October 2, 2026
+
+Discord is Bilal's requested push-alert system. Chief-of-staff completion reports
+must also appear on the corresponding private Command Center card. The handoff
+procedure is in `skills/session-handoff/SKILL.md`; recurring implementation is #79.
+
+First verified case: #72 research completion (`ddb3009`). The Assistant deployment
+branch `worktree-assistant-web-slice` carries card commit `45dcb9a`; 103 tests passed
+on omarchy. Authenticated `/api/decisions` returned `brewdesk-marketing-research-72`
+version 1 after restart. The assistant bot sent a user-mentioned completion message
+and read it back (message ID `1555669487167209534`). Durable server receipt:
+`~/.local/state/bamware/handoffs/72-research-ddb3009.json`.
+
+The receipt records card verification and Discord read-back separately. Phone push
+receipt and rendered-browser verification were not observed. No whole-ticket
+closure, new-stage worker pickup or automatic future monitoring is claimed.
+The existing card explains that creative and measurement preparation remain.

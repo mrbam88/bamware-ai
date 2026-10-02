@@ -35,6 +35,26 @@ After publishing a milestone, post one line to the Bamware status channel with
 `scripts/discord-post.sh "..."` (docs/discord.md). Lead with what Bilal needs to
 do, if anything. Skip it if the machine has no webhook configured.
 
+## Completion alerts and Command Center
+
+Bilal's directive (2026-10-02): Discord is his push-alert channel. Return completed
+work through the chief-of-staff bot and show it on the relevant Command Center
+card; a chat reply, commit or issue update alone is not delivery.
+
+For a requested completion handoff, report the exact completed milestone, evidence
+link, remaining work, next owner/pickup state and any real decision needed. Keep
+milestone completion distinct from whole-ticket closure. Mention Bilal through the
+existing assistant bot channel for the completion alert, with bounded mentions.
+Verify the posted message by reading its ID back; record a durable receipt keyed
+by ticket + milestone/evidence revision to avoid repeated alerts. Verify the live
+authenticated card separately. Discord acceptance does not prove phone push delivery.
+Do not fabricate an approval gate or worker pickup to populate a decision card.
+
+Current automation is incomplete: #72's research receipt and deployed card were
+verified manually; generic recurring completion detection/reconciliation is tracked
+in #79. A future milestone still needs an executing agent to return its result.
+See `docs/discord.md` for the concrete receipt and runtime details.
+
 ## Record what you read
 
 Every commit that changes context carries a trailer naming the version the
