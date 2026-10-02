@@ -10,6 +10,9 @@ ENV_FILE="${ASSISTANT_WEB_ENV_FILE:-$HOME/.config/bamware/assistant-web.env}"
 U="$HOME/.config/systemd/user"
 [[ -r "$ENV_FILE" ]] || { echo "missing $ENV_FILE (chmod 600, see services/assistant-web/README.md)"; exit 1; }
 [[ -d "$HERMES_CWD/.git" ]] || { echo "HERMES_CWD $HERMES_CWD is not a checkout"; exit 1; }
+# Install the isolated migrated admin dependencies before touching the running
+# service. Failure leaves the current process running; no lifecycle scripts.
+npm ci --prefix "$HERE/services/assistant-web/lib/admin" --ignore-scripts --no-audit --no-fund
 mkdir -p "$U/assistant-web.service.d"
 cp "$HERE/scripts/systemd/assistant-web.service" "$U/assistant-web.service"
 cat > "$U/assistant-web.service.d/override.conf" <<CONF

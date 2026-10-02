@@ -8,6 +8,11 @@ linking. Written from a Claude Code session running **on `omarchy` itself**
 
 ## State line (keep current)
 
+Private admin migration (#82): [runtime, preserved sources, capability gaps,
+verification and rollback](admin-migration.md). The locked public-web PR43
+worktree remains a live collector/data dependency; do not prune it. #81 quota
+meters and collection remain independent of this migration.
+
 | Layer | State as of 2026-10-01 |
 |---|---|
 | Website text → real Hermes → reply | **Deployed and verified** on the tailnet URL (11.2 s, session `20261002_000131_177661`; 2026-10-02) |

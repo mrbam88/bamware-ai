@@ -4,7 +4,8 @@ Owner-only website that sends text (and browser voice) to the **installed
 Hermes runtime** on `omarchy`. Epic: mrbam88/bamware-ai#62. Audit: #63.
 Canonical findings, gates and plan: `docs/assistant-website.md`.
 
-Zero npm dependencies. Node ≥ 22. Each chat turn runs
+Node ≥ 22.18. Install the isolated admin dependencies with `npm run setup:admin`
+before startup; the deploy script includes this step. Each chat turn runs
 
 ```sh
 hermes chat -Q -q "<text>" [--resume <session_id>]
@@ -37,6 +38,11 @@ Service unit (already deployed on the server; existing-service updates authorize
 `scripts/systemd/assistant-web.service`.
 
 ## API
+
+Private admin migration (#82): owner-gated `/admin`, existing backend adapters,
+preserved PR43 spend and PR45 ingest/CSV, per-capability cutover and known gaps
+are documented in [admin migration](../../docs/admin-migration.md). Keep the
+locked PR43 collector worktree: its existing data/capabilities are read in place.
 
 | Route | Auth | What |
 |---|---|---|

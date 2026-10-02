@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Bamware assistant website: authenticated text (and browser voice) front end
-// for the real Hermes runtime on omarchy. Zero npm dependencies (Node >= 22).
+// for the real Hermes runtime on omarchy. Admin dependencies live in lib/admin.
 //
 // Each chat turn runs `hermes chat -Q -q <text> [--resume <session>]` in the
 // bamware-ai checkout, so the turn uses the same state.db, context hook,
@@ -38,6 +38,8 @@ import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib
 import { loadDecisionStore } from "./lib/decision-store.mjs";
 import { DECISION_CANDIDATES } from "./lib/providers/decision-candidates.mjs";
 import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAccepting } from "./lib/providers/decision-candidates-demo-fixtures.mjs";
+import { loadAdminConfig } from "./lib/admin/config.mjs";
+import { createAdminRouter } from "./lib/admin/router.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..", "..");
@@ -62,6 +64,7 @@ export function loadConfig(env = process.env) {
     hermesHome: get("HERMES_HOME", path.join(os.homedir(), ".hermes")),
     maxQueue: Number(get("ASSISTANT_WEB_MAX_QUEUE", "3")),
     publicDir: path.join(HERE, "public"),
+    admin: loadAdminConfig({ ...fileVars, ...env }),
     codexQuotaFile: get("ASSISTANT_WEB_CODEX_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/codex-quota.json")),
     serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
@@ -152,6 +155,8 @@ const STATIC = {
   "/app.js": ["app.js", "text/javascript; charset=utf-8"],
   "/quota-meter.js": ["quota-meter.js", "text/javascript; charset=utf-8"],
   "/app.css": ["app.css", "text/css; charset=utf-8"],
+  "/admin.js": ["admin.js", "text/javascript; charset=utf-8"],
+  "/admin.css": ["admin.css", "text/css; charset=utf-8"],
 };
 
 function send(res, status, body, headers = {}) {
@@ -226,7 +231,7 @@ function hermesStatus(cfg) {
 }
 
 // ---------------------------------------------------------------- server ---
-export function createServer(cfg, { log = defaultLog } = {}) {
+export function createServer(cfg, { log = defaultLog, adminService } = {}) {
   const runner = new HermesRunner(cfg, log);
   const limiter = new LoginLimiter();
   // One fixture-worker instance per server process so a dispatch's receiptId
@@ -237,6 +242,10 @@ export function createServer(cfg, { log = defaultLog } = {}) {
     const cookies = parseCookies(req.headers.cookie);
     return verifySession(cfg.sessionSecret, cookies[COOKIE]) != null;
   };
+  const adminRouter = createAdminRouter(cfg, {
+    authed, sessionKey: req => verifySession(cfg.sessionSecret, parseCookies(req.headers.cookie)[COOKIE])?.nonce,
+    send, readJson, service: adminService,
+  });
 
   const server = http.createServer(async (req, res) => {
     const requestId = randomUUID();
@@ -246,6 +255,7 @@ export function createServer(cfg, { log = defaultLog } = {}) {
     res.on("finish", () => log({ event: "http", requestId, route, status: res.statusCode, ms: Date.now() - t0 }));
 
     try {
+      if (await adminRouter(req, res, url)) return;
       // Static assets ------------------------------------------------------
       if (req.method === "GET" && STATIC[url.pathname]) {
         const [file, type] = STATIC[url.pathname];
@@ -270,6 +280,7 @@ export function createServer(cfg, { log = defaultLog } = {}) {
         return send(res, 200, { ok: true }, { "set-cookie": cookieHeader(COOKIE, value, { maxAge: SESSION_TTL_MS / 1000, secure: isSecure(req, cfg) }) });
       }
       if (route === "POST /api/logout") {
+        adminRouter.clearSession(req);
         return send(res, 200, { ok: true }, { "set-cookie": cookieHeader(COOKIE, "", { maxAge: 0, secure: isSecure(req, cfg) }) });
       }
 

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark"><title>Admin · Bamware Assistant</title>
+  <link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/admin.css">
+</head>
+<body><main class="app admin-app">
+  <header class="top"><div class="brand"><h1>Private admin</h1></div><a href="/">Back to Assistant</a><button id="signout" type="button">Sign out</button></header>
+  <nav class="tabs" aria-label="Admin tools"><a href="#stats">Stats</a><a href="#profiles">Profiles</a><a href="#seed">Seed controls</a><a href="#spend">AI spend</a><a href="#usage">Ingest &amp; CSV</a></nav>
+  <p class="hint">Owner-only tools. Missing access is shown as unavailable, never as zero. Provider quotas and harness coverage remain in Assistant → Agents.</p>
+  <p id="capabilities" class="hint" role="status">Checking capabilities…</p>
+  <section class="widget" id="stats"><div class="widgetHead"><h2>Product stats</h2><button id="stats-refresh" type="button">Refresh stats</button></div><div id="stats-output" role="status">Loading…</div></section>
+  <section class="widget" id="profiles"><div class="widgetHead"><h2>Profiles</h2><button id="profiles-refresh" type="button">Load profiles</button></div>
+    <p class="hint">Uses the existing discover feed (up to 50 profiles), not a full user export. An existing admin account is required in addition to your Assistant owner session.</p>
+    <form id="profile-login"><label for="admin-email">Admin email</label><input id="admin-email" type="email" autocomplete="username" required maxlength="320"><label for="admin-password">Admin password</label><input id="admin-password" type="password" autocomplete="current-password" required maxlength="1024"><button type="submit">Connect existing account</button><button id="profile-disconnect" type="button">Disconnect account</button></form>
+    <div id="profiles-output" role="status">No feed requested. Connect an existing account, then load profiles.</div>
+  </section>
+  <section class="widget" id="seed"><h2>Seed controls</h2><p class="hint">Generation uses a paid AI backend. Production may reject it. Deletion removes all fake profiles in the configured tenant and cannot be undone. Neither action runs during refresh or verification.</p>
+    <form id="seed-form"><label for="seed-count">Profiles to generate (1–200)</label><input id="seed-count" type="number" min="1" max="200" value="20" required>
+    <label for="seed-confirm">Type the exact confirmation for the action</label><input id="seed-confirm" autocomplete="off" placeholder="GENERATE PAID SEED DATA / DELETE ALL FAKE PROFILES" required>
+    <div class="admin-actions"><button id="seed-generate" type="submit">Generate profiles (paid)</button><button id="seed-delete" type="button" class="danger">Delete all fake profiles</button></div></form><p id="seed-output" role="status">No seed operation requested.</p>
+  </section>
+  <section class="widget" id="spend"><div class="widgetHead"><h2>AI spend · local collector</h2><button id="spend-refresh" type="button">Refresh local usage</button></div><div id="spend-output" role="status">Loading…</div><details><summary>Metered provider charges (separate from subscription estimates)</summary><button id="metered-refresh" type="button">Read provider cost report</button><div id="metered-output" role="status">Not requested. Requires an existing provider cost-report capability.</div></details></section>
+  <section class="widget" id="usage"><div class="widgetHead"><h2>AI usage · ingest &amp; CSV</h2><button id="usage-refresh" type="button">Refresh stored usage</button></div><p class="hint">These rollups overlap local collector usage. Do not add the two totals. No new database or account access is provisioned.</p><div id="usage-output" role="status">Loading…</div>
+    <details><summary>Import usage CSV</summary><p class="hint">Uses the existing usage store. Re-importing a daily source/model row replaces it. Invalid rows reject the whole import.</p><p class="hint">Columns: date,source,model,input_tokens,output_tokens,cost_usd (optional). Example dates use YYYY-MM-DD.</p>
+      <form id="csv-form"><label for="usage-csv">CSV text</label><textarea id="usage-csv" rows="6" required maxlength="1000000"></textarea><button type="submit">Import CSV to existing store</button></form><p id="csv-output" role="status"></p>
+    </details><details><summary>Collector ingest contract</summary><p class="hint">POST /api/ai-usage/ingest with the existing ingest Bearer capability, or an authenticated owner session with X-Admin-Action: 1. Payload: {"rollups": [...]}. The PR45 schema and idempotent keys are unchanged. Unconfigured tokens fail closed. Existing collector destinations are not silently changed.</p></details>
+  </section>
+</main><script src="/admin.js" defer></script></body></html>

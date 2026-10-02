@@ -1,0 +1,21 @@
+.admin-app { max-width: 1100px; gap: 16px; padding-bottom: 32px; }
+.admin-app a { color: var(--accent); }
+.admin-app .tabs { flex-wrap: wrap; gap: 16px; }
+.admin-app h2 { font-size: 17px; }
+.admin-app form { display: grid; gap: 8px; max-width: 620px; margin: 16px 0; }
+.admin-app input, .admin-app textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+.admin-app button { padding: 8px 12px; }
+.admin-app :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.admin-app details { margin-top: 16px; }
+.admin-app summary { cursor: pointer; font-weight: 600; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-table-wrap { overflow-x: auto; }
+.admin-app table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 12px 0; }
+.admin-app th, .admin-app td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.admin-app th { color: var(--muted); font-weight: 600; }
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+.admin-stat { padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); }
+.admin-stat strong { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.admin-error { color: var(--danger); padding: 12px 0; }
+.admin-app pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .admin-app .top { flex-wrap: wrap; } }
