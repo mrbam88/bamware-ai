@@ -38,7 +38,14 @@ clients, refresh tokens, or unlock keys in Drive, git, or model context.
 
 - Server Google read service: active; Gmail and Drive reads passed, stored scopes
   checked read-only, ordinary worker access to that broker denied; Hermes skill
-  installed. A real Chief of Staff model/tool turn remains unverified.
+  installed. A real owner-authenticated Assistant chat test passed on October 2:
+  the model loaded the skill, issued three terminal calls to the read broker
+  (status, Gmail search, Drive search), and received successful live responses.
+  Gmail lookup succeeded, the archive was found, and sending was disabled.
+  Tool-call and result records were checked independently of the model's reply.
+  Evidence is private on the server under
+  `~/.local/state/bamware/google-test/chat-verification.json`. This verifies the
+  Assistant website path, not a separately tested Discord turn.
 - ThinkPad: dedicated `~/GoogleDrive` mount and user service active. Personal
   OAuth client replaced rclone's rate-limited shared default. Upload and cloud
   read-back passed. This is online access with an edit cache, not a full offline
