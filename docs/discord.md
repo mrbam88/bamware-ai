@@ -32,6 +32,17 @@ Set up 2026-09-24 so Bilal can see Bamware status at a glance. For now there is
   `--dry-run` to preview. Timers are in `scripts/systemd/` and are meant for
   `omarchy`: copy them to `~/.config/systemd/user/`, then
   `systemctl --user enable --now bamware-digest-{morning,evening}.timer`.
+  **On omarchy the units run from the deploy clone `~/srv/bamware-ai`**
+  (drop-in `ExecStart` override, decided 2026-10-02) so the development
+  checkout's branch never changes what gets posted; pull that clone to
+  deploy. The full briefing goes to `#bamware-bot` and a **one-line pointer
+  with a link to it goes to `#general`** (Bilal, 2026-10-02; the Sep 29–Oct 1
+  "missed" briefings had all posted to `#bamware-bot`, #37).
+  Every post logs `discord-post: posted … id=<message id> channel=<id>` to
+  the journal (`journalctl --user -u bamware-digest-morning`); a failed post
+  fails the unit; GitHub outages show as `(unavailable: …)` rather than
+  "none". `BAMWARE_DIGEST_LABEL="…"` marks a manual run in both messages and
+  `BAMWARE_SKIP_DEADLINES=1` keeps it from consuming deadline reminders.
 - **Deadlines:** `docs/deadlines.md` with `scripts/discord-deadlines.sh` (#38).
   Runs with the morning briefing and reminds once per window (7-4 days, 3-2,
   1, the day, overdue). Set `DISCORD_USER_ID` in `discord.env` for @mentions.

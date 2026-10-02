@@ -28,7 +28,21 @@ if [[ ${BAMWARE_POST_TO:-} == assistant && -n ${DISCORD_ASSISTANT_CHANNEL:-} ]];
       curl -sf -H @<(printf 'Authorization: Bot %s\n' "$bot_token") \
         -H "Content-Type: application/json" -d @- \
         "https://discord.com/api/v10/channels/$DISCORD_ASSISTANT_CHANNEL/messages"); then
-      echo "discord-post: posted as bot id=$(jq -r .id <<<"$resp") channel=$DISCORD_ASSISTANT_CHANNEL chars=${#text}"
+      msg_id=$(jq -r .id <<<"$resp")
+      echo "discord-post: posted as bot id=$msg_id channel=$DISCORD_ASSISTANT_CHANNEL chars=${#text}"
+      # Optional one-line pointer in the status channel (#general) linking to
+      # the bot post, so the briefing is findable where GitHub posts land (#37).
+      if [[ -n ${BAMWARE_POINTER_TEXT:-} && -n ${DISCORD_WEBHOOK_STATUS:-} ]]; then
+        guild_id=$(curl -sf -H @<(printf 'Authorization: Bot %s\n' "$bot_token") \
+          "https://discord.com/api/v10/channels/$DISCORD_ASSISTANT_CHANNEL" | jq -r '.guild_id // empty')
+        if [[ -n $guild_id ]] && presp=$(jq -n --arg c "$BAMWARE_POINTER_TEXT https://discord.com/channels/$guild_id/$DISCORD_ASSISTANT_CHANNEL/$msg_id" \
+            '{username: "Bamware", content: $c, flags: 4}' |
+          curl -sf -H "Content-Type: application/json" -d @- "${DISCORD_WEBHOOK_STATUS}?wait=true"); then
+          echo "discord-post: pointer posted via webhook id=$(jq -r .id <<<"$presp") channel=$(jq -r .channel_id <<<"$presp")"
+        else
+          echo "discord-post: pointer post failed (briefing itself was delivered)" >&2
+        fi
+      fi
       exit 0
     fi
     echo "discord-post: bot post failed (channel $DISCORD_ASSISTANT_CHANNEL); falling back to the status webhook" >&2

@@ -88,11 +88,21 @@ EOF
 # --- summarise ------------------------------------------------------------
 if [[ $kind == evening ]]; then
   title="🌙 **Bamware evening recap — $today**"
+  pointer="🌙 Evening recap posted in #bamware-bot →"
   focus="Focus on what happened today: merged, closed, opened, progress in the newest entry. End with what's waiting for Bilal tomorrow."
 else
   title="☀️ **Bamware morning briefing — $today**"
+  pointer="☀️ Morning briefing posted in #bamware-bot →"
   focus="Focus on what Bilal should do today: what awaits his review, what's blocked on him (most urgent and dated items first), then what moved in the last 24h."
 fi
+# BAMWARE_DIGEST_LABEL marks a manual/verification run in both messages so it
+# is never mistaken for the scheduled one. BAMWARE_SKIP_DEADLINES=1 keeps a
+# verification run from consuming the once-per-window deadline reminders.
+if [[ -n ${BAMWARE_DIGEST_LABEL:-} ]]; then
+  title="$title _(${BAMWARE_DIGEST_LABEL})_"
+  pointer="$pointer _(${BAMWARE_DIGEST_LABEL})_"
+fi
+export BAMWARE_POINTER_TEXT=$pointer
 
 read -r -d '' system <<EOF
 You write a short Discord status post for Bilal, a solo founder. The user
@@ -125,15 +135,15 @@ message=$(printf '%s\n%s' "$title" "$body")
 
 post_rc=0
 if [[ $dry_run == --dry-run ]]; then
-  printf '%s\n' "$message"
+  printf '%s\n[pointer to #general: %s <link>]\n' "$message" "$pointer"
 else
   "$repo_dir/scripts/discord-post.sh" "$message"; post_rc=$?
 fi
 echo "discord-digest: $kind summarised by $summariser, ${#message} chars, post exit $post_rc"
 
 # Deadline reminders ride along with the morning briefing (#38).
-if [[ $kind == morning && $dry_run != --dry-run ]]; then
-  "$repo_dir/scripts/discord-deadlines.sh" || warn "deadline reminders exited $?"
+if [[ $kind == morning && $dry_run != --dry-run && -z ${BAMWARE_SKIP_DEADLINES:-} ]]; then
+  BAMWARE_POINTER_TEXT= "$repo_dir/scripts/discord-deadlines.sh" || warn "deadline reminders exited $?"
 fi
 # A failed briefing post must fail the unit even if the deadlines succeeded (#37).
 exit "$post_rc"
