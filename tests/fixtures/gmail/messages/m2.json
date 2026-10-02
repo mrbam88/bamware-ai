@@ -1,0 +1,38 @@
+{
+ "id": "m2",
+ "threadId": "t2",
+ "labelIds": [
+  "INBOX"
+ ],
+ "snippet": "Your application to Acme Corp has been received.",
+ "payload": {
+  "mimeType": "multipart/alternative",
+  "headers": [
+   {
+    "name": "From",
+    "value": "no-reply@greenhouse.io"
+   },
+   {
+    "name": "To",
+    "value": "bilal@example.invalid"
+   },
+   {
+    "name": "Date",
+    "value": "Wed, 30 Sep 2026 09:15:00 -0400"
+   },
+   {
+    "name": "Subject",
+    "value": "Application received - Acme Corp"
+   }
+  ],
+  "parts": [
+   {
+    "mimeType": "text/html",
+    "body": {
+     "size": 217,
+     "data": "PGh0bWw-PGhlYWQ-PHN0eWxlPnB7Y29sb3I6cmVkfTwvc3R5bGU-PC9oZWFkPjxib2R5PjxwPkhlbGxvIEJpbGFsLDwvcD48cD5Zb3VyIGFwcGxpY2F0aW9uIHRvIDxiPkFjbWUgQ29ycDwvYj4gaGFzIGJlZW4gcmVjZWl2ZWQuPC9wPjxzY3JpcHQ-YWxlcnQoMSk8L3NjcmlwdD48cD5TdGF0dXM6IFVuZGVyIHJldmlldyAmYW1wOyBzY2hlZHVsaW5nLjwvcD48L2JvZHk-PC9odG1sPg"
+    }
+   }
+  ]
+ }
+}

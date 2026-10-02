@@ -1,0 +1,6 @@
+{
+ "azp": "fake",
+ "scope": "https://www.googleapis.com/auth/gmail.readonly",
+ "exp": "9999999999",
+ "expires_in": "3599"
+}

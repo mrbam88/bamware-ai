@@ -133,6 +133,8 @@ Read `docs/machines.md`, `docs/runtimes.md` and the service runbook each time.
 - **GitHub:** native gh suffices; no duplicate MCP server installed. Existing
   provider auth remains untouched. Private repo access is checked only when a
   task actually needs it; no career data was bulk-imported.
+- **Gmail:** read-only only, through `scripts/gmail_readonly.py`, never the hub
+  `google-workspace` skill or the `email` platform (`docs/gmail-readonly.md`).
 - **Discord:** preserve the existing webhook-based post/digest scripts. Do not
   copy the webhook into Hermes or add a bot just to duplicate posting.
 - **Models/cost:** current model/provider unchanged; do not hard-code a

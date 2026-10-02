@@ -5,8 +5,29 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-30 — **BrewDesk brand-led marketing agreed; Instagram identity and publishing-permission-gated read verified. No posts published; automation unfinished.**
+> Last updated: 2026-10-02 — **Gmail read-only bridge prepared for the assistant (not connected; Bilal's OAuth client is the gate). Hermes memory writes now staged. Main's context-check CI was red since 10-01 (AGENTS.md over budget); fixed in the same PR.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-02 — Gmail read-only access prepared, not connected
+
+- Bilal's rule: the assistant may **read** Gmail, never send/reply/draft/
+  delete/archive/label/mark read. First use: application and interview
+  tracking. Canonical: [docs/gmail-readonly.md](docs/gmail-readonly.md),
+  model procedure `skills/gmail-readonly`.
+- Inspected Hermes 0.19.0 on omarchy: **no Gmail toolset in core, hub
+  `google-workspace` skill not installed, no Google tokens on disk.** Upstream's
+  flow requests broad scopes and loads tokens without scope checks; not used.
+- Built `scripts/gmail_readonly.py` (stdlib only): one-scope consent
+  (`gmail.readonly`), token refused unless granted scope is exactly that,
+  GET-only endpoint allow-list, own credential dir, untrusted-data wrapping,
+  secret scrub. 26 offline tests on synthetic mail pass. No live call made.
+- Data path documented: model provider (OpenAI Codex) sees whatever the
+  bridge prints; `state.db` keeps tool results verbatim; local Langfuse keeps
+  500-char fields, unmasked. `memory.write_approval: true` set (backup kept).
+- **Blocked on Bilal:** create a Google OAuth "Desktop app" client with Gmail
+  API enabled and save it as `~/.config/bamware/gmail-readonly/oauth-client.json`
+  (steps in the doc). Then `authorize` + `verify` when he chooses to connect.
+- Services untouched and active: Discord gateway, assistant website, digest timers.
 
 ## 2026-09-30 — BrewDesk marketing and Instagram API milestone
 
