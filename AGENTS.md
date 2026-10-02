@@ -1,13 +1,13 @@
-# Bamware — read me first (as of 2026-08-18)
+# Bamware — read me first
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
-Entry map for every session; details in `docs/` and `skills/`.
+Entry map; details in `docs/` and `skills/`.
 
 ## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
 
 Set by Bilal 2026-09-24. Claude-specific diagnoses below apply only to Claude;
 other runtimes identify the actual denying component. Never bypass a denial. Detail:
-[docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
+docs/agent-permission-blocks.md.
 
 1. **A denial is CLAUDE'S restriction, never Bilal's setup** — he has no
    permission rules. Say that in one sentence on the FIRST denial.
@@ -33,8 +33,7 @@ every switch.** Never rely on model memory.
 - Durable procedures go in canonical docs linked from here — never bury a rule
   in an incident log only. Route work by capability, not model name.
 - Distinguish **edited locally / published / deployed** — unpublished context
-  does not exist for the next machine. Procedure: `skills/session-handoff`;
-  contract: `docs/portability.md`.
+  does not exist for the next machine.
 
 ## 1. Where is the truth?
 
@@ -99,12 +98,12 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 | Need | Where |
 |---|---|
-| **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
-| **Engineering operating contract** | **docs/engineering-operating-contract.md** |
-| **Release manager contract** | **docs/release-manager-contract.md** |
-| All repos: purpose, deploy targets, endpoints | docs/repos.md |
+| Permission blocks (RULE #1 detail) | docs/agent-permission-blocks.md |
+| Engineering operating contract | docs/engineering-operating-contract.md |
+| Release manager contract | docs/release-manager-contract.md |
+| All repos: purpose, deploy targets | docs/repos.md |
 | Venue Engine release route | docs/venue-engine-deployment.md |
-| Which runtime can do what (capability matrix) | docs/runtimes.md |
+| Runtime capability matrix | docs/runtimes.md |
 | Machines, displays, gear | docs/machines.md |
 | Security: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
@@ -119,3 +118,4 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Session-end ritual | skills/session-handoff |
 | Other-vendor portability | docs/portability.md |
 | Hermes runtime | docs/hermes-integration.md |
+| Assistant website | docs/assistant-website.md |

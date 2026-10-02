@@ -1,0 +1,12 @@
+{
+  "name": "bamware-assistant-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Authenticated website (text + browser voice) for the Bamware assistant on the real Hermes runtime. Zero dependencies.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/"
+  }
+}

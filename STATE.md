@@ -5,8 +5,22 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-30 — **BrewDesk brand-led marketing agreed; Instagram identity and publishing-permission-gated read verified. No posts published; automation unfinished.**
+> Last updated: 2026-10-01 — **Assistant website slice built and verified on omarchy: authenticated text → real Hermes → reply (8 s). Langfuse traces, HTTPS voice, always-on service and API streaming are gated on Bilal (#65–#67, #64).**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-01 — Assistant website: first vertical slice on real Hermes (#62, #63)
+
+- Canonical findings, gates, evidence: [docs/assistant-website.md](docs/assistant-website.md).
+  Code: `services/assistant-web` (zero-dependency Node, 13 tests, real smoke passed).
+- Verified on `omarchy`: Hermes 0.19.0, gateway live (Discord only), history in
+  `~/.hermes/state.db`, export/delete via `hermes sessions`. Website turn uses
+  `hermes chat -Q -q --resume`, same store/hook/plugins, no gateway restart.
+- Langfuse: nothing existed. Bundled Hermes plugin now enabled + SDK installed;
+  inert until Bilal adds keys (#65). Ingestion **not** verified, by design.
+- **Chief of Staff coordination does not exist** as a running system; it is a
+  PRD concept only. This slice was executed by a Claude Code session, not dispatched.
+- **Blocked on Bilal:** Langfuse keys (#65), `tailscale serve` HTTPS for iPhone
+  mic (#66), enable the systemd unit (#67), gateway restart for API streaming (#64).
 
 ## 2026-09-30 — BrewDesk marketing and Instagram API milestone
 
