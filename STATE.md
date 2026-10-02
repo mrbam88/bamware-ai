@@ -5,8 +5,26 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-30 — **BrewDesk brand-led marketing agreed; Instagram identity and publishing-permission-gated read verified. No posts published; automation unfinished.**
+> Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-02 — Assistant role and interview continuity
+
+- Bilal clarified that Bamware Assistant should be his chief-of-staff point of
+  contact for interview preparation and own continuity across model providers.
+  Canonical role: [skills/bamware-assistant/SKILL.md](skills/bamware-assistant/SKILL.md).
+- Existing Notion chief-of-staff and career records were found; do not describe
+  this setup as existing only in conversation or ask for a fresh briefing.
+  Entry point and private source links: `mrbam88/interviews` README.
+- Both original ChatGPT and Claude interview projects were accessed. Source
+  inventories and partial context were recovered; Claude legacy memory was
+  exported into the private local career workspace. A partial recovery page
+  exists in Notion. Full document/conversation import remains incomplete.
+- Next: finish import and reconciliation, establish one portable knowledge
+  entry point, and verify retrieval from each configured provider. No new
+  Hermes profile, remote rollout, or working cross-provider retrieval is claimed.
+- Personal/career content stays private; this public repo records the role and
+  routing contract only.
 
 ## 2026-09-30 — BrewDesk marketing and Instagram API milestone
 
