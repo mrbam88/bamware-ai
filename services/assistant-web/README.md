@@ -89,3 +89,7 @@ Mocked tests are not integration proof. The real check is one authenticated
 - Langfuse keys in `~/.hermes/.env` (account/project creation).
 - Enabling Hermes' built-in API server (`API_SERVER_KEY`, gateway restart):
   the streaming/SSE upgrade path, see `docs/assistant-website.md`.
+
+## Recovery release (2026-10-02)
+
+Live Agents usage now includes an allowlisted metadata export of the four overnight implementation/QA runs, via `scripts/export-overnight-metrics.py`. It includes runtime-reported token totals and list-price cost estimates, never conversation content. This is a recorded batch snapshot, not continuous fleet ingestion. Active versus waiting time remains unknown where unavailable. Provider quota remains unsupported. Obsolete Langfuse/HTTPS decision cards were removed; the backlog-planning decision remains. Real worker dispatch is still pending.

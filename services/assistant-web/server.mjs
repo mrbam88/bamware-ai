@@ -29,6 +29,7 @@ import { buildSnapshot } from "./lib/rate-limits.mjs";
 import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
 import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
 import { buildWorkUsageSnapshot } from "./lib/work-usage.mjs";
+import { overnightUsageAdapter } from "./lib/providers/overnight-usage-adapter.mjs";
 import { workUsageSelfAdapter } from "./lib/providers/work-usage-self-adapter.mjs";
 import { workUsageDemoAdapter, demoRoutingRules } from "./lib/providers/work-usage-demo-fixtures.mjs";
 import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
@@ -292,7 +293,7 @@ export function createServer(cfg, { log = defaultLog } = {}) {
         const adapters =
           mode === "demo"
             ? [{ name: "demo", run: workUsageDemoAdapter }]
-            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }];
+            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }, { name: "overnight", run: () => overnightUsageAdapter() }];
         const workCtx = { repoDir: cfg.hermesCwd, repoName: path.basename(REPO_ROOT) };
         const snapshot = await buildWorkUsageSnapshot(adapters, workCtx, {
           now: Date.now(),
