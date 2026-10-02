@@ -155,3 +155,29 @@ The receipt records card verification and Discord read-back separately. Phone pu
 receipt and rendered-browser verification were not observed. No whole-ticket
 closure, new-stage worker pickup or automatic future monitoring is claimed.
 The existing card explains that creative and measurement preparation remain.
+
+
+### Card-action trigger deployed — October 2
+
+Founder clarified that every Command Center action must trigger an agent handoff
+check. Implemented on Assistant deployment branch in `0d1b525`, with test-isolation
+fix `5ba78cc`. Production explicitly enables `ASSISTANT_WEB_HANDOFF_CHECKS=1`.
+All actions queue one durable coordination check, independently of downstream worker
+handoff. The checker uses the existing serialized Hermes runner, supplied card and
+response evidence, no toolset and a one-turn bound. It does not fetch fresh project
+state or dispatch project execution. Queued work recovers; interrupted work is
+visible and not silently retried. Results and Discord delivery receipts appear in
+`handoffCheck` on the authenticated Decisions API and on refreshed cards.
+
+108 tests pass. Real #72 check: `db76500a664fca54f2ba452c657c4dec`, Hermes session
+`20261002_161131_a7085d`, Discord read-back `1555673662663819264`. Authenticated API
+verified check completed and delivery confirmed; downstream worker handoff correctly
+remains pending. Phone push and rendered-browser verification were not observed.
+
+Verification incident: the first test run shared the production check directory
+and Discord notifier; two fixture echo alerts were sent. They were deleted after
+read-back, fixture artifacts quarantined, and the real approval was preserved.
+Checks now default disabled unless explicitly configured; HTTP tests disable them
+and use isolated directories. The real #72 job was requeued only after verifying
+it had no prior agent result or notification. No automatic retry of ambiguous
+Discord sends is allowed.

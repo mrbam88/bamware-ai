@@ -50,9 +50,11 @@ by ticket + milestone/evidence revision to avoid repeated alerts. Verify the liv
 authenticated card separately. Discord acceptance does not prove phone push delivery.
 Do not fabricate an approval gate or worker pickup to populate a decision card.
 
-Current automation is incomplete: #72's research receipt and deployed card were
-verified manually; generic recurring completion detection/reconciliation is tracked
-in #79. A future milestone still needs an executing agent to return its result.
+Card actions now trigger a bounded chief-of-staff agent check in the deployed
+Assistant. Check completion and Discord delivery appear separately on the card;
+this is not engineering worker dispatch or generic task-completion monitoring.
+Generic recurring completion detection/reconciliation remains tracked in #79.
+A future project milestone still needs an executing agent to return its result.
 See `docs/discord.md` for the concrete receipt and runtime details.
 
 ## Record what you read
