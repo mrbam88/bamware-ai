@@ -82,6 +82,27 @@ body { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%;
 .rl-detail { font-size: 13px; margin-top: 4px; }
 .rl-meta, .rl-notes { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
+.wuList { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.wuSubhead { font-size: 13px; font-weight: 600; margin: 14px 0 0; color: var(--muted); }
+.wu-item { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.wu-item.wu-empty, .wu-item.wu-loading { color: var(--muted); font-size: 13px; }
+.wu-item.wu-error { color: var(--danger); border-color: var(--danger); font-size: 13px; }
+.wu-item.wu-unallocated { border-style: dashed; border-color: var(--warn); }
+.wu-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; font-size: 14px; }
+.wu-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 6px; border-radius: 999px; background: var(--line); color: var(--muted); }
+.wu-badge-active, .wu-badge-verified-pass { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ok); }
+.wu-badge-stale, .wu-badge-retry-pending { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
+.wu-badge-qa-fail { background: color-mix(in srgb, var(--err) 20%, transparent); color: var(--err); }
+.wu-badge-unknown, .wu-badge-unverified { background: var(--line); color: var(--muted); }
+.wu-detail { font-size: 13px; margin-top: 4px; }
+.wu-meta, .wu-notes { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.wu-attempts { margin-top: 8px; font-size: 13px; }
+.wu-attempts summary { cursor: pointer; color: var(--accent); font-size: 12px; }
+.wu-attempt { padding: 6px 0; border-top: 1px solid var(--line); }
+.wu-attempt:first-child { border-top: 0; }
+.wu-waitbar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: var(--line); margin-top: 6px; }
+.wu-waitbar span { display: block; height: 100%; }
+
 .login { justify-content: center; align-items: center; }
 .login form { width: min(380px, 100%); display: grid; gap: 10px; background: var(--surface); padding: 20px; border-radius: var(--radius); border: 1px solid var(--line); }
 .login label { font-size: 13px; color: var(--muted); }

@@ -94,7 +94,7 @@ async function login(base) {
 
 test("unauthenticated clients get 401 on every /api route except health and login", async () => {
   await withServer(async (base) => {
-    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"]]) {
+    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"], ["GET", "/api/work-usage"]]) {
       const res = await fetch(base + p, { method: m, headers: { "content-type": "application/json" }, body: m === "POST" ? "{}" : undefined });
       assert.equal(res.status, 401, `${m} ${p}`);
     }
@@ -204,5 +204,54 @@ test("GET /api/rate-limits?mode=demo returns only synthetic, clearly tagged wind
     for (const w of body.windows) assert.equal(w.source.kind, "synthetic");
     const states = new Set(body.windows.map((w) => w.state));
     for (const required of ["fresh", "stale", "exhausted", "unknown"]) assert.ok(states.has(required));
+  });
+});
+
+test("GET /api/work-usage defaults to live mode: real repo/branch/machine correlation, no fabricated numbers", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/work-usage`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "live");
+    assert.ok(body.version);
+    assert.equal(body.adapterNotes[0].name, "self");
+    assert.equal(body.adapterNotes[0].ok, true);
+    // The self adapter has no project/task (batch branch), so it must land as unallocated, not fabricated into a task total.
+    assert.equal(body.usageByProjectTask.length, 0);
+    assert.ok(body.unallocatedUsage);
+    assert.equal(body.unallocatedUsage.usage.input, null);
+    assert.equal(body.routing.length, 0, "no routing rules are configured for live mode");
+  });
+});
+
+test("GET /api/work-usage?mode=demo returns the full synthetic widget feature set", async () => {
+  await withServer(async (base) => {
+    const { cookie } = await login(base);
+    const res = await fetch(`${base}/api/work-usage?mode=demo`, { headers: { cookie } });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.mode, "demo");
+    assert.equal(body.duplicatesDropped, 1, "the rewritten-transcript duplicate must be collapsed, not summed");
+    assert.equal(body.usageByProjectTask.length, 3, "tasks #76, #77 and #78 each get their own scope");
+    const task76 = body.usageByProjectTask.find((s) => s.task.id === "76");
+    assert.equal(task76.attempts.length, 3, "implementation + retry + qa, deduplicated");
+    assert.equal(task76.retryCount, 1);
+    assert.equal(task76.qaAttemptCount, 1);
+    assert.ok(task76.usage.input > 0);
+    assert.ok(body.unallocatedUsage, "the project/task-less event must surface as unallocated, not be dropped");
+    assert.equal(body.unallocatedUsage.usage.input, 5000);
+    const active = body.activeAgents.find((a) => a.sessionId === "demo-session-5");
+    assert.equal(active.state, "active");
+    const stale = body.activeAgents.find((a) => a.sessionId === "demo-session-6");
+    assert.equal(stale.state, "stale", "an old heartbeat must never read as active");
+    assert.ok(body.timing.activeMsTotal > 0);
+    assert.ok(body.timing.waitMsTotal > 0);
+    assert.ok(body.timing.waitByReason.qa > 0);
+    assert.equal(body.outcomes.counts["verified-pass"], 2);
+    assert.equal(body.outcomes.counts["qa-fail"], 1);
+    assert.ok(body.routing.length >= 2);
+    const insufficient = body.routing.find((r) => r.evidence === "insufficient");
+    assert.ok(insufficient, "a rule with no matching verified evidence must say so, not claim a recommendation");
   });
 });

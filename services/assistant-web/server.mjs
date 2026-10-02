@@ -28,6 +28,9 @@ import {
 import { buildSnapshot } from "./lib/rate-limits.mjs";
 import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
 import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
+import { buildWorkUsageSnapshot } from "./lib/work-usage.mjs";
+import { workUsageSelfAdapter } from "./lib/providers/work-usage-self-adapter.mjs";
+import { workUsageDemoAdapter, demoRoutingRules } from "./lib/providers/work-usage-demo-fixtures.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..", "..");
@@ -269,6 +272,25 @@ export function createServer(cfg, { log = defaultLog } = {}) {
         const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }];
         const snapshot = await buildSnapshot(adapters, {}, { now: Date.now() });
         return send(res, 200, { ...snapshot, mode });
+      }
+
+      // Work/agents analytics (Agents view, bamware-ai#76): usage by
+      // project/ticket, active agents, work-vs-waiting and outcomes/rework.
+      // `mode=demo` is an explicit opt-in synthetic preview, never blended
+      // with the live snapshot (same rule as /api/rate-limits).
+      if (route === "GET /api/work-usage") {
+        const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
+        const adapters =
+          mode === "demo"
+            ? [{ name: "demo", run: workUsageDemoAdapter }]
+            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }];
+        const workCtx = { repoDir: cfg.hermesCwd, repoName: path.basename(REPO_ROOT) };
+        const snapshot = await buildWorkUsageSnapshot(adapters, workCtx, {
+          now: Date.now(),
+          mode,
+          routingRules: mode === "demo" ? demoRoutingRules : [],
+        });
+        return send(res, 200, snapshot);
       }
 
       if (route === "POST /api/chat") {

@@ -45,6 +45,7 @@ Service unit (not enabled by agents; see gates below):
 | `POST /api/logout` | no | clears cookie |
 | `GET /api/me` | cookie | Hermes bin/cwd and Langfuse **presence booleans** (never values) |
 | `GET /api/rate-limits[?mode=demo]` | cookie | Rate-limit/reset snapshot (bamware-ai#75). Default `mode=live` reports real providers honestly — today just Claude Max, always `"unsupported"` (no read-only quota source is wired; see `lib/providers/claude-max-adapter.mjs`). `mode=demo` returns only synthetic fixtures covering fresh/stale/exhausted/unknown/reset-transition states, always tagged `source.kind:"synthetic"`, for widget preview/QA — never blended with live data. |
+| `GET /api/work-usage[?mode=demo]` | cookie | Work/agents-analytics snapshot (bamware-ai#76): usage by project/ticket (with an explicit unallocated bucket), active agents with heartbeat freshness, active-vs-waiting time, outcomes/rework, and a routing-recommendation signal. Default `mode=live` reports only a safe, credential-free self-correlation (this service's own repo/branch/machine identity via `lib/providers/work-usage-self-adapter.mjs`) with no usage numbers — the only real collector (bamware-ai#60 → bamware-web#45) needs AWS DynamoDB credentials this service doesn't have, same gap as the rate-limits adapter. `mode=demo` returns the full synthetic fixture set (implementation → retry → QA, dedup, stale vs active agents), always tagged `source.kind:"synthetic"`. |
 | `POST /api/chat` `{text, sessionId?}` | cookie | runs one Hermes turn → `{reply, sessionId, requestId, elapsedMs, trace}` |
 | `GET /api/sessions/:id/export` | cookie | `hermes sessions export --format jsonl -` (download) |
 | `DELETE /api/sessions/:id` | cookie | `hermes sessions delete --yes` |
@@ -72,7 +73,7 @@ the button explains when it is unavailable.
 ## Test
 
 ```sh
-cd services/assistant-web && npm test      # 32 tests: fake Hermes fixture + rate-limit contract/fixtures
+cd services/assistant-web && npm test      # 58 tests: fake Hermes fixture + rate-limit + work-usage contract/fixtures
 ```
 
 Mocked tests are not integration proof. The real check is one authenticated

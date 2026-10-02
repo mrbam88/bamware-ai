@@ -14,6 +14,10 @@
     speakToggle: $("speakToggle"), logoutBtn: $("logoutBtn"),
     agentsView: $("agentsView"), rateLimitList: $("rateLimitList"), rateLimitsDemoBanner: $("rateLimitsDemoBanner"),
     rateLimitsDemoToggle: $("rateLimitsDemoToggle"), rateLimitsRefresh: $("rateLimitsRefresh"), rateLimitsGenerated: $("rateLimitsGenerated"),
+    workUsageProjectFilter: $("workUsageProjectFilter"), workUsageDemoToggle: $("workUsageDemoToggle"), workUsageDemoBanner: $("workUsageDemoBanner"),
+    workUsageRefresh: $("workUsageRefresh"), workUsageGenerated: $("workUsageGenerated"), workUsageCoverage: $("workUsageCoverage"),
+    usageByTaskList: $("usageByTaskList"), activeAgentsList: $("activeAgentsList"), workVsWaitList: $("workVsWaitList"),
+    outcomesList: $("outcomesList"), routingList: $("routingList"),
   };
 
   const store = {
@@ -40,7 +44,7 @@
     els.tabAgents.setAttribute("aria-current", String(name === "agents"));
     if (name === "chat") els.text.focus();
     if (name === "login") els.password.focus();
-    if (name === "agents") loadRateLimits();
+    if (name === "agents") { loadRateLimits(); loadWorkUsage(); }
   }
 
   // ---------------------------------------------------------------- api -----
@@ -200,6 +204,306 @@
     return li;
   }
 
+  // ---------------------------------------------------------------- work-usage -
+  // Project/ticket usage, active agents, work-vs-waiting, outcomes/rework and a
+  // routing-recommendation signal (bamware-ai#76). `workUsageDemoMode` only
+  // ever changes which query the client asks for; the server decides
+  // source.kind per event, same rule as the rate-limits widget.
+  let workUsageDemoMode = false;
+  let workUsageLoading = false;
+  let workUsageLastData = null;
+  let workUsageProject = "";
+
+  const OUTCOME_LABEL = { "verified-pass": "Verified pass", "qa-fail": "QA fail", "retry-pending": "Retry pending", unverified: "Unverified", unknown: "Unknown" };
+  const HEARTBEAT_LABEL = { active: "Active", stale: "Stale", unknown: "Unknown" };
+
+  function fmtDuration(ms) {
+    if (ms == null) return "unknown";
+    const mins = Math.round(ms / 60_000);
+    if (mins < 1) return "<1m";
+    if (mins < 60) return `${mins}m`;
+    return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+  }
+  function fmtTokens(n) {
+    return n == null ? "unknown" : n.toLocaleString();
+  }
+  function machineLabel(m) {
+    if (!m) return "unknown machine";
+    if (m.id) return m.id;
+    if (m.source === "hostname-ambiguous") return `ambiguous host (${m.hostname})`;
+    return m.hostname || "unknown machine";
+  }
+
+  async function loadWorkUsage() {
+    if (workUsageLoading) return;
+    workUsageLoading = true;
+    for (const list of [els.usageByTaskList, els.activeAgentsList, els.workVsWaitList, els.outcomesList]) {
+      list.innerHTML = "";
+      const li = document.createElement("li");
+      li.className = "wu-item wu-loading";
+      li.textContent = "Loading…";
+      list.appendChild(li);
+    }
+    try {
+      const data = await api("GET", `/api/work-usage${workUsageDemoMode ? "?mode=demo" : ""}`);
+      workUsageLastData = data;
+      renderWorkUsage(data);
+    } catch (err) {
+      for (const list of [els.usageByTaskList, els.activeAgentsList, els.workVsWaitList, els.outcomesList]) {
+        list.innerHTML = "";
+        const li = document.createElement("li");
+        li.className = "wu-item wu-error";
+        li.textContent = `Could not load: ${err.message}`;
+        list.appendChild(li);
+      }
+      els.workUsageDemoBanner.hidden = true;
+      els.workUsageCoverage.textContent = "";
+    } finally {
+      workUsageLoading = false;
+    }
+  }
+
+  function renderWorkUsage(data) {
+    els.workUsageDemoBanner.hidden = data.mode !== "demo";
+    els.workUsageGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
+    const failedAdapters = (data.adapterNotes || []).filter((a) => !a.ok);
+    els.workUsageCoverage.textContent = failedAdapters.length
+      ? `Coverage gap: ${failedAdapters.map((a) => `${a.name} (${a.error})`).join("; ")}`
+      : data.duplicatesDropped
+        ? `${data.duplicatesDropped} duplicate reading(s) collapsed.`
+        : "";
+
+    const projects = [...new Set((data.usageByProjectTask || []).map((s) => s.project).filter(Boolean))].sort();
+    const prevValue = els.workUsageProjectFilter.value;
+    els.workUsageProjectFilter.innerHTML = '<option value="">All</option>';
+    for (const p of projects) {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = p;
+      els.workUsageProjectFilter.appendChild(opt);
+    }
+    workUsageProject = projects.includes(prevValue) ? prevValue : "";
+    els.workUsageProjectFilter.value = workUsageProject;
+
+    renderUsageByTask(data);
+    renderActiveAgents(data);
+    renderWorkVsWait(data);
+    renderOutcomes(data);
+  }
+
+  function renderUsageByTask(data) {
+    const list = els.usageByTaskList;
+    list.innerHTML = "";
+    const scopes = (data.usageByProjectTask || []).filter((s) => !workUsageProject || s.project === workUsageProject);
+    if (!scopes.length && !data.unallocatedUsage) {
+      const li = document.createElement("li");
+      li.className = "wu-item wu-empty";
+      li.textContent = "No project/ticket usage reported.";
+      list.appendChild(li);
+    }
+    for (const s of scopes) list.appendChild(renderUsageScopeItem(s));
+    if (data.unallocatedUsage && (!workUsageProject || data.unallocatedUsage.project === workUsageProject)) {
+      list.appendChild(renderUsageScopeItem(data.unallocatedUsage, true));
+    }
+  }
+
+  function renderUsageScopeItem(s, isUnallocated) {
+    const li = document.createElement("li");
+    li.className = `wu-item${isUnallocated ? " wu-unallocated" : ""}`;
+
+    const title = document.createElement("div");
+    title.className = "wu-title";
+    const name = document.createElement("span");
+    name.textContent = isUnallocated ? "Unallocated usage (no project/ticket)" : `${s.project} · ${s.task.title || `#${s.task.id}`}`;
+    title.appendChild(name);
+    if (s.retryCount) {
+      const b = document.createElement("span");
+      b.className = "wu-badge";
+      b.textContent = `${s.retryCount} retry${s.retryCount > 1 ? "s" : ""}`;
+      title.appendChild(b);
+    }
+    if (s.qaAttemptCount) {
+      const b = document.createElement("span");
+      b.className = "wu-badge";
+      b.textContent = `${s.qaAttemptCount} QA`;
+      title.appendChild(b);
+    }
+    li.appendChild(title);
+
+    const detail = document.createElement("div");
+    detail.className = "wu-detail";
+    const partialMark = (f) => (s.partial[f] ? "≥" : "");
+    detail.textContent =
+      `in ${partialMark("input")}${fmtTokens(s.usage.input)} · out ${partialMark("output")}${fmtTokens(s.usage.output)} · ` +
+      `cache-write ${partialMark("cacheWrite5m")}${fmtTokens((s.usage.cacheWrite5m ?? 0) + (s.usage.cacheWrite1h ?? 0) || null)} · ` +
+      `cache-read ${partialMark("cacheRead")}${fmtTokens(s.usage.cacheRead)}`;
+    li.appendChild(detail);
+
+    if (Object.values(s.partial).some(Boolean)) {
+      const note = document.createElement("div");
+      note.className = "wu-notes";
+      note.textContent = "≥ marks a total with at least one unknown contributing reading (floor, not exact).";
+      li.appendChild(note);
+    }
+
+    const details = document.createElement("details");
+    details.className = "wu-attempts";
+    const summary = document.createElement("summary");
+    summary.textContent = `${s.attempts.length} attempt${s.attempts.length === 1 ? "" : "s"} — drill down`;
+    details.appendChild(summary);
+    for (const a of s.attempts) {
+      const row = document.createElement("div");
+      row.className = "wu-attempt";
+      const costText = a.cost.kind === "unknown" || a.cost.amountUsd == null ? "cost unknown" : `${a.cost.kind} $${a.cost.amountUsd.toFixed(2)}`;
+      row.textContent =
+        `${a.kind} · ${a.model || "unknown model"} · ${machineLabel(a.machine)} · ${OUTCOME_LABEL[a.outcome.state] || a.outcome.state} · ` +
+        `${costText}${a.source.kind === "synthetic" ? " · SYNTHETIC" : ""}`;
+      details.appendChild(row);
+    }
+    li.appendChild(details);
+    return li;
+  }
+
+  function renderActiveAgents(data) {
+    const list = els.activeAgentsList;
+    list.innerHTML = "";
+    const agents = (data.activeAgents || []).filter((a) => !workUsageProject || a.project === workUsageProject);
+    if (!agents.length) {
+      const li = document.createElement("li");
+      li.className = "wu-item wu-empty";
+      li.textContent = "No agent sessions reported.";
+      list.appendChild(li);
+      return;
+    }
+    for (const a of agents) {
+      const li = document.createElement("li");
+      li.className = "wu-item";
+      const title = document.createElement("div");
+      title.className = "wu-title";
+      const name = document.createElement("span");
+      name.textContent = `${a.provider || "unknown provider"} · ${a.model || "unknown model"}`;
+      title.appendChild(name);
+      const badge = document.createElement("span");
+      badge.className = `wu-badge wu-badge-${a.state}`;
+      badge.textContent = HEARTBEAT_LABEL[a.state] || a.state;
+      title.appendChild(badge);
+      li.appendChild(title);
+
+      const detail = document.createElement("div");
+      detail.className = "wu-detail";
+      detail.textContent = `${machineLabel(a.machine)} · ${a.project ? `${a.project}${a.task ? " · " + (a.task.title || "#" + a.task.id) : ""}` : "no project attributed"}`;
+      li.appendChild(detail);
+
+      const meta = document.createElement("div");
+      meta.className = "wu-meta";
+      meta.textContent = a.lastSeenAt
+        ? `Last heartbeat ${new Date(a.lastSeenAt).toLocaleString()} (${Math.round(a.heartbeatAgeSec / 60)}m ago)${a.state === "stale" ? " — stale, not necessarily still working" : ""}`
+        : "Last heartbeat unknown — pickup time not recorded";
+      li.appendChild(meta);
+      list.appendChild(li);
+    }
+  }
+
+  function renderWorkVsWait(data) {
+    const list = els.workVsWaitList;
+    list.innerHTML = "";
+    const t = data.timing || {};
+    const li = document.createElement("li");
+    li.className = "wu-item";
+    const title = document.createElement("div");
+    title.className = "wu-title";
+    title.textContent = "Active vs waiting";
+    li.appendChild(title);
+    const detail = document.createElement("div");
+    detail.className = "wu-detail";
+    detail.textContent = `Active ${fmtDuration(t.activeMsTotal)} · Waiting ${fmtDuration(t.waitMsTotal)}`;
+    li.appendChild(detail);
+
+    const reasons = Object.entries(t.waitByReason || {});
+    if (reasons.length) {
+      const bar = document.createElement("div");
+      bar.className = "wu-waitbar";
+      const total = reasons.reduce((s, [, ms]) => s + ms, 0);
+      const colors = { "rate-limit": "var(--err)", permission: "var(--warn)", dependency: "var(--muted)", qa: "var(--accent)", queue: "var(--ok)" };
+      for (const [reason, ms] of reasons) {
+        const seg = document.createElement("span");
+        seg.style.width = `${total ? (ms / total) * 100 : 0}%`;
+        seg.style.background = colors[reason] || "var(--line)";
+        seg.title = `${reason}: ${fmtDuration(ms)}`;
+        bar.appendChild(seg);
+      }
+      li.appendChild(bar);
+      const meta = document.createElement("div");
+      meta.className = "wu-meta";
+      meta.textContent = reasons.map(([reason, ms]) => `${reason}: ${fmtDuration(ms)}`).join(" · ");
+      li.appendChild(meta);
+    }
+    if (t.unknownTimingCount) {
+      const note = document.createElement("div");
+      note.className = "wu-notes";
+      note.textContent = `${t.unknownTimingCount} event(s) have no timing recorded at all (not counted as zero).`;
+      li.appendChild(note);
+    }
+    list.appendChild(li);
+  }
+
+  function renderOutcomes(data) {
+    const list = els.outcomesList;
+    list.innerHTML = "";
+    const o = data.outcomes || {};
+    const li = document.createElement("li");
+    li.className = "wu-item";
+    const title = document.createElement("div");
+    title.className = "wu-title";
+    title.textContent = `Sample size: ${o.sampleSize ?? 0} attempt(s)`;
+    li.appendChild(title);
+    const detail = document.createElement("div");
+    detail.className = "wu-detail";
+    detail.textContent = Object.entries(o.counts || {})
+      .filter(([, n]) => n > 0)
+      .map(([state, n]) => `${OUTCOME_LABEL[state] || state}: ${n}`)
+      .join(" · ") || "No outcomes reported.";
+    li.appendChild(detail);
+    if (o.retryCount) {
+      const meta = document.createElement("div");
+      meta.className = "wu-meta";
+      meta.textContent = `${o.retryCount} retry attempt(s) in this range.`;
+      li.appendChild(meta);
+    }
+    list.appendChild(li);
+
+    const routingList = els.routingList;
+    routingList.innerHTML = "";
+    if (!data.routing || !data.routing.length) {
+      const empty = document.createElement("li");
+      empty.className = "wu-item wu-empty";
+      empty.textContent = "No routing rules configured.";
+      routingList.appendChild(empty);
+      return;
+    }
+    for (const r of data.routing) {
+      const item = document.createElement("li");
+      item.className = "wu-item";
+      const t = document.createElement("div");
+      t.className = "wu-title";
+      const name = document.createElement("span");
+      name.textContent = `${r.ruleId} → ${r.recommendedModel}`;
+      t.appendChild(name);
+      const badge = document.createElement("span");
+      badge.className = "wu-badge";
+      badge.textContent = r.evidence === "sufficient" ? `${Math.round((r.successRate ?? 0) * 100)}% of ${r.sampleSize}` : "insufficient evidence";
+      t.appendChild(badge);
+      item.appendChild(t);
+      if (r.note) {
+        const note = document.createElement("div");
+        note.className = "wu-notes";
+        note.textContent = r.note;
+        item.appendChild(note);
+      }
+      routingList.appendChild(item);
+    }
+  }
+
   function setBusy(v) {
     busy = v;
     els.sendBtn.disabled = v;
@@ -340,6 +644,9 @@
   els.tabAgents.addEventListener("click", () => showView("agents"));
   els.rateLimitsRefresh.addEventListener("click", loadRateLimits);
   els.rateLimitsDemoToggle.addEventListener("change", (e) => { demoMode = e.target.checked; loadRateLimits(); });
+  els.workUsageRefresh.addEventListener("click", loadWorkUsage);
+  els.workUsageDemoToggle.addEventListener("change", (e) => { workUsageDemoMode = e.target.checked; loadWorkUsage(); });
+  els.workUsageProjectFilter.addEventListener("change", (e) => { workUsageProject = e.target.value; if (workUsageLastData) renderWorkUsage(workUsageLastData); });
   window.addEventListener("offline", () => setStatus("error", "Offline"));
   window.addEventListener("online", () => setStatus("ok", "Connected to Hermes"));
 
