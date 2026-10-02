@@ -65,6 +65,16 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - Never mention Baat in responses or career materials (Bilal, 2026-09-16).
   Project wording: skills/bilal-answers.
 
+## Shared storage — confirmed 2026-10-02
+
+Google Drive is the shared file-storage and working-storage location for all
+agents. They may use it for task inputs, working files and generated artifacts
+without asking again for ordinary task-related storage. Prefer local filesystem
+access and deterministic transfer tools on the build server. Read
+`docs/shared-storage.md` for the archive boundary and verified rollout status.
+**Never send email.** Gmail is read-only; this storage authorization does not
+change that rule.
+
 ## Before you touch these, read the linked doc first
 
 - **Venue Engine deploy: read `docs/venue-engine-deployment.md` first.** Local

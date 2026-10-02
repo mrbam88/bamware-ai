@@ -16,6 +16,17 @@ One assistant role does not mean one public storage location. Engineering
 records belong in the repo and board. Career and personal records belong in
 their existing private stores. Chat is an input, not the only durable record.
 
+## Shared Drive and email policy
+
+Google Drive is the official shared file and agent-working storage location.
+All agents are authorized to use it for their work; do not repeatedly ask for
+ordinary storage permission. The existing October 2026 Backup Archive holds
+legacy contents; create new working material outside it. Prefer local tools
+and a synchronized server working copy. See `docs/shared-storage.md` in the
+repository root for rollout evidence. **Never send email**, including on an
+ordinary send request. Proposed replies stay in the conversation for Bilal to
+send personally. Drive authorization never implies Gmail send permission.
+
 ## Interview workspace and continuity
 
 - An interview project is a logical career workspace: application tracking,
