@@ -41,12 +41,27 @@ The detector checks its own work instead of trusting its math.
   failed" alert. Readings more than 30 min apart are not compared, so this
   check only runs when Codex has been used on the server recently.
 
+## Cost metering (#107)
+
+`meter.py` measures what each executor task costs in **% of each pool's
+window**, the real currency on subscription plans. The runner
+(`services/overnight/runner.py`) calls it before and after every task; tasks
+run one at a time, so the delta is that task's cost. Records land in
+`~/.local/state/bamware/cfo/costs.jsonl` and on the task's `status.json` entry.
+
+- A reset during a task makes that pool's cost unknown, never negative.
+- Other Claude sessions running at the same time mark the record `shared`
+  (they draw on the same Claude Max pool); otherwise `exclusive`.
+- Metering never blocks work: a missing or failing meter records `unmetered`.
+  `BAMWARE_METER=off` disables it.
+
 ## Commands
 
 ```
 python3 services/cfo/burn_alert.py --replay services/cfo/fixtures/incident-101.json   # safe replay, never posts
 python3 services/cfo/burn_alert.py --dry-run     # evaluate live data, print, change no state
 python3 services/cfo/burn_alert.py --calibration # forecast accuracy, learned correction, cross-checks
+python3 services/cfo/meter.py summary --days 7    # cost per ticket and per day, in % of each pool
 python3 -m unittest services/cfo/test_burn_alert.py
 systemctl --user list-timers bamware-cfo-burn-alert.timer
 ```

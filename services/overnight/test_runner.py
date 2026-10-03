@@ -7,6 +7,57 @@ import runner
 
 
 class RunnerTests(unittest.TestCase):
+    def setUp(self):
+        import os
+        self._meter = os.environ.get('BAMWARE_METER')
+        os.environ['BAMWARE_METER'] = 'off'   # unit tests never touch real quota sources
+
+    def tearDown(self):
+        import os
+        if self._meter is None:
+            os.environ.pop('BAMWARE_METER', None)
+        else:
+            os.environ['BAMWARE_METER'] = self._meter
+
+    def test_each_task_gets_a_cost_record_from_the_meter(self):
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / 'run'
+            root.mkdir()
+            fake = Path(tmp) / 'meter.py'
+            fake.write_text(
+                "import json, sys\n"
+                "if sys.argv[1] == 'snapshot':\n"
+                "    print(json.dumps({'at': 1, 'pools': {'p': {'used_pct': 10, 'reset_at': 9}}}))\n"
+                "else:\n"
+                "    entry = json.load(sys.stdin)\n"
+                "    print(json.dumps({'ticket': entry['ticket'], 'state': entry['state'], 'pools': {'p': {'delta_pct': 0.0}}}))\n")
+            os.environ['BAMWARE_METER'] = str(fake)
+            task = self.task(root, 'one', 'pass')
+            task['ticket'] = 'mrbam88/bamware-ai#107'
+            batch = {'schema': 1, 'unresolved_decisions': [], 'tasks': [task]}
+            runner.preflight(batch, root)
+            runner.write(root / 'batch.json', batch)
+            runner.worker(root)
+            cost = runner.read(root / 'status.json')['tasks'][0]['cost']
+            self.assertEqual((cost['ticket'], cost['state']), ('mrbam88/bamware-ai#107', 'verified'))
+
+    def test_broken_meter_never_blocks_a_task(self):
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / 'run'
+            root.mkdir()
+            broken = Path(tmp) / 'meter.py'
+            broken.write_text('raise SystemExit(3)\n')
+            os.environ['BAMWARE_METER'] = str(broken)
+            batch = {'schema': 1, 'unresolved_decisions': [], 'tasks': [self.task(root, 'one', 'pass')]}
+            runner.preflight(batch, root)
+            runner.write(root / 'batch.json', batch)
+            runner.worker(root)
+            task = runner.read(root / 'status.json')['tasks'][0]
+            self.assertEqual(task['state'], 'verified')
+            self.assertEqual(task['cost']['attribution'], 'unmetered')
+
     def task(self, root, name, code, dependencies=None):
         return {'id': name, 'approved': True, 'cwd': str(root),
                 'argv': [sys.executable, '-c', code], 'timeout_seconds': 1,

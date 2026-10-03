@@ -87,6 +87,26 @@ def execute(argv, cwd, seconds, log, started=None):
             raise
 
 
+def meter(action, payload=None):
+    """Ask the CFO meter (services/cfo/meter.py) for a reading or a cost record.
+
+    Metering must never break a batch: any failure returns None and the task runs.
+    BAMWARE_METER=off disables it; BAMWARE_METER=<path> points at another meter.
+    """
+    setting = os.environ.get('BAMWARE_METER', '')
+    if setting == 'off':
+        return None
+    path = Path(setting) if setting else Path(__file__).resolve().parents[1] / 'cfo/meter.py'
+    if not path.exists():
+        return None
+    try:
+        out = subprocess.run([sys.executable, str(path), action], input=json.dumps(payload) if payload else None,
+                             capture_output=True, text=True, timeout=120)
+        return json.loads(out.stdout) if out.returncode == 0 else None
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
 def checks(commands, task, log):
     for argv in commands:
         rc, timeout = execute(argv, task['cwd'], 30, log)
@@ -123,6 +143,7 @@ def worker(root):
                     write(root / 'pickup.json', {'worker_pid': os.getpid(), 'task_pid': pid,
                         'task': task['id'], 'at': time.time(), 'batch_sha256':
                         hashlib.sha256((root / 'batch.json').read_bytes()).hexdigest()})
+                before = meter('snapshot')
                 try:
                     rc, timeout = execute(task['argv'], task['cwd'], task['timeout_seconds'],
                                           log, acknowledged)
@@ -138,6 +159,10 @@ def worker(root):
                         record['state'] = 'verification_failed'
                 except OSError as exc:
                     record.update(state='failed', reason=str(exc))
+                after = meter('snapshot')
+                record['cost'] = meter('record', {'batch': root.name, 'task': task['id'], 'ticket': task.get('ticket'),
+                                                  'cwd': task['cwd'], 'state': record['state'], 'before': before, 'after': after}) \
+                    if before and after else {'pools': {}, 'attribution': 'unmetered'}
             record['finished_at'] = time.time()
             record['evidence_log'] = str(log)
             write(root / 'status.json', state)
