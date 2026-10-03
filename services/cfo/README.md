@@ -24,11 +24,28 @@ or when it reaches exhaustion within 6 h and before the reset. One alert per
 escalation; a reset rollover starts a new trend. No fresh data for 30 min is a
 "monitoring stale" alert. Nothing is switched automatically.
 
+## Self-verification
+
+The detector checks its own work instead of trusting its math.
+
+- **Forecast ledger.** Every 30 min it records the raw model's prediction for
+  one hour ahead. When the API's reading for that time arrives, the forecast
+  is graded (`state.json` → `calibration`). `--calibration` prints accuracy.
+- **Self-correction.** After 6+ graded forecasts, if the burn consistently ran
+  hotter than predicted, the rate is multiplied by the observed ratio (capped
+  at ×2). It never goes below ×1: the correction can make alerts earlier, never
+  later. Alerts state their own recent accuracy and the correction applied.
+- **Cross-source check.** The OpenAI reading is compared with the rate limits
+  Codex records in its own session logs. A gap over 5 pts raises a "self-check
+  failed" alert. Readings more than 30 min apart are not compared, so this
+  check only runs when Codex has been used on the server recently.
+
 ## Commands
 
 ```
 python3 services/cfo/burn_alert.py --replay services/cfo/fixtures/incident-101.json   # safe replay, never posts
 python3 services/cfo/burn_alert.py --dry-run     # evaluate live data, print, change no state
+python3 services/cfo/burn_alert.py --calibration # forecast accuracy, learned correction, cross-checks
 python3 -m unittest services/cfo/test_burn_alert.py
 systemctl --user list-timers bamware-cfo-burn-alert.timer
 ```

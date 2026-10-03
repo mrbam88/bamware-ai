@@ -27,9 +27,9 @@ class Harness:
         self.sent.append(text)
         return True
 
-    def feed(self, observations, now=None, error=None):
+    def feed(self, observations, now=None, error=None, verifier=None):
         now = now if now is not None else max(o['observed_at'] for o in observations)
-        return ba.run(self.dir, {'test': lambda: (observations, error)}, self.sender, now)
+        return ba.run(self.dir, {'test': lambda: (observations, error)}, self.sender, now, verifier=verifier)
 
 
 class BurnAlertTests(unittest.TestCase):
@@ -152,6 +152,74 @@ class BurnAlertTests(unittest.TestCase):
         observations, error = ba.copilot_source(run=lambda *a, **k: Out(), now=T0)
         self.assertIsNone(error)
         self.assertEqual(observations[0]['used_pct'], 12.0)
+
+
+    # --- self-verification ---------------------------------------------------
+
+    def test_forecasts_are_graded_against_later_readings(self):
+        h = Harness()
+        for i in range(19):                     # steady 3 %/h for 3 h, 10-min samples
+            h.feed([obs(T0 + i * 600, 10 + i * 0.5)])
+        calibration = ba.load_state(h.dir)['calibration']['pool']
+        self.assertGreaterEqual(len(calibration), 3)
+        self.assertTrue(all(abs(c['error']) < 0.01 for c in calibration))   # linear burn, exact forecasts
+        self.assertEqual(ba.rate_factor(calibration), 1.0)
+
+    def test_under_prediction_learns_a_bounded_correction(self):
+        calibration = [{'base': 10, 'predicted': 13, 'actual': 16, 'error': 3}] * 8   # burn ran 2x forecast
+        self.assertAlmostEqual(ba.rate_factor(calibration), 2.0)
+        worse = [{'base': 10, 'predicted': 11, 'actual': 20, 'error': 9}] * 8          # 9x: clamped
+        self.assertEqual(ba.rate_factor(worse), 2.0)
+        too_few = [{'base': 10, 'predicted': 13, 'actual': 16, 'error': 3}] * 3
+        self.assertEqual(ba.rate_factor(too_few), 1.0)
+
+    def test_over_prediction_never_delays_alerts(self):
+        calibration = [{'base': 10, 'predicted': 16, 'actual': 12, 'error': -4}] * 8
+        self.assertEqual(ba.rate_factor(calibration), 1.0)
+
+    def test_learned_correction_makes_the_alert_earlier(self):
+        reset = T0 + 30 * 3600
+        window = {'samples': [[T0, 50.0], [T0 + 3600, 51.0]], 'reset_at': reset}   # 1 %/h
+        plain = ba.assess(window, T0 + 3600)
+        corrected = ba.assess(window, T0 + 3600, factor=2.0)
+        self.assertEqual(plain['level'], 'ok')          # reserve in 34 h: beyond 24 h horizon
+        self.assertEqual(corrected['level'], 'warn')    # 2 %/h: reserve in 17 h, before reset
+
+    def test_alert_reports_its_own_accuracy_once_calibrated(self):
+        h = Harness()
+        state = ba.load_state(h.dir)
+        state['calibration'] = {'pool': [{'made_at': 0, 'target_at': 0, 'base': 10, 'predicted': 12,
+                                          'actual': 13, 'error': 1.0}] * 6}
+        ba.save_state(h.dir, state)
+        h.feed([obs(T0, 96)])
+        self.assertIn('Self-check: last 6 one-hour forecasts', h.sent[0])
+
+    def test_crosscheck_disagreement_raises_alert(self):
+        h = Harness()
+        key = 'openai-codex:acct:primary-10080min'
+        reading = {'source': 'codex-session-log', 'window_min': WEEK, 'used_pct': 70.0, 'reset_at': RESET, 'observed_at': T0 + 120}
+        h.feed([obs(T0, 40, key=key)], now=T0 + 120, verifier=lambda: reading)
+        self.assertTrue(any('self-check failed' in s for s in h.sent))
+        self.assertEqual(ba.load_state(h.dir)['crosschecks'][-1]['diff'], 30.0)
+
+    def test_crosscheck_agreement_and_time_gaps_stay_quiet(self):
+        h = Harness()
+        key = 'openai-codex:acct:primary-10080min'
+        agree = {'window_min': WEEK, 'used_pct': 41.0, 'reset_at': RESET, 'observed_at': T0 + 60}
+        h.feed([obs(T0, 40, key=key)], now=T0 + 60, verifier=lambda: agree)
+        far = {'window_min': WEEK, 'used_pct': 90.0, 'reset_at': RESET, 'observed_at': T0 + 3 * 3600}
+        h.feed([obs(T0 + 600, 40, key=key)], now=T0 + 700, verifier=lambda: far)
+        self.assertEqual(h.sent, [])
+
+    def test_codex_log_verifier_reads_rate_limits(self):
+        home = Path(tempfile.mkdtemp())
+        log = home / '.codex/sessions/2026/10/03/rollout-x.jsonl'
+        log.parent.mkdir(parents=True)
+        log.write_text(json.dumps({'timestamp': '2026-10-03T04:00:00Z', 'type': 'event_msg', 'payload': {
+            'type': 'token_count', 'rate_limits': {'primary': {'used_percent': 95.0, 'window_minutes': 10080,
+                                                                'resets_at': 1791580666}}}}) + '\n')
+        reading = ba.codex_log_verifier(home)
+        self.assertEqual((reading['used_pct'], reading['window_min']), (95.0, 10080.0))
 
 
 if __name__ == '__main__':
