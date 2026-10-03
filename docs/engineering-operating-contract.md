@@ -172,3 +172,25 @@ Here they are.
 ```
 
 If process creates more noise, delay, or token spend than the risk it removes, simplify it.
+
+## 6. Minimal Technical Documentation
+
+**Founder requirement, 2026-10-02:** Every shipped component or meaningful
+engineering change needs a short, discoverable explanation for the founder
+and the next agent. Keep this high-level and proportional to the work.
+
+Maintain the existing README or nearest technical overview with:
+
+- What the component does and which problem it solves.
+- How the main components connect; include a small diagram when it clarifies
+  the flow. For automation, distinguish event triggers and scheduled checks.
+- Where durable state lives, its source of truth, and important dependencies.
+- How to run or verify it, where failures appear, and the basic recovery path.
+- What is actually deployed versus planned, including meaningful limitations.
+
+A few clear paragraphs are usually enough. Update documentation alongside
+behavior changes, link it from the project entry point, and include its
+accuracy in review. Reuse existing documentation rather than duplicating it.
+Do not substitute tickets, conversation history, exhaustive code narration,
+or long process manuals for this overview. Keep credentials and private
+operational data out of public documentation.
