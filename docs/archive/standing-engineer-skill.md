@@ -1,3 +1,7 @@
+> **RETIRED 2026-10-03.** Superseded by the Engineering Lead (review, readiness, merge
+> decision) plus Scrum Master dispatch through the Overnight Mode executor
+> (`services/overnight`). Kept for its lessons; do not run it.
+
 ---
 name: standing-engineer
 description: The DEV agent loop a headless Claude Code runner executes on the Mac — pull one Agent-ready ticket off board 2, implement it in an isolated worktree, open a PR, and hand off to QA. Use when running or debugging the unattended engineering runner, or when deciding whether a ticket is safe to hand it.

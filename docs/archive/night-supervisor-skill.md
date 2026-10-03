@@ -1,3 +1,7 @@
+> **RETIRED 2026-10-03.** Superseded by the Engineering Lead (review, readiness, merge
+> decision) plus Scrum Master dispatch through the Overnight Mode executor
+> (`services/overnight`). Kept for its lessons; do not run it.
+
 ---
 name: night-supervisor
 description: Run the overnight queue — one local Claude Code session started at bedtime that works `night`-labelled tickets sequentially, one Sonnet DEV agent per ticket, QA-merges on quoted evidence, and leaves a morning STATE.md report. Use when starting, running, or debugging a bedtime/overnight agent session.

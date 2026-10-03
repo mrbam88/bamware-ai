@@ -99,7 +99,7 @@ Use the active profile only. Do not copy provider auth to a second machine.
 | Stage | Canonical procedure | Hermes execution |
 |---|---|---|
 | Groom | `skills/agent-ready-tickets`, `skills/definition-of-ready` | Native gh; explicit scope, acceptance criteria, worker/capability, budget |
-| DEV | `skills/standing-engineer` | One ticket, one writer, bounded session; independent worktree for parallel edits |
+| DEV | Overnight Mode executor (`services/overnight`), Engineering Lead review | One ticket, one writer, bounded session; independent worktree for parallel edits; no merge without the Engineering Lead's approval |
 | Parallel work | `skills/agent-fanout` | Only after an explicit fan-out request and budget; child receives full brief, paths, constraints and required evidence |
 | QA | `skills/qa-engineer` | Verify acceptance criteria and actual results; do not trust a child's success summary without evidence |
 | Merge/release | AGENTS.md plus service runbook | QA merge only under existing gates; store/spend/config/contracts remain Bilal-gated |

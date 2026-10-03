@@ -2,8 +2,8 @@
 # Night queue — list open `night`-labelled issues across active repos,
 # ordered by the board's Priority field when that's cheaply obtainable.
 #
-# Used by the night-supervisor skill (skills/night-supervisor/SKILL.md) to
-# pick the overnight work order. Needs only `gh` (authenticated) and `jq`.
+# Used to plan Overnight Mode batches (services/overnight) from the
+# `night` label. Needs only `gh` (authenticated) and `jq`.
 #
 # Usage:
 #   scripts/night-queue.sh          # human-readable: repo#N  P?  title  url

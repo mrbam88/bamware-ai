@@ -71,9 +71,9 @@ by every other agent, including the digest.
   format, labeled `bug`, linking the PR and the original ticket. Board-field
   it (Priority inherited from the original, `Worker: Agent-ready`).
 - Request changes on the PR quoting the failing evidence.
-- Move the original ticket back to `In Progress`. The DEV agent's next wake
-  picks up `bug` tickets on its own open PRs first and fixes on the same
-  branch (rule lives in `standing-engineer`).
+- Move the original ticket back to `In Progress`. The next worker run picks
+  up `bug` tickets on its own open PRs first and fixes on the same branch.
+  The QA verdict and merge decision belong to the Engineering Lead.
 - A defect is something observable: a failing gate, an unmet acceptance
   criterion, an out-of-scope change, a broken contract. Style opinions are
   not defects; put them in the PR comment, unlabeled, and pass the ticket
