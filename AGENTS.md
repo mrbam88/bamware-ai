@@ -59,6 +59,13 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## 3. How does Bilal work?
 
+**Organization-wide role:** Bilal is the **Stakeholder / CEO**, not a routine task
+chaser. All agents follow the approved [role and escalation policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy):
+workers → Scrum Master → Chief of Staff → CEO. Chief of Staff is the primary
+executive interface; critical owner alerts need not wait for ceremonial routing.
+Reserved decisions, evidence, Command Center/Discord delivery and resolution
+tracking remain mandatory. Read this policy when onboarding any role.
+
 - Short and sweet. Bullets over prose. No re-summaries. Limit his reading.
 - Direct recommendations, not option menus. Plan before building.
 - RN + Express mental model; mobile/Node analogies land.

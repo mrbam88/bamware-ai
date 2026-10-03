@@ -10,7 +10,7 @@ Bamware needs an executive control system for managing a growing portfolio of pr
 
 The product model is organizational:
 
-- Bilal is the CEO.
+- Bilal is the Stakeholder / CEO.
 - A persistent executive layer manages the company and portfolio.
 - Each project has its own execution team.
 - Project agents are replaceable workers.
@@ -58,38 +58,61 @@ The goal is to minimize CEO attention while preserving complete drill-down when 
 ## Organizational Model
 
 ```text
-Bilal
-CEO
-|
-+-- Chief of Staff
-|
-+-- Head of Product
-|
-+-- Head of Engineering
-|
-+-- Head of Design
-|
-+-- Operations / Personal Ops
-        |
-        v
-   Bamware Portfolio
-        |
-        +-- Project A
-        |    +-- Project Lead
-        |    +-- Dev agents
-        |    +-- QA agents
-        |    +-- Design agents
-        |
-        +-- Project B
-        |    +-- Project Lead
-        |    +-- Dev agents
-        |    +-- Research agents
-        |
-        +-- Client Project C
-             +-- Project Lead
-             +-- Dev agents
-             +-- QA agents
+Stakeholder / CEO
+    |
+Chief of Staff — executive direction and primary founder interface
+    |
+Scrum Master — one shared resident delivery role across projects
+    |
+Project engineering / research / review workers — transient execution
 ```
+
+This is the approved initial chain (founder decision, 2026-10-03). Product,
+engineering, design and operations specialties can grow within it; they do not
+create separate executive channels by default. Role definitions are organization
+policy, not proof that every runtime capability is deployed.
+
+### Stakeholder / CEO and escalation policy
+
+This applies to **every agent and project**, including onboarding and handoffs.
+
+- **Stakeholder / CEO:** sets outcomes and priorities, resolves conflicting
+  executive priorities and owns reserved decisions. The CEO is not the routine
+  task chaser or delivery manager.
+- **Chief of Staff:** primary executive interface; owns founder priorities,
+  cross-project coordination and decision framing. Receives delivery summaries
+  and exceptions from the Scrum Master.
+- **Scrum Master:** accountable for accurate task ownership/pickup, progress,
+  reconciliation, stalled-work recovery, review routing, completion evidence and
+  follow-through/escalation. One shared role resides on omarchy independently of
+  conversations; model calls occur only when needed, not continuously. Durable
+  service state, startup/restart recovery and scheduled/event processing must be
+  verified before claiming resident operation.
+- **Workers:** implement, research or test within assigned authority, producing
+  source-linked evidence and clear unknowns. They do not redefine priorities,
+  approve their own reserved gates or silently expand scope/spend.
+
+Normal reporting follows workers → Scrum Master → Chief of Staff → CEO.
+Escalate when authority is exceeded, priorities conflict, material risk requires
+judgment, an owner capability is missing, or an explicit human gate applies.
+Ordinary implementation choices stay below the CEO. A critical owner alert must
+not be delayed solely to follow ceremonial routing.
+
+Every escalation gives the concrete decision/action, impact, recommendation,
+evidence and next checkpoint. Persist the Command Center card before sending a
+deduplicated Discord notification; verify delivery, track owner action, recheck
+the source, resume authorized work and resolve only with evidence. An
+acknowledgment is not resolution. Keep independent work moving.
+
+For incorrect or missing status/escalation, start the investigation with the
+Scrum Master and trace to the specific worker/source where necessary. Preserve
+worker/source evidence → Scrum Master assessment → CoS executive summary →
+founder card/Discord, with timestamps, revisions, receipts and unknowns.
+Accountability for follow-through does not mean the Scrum Master caused every
+underlying defect. Last successful reconciliation and failures must remain
+visible independently of model success. Summarize worker chatter without hiding
+genuine uncertainty or loss of coverage.
+
 
 ### Core principle
 
@@ -97,7 +120,7 @@ CEO
 
 ## Executive Layer
 
-Executive agents are persistent and operate across projects.
+Executive roles preserve durable state across projects; distinct roles do not require duplicate services or always-running model inference.
 
 ### Chief of Staff
 
@@ -114,15 +137,17 @@ Responsibilities:
 - Suppress low-value noise.
 - Produce on-demand and scheduled briefings.
 - Route CEO requests to the correct executive, project, or tool.
-- Own recurring board follow-through: recover orphaned work and stalled handoffs,
-  verify pickup and outcomes, and keep every active ticket moving toward a
-  documented next action (founder decision, 2026-10-02).
+- Own executive outcomes for board follow-through; delegate delivery supervision
+  and evidence reconciliation to the Scrum Master (role split approved 2026-10-03).
 
 Primary question:
 
 > What needs my attention?
 
 ### Chief of Staff board follow-through
+
+The following delivery responsibilities now execute through the Scrum Master;
+the Chief of Staff retains executive direction and receives summaries/exceptions.
 
 Founder decision, 2026-10-02: the Chief of Staff should have a standing drive
 to clear the board by resolving work, not by hiding or prematurely closing it.
