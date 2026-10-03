@@ -41,6 +41,7 @@ import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAcce
 import { loadAdminConfig } from "./lib/admin/config.mjs";
 import { createAdminRouter } from "./lib/admin/router.mjs";
 
+import { inspectOvernightReceipts } from './lib/overnight-worker.mjs';
 import { createOwnerBlockers } from './lib/owner-blockers.mjs';
 import { notifyOwnerBlocker } from './lib/owner-blocker-discord.mjs';
 
@@ -74,6 +75,7 @@ export function loadConfig(env = process.env) {
     serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     overnightUsageFile: get("ASSISTANT_WEB_OVERNIGHT_USAGE_FILE", path.join(os.homedir(), ".local/state/bamware/overnight/usage.json")),
+    workerReceiptsDir: get("ASSISTANT_WEB_WORKER_RECEIPTS_DIR", path.join(os.homedir(), ".local/state/bamware/overnight")),
     ownerBlockersEnabled: get("ASSISTANT_WEB_OWNER_BLOCKERS", "0") === "1",
     ownerBlockersDir: get("ASSISTANT_WEB_OWNER_BLOCKERS_DIR", path.join(os.homedir(), ".local/state/bamware/owner-blockers")),
     handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "0") === "1",
@@ -300,6 +302,10 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
       // Everything below needs a valid session cookie ----------------------
       if (!url.pathname.startsWith("/api/")) return send(res, 404, { error: "Not found." });
       if (!authed(req)) return send(res, 401, { error: "Sign in first." });
+      if (route === "GET /api/coordinator/worker-receipts") {
+        return send(res, 200, { observedAt: new Date().toISOString(), dispatchEnabled: false, coverage: "Existing overnight runner receipts only; pickup records are not live heartbeats.", receipts: inspectOvernightReceipts(cfg.workerReceiptsDir) });
+      }
+
 
       if (route === "GET /api/me") {
         return send(res, 200, { ok: true, hermes: { bin: cfg.hermesBin, cwd: cfg.hermesCwd }, langfuse: hermesStatus(cfg) });
