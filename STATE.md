@@ -5,8 +5,17 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
+> Last updated: 2026-10-03 — **Spaces AI-factory eval (#128): borrow patterns only; do not install (personal-use license).**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-03 — Spaces (rayedbajwa) vs Bamware agent ops (#128)
+
+- Read-only spike: public Spaces docs/source only — **no install, no Docker, $0**.
+- **License:** Spaces Personal Use License = personal non-commercial only; **no company/internal-business use, no redistribution.** Bamware must not run it on company work without written permission.
+- What it is: Bun/TS factory (Postgres, pg-boss, React, Playwright, Pi SDK, Spec Kit) with pipeline `research→specify→plan→tasks→implement→review→verify→deliver`, YAML templates, human gates, GitHub App bot PRs, org RAG, PII/secret mask.
+- Overlap with board-ops / DoR / Overnight / QA / Hermes is high; value is **ideas**, not adoption.
+- **Rec: Borrow 5 patterns** (loop caps, research-before-spec, specs-on-PR, tier-not-model-name, prompt-side mask) into skills/docs — **not** install Spaces or seek a commercial license now.
+- Doc: [`docs/spaces-eval-2026-10.md`](docs/spaces-eval-2026-10.md). Bilal: approve eval, file ≤2 follow-ups.
 
 ## 2026-10-03 (night) — Agents tab V3 live; services run from main
 
