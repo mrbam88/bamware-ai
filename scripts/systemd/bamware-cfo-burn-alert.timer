@@ -1,0 +1,10 @@
+[Unit]
+Description=Bamware CFO burn alert every 10 min, after the quota collector
+
+[Timer]
+# The collector (ai-quota-sample.timer) samples every 10 min; check 3 min later.
+OnCalendar=*:03/10
+Persistent=true
+
+[Install]
+WantedBy=timers.target
