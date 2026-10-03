@@ -628,6 +628,12 @@ import { renderQuotaMeter } from './quota-meter.js';
     els.decisionsDemoBanner.hidden = data.mode !== "demo";
     els.decisionsGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
     els.decisionList.innerHTML = "";
+    if (data.coordinator) {
+      const c = data.coordinator, status = document.createElement("li");
+      status.className = "decision-card";
+      status.textContent = `Server follow-through: ${c.status} · Last sweep: ${c.checkedAt || "pending"} · Next sweep: ${c.nextSweepAt || "pending"}. ${c.coverage || ""}${c.failures?.length ? ` Source errors: ${c.failures.map(f => f.id).join(", ")}.` : ""}`;
+      els.decisionList.appendChild(status);
+    }
     if (!data.decisions || !data.decisions.length) {
       const li = document.createElement("li");
       li.className = "decision-card dc-empty";
@@ -701,6 +707,14 @@ import { renderQuotaMeter } from './quota-meter.js';
       li.appendChild(blocked);
     }
 
+    if (d.ownerBlocker) {
+      const b = d.ownerBlocker, box = document.createElement("div");
+      const delivery = b.notifications?.[b.status === "resolved" ? "resolved" : "waiting_for_owner"] ?? b.notification;
+      box.className = "dc-handoff"; box.style.whiteSpace = "pre-wrap";
+      box.textContent = `Server follow-through: ${b.status}\n${b.reconciliation?.detail || "Awaiting scheduled source check."}\nLast sweep: ${b.lastSweepAt || "not yet checked"} · Next: ${b.nextCheckAt || "pending"}\nDiscord: ${delivery?.status || "pending"}${delivery?.detail ? ` — ${delivery.detail}` : ""}\nWork: ${b.resume?.status || "blocked; no worker dispatched"}\nRuntime: ${b.runtime || "server ledger; scheduler pending"}`;
+      li.appendChild(box);
+    }
+
     // Answer / handoff state for an existing response -----------------------
     if (d.response) {
       const answer = document.createElement("div");
@@ -742,7 +756,7 @@ import { renderQuotaMeter } from './quota-meter.js';
     }
 
     // Response controls -------------------------------------------------------
-    if (!d.response || d.stale) {
+    if (!d.response || d.stale || d.ownerBlocker) {
       const select = document.createElement("select");
       for (const o of d.options || []) {
         const opt = document.createElement("option");
@@ -759,12 +773,15 @@ import { renderQuotaMeter } from './quota-meter.js';
 
       const actions = document.createElement("div");
       actions.className = "dc-actions";
-      for (const action of ["approve", "reject", "discuss", "defer"]) {
+      for (const action of ["selected", "reject", "discuss", "defer"]) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = `dc-${action}`;
-        btn.textContent = action.charAt(0).toUpperCase() + action.slice(1);
-        btn.addEventListener("click", () => respondToDecision(d, action, select.value, note.value, mode));
+        btn.textContent = action === "selected" ? "Use selected option" : action.charAt(0).toUpperCase() + action.slice(1);
+        btn.addEventListener("click", () => {
+          const selected = (d.options || []).find(o => o.id === select.value);
+          respondToDecision(d, action === "selected" ? selected?.action || "approve" : action, action === "selected" ? select.value : null, note.value, mode);
+        });
         actions.appendChild(btn);
       }
       li.appendChild(actions);

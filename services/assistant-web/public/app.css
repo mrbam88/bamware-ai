@@ -195,3 +195,7 @@ button.link.danger { color: var(--danger); }
 @media (max-width: 480px) { .workBranch { padding: 0 8px; } .workBranch .workBranch { margin-left: 4px; } }
 #workTreeWidget .hint { color: var(--muted); }
 .workViewSwitch button { min-height: 36px; border: 1px solid var(--line); border-radius: 7px; padding: 6px 12px; background: var(--surface); color: var(--ink); cursor: pointer; }
+/* Decision text and option labels must fit narrow phone viewports. */
+.decisionList { grid-template-columns: minmax(0, 1fr); }
+.decision-card { min-width: 0; overflow-wrap: anywhere; }
+.decision-card select { max-width: 100%; }
