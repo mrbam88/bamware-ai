@@ -67,6 +67,14 @@ Scrum Master — one shared resident delivery role across projects
 Project engineering / research / review workers — transient execution
 ```
 
+| Role | Harness | Where |
+|---|---|---|
+| Chief of Staff | Hermes, `default` profile (Discord bot + Assistant web) | omarchy |
+| Scrum Master | Hermes, `scrum-master` profile | omarchy |
+| Workers | Claude Code headless, launched by the Overnight Mode executor | omarchy (Xcode work: the Mac) |
+
+Models are chosen per profile and can change; no role is tied to a vendor.
+
 This is the approved initial chain (founder decision, 2026-10-03). Product,
 engineering, design and operations specialties can grow within it; they do not
 create separate executive channels by default. Role definitions are organization
@@ -91,6 +99,11 @@ This applies to **every agent and project**, including onboarding and handoffs.
   conversations; model calls occur only when needed, not continuously. Durable
   service state, startup/restart recovery and scheduled/event processing must be
   verified before claiming resident operation.
+  **Harness (founder decision, 2026-10-03):** a Hermes agent on omarchy, like
+  the Chief of Staff: its own Hermes profile, `scrum-master`. It plans, tracks
+  and dispatches; it does not write code. Engineering work goes to Claude Code
+  workers through the Overnight Mode executor, because Hermes subagents are
+  process-local and not durable workers (`docs/hermes-integration.md`).
 - **Workers:** implement, research or test within assigned authority, producing
   source-linked evidence and clear unknowns. They do not redefine priorities,
   approve their own reserved gates or silently expand scope/spend.

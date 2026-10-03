@@ -108,8 +108,9 @@ Use the active profile only. Do not copy provider auth to a second machine.
 Use `templates/hermes-task.md` for a self-contained worker brief. Hermes
 subagents do **not** inherit the entire conversation and are not durable
 workers. Their process-local lifetime is not suitable for a night queue.
-Keep overnight ownership in the existing night-supervisor procedure until a
-specific scheduled migration is approved and exercised. A timer being installed
+Overnight and unattended dispatch belong to the Scrum Master (below), which
+launches Claude Code workers through the Overnight Mode executor rather than
+Hermes subagents. A timer being installed
 is not evidence that an unattended agent can create, merge or publish a PR.
 
 On the first actual permission denial, identify the denying layer (Hermes,
@@ -117,6 +118,21 @@ Tailscale, GitHub, OS, provider, etc.), give the legitimate human next step and
 park that action. Continue independent authorized work. Claude-specific
 classifier diagnoses in old docs are not universal. No alternate route to
 bypass a denial, permission-mode weakening, or credential relocation.
+
+## Server roles — founder decision, 2026-10-03
+
+Each standing role on omarchy is its own Hermes profile (`hermes profile`),
+so model, memory, cron and gateway stay isolated per role.
+
+| Profile | Role | Status |
+|---|---|---|
+| `default` | Chief of Staff: Discord bot, Assistant web, founder interface | Running |
+| `scrum-master` | Scrum Master: board sweep, pickup/progress, stalled-work recovery, dispatch to Overnight Mode, evidence, escalation to the Chief of Staff | Decided, not created |
+
+The Scrum Master reports to the Chief of Staff, not to Bilal directly, except
+for critical alerts. It dispatches; Claude Code workers do the engineering.
+Creating the profile, its schedule and its budget follows the "Before moving any
+routine to Hermes" steps below. Role contract: `docs/bamware-agent-operating-system-prd.md`.
 
 ## Machines and integrations
 

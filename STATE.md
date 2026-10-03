@@ -8,6 +8,14 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-03 — Scrum Master will be a Hermes agent on the server
+
+**Decision (Bilal):** the Scrum Master runs like the Chief of Staff: Hermes on
+omarchy, as its own profile `scrum-master`. It dispatches; Claude Code workers
+(Overnight Mode executor) do the engineering. Not created yet. Detail:
+`docs/hermes-integration.md` → Server roles. Open: retiring the overlapping
+standing-engineer and night-supervisor loops (proposed, not decided).
+
 ## 2026-10-02 — Server-native Vercel access setup
 
 Founder clarified that direct installed/authenticated server CLIs are preferred.
