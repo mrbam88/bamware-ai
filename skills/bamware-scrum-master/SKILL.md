@@ -16,3 +16,5 @@ Current implementation is deterministic supervision within the existing assistan
 Never put private personal-life context in public ledgers or worker prompts. This charter adds no email, calendar, contact or credential permissions. See ../../docs/scrum-master-runtime.md for current implementation and evidence limits.
 
 Onboarding: read the current main-branch organization policy at https://github.com/mrbam88/bamware-ai/blob/main/docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy. CoS hats remain together unless the human CEO directs a split. This file is a role instruction, not evidence that every running model has reloaded it.
+
+CoS/server read-only handoff: run `node /home/bilal/srv/bamware-ai/scripts/scrum-master-status.mjs` on omarchy. Report scope, last source check, next action and receipt; preserve unavailable/stale state. This reads persisted evidence without an HTTP cookie and does not initiate reconciliation or model reasoning.

@@ -34,7 +34,7 @@ export function assessAssignment(assignment, observations) {
   const selected=findings.find(f=>f.status==='unknown')??findings.find(f=>f.status==='review_evidence_stale')??(assignment.worker?.kind==='unassigned'?{status:'handoff_pending',nextAction:'Chief of Staff must route an authorized implementation handoff; no worker pickup exists.'}:null)??findings.find(f=>f.status!=='open_issue')??{status:'checkpoint_pending',nextAction:'Request the recorded checkpoint from the existing session worker; do not duplicate dispatch.'};
   return {status:selected.status,nextAction:selected.nextAction,findings,engineeringCompletionVerified:false,workerExecutionVerified:false,escalateToCEO:false};
 }
-export function createScrumMaster({directory,assignments=[],now=Date.now,readSource=readGitHubSource,sourceIntervalMs=900_000}) {
+export function createScrumMaster({directory,assignments=[],now=Date.now,readSource=readGitHubSource,sourceIntervalMs=900_000,sourceRevision='public-github-v1'}) {
   const file=path.join(directory,'.scrum-master.json');
   const instanceId=randomUUID();
   const read=()=>JSON.parse(fs.readFileSync(file,'utf8'));
@@ -57,7 +57,7 @@ export function createScrumMaster({directory,assignments=[],now=Date.now,readSou
   async function reconcileAssignments(runId){
     const initial=validate(read());
     for(const assignment of initial.assignments){
-      assertAllowed();if(['paused','cancelled'].includes(assignment.status)||Date.parse(assignment.nextCheckAt)>now())continue;
+      assertAllowed();if(['paused','cancelled'].includes(assignment.status)||(Date.parse(assignment.nextCheckAt)>now()&&assignment.sourceAdapterRevision===sourceRevision))continue;
       const results=[];
       for(const source of assignment.sources){
         assertAllowed();try{results.push({source,observedAt:iso(now()),status:'available',...await readSource(source)});}catch{results.push({source,observedAt:iso(now()),status:'unavailable',detail:'Read-only source unavailable; no progress or completion inferred.'});}
@@ -65,7 +65,7 @@ export function createScrumMaster({directory,assignments=[],now=Date.now,readSou
       assertAllowed();const latest=validate(read());if(latest.activeRun?.id!==runId)throw Error('Sweep ownership changed');
       const current=latest.assignments.find(a=>a.id===assignment.id);
       if(!current||current.revision!==assignment.revision||['paused','cancelled'].includes(current.status))continue;
-      current.observations=results;current.lastSourceCheckAt=iso(now());current.nextCheckAt=iso(now()+sourceIntervalMs);current.lastSweepReceiptId=runId;
+      current.sourceAdapterRevision=sourceRevision;current.observations=results;current.lastSourceCheckAt=iso(now());current.nextCheckAt=iso(now()+sourceIntervalMs);current.lastSweepReceiptId=runId;
       current.assessment={...assessAssignment(current,results),by:'scrum_master',runReceiptId:runId,at:iso(now()),executiveSummary:'Not produced by this deterministic sweep; Chief of Staff consumes the evidence.'};
       current.coverage='Issue/PR metadata only; not live worker execution, QA rerun, merge authorization or task completion.';
       save(latest);

@@ -42,3 +42,24 @@ test('source assessment routes changed review revisions and unassigned work with
  const voice=assessAssignment({...assignment,worker:{kind:'unassigned'}},[{source:assignment.sources[0],status:'available',state:'open'}]);assert.equal(voice.status,'handoff_pending');assert.equal(voice.workerExecutionVerified,false);
  const unavailable=assessAssignment(assignment,[{source,status:'unavailable'}]);assert.equal(unavailable.status,'unknown');assert.equal(unavailable.engineeringCompletionVerified,false);
 });
+
+test('read-only CoS summary never initializes state, flags stale disk and excludes extra fields',async t=>{
+ const {readScrumMasterSummary}=await import('../lib/scrum-master-summary.mjs');const s=setup(t);assert.equal(readScrumMasterSummary(s.directory).status,'unavailable');assert.equal(fs.readdirSync(s.directory).length,0);
+ const role=s.create({readSource:async()=>({state:'open'})});const id=role.beginRun();await role.reconcileAssignments(id);role.finishRun(id);
+ fs.writeFileSync(path.join(s.directory,'.coordinator.json'),JSON.stringify({status:'checked',checkedAt:'2026-10-03T00:00:00Z',failures:[],privateExtra:'DO-NOT-EXPORT'}));
+ const summary=readScrumMasterSummary(s.directory,{now:Date.parse('2026-10-03T00:00:01Z')});assert.equal(summary.status,'checked');assert.equal(summary.assignments[0].assessment.status,'checkpoint_pending');assert.equal(JSON.stringify(summary).includes('DO-NOT-EXPORT'),false);
+ assert.equal(readScrumMasterSummary(s.directory,{now:Date.parse('2026-10-03T00:04:00Z')}).status,'stale');
+});
+
+test('existing gh capability reads only projected metadata and never falls back after denied auth',async t=>{
+ const {createGitHubMetadataReader}=await import('../lib/github-metadata-reader.mjs');let calls=0;
+ const reader=createGitHubMetadataReader({ghPath:process.execPath,run:async(binary,args,options)=>{calls++;assert.equal(binary,process.execPath);assert.deepEqual(args.slice(0,4),['api','--hostname','github.com','repos/mrbam88/bamware-ai/issues/79']);assert.equal(options.timeout,5000);return {stdout:JSON.stringify({number:79,ref:'https://github.com/mrbam88/bamware-ai/issues/79',state:'open',updatedAt:'2026-10-03T00:00:00Z',extraSecret:'not-exported'})};}});
+ assert.equal(reader.revision,'existing-local-gh-v1');assert.equal(JSON.stringify(await reader.readSource(assignment.sources[0])).includes('not-exported'),false);assert.equal(calls,1);
+ const denied=createGitHubMetadataReader({ghPath:process.execPath,run:async()=>{throw Error('private stderr')}});await assert.rejects(()=>denied.readSource(assignment.sources[0]),/no auth changes/);
+ assert.equal(createGitHubMetadataReader({ghPath:'/nonexistent'}).revision,'public-github-v1');
+});
+test('source adapter revision change rechecks assignments without resetting acceptance or pause',async t=>{
+ const s=setup(t);let calls=0;const readSource=async()=>{calls++;return{state:'open'}};
+ const first=s.create({readSource,sourceRevision:'public-v1'});const id=first.beginRun();await first.reconcileAssignments(id);first.finishRun(id);const receipt=first.status().assignments[0].acceptance.receiptId;
+ const next=s.create({readSource,sourceRevision:'existing-gh-v1'});const run=next.beginRun();await next.reconcileAssignments(run);next.finishRun(run);assert.equal(calls,2);assert.equal(next.status().assignments[0].acceptance.receiptId,receipt);
+});

@@ -12,9 +12,9 @@ function save(file, value) {
   fs.writeFileSync(tmp, JSON.stringify(value, null, 2), { mode: 0o600 });
   fs.renameSync(tmp, file);
 }
-export function createOwnerBlockers({ directory, candidates, checks = {}, resumes = {}, notify, now = Date.now, intervalMs = 60_000, checkEveryMs = 300_000, supervisionAssignments = [], readSupervisionSource, onFailure = () => {} }) {
+export function createOwnerBlockers({ directory, candidates, checks = {}, resumes = {}, notify, now = Date.now, intervalMs = 60_000, checkEveryMs = 300_000, supervisionAssignments = [], readSupervisionSource, supervisionSourceRevision, onFailure = () => {} }) {
   let busy = false, timer, activeSweepReceipt, currentRuntimeFailure = null;
-  const scrumMaster = createScrumMaster({directory, assignments:supervisionAssignments, now, ...(readSupervisionSource?{readSource:readSupervisionSource}:{})});
+  const scrumMaster = createScrumMaster({directory, assignments:supervisionAssignments, now, sourceRevision:supervisionSourceRevision, ...(readSupervisionSource?{readSource:readSupervisionSource}:{})});
   const statusFile = path.join(directory, '.coordinator.json');
   const candidateMap = new Map(candidates.map(c => [c.id, c]));
   const files = () => fs.existsSync(directory) ? fs.readdirSync(directory).filter(n => /^[a-z0-9][a-z0-9-]*\.json$/.test(n)).map(n => path.join(directory, n)) : [];
