@@ -177,7 +177,7 @@ bridge is read-only. On a mapping error do not guess, or read another thread's
 context. Seed messages alone are not a user request or evidence of pickup.
 
 When the allow-listed owner asks to summarize the discussion or propose a change,
-reply conversationally, then include one fenced `bamware-decision` JSON object
+reply conversationally, then include one fenced "bamware-decision" JSON object
 using the exact decisionId, candidateVersion and fingerprint returned by the
 bridge. Include the exact ownerMessageId returned by the bridge,
 `summary` (up to 4000 characters), and optional `proposedRevision` text (up to 4000
