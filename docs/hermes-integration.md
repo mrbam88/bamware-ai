@@ -130,7 +130,7 @@ so model, memory, cron and gateway stay isolated per role.
 | Profile | Role | Status |
 |---|---|---|
 | `default` | Chief of Staff: Discord bot, Assistant web, founder interface | Running |
-| `scrum-master` | Scrum Master: board sweep, pickup/progress, stalled-work recovery, dispatch to Overnight Mode, evidence, escalation to the Chief of Staff | Decided, not created |
+| `scrum-master` | Scrum Master: board sweep, pickup/progress, stalled-work recovery, dispatch to Overnight Mode, evidence, escalation to the Chief of Staff | Created 2026-10-03 (#98); no schedule yet |
 | `accountant` | Accountant: privileged read-only personal finance; answers other agents with facts from a private ledger | Decided 2026-10-03, not created |
 | `cfo` | CFO: budgets, burn alerts, tier → provider/model routing policy for every profile, cron job and worker | Decided 2026-10-03, being set up (#100) |
 
@@ -138,6 +138,41 @@ The Scrum Master reports to the Chief of Staff, not to Bilal directly, except
 for critical alerts. It dispatches; Claude Code workers do the engineering.
 Creating the profile, its schedule and its budget follows the "Before moving any
 routine to Hermes" steps below. Role contract: `docs/bamware-agent-operating-system-prd.md`.
+
+### `scrum-master` profile (created 2026-10-03, #98)
+
+Source of truth: `config/hermes/scrum-master/` (`config.yaml`, `SOUL.md`).
+The server copy is a cache of those files.
+
+- **Model:** small tier, `copilot / gpt-5-mini` (`config/model-routing.yaml`).
+  Copilot resolves through the server's `gh auth token`, so no tokens were copied.
+- **Reads `main`:** skills and the context hook come from
+  `~/code/worktrees/bamware-ai-main`, not `~/code/bamware-ai` (a feature branch).
+- **No Discord:** `DISCORD_*` keys are removed from its `.env`, and so is the
+  CoS channel prompt. It can never start a second bot. Alerts go through the CoS.
+- **Least privilege:** no Notion MCP, no Gmail skills (`google-chief-of-staff`,
+  `email-evidence-reconciliation`).
+- **`terminal.home_mode: real` is required.** Without it, tools ran under the
+  profile's private HOME, `gh` looked logged out, and the first sweep covered
+  0 items. Its receipt is kept as evidence.
+- **Receipts:** `~/.local/state/bamware/scrum-master/sweeps/*.json` (private).
+  The first good sweep: 195 items, 32 active, 29 findings, 0 actions; GitHub
+  search showed no item changed during the run.
+- **Not yet:** no cron and no gateway. A schedule needs a `scrum-master`
+  gateway service, because cron only fires inside a running gateway. It needs
+  CEO approval of the cadence. It must not duplicate the deterministic
+  assistant-web sweep (`docs/scrum-master-runtime.md`). Dispatch waits on
+  Engineering Lead-approved tickets.
+
+Rebuild on omarchy:
+
+```sh
+hermes profile create scrum-master --clone-from default --description "<see profile.yaml>"
+cp config/hermes/scrum-master/{config.yaml,SOUL.md} ~/.hermes/profiles/scrum-master/
+sed -i '/^DISCORD_/d' ~/.hermes/profiles/scrum-master/.env
+rm -rf ~/.hermes/profiles/scrum-master/skills/{google-chief-of-staff,email-evidence-reconciliation}
+hermes -p scrum-master skills list | grep bamware-scrum-master   # must load from main
+```
 
 ## Machines and integrations
 

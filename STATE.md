@@ -8,6 +8,16 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-03 — `scrum-master` Hermes profile created on omarchy (#98)
+
+- Created; isolated from the CoS (no Discord, Notion or Gmail).
+  `copilot / gpt-5-mini`; skills from the `main` worktree.
+  Versioned in `config/hermes/scrum-master/`.
+- First read-only sweep: 195 board items, 32 active, 29 findings (28 stale
+  >72h, 1 no owner), 0 actions. Receipt is private on the server.
+- **Not yet:** recurring schedule (needs a gateway service and a CEO-approved
+  cadence), restart proof, dispatch. Detail: `docs/hermes-integration.md`.
+
 ## 2026-10-03 — Engineering Lead added to the org chart
 
 **Decision (Bilal):** an Engineering Lead (architect + manager) owns software
