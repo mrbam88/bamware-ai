@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { deriveNow, deriveNeedsYou, deriveCapacity, deriveSystem, buildAgentsSnapshot, processState, workerAlive } from "../lib/agents-status.mjs";
+import { deriveNow, deriveNeedsYou, deriveCapacity, deriveSystem, buildAgentsSnapshot, processState, workerAlive, promptLabel, readAgentsState } from "../lib/agents-status.mjs";
 import { summarizeBoard, createBoardReader } from "../lib/board.mjs";
 
 const NOW = 1791010000 * 1000;
@@ -135,5 +135,50 @@ test("capacity passes the CFO's before-reset answers through untouched", () => {
 test("board reader exposes the configured board link", async () => {
   const read = createBoardReader({ owner: "acme", project: "7", fetchItems: async () => [] });
   assert.equal((await read()).url, "https://github.com/users/acme/projects/7");
+});
+
+test("a worker prompt names its ticket and title; untitled prompts fall back to the task's first sentence", () => {
+  assert.deepEqual(promptLabel('rules\nYOUR TASK:\nTicket: mrbam88/bamware-ai#115 "Delete the orphaned rate-limits stack". Owner: Lead.'),
+    { ticket: "mrbam88/bamware-ai#115", title: "Delete the orphaned rate-limits stack" });
+  assert.deepEqual(promptLabel("Ticket: mrbam88/bamware-ai#110 item 3 (Claude quota sampler). Owner: Engineering Lead."),
+    { ticket: "mrbam88/bamware-ai#110", title: "item 3 (Claude quota sampler)" });
+  assert.deepEqual(promptLabel("YOUR TASK:\nReview tonight's PRs. Then report."), { ticket: null, title: "Review tonight's PRs" });
+  assert.equal(promptLabel(""), null);
+  assert.equal(promptLabel("no markers here"), null);
+});
+
+test("recent tasks carry a title, token totals and denied-command count from the worker's own record", () => {
+  const r = run("5", "finished", [{ id: "t85", state: "failed", exit_code: 1, started_at: 1791009000, finished_at: 1791009960 },
+    { id: "t9", state: "verified", exit_code: 0, started_at: 1791009000, finished_at: 1791009100 }],
+  [{ id: "t85" }, { id: "t9", ticket: "#9", title: "Manifest title wins" }]);
+  r.workers = {
+    t85: { usage: { input_tokens: 116, cache_creation_input_tokens: 77966, cache_read_input_tokens: 3287964, output_tokens: 32079 }, turns: 90, denials: 1,
+      label: { ticket: "mrbam88/bamware-ai#85", title: "Shared signup" } },
+    t9: { usage: null, turns: null, denials: 0, label: { ticket: "#999", title: "Prompt title loses" } },
+  };
+  const { recent } = deriveNow([r], NOW);
+  const t85 = recent.find((t) => t.task === "t85");
+  assert.deepEqual([t85.ticket, t85.title, t85.denials], ["mrbam88/bamware-ai#85", "Shared signup", 1]);
+  assert.deepEqual(t85.tokens, { input: 116, cacheWrite: 77966, cacheRead: 3287964, output: 32079, total: 3398125, turns: 90 });
+  const t9 = recent.find((t) => t.task === "t9");
+  assert.deepEqual([t9.ticket, t9.title, t9.tokens, t9.denials], ["#9", "Manifest title wins", null, 0]);
+});
+
+test("reading state picks up each task's result and prompt from the batch work directory", async () => {
+  const files = {
+    "/s/overnight/7/status.json": JSON.stringify({ phase: "finished", tasks: [{ id: "t1", state: "verified", started_at: 1, finished_at: 2 }] }),
+    "/s/overnight/7/batch.json": JSON.stringify({ tasks: [{ id: "t1", argv: ["python3", "run.py", "t1", "--work-dir", "/w"] },
+      { id: "../x", argv: ["--work-dir", "/w"] }, { id: "t2", argv: ["--work-dir", "relative/dir"] }] }),
+    "/w/t1.result.json": JSON.stringify({ usage: { input_tokens: 5, output_tokens: 7 }, num_turns: 3, permission_denials: [{}, {}] }),
+    "/w/t1.prompt": 'Ticket: o/r#4 "Fix it"',
+  };
+  const readFile = async (f) => {
+    if (!(f in files)) throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
+    return files[f];
+  };
+  const readdir = async (d) => (d === "/s/overnight" ? ["7"] : []);
+  const state = await readAgentsState("/s", { readFile, readdir });
+  assert.deepEqual(state.runs[0].workers, { t1: { usage: { input_tokens: 5, output_tokens: 7 }, turns: 3, denials: 2, label: { ticket: "o/r#4", title: "Fix it" } } },
+    "unsafe task ids and relative work dirs are skipped");
 });
 
