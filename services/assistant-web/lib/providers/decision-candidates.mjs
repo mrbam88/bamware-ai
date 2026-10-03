@@ -15,6 +15,46 @@ export const REPO_URL = "https://github.com/mrbam88/bamware-ai";
 
 export const DECISION_CANDIDATES = Object.freeze([
 {
+  "id": "auth-email-aws-access-85",
+  "version": "1",
+  "title": "Action needed: enable live account-email verification",
+  "project": "Bamware shared account recovery",
+  "context": "Blocker auth-email-aws-access-85; status: waiting for owner action. Checked 2026-10-03T02:21Z: X1 AWS STS returned NoCredentials; server has no AWS CLI. This is operator access, not proof that Lambda lacks permissions or email configuration. On X1 run: aws login. Complete the AWS browser sign-in for the existing Bamware account, then say done here. Do not paste credentials. Chief of Staff will recheck identity and inspect only configuration presence/sender readiness before resuming delivery verification. This does not authorize sending email or spending; a controlled recipient and explicit test consent are separate. Auth code and web work continue meanwhile.",
+  "source": {
+    "kind": "github-issue",
+    "ref": "mrbam88/bamware-ai#85",
+    "url": "https://github.com/mrbam88/bamware-ai/issues/85"
+  },
+  "recommendation": {
+    "optionId": "access_ready",
+    "rationale": "Restore the existing operator AWS session so live email configuration can be checked without moving credentials. Completion requires successful authenticated identity/configuration read, not merely clicking Done."
+  },
+  "options": [
+    {
+      "id": "access_ready",
+      "action": "discuss",
+      "label": "I signed in \u2014 recheck access"
+    },
+    {
+      "id": "help",
+      "action": "discuss",
+      "label": "I need help with AWS sign-in"
+    },
+    {
+      "id": "defer",
+      "action": "defer",
+      "label": "Defer live-email verification"
+    }
+  ],
+  "urgency": "high",
+  "owner": "Bilal Malik",
+  "blockedWork": [
+    "Verify deployed account-email configuration for #85",
+    "Controlled inbox verification after separate test consent"
+  ],
+  "escalationReason": "owner_access_required"
+},
+{
   "id": "brewdesk-first-carousel-72",
   "version": "1",
   "title": "Approve BrewDesk\u2019s first checklist carousel",
