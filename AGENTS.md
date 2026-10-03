@@ -58,6 +58,10 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 ## 3. How does Bilal work?
 
+**100-word rule (Bilal, 2026-10-03):** every reply is 100 words max by default.
+Answer or decision first; name tickets by title; anything to approve in one line.
+He asks when he wants more. Long replies hide signals and cause bad approvals.
+
 **Organization-wide role:** Bilal is the **Stakeholder / CEO**, not a routine task
 chaser. All agents follow the approved [role and escalation policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy):
 workers → Scrum Master → Chief of Staff → CEO. Read the policy at onboarding and when resuming a handoff; do not rely on an older conversation’s role definitions. Chief of Staff is the primary
