@@ -223,6 +223,7 @@ export function normalizeUsageEvent(raw = {}) {
     timing,
     execution: raw.execution?.version === 1 && raw.execution?.source === "worker-lifecycle" ? {
       version: 1, source: "worker-lifecycle",
+      scope: enumOr(raw.execution.scope, ["test-command", "task"], "unknown"),
       status: enumOr(raw.execution.status, ["queued", "working", "blocked", "review", "done", "failed"], "unknown"),
       phase: enumOr(raw.execution.phase, ["coding", "testing", "researching", "reviewing", "tool-use"], "unknown"),
       observedAt: typeof raw.execution.observedAt === "string" ? raw.execution.observedAt : null,
@@ -444,17 +445,20 @@ export function deriveActiveAgents(events, opts = {}) {
     const fresh = trustworthy && age <= staleAfterMs && leaseMs != null && leaseMs > now && leaseMs <= observedMs+120_000;
     const endedMs = parseMs(e.timing.endedAt);
     const working = fresh && execution.status === "working" && execution.phase !== "unknown" && endedMs == null;
-    const state = working ? "active" : trustworthy && (age > staleAfterMs || (leaseMs != null && leaseMs <= now)) ? "stale" : "unknown";
+    const terminal = trustworthy && ["done", "failed"].includes(execution.status) && endedMs === observedMs;
+    const state = terminal ? "recorded" : working ? "active" : trustworthy && (age > staleAfterMs || (leaseMs != null && leaseMs <= now)) ? "stale" : "unknown";
     return {
       key, provider:e.agent.provider, model:e.agent.model, sessionId:e.agent.sessionId,
       machine:e.agent.machine, project:e.project, task:e.task,
       lastSeenAt:lastSeenMs != null ? new Date(lastSeenMs).toISOString() : null,
       heartbeatAgeSec: trustworthy ? Math.round(age/1000) : null,
       state,
-      executionStatus: working ? "working" : trustworthy && fresh && execution.status !== "working" ? execution.status : "unknown",
+      executionStatus: terminal ? execution.status : working ? "working" : trustworthy && fresh && execution.status !== "working" ? execution.status : "unknown",
+      executionScope: execution?.scope ?? "unknown",
+      executionRecordedAt: terminal ? new Date(observedMs).toISOString() : null,
       executionPhase: working ? execution.phase : null,
       executionLeaseExpiresAt: working ? new Date(leaseMs).toISOString() : null,
-      activityEvidence: working ? "Fresh worker execution lease and pickup receipt" : "Current execution not verified; observation timestamps are not heartbeats",
+      activityEvidence: terminal ? `Recorded ${execution.scope === "test-command" ? "test command" : "execution"} ${execution.status === "done" ? "completion" : "failure"}; broader task completion is separate` : working ? "Fresh worker execution lease and pickup receipt" : "Current execution not verified; observation timestamps are not heartbeats",
     };
   });
 }

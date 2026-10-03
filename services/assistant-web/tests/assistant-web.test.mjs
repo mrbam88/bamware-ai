@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { parseEnvFile, parseHermesOutput, validateChatInput, signSession, verifySession, safeEqual, LoginLimiter } from "../lib.mjs";
 import { createServer, loadConfig } from "../server.mjs";
@@ -398,4 +398,20 @@ test("an unknown decision id is 404, not silently ignored", async () => {
     });
     assert.equal(res.status, 404);
   });
+});
+
+
+test("opt-in tool receipt reader returns recorded command evidence through authenticated API", async () => {
+  const dir=mkdtempSync(path.join(tmpdir(),"tool-receipt-api-"));
+  const at=new Date().toISOString();
+  writeFileSync(path.join(dir,"aabbcc.json"),JSON.stringify({version:1,event:{id:"tool:fixture",project:"fixture",repo:"fixture",task:{id:"qa",title:"Fixture QA"},agent:{provider:"node-test",sessionId:"tool:fixture"},timing:{startedAt:at,endedAt:at},execution:{version:1,source:"worker-lifecycle",scope:"test-command",status:"done",phase:"testing",pickupReceiptId:"fixture",observedAt:at,leaseExpiresAt:at},source:{kind:"synthetic"}}}));
+  try {
+    await withServer(async base=>{
+      const {cookie}=await login(base);
+      const body=await (await fetch(`${base}/api/work-usage`,{headers:{cookie}})).json();
+      assert.equal(body.adapterNotes.find(x=>x.name==="tool-execution").ok,true);
+      const agent=body.activeAgents.find(x=>x.sessionId==="tool:fixture");
+      assert.equal(agent.state,"recorded");assert.equal(agent.executionStatus,"done");assert.equal(agent.executionScope,"test-command");assert.equal(agent.executionLeaseExpiresAt,null);
+    },{ASSISTANT_WEB_TOOL_EXECUTION_DIR:dir});
+  } finally {rmSync(dir,{recursive:true,force:true});}
 });

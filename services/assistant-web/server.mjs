@@ -30,6 +30,7 @@ import { codexQuotaAdapter } from "./lib/providers/codex-quota-adapter.mjs";
 import { readServerQuota } from "./lib/providers/server-quota-adapter.mjs";
 import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
 import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
+import { readToolExecutionEvents } from "./lib/tool-execution-recorder.mjs";
 import { buildWorkUsageSnapshot } from "./lib/work-usage.mjs";
 import { overnightUsageAdapter } from "./lib/providers/overnight-usage-adapter.mjs";
 import { workUsageSelfAdapter } from "./lib/providers/work-usage-self-adapter.mjs";
@@ -73,6 +74,7 @@ export function loadConfig(env = process.env) {
     codexQuotaFile: get("ASSISTANT_WEB_CODEX_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/codex-quota.json")),
     serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
+    toolExecutionDir: get("ASSISTANT_WEB_TOOL_EXECUTION_DIR", ""),
     overnightUsageFile: get("ASSISTANT_WEB_OVERNIGHT_USAGE_FILE", path.join(os.homedir(), ".local/state/bamware/overnight/usage.json")),
     ownerBlockersEnabled: get("ASSISTANT_WEB_OWNER_BLOCKERS", "0") === "1",
     ownerBlockersDir: get("ASSISTANT_WEB_OWNER_BLOCKERS_DIR", path.join(os.homedir(), ".local/state/bamware/owner-blockers")),
@@ -325,7 +327,7 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
         const adapters =
           mode === "demo"
             ? [{ name: "demo", run: workUsageDemoAdapter }]
-            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }, { name: "overnight", run: () => overnightUsageAdapter(cfg.overnightUsageFile) }];
+            : [{ name: "self", run: (c) => workUsageSelfAdapter(c) }, { name: "overnight", run: () => overnightUsageAdapter(cfg.overnightUsageFile) }, ...(cfg.toolExecutionDir ? [{ name: "tool-execution", run: () => readToolExecutionEvents(cfg.toolExecutionDir, {onInvalid: () => log({event:"tool-receipt.invalid"})}) }] : [])];
         const workCtx = { repoDir: cfg.hermesCwd, repoName: path.basename(REPO_ROOT) };
         const snapshot = await buildWorkUsageSnapshot(adapters, workCtx, {
           now: Date.now(),
