@@ -62,10 +62,24 @@ Stakeholder / CEO
     |
 Chief of Staff — executive direction and primary founder interface
     |
-Scrum Master — one shared resident delivery role across projects
+    +-- Scrum Master — what runs: delivery, pickup, follow-through
+    |
+    +-- CFO — on what model and budget: spend, limits, provider routing
+    |
+    +-- Accountant — the founder's personal finances; privileged, read-only
     |
 Project engineering / research / review workers — transient execution
 ```
+
+| Role | Harness | Where |
+|---|---|---|
+| Chief of Staff | Hermes, `default` profile (Discord bot + Assistant web) | omarchy |
+| Scrum Master | Hermes, `scrum-master` profile | omarchy |
+| CFO | Hermes, `cfo` profile, over a deterministic routing policy | omarchy |
+| Accountant | Hermes, `accountant` profile, small model, private ledger | omarchy |
+| Workers | Claude Code headless, launched by the Overnight Mode executor | omarchy (Xcode work: the Mac) |
+
+Models are chosen per profile and can change; no role is tied to a vendor.
 
 This is the approved initial chain (founder decision, 2026-10-03). Product,
 engineering, design and operations specialties can grow within it; they do not
@@ -91,6 +105,33 @@ This applies to **every agent and project**, including onboarding and handoffs.
   conversations; model calls occur only when needed, not continuously. Durable
   service state, startup/restart recovery and scheduled/event processing must be
   verified before claiming resident operation.
+  **Harness (founder decision, 2026-10-03):** a Hermes agent on omarchy, like
+  the Chief of Staff: its own Hermes profile, `scrum-master`. It plans, tracks
+  and dispatches; it does not write code. Engineering work goes to Claude Code
+  workers through the Overnight Mode executor, because Hermes subagents are
+  process-local and not durable workers (`docs/hermes-integration.md`).
+- **CFO (founder decision, 2026-10-03):** owns AI spend, token allowances, rate
+  limits and provider/model routing for every agent and project. Tasks carry a
+  tier (top / mid / small) from their scope; the CFO maps each tier to the best
+  available provider and model from live quota, reset times, cost and observed
+  quality. Any provider is eligible: OpenAI, Anthropic, xAI, Google, open-weight.
+  Paces weekly allowances, alerts on burn rate, shifts or pauses work before a
+  limit is hit. Publishes the routing policy that dispatchers read; it is not a
+  model call in front of every task. Others stop making spend decisions: the
+  Scrum Master decides what runs, the CFO decides on what. New spend, accounts
+  or API keys still need the CEO. Reports to the Chief of Staff; budget
+  breaches are critical alerts. Origin: one day of `gpt-6-astra` on everything
+  used ~90% of a weekly OpenAI limit (2026-10-02). Detail: #100.
+- **Accountant (founder decision, 2026-10-03):** the one agent with privileged,
+  read-only access to the founder's financial information (Gmail receipts and
+  invoices first; other sources only with explicit approval). Keeps a private
+  ledger: subscriptions, recurring charges, prices, renewal dates. Other agents
+  ask it questions and get facts back, never raw emails, receipts or account
+  numbers. The CFO gets plan and price facts here; live usage still comes from
+  provider counters. Never pays, cancels, signs up or moves money; it
+  recommends and the founder acts. Ledger lives in a private store, never in
+  this repo or in tickets. Event-driven on a small model: refresh on a new
+  receipt, answer from the ledger otherwise. Starts with subscriptions only.
 - **Workers:** implement, research or test within assigned authority, producing
   source-linked evidence and clear unknowns. They do not redefine priorities,
   approve their own reserved gates or silently expand scope/spend.
