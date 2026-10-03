@@ -21,6 +21,17 @@ command proves permission for a later merge. GitHub has no universal safe dry-ru
 for creating or merging a PR; unresolved authorization must remain unresolved.
 Never mark `approved: true` merely because a ticket has the `night` label.
 
+## Where it runs (2026-10-03)
+
+Code runs from `~/code/worktrees/bamware-ai-main/services/overnight/` on omarchy,
+a checkout detached on `origin/main`. Never a copied folder (see "One deployed
+copy" in `docs/engineering-operating-contract.md`). Batch data lives outside the
+code: prompts, results, evidence and `finalize.json` (repo, PR, branch, tasks,
+title) go in a per-batch work directory under `~/.local/state/bamware/overnight/`,
+passed as `BAMWARE_BATCH_WORK` or `--work-dir`. Workers start through
+`run_engineer.py <task> --work-dir DIR --model MODEL`; pass the CFO-routed model.
+Every task is metered by `services/cfo/meter.py` (cost in % of each pool).
+
 ## Manifest and use
 
 Run on the server with Python 3 (standard library only):

@@ -46,6 +46,24 @@ and hands back only when:
 
 Everything else is a flag in the PR body, not a stop.
 
+### One deployed copy — no collisions
+
+Added 2026-10-03 after five collisions in one audit (docs/incidents.md). The
+Engineering Lead enforces these in every review and deploy:
+
+- **Production runs only from a git checkout of `main`**, detached at a known
+  commit (on omarchy: `~/code/worktrees/bamware-ai-main`). Never a hand-copied
+  folder, never a feature branch, never a `.claude/worktrees` directory.
+- **Services merge to `main`.** A PR that targets a feature branch does not
+  ship a service; it parks it.
+- **Code is generic; batch and run facts are data.** Ticket numbers, PR
+  numbers, branches, dates and machine paths go in a config or state file,
+  never in a service's source. A hard-coded one is a review rejection.
+- **One copy of each script.** A second copy is a fork; delete it or make it
+  the source and delete the other.
+- **Drift is checked, not assumed:** deployed code is compared with `main`
+  before a deploy and on a schedule.
+
 ## 2. Lightweight Delivery Workflow
 
 Default flow:

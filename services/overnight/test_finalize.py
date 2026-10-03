@@ -16,6 +16,8 @@ class FinalizeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / 'qa.evidence.json').write_text(json.dumps({'status': 'partial', 'approved_for_publish': approval}))
+            (root / 'finalize.json').write_text(json.dumps({'repo': 'mrbam88/bamware-ai', 'pr': '80',
+                'branch': 'feat/overnight-20261002', 'tasks': ['75', '76', '78'], 'title': 'Overnight build report'}))
             for task in ('75', '76', '78'):
                 (root / f'{task}.evidence.json').write_text(json.dumps({'status': 'implemented', 'limitations': ['Browser check unavailable']}))
             calls = []

@@ -128,6 +128,34 @@ published when authorized, with enough detail that a weaker agent can follow
 them. This principle is now stated near the top of `AGENTS.md` and expanded in
 `docs/portability.md`; runtime ownership no longer depends on model names.
 
+## 2026-10-03 — five copies of the truth: deployed code drifted from `main`
+
+Switching the Overnight Mode executor to the merged code found the same
+collision five times:
+
+1. `~/srv/overnight-mode` was a hand-copied production executor outside git.
+   It had drifted from `main`, and the worker launcher (`run-engineer.py`)
+   existed only there.
+2. `services/overnight/finalize.py` on `main` hard-coded one night's batch
+   (PR 80, tickets 75/76/78, its branch and date): batch data merged as service
+   code. It worked once and would have mis-reported every later batch.
+3. The Assistant web service runs from a feature branch
+   (`worktree-assistant-web-slice`) in `~/srv/bamware-ai`; PR #80 merged into
+   that branch, so `main` does not contain the running service.
+4. Parallel `~/srv/quota-coverage-81` and `~/srv/admin-migration-82` copies
+   carry their own versions of the same scripts.
+5. The Claude quota samples the CFO reads come from a temporary
+   `.claude/worktrees` folder in bamware-web.
+
+Nothing broke yet; each was a silent fork waiting to give two answers. Cause:
+agents shipped by copying or branching to get unblocked, and no review asked
+"is this the one copy, from `main`?"
+
+**Rules it produced:** "One deployed copy" in
+`docs/engineering-operating-contract.md`, owned by the Engineering Lead. The
+executor now runs from `main` with batch facts in `finalize.json`. Remaining
+collisions (3–5) are tracked as their own ticket.
+
 ## The pattern
 
 Every one of these was a *copy* diverging from its source — or an agent
