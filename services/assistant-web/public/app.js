@@ -724,7 +724,7 @@ import { renderQuotaMeter } from './quota-meter.js';
       status.className = "decision-card";
       const sm = c.scrumMaster;
       const headline = document.createElement("p");
-      headline.textContent = `Scrum Master · ${Array.isArray(sm?.assignments) ? `Watching ${sm.assignments.length} efforts` : "Assignment data unavailable"} · ${c.currentRuntimeFailure ? "Runtime failure" : c.status || "Status unavailable"}`;
+      headline.textContent = `Scrum Master · ${Array.isArray(sm?.assignments) ? `${sm.assignments.length} assigned efforts` : "Assignment data unavailable"} · ${c.currentRuntimeFailure ? "Runtime failure" : c.status || "Status unavailable"}`;
       status.appendChild(headline);
       const timing = document.createElement("p"); timing.className = "dc-meta";
       timing.textContent = `Last sweep: ${c.checkedAt || "not observed"} · Next check: ${c.nextSweepAt || "not scheduled"}`; status.appendChild(timing);
