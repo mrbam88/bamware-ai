@@ -199,3 +199,25 @@ button.link.danger { color: var(--danger); }
 .decisionList { grid-template-columns: minmax(0, 1fr); }
 .decision-card { min-width: 0; overflow-wrap: anywhere; }
 .decision-card select { max-width: 100%; }
+
+/* Shared task identity in both views: title/purpose first; context separate from status. */
+#usageByTaskList .wu-item { padding: 16px; }
+#usageByTaskList .wu-title { font-size: 16px; line-height: 1.45; }
+.taskPurpose { display: block; margin: 8px 0; font-size: 14px; line-height: 1.5; font-weight: 400; color: var(--ink); }
+.treeNote { font-size: 13px; }
+.workBatchTag { display: inline-block; margin: 8px 8px 4px 0; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink); font-size: 12px; line-height: 1.5; font-weight: 500; }
+.workSourceLink { display: inline-block; padding: 10px 0; font-size: 13px; overflow-wrap: anywhere; }
+.workTaskContext { margin-bottom: 14px; }
+#usageByTaskList .wu-detail { font-size: 14px; line-height: 1.5; }
+#usageByTaskList .wu-meta { font-size: 13px; line-height: 1.5; }
+
+.workCost { display: block; font-size: 18px; line-height: 1.4; font-weight: 650; color: var(--ink); margin: 10px 0; }
+#usageByTaskList details > summary { padding: 12px 0; cursor: pointer; font-size: 14px; }
+
+.workTaskStatus { font-size: 14px; line-height: 1.5; margin: 6px 0; }
+.wu-item.treeAttention { border-left: 3px solid var(--warn); }
+.workSourceLink:focus-visible, #usageByTaskList summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.workViewSwitch button { min-height: 44px; }
+.workSourceLink, .workBranch > a, .workBranch > p > a { min-height: 44px; display: inline-flex; align-items: center; box-sizing: border-box; }
+#workTreeCoverage summary { min-height: 44px; padding: 12px 0; cursor: pointer; }

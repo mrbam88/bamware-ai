@@ -1,3 +1,4 @@
+import { summarizeWorkCost } from "./work-cost.mjs";
 // Work-usage / agent-analytics data contract for the Agents view
 // (bamware-ai#76, builds on #75's rate-limits.mjs).
 //
@@ -11,6 +12,7 @@
 // No network or filesystem I/O lives here; see lib/providers/*.mjs.
 
 import os from "node:os";
+import { describeWorkTask, workProjectName } from "./providers/work-task-metadata.mjs";
 import { buildWorkTree } from "./work-tree.mjs";
 
 export const WORK_USAGE_CONTRACT_VERSION = "1";
@@ -272,7 +274,7 @@ export function dedupeEvents(events) {
 
 // ----------------------------------------------------------- usage agg ---
 function scopeKeyOf(e) {
-  return e.unallocated ? "unallocated" : `${e.project}::${e.task.id}`;
+  return e.unallocated ? "unallocated" : JSON.stringify([e.project, e.repo, e.task.id]);
 }
 
 function emptyUsageTotals() {
@@ -315,6 +317,11 @@ export function aggregateUsageByScope(events) {
         key,
         unallocated: e.unallocated,
         project: e.project,
+        repo: e.repo,
+        projectName: workProjectName(e.project, e.repo),
+        description: describeWorkTask(e),
+        metadataOnly: true,
+        costEvents: [],
         task: e.task,
         usage,
         partial,
@@ -324,6 +331,8 @@ export function aggregateUsageByScope(events) {
       };
       scopes.set(key, scope);
     }
+    scope.costEvents.push(e);
+    scope.metadataOnly &&= !e.task && !e.attempt.id && !e.agent.sessionId && USAGE_FIELDS.every(f => e.usage[f] == null);
     addUsage(scope.usage, scope.partial, e.usage);
     scope.attempts.push({
       eventId: e.id,
@@ -342,7 +351,7 @@ export function aggregateUsageByScope(events) {
     if (e.attempt.kind === "retry") scope.retryCount += 1;
     if (e.attempt.kind === "qa") scope.qaAttemptCount += 1;
   }
-  const all = [...scopes.values()];
+  const all = [...scopes.values()].map(({costEvents,...scope})=>({...scope,cost:summarizeWorkCost(costEvents)}));
   const unallocated = all.find((s) => s.unallocated) ?? null;
   const allocated = all.filter((s) => !s.unallocated);
   return { scopes: allocated, unallocated };
@@ -503,6 +512,14 @@ export async function buildWorkUsageSnapshot(adapters, ctx = {}, opts = {}) {
   const normalized = rawEvents.map(normalizeUsageEvent);
   const { events, duplicatesDropped, noStableKey } = dedupeEvents(normalized);
   const usage = aggregateUsageByScope(events);
+  const workTree = buildWorkTree(events, { now });
+  for (const scope of usage.scopes) {
+    const projectId = JSON.stringify([scope.project, scope.repo]);
+    const taskId = JSON.stringify([projectId, scope.task.id]);
+    const task = workTree.projects.find(p => p.id === projectId)?.tasks.find(t => t.id === taskId);
+    scope.state = task?.state ?? 'Activity unknown';
+    scope.attention = task?.attention ?? false;
+  }
   const timing = aggregateTiming(events);
   const outcomes = aggregateOutcomes(events);
   const activeAgents = deriveActiveAgents(events, { now, staleAfterMs: opts.staleAfterMs });
@@ -520,7 +537,7 @@ export async function buildWorkUsageSnapshot(adapters, ctx = {}, opts = {}) {
     timing,
     outcomes,
     activeAgents,
-    workTree: buildWorkTree(events, { now }),
+    workTree,
     routing,
   };
 }

@@ -250,10 +250,24 @@ import { renderQuotaMeter } from './quota-meter.js';
   $("workListButton").addEventListener("click", () => setWorkView("list"));
   $("workTreeButton").addEventListener("click", () => setWorkView("tree"));
 
+  function workCostLabel(cost) {
+    if (!cost || (cost.estimated == null && cost.billed == null)) return "Cost unavailable";
+    const prefix = cost.incomplete ? "Known " : "";
+    return [cost.estimated == null ? null : `${prefix}${prefix ? "estimate" : "Estimated"} $${cost.estimated.toFixed(2)}`, cost.billed == null ? null : `${prefix}${prefix ? "billed" : "Billed"} $${cost.billed.toFixed(2)}`].filter(Boolean).join(" · ") + (cost.incomplete ? " · incomplete" : "") + " · recorded work";
+  }
+  function costEvidence(cost) {
+    if (!cost) return "Cost source unavailable.";
+    return `${cost.scope}. ${cost.from ? `Observed ${new Date(cost.from).toLocaleDateString()}–${new Date(cost.to).toLocaleDateString()}.` : "Period unavailable."} ${cost.sources.length ? `Pricing: ${cost.sources.join("; ")}.` : "Pricing source unavailable."}${cost.incomplete ? ` Missing readings: ${cost.unknown}; overlapping records excluded: ${cost.overlapping}.` : ""}`;
+  }
+
   function renderWorkTree(data) {
     const container = $("workTreeContent");
     container.replaceChildren();
-    $("workTreeCoverage").textContent = data.workTree?.coverage || "Work relationships are unavailable from this source.";
+    const coverage = $("workTreeCoverage");
+    coverage.replaceChildren();
+    const coverageNote = document.createElement("span"); coverageNote.textContent = "Recorded work, not live agent status.";coverage.appendChild(coverageNote);
+    const coverageDetails=document.createElement("details");const coverageSummary=document.createElement("summary");coverageSummary.textContent="Coverage details";coverageDetails.appendChild(coverageSummary);
+    const coverageText=document.createElement("p");coverageText.textContent=data.workTree?.coverage || "Work relationships are unavailable from this source.";coverageDetails.appendChild(coverageText);coverage.appendChild(coverageDetails);
     const projects = (data.workTree?.projects || []).filter(p => !workUsageProject || p.project === workUsageProject);
     const line = (tag, text, className) => {
       const el = document.createElement(tag); el.textContent = text;
@@ -272,10 +286,34 @@ import { renderQuotaMeter } from './quota-meter.js';
     };
     if (!projects.length) container.appendChild(line("p", "No observed work in this scope. Try another project or preview the labeled demo.", "hint"));
     for (const project of projects) {
-      const p = branch(project.id, project.name, `${project.taskCount} known tasks · ${project.runCount} recorded runs · ${project.attentionCount} tasks with unresolved recorded signals${project.uncertainCount ? ` · ${project.uncertainCount} uncertain` : ""}`);
+      const p = branch(project.id, project.name, project.tasks.length ? `${project.taskCount} tasks · ${project.runCount} recorded runs${project.attentionCount ? ` · ${project.attentionCount} need attention` : ""}${project.uncertainCount ? ` · ${project.uncertainCount} uncertain` : ""}` : "Repository context only · no task or worker linked");
       if (project.attentionCount) p.classList.add("treeAttention");
+      if (project.repositoryUrl === "https://github.com/mrbam88/bamware-ai") {
+        const repo = line("a", "Repository: mrbam88/bamware-ai", "hint");
+        repo.href = project.repositoryUrl;
+        p.appendChild(repo);
+      }
+      for (const metadata of project.metadata || []) {
+        p.appendChild(line("p", "Repository and machine metadata only. This is not an agent task or a worker status.", "hint"));
+        p.appendChild(line("p", `${metadata.machine || "Machine not identified"}${metadata.commit ? ` · Commit ${metadata.commit}` : ""}`, "hint"));
+        p.appendChild(line("p", `Source: ${metadata.source}${metadata.fetchedAt ? ` · Observed ${new Date(metadata.fetchedAt).toLocaleString()}` : ""}`, "hint"));
+      }
       for (const task of project.tasks) {
         const t = branch(task.id, task.title, task.state);
+        t.querySelector("summary").appendChild(line("span", workCostLabel(task.cost), "workCost"));
+        t.appendChild(line("p", costEvidence(task.cost), "hint"));
+        if (task.purpose) t.querySelector("summary").insertBefore(line("span", task.purpose, "taskPurpose"), t.querySelector(".treeNote"));
+        if (task.batch) t.querySelector("summary").appendChild(line("span", `${task.batchLabel || "Batch"} · ${task.batch}`, "workBatchTag"));
+        const taskSource = line("p", "", "hint");
+        if (task.sourceUrl && /^https:\/\/github\.com\/mrbam88\/bamware-ai\/issues\/\d+$/.test(task.sourceUrl)) {
+          const link = line("a", task.ticket || "Source issue");
+          link.href = task.sourceUrl;
+          link.title = task.sourceTitle || task.title;
+          taskSource.appendChild(link);
+        } else if (task.ticket) taskSource.appendChild(document.createTextNode(task.ticket));
+        if (taskSource.textContent) t.appendChild(taskSource);
+        if (task.metadataAsOf) t.appendChild(line("p", `Issue description cached ${task.metadataAsOf}`, "hint"));
+        else t.appendChild(line("p", "Recorded task label; purpose not available.", "hint"));
         if (task.attention) t.classList.add("treeAttention");
         for (const run of task.runs) {
           const r = branch(run.id, `${run.kind} · ${run.provider || "Worker unknown"}`, run.state);
@@ -360,7 +398,7 @@ import { renderQuotaMeter } from './quota-meter.js';
     for (const p of projects) {
       const opt = document.createElement("option");
       opt.value = p;
-      opt.textContent = p;
+      opt.textContent = (data.workTree?.projects || []).find(project => project.project === p)?.name || p;
       els.workUsageProjectFilter.appendChild(opt);
     }
     workUsageProject = projects.includes(prevValue) ? prevValue : "";
@@ -396,7 +434,7 @@ import { renderQuotaMeter } from './quota-meter.js';
     const title = document.createElement("div");
     title.className = "wu-title";
     const name = document.createElement("span");
-    name.textContent = isUnallocated ? "Unallocated usage (no project/ticket)" : `${s.project} · ${s.task.title || `#${s.task.id}`}`;
+    name.textContent = s.metadataOnly ? "Repository context" : isUnallocated ? "Unallocated usage (no project/ticket)" : s.description?.title || s.task.title || `#${s.task.id}`;
     title.appendChild(name);
     if (s.retryCount) {
       const b = document.createElement("span");
@@ -411,6 +449,42 @@ import { renderQuotaMeter } from './quota-meter.js';
       title.appendChild(b);
     }
     li.appendChild(title);
+    if (!s.metadataOnly) {
+      const status = document.createElement("div"); status.className="workTaskStatus";
+      status.textContent=s.state || "Activity unknown";li.appendChild(status);
+      if(s.attention) li.classList.add("treeAttention");
+    }
+    const context = document.createElement("div");
+    context.className = "workTaskContext";
+    const project = document.createElement("div");
+    project.className = "wu-meta";
+    project.textContent = s.projectName || s.project || "Project not attributed";
+    context.appendChild(project);
+    if (s.description?.repositoryUrl === "https://github.com/mrbam88/bamware-ai") {
+      const repo = document.createElement("a"); repo.className="workSourceLink";
+      repo.href=s.description.repositoryUrl;repo.textContent="Repository: mrbam88/bamware-ai";context.appendChild(repo);
+    }
+    if (s.metadataOnly) {
+      const note = document.createElement("p"); note.className = "taskPurpose";
+      note.textContent = "Repository and machine metadata only. No task, worker or usage reading is linked.";
+      context.appendChild(note); li.appendChild(context); return li;
+    }
+    const description = s.description || {};
+    const purpose = document.createElement("p"); purpose.className = "taskPurpose";
+    purpose.textContent = description.purpose || "Recorded task label; purpose not available.";
+    context.prepend(purpose);
+    if (description.batch) {
+      const batch = document.createElement("span"); batch.className = "workBatchTag";
+      batch.textContent = `${description.batchLabel || "Batch"} · ${description.batch}`; context.appendChild(batch);
+    }
+    if (description.sourceUrl && /^https:\/\/github\.com\/mrbam88\/bamware-ai\/issues\/\d+$/.test(description.sourceUrl)) {
+      const source = document.createElement("a"); source.className = "workSourceLink";
+      source.href = description.sourceUrl; source.textContent = description.ticket || "Source issue";
+      source.title = description.sourceTitle || description.title; context.appendChild(source);
+    }
+    const cost = document.createElement("div"); cost.className = "workCost";
+    cost.textContent = workCostLabel(s.cost); title.after(cost);
+    li.appendChild(context);
 
     const detail = document.createElement("div");
     detail.className = "wu-detail";
@@ -419,13 +493,19 @@ import { renderQuotaMeter } from './quota-meter.js';
       `in ${partialMark("input")}${fmtTokens(s.usage.input)} · out ${partialMark("output")}${fmtTokens(s.usage.output)} · ` +
       `cache-write ${partialMark("cacheWrite5m")}${fmtTokens((s.usage.cacheWrite5m ?? 0) + (s.usage.cacheWrite1h ?? 0) || null)} · ` +
       `cache-read ${partialMark("cacheRead")}${fmtTokens(s.usage.cacheRead)}`;
-    li.appendChild(detail);
+    const accounting = document.createElement("details");
+    const accountingTitle = document.createElement("summary"); accountingTitle.textContent = "Usage and cost sources"; accounting.appendChild(accountingTitle);
+    const evidence = document.createElement("p"); evidence.className="wu-meta"; evidence.textContent=costEvidence(s.cost); accounting.appendChild(evidence);
+    if (description.metadataAsOf) {
+      const cached=document.createElement("p");cached.className="wu-meta";cached.textContent=`Issue description cached ${description.metadataAsOf}`;accounting.appendChild(cached);
+    }
+    accounting.appendChild(detail);li.appendChild(accounting);
 
     if (Object.values(s.partial).some(Boolean)) {
       const note = document.createElement("div");
       note.className = "wu-notes";
       note.textContent = "≥ marks a total with at least one unknown contributing reading (floor, not exact).";
-      li.appendChild(note);
+      accounting.appendChild(note);
     }
 
     const details = document.createElement("details");
