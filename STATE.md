@@ -8,6 +8,13 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-03 — CFO added to the org chart
+
+**Decision (Bilal):** a CFO agent owns AI spend, limits and provider/model
+routing, peer of the Scrum Master under the Chief of Staff. Tasks carry a tier;
+the CFO picks the provider and model. Cause: `gpt-6-astra` on everything used
+~90% of the weekly OpenAI limit on 2026-10-02. Setup in progress: #100.
+
 ## 2026-10-03 — Scrum Master will be a Hermes agent on the server
 
 **Decision (Bilal):** the Scrum Master runs like the Chief of Staff: Hermes on
