@@ -238,6 +238,59 @@ import { renderQuotaMeter } from './quota-meter.js';
   let workUsageLoading = false;
   let workUsageLastData = null;
   let workUsageProject = "";
+  let workView = "list";
+  const treeExpanded = new Set();
+  function setWorkView(view) {
+    workView = view;
+    $("workTreeWidget").hidden = view !== "tree";
+    for (const id of ["usageByTaskWidget", "activeAgentsWidget", "workVsWaitWidget", "outcomesWidget"]) $(id).hidden = view === "tree";
+    $("workListButton").setAttribute("aria-pressed", String(view === "list"));
+    $("workTreeButton").setAttribute("aria-pressed", String(view === "tree"));
+  }
+  $("workListButton").addEventListener("click", () => setWorkView("list"));
+  $("workTreeButton").addEventListener("click", () => setWorkView("tree"));
+
+  function renderWorkTree(data) {
+    const container = $("workTreeContent");
+    container.replaceChildren();
+    $("workTreeCoverage").textContent = data.workTree?.coverage || "Work relationships are unavailable from this source.";
+    const projects = (data.workTree?.projects || []).filter(p => !workUsageProject || p.project === workUsageProject);
+    const line = (tag, text, className) => {
+      const el = document.createElement(tag); el.textContent = text;
+      if (className) el.className = className;
+      return el;
+    };
+    const branch = (id, title, note) => {
+      const el = document.createElement("details");
+      el.className = "workBranch";
+      el.open = treeExpanded.has(`${data.mode}:${id}`);
+      const summary = line("summary", title);
+      summary.appendChild(line("span", note, "treeNote"));
+      el.appendChild(summary);
+      el.addEventListener("toggle", () => { if (!el.isConnected) return; const k = `${data.mode}:${id}`; el.open ? treeExpanded.add(k) : treeExpanded.delete(k); });
+      return el;
+    };
+    if (!projects.length) container.appendChild(line("p", "No observed work in this scope. Try another project or preview the labeled demo.", "hint"));
+    for (const project of projects) {
+      const p = branch(project.id, project.name, `${project.taskCount} known tasks · ${project.runCount} recorded runs · ${project.attentionCount} tasks with unresolved recorded signals${project.uncertainCount ? ` · ${project.uncertainCount} uncertain` : ""}`);
+      if (project.attentionCount) p.classList.add("treeAttention");
+      for (const task of project.tasks) {
+        const t = branch(task.id, task.title, task.state);
+        if (task.attention) t.classList.add("treeAttention");
+        for (const run of task.runs) {
+          const r = branch(run.id, `${run.kind} · ${run.provider || "Worker unknown"}`, run.state);
+          r.appendChild(line("p", `${run.model || "Model unknown"} · ${run.machine || "Machine unknown"}`, "hint"));
+          r.appendChild(line("p", `${run.freshness} · ${run.observedAt ? new Date(run.observedAt).toLocaleString() : "No recorded time"}`, "hint"));
+          r.appendChild(line("p", `Source: ${run.source} (${run.sourceKind})`, "hint"));
+          if (run.sessionId) r.appendChild(line("p", `Session: ${run.sessionId}`, "hint"));
+          if (!run.runKnown) r.appendChild(line("p", "Metadata only; worker run not established.", "hint"));
+          t.appendChild(r);
+        }
+        p.appendChild(t);
+      }
+      container.appendChild(p);
+    }
+  }
 
   const OUTCOME_LABEL = { "verified-pass": "Verified pass", "qa-fail": "QA fail", "retry-pending": "Retry pending", unverified: "Unverified", unknown: "Unknown" };
   const HEARTBEAT_LABEL = { active: "Active", stale: "Stale", unknown: "Unknown" };
@@ -262,6 +315,7 @@ import { renderQuotaMeter } from './quota-meter.js';
   async function loadWorkUsage() {
     if (workUsageLoading) return;
     workUsageLoading = true;
+    $("workTreeContent").textContent = "Loading work…";
     for (const list of [els.usageByTaskList, els.activeAgentsList, els.workVsWaitList, els.outcomesList]) {
       list.innerHTML = "";
       const li = document.createElement("li");
@@ -281,6 +335,8 @@ import { renderQuotaMeter } from './quota-meter.js';
         li.textContent = `Could not load: ${err.message}`;
         list.appendChild(li);
       }
+      $("workTreeContent").textContent = `Could not load work: ${err.message}. Use Refresh to retry.`;
+      $("workTreeCoverage").textContent = "";
       els.workUsageDemoBanner.hidden = true;
       els.workUsageCoverage.textContent = "";
     } finally {
@@ -298,7 +354,7 @@ import { renderQuotaMeter } from './quota-meter.js';
         ? `${data.duplicatesDropped} duplicate reading(s) collapsed.`
         : "";
 
-    const projects = [...new Set((data.usageByProjectTask || []).map((s) => s.project).filter(Boolean))].sort();
+    const projects = [...new Set([...(data.usageByProjectTask || []).map(s => s.project), ...(data.workTree?.projects || []).map(p => p.project)].filter(Boolean))].sort();
     const prevValue = els.workUsageProjectFilter.value;
     els.workUsageProjectFilter.innerHTML = '<option value="">All</option>';
     for (const p of projects) {
@@ -310,6 +366,7 @@ import { renderQuotaMeter } from './quota-meter.js';
     workUsageProject = projects.includes(prevValue) ? prevValue : "";
     els.workUsageProjectFilter.value = workUsageProject;
 
+    renderWorkTree(data);
     renderUsageByTask(data);
     renderActiveAgents(data);
     renderWorkVsWait(data);

@@ -88,6 +88,7 @@
       <div class="widget" id="workUsageControls">
         <div class="widgetHead">
           <h2>Work &amp; agents</h2>
+          <div class="workViewSwitch" role="group" aria-label="Work view"><button type="button" id="workListButton" aria-pressed="true">List</button><button type="button" id="workTreeButton" aria-pressed="false">Work tree</button></div>
           <div class="widgetActions">
             <label class="toggle">Project:
               <select id="workUsageProjectFilter"><option value="">All</option></select>
@@ -105,6 +106,11 @@
         <p class="hint" id="workUsageCoverage"></p>
       </div>
 
+      <div class="widget" id="workTreeWidget" hidden>
+        <div class="widgetHead"><h2>Work tree</h2><span class="hint">Projects → tasks → recorded work</span></div>
+        <p class="hint" id="workTreeCoverage"></p>
+        <div id="workTreeContent"></div>
+      </div>
       <div class="widget" id="usageByTaskWidget">
         <div class="widgetHead"><h2>Usage by project &amp; ticket</h2></div>
         <ul class="wuList" id="usageByTaskList" aria-live="polite"></ul>

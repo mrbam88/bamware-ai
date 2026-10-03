@@ -11,6 +11,7 @@
 // No network or filesystem I/O lives here; see lib/providers/*.mjs.
 
 import os from "node:os";
+import { buildWorkTree } from "./work-tree.mjs";
 
 export const WORK_USAGE_CONTRACT_VERSION = "1";
 
@@ -519,6 +520,7 @@ export async function buildWorkUsageSnapshot(adapters, ctx = {}, opts = {}) {
     timing,
     outcomes,
     activeAgents,
+    workTree: buildWorkTree(events, { now }),
     routing,
   };
 }
