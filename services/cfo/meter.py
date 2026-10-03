@@ -23,8 +23,9 @@ import burn_alert  # noqa: E402  (shared source parsers)
 
 HOME = Path.home()
 LEDGER = HOME / '.local/state/bamware/cfo/costs.jsonl'
+# ~/srv/bamware-ai is retired (#110); the collector lives in the one main checkout.
 OPENAI_COLLECTOR = Path(os.environ.get('BAMWARE_OPENAI_COLLECTOR') or
-                        HOME / 'srv/bamware-ai/services/assistant-web/scripts/collect-server-quota.py')
+                        HOME / 'code/worktrees/bamware-ai-main/services/assistant-web/scripts/collect-server-quota.py')
 CLAUDE_SAMPLER_DIR = Path(os.environ.get('BAMWARE_CLAUDE_SAMPLER_DIR') or
                           HOME / 'code/bamware-web/.claude/worktrees/ai-spend-dashboard')
 ROLLOVER_S = 3600
