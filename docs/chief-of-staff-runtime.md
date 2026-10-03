@@ -1,3 +1,5 @@
+Current role split and resident Scrum Master assignments: [Scrum Master runtime](scrum-master-runtime.md).
+
 # Chief of Staff server reconciliation — first slice (#79)
 
 The Assistant service owns a deterministic, recurring owner-blocker sweep independent of any chat. Opt in with `ASSISTANT_WEB_OWNER_BLOCKERS=1`. It scans registered records every minute and rechecks due blockers every five minutes. Durable state lives in `~/.local/state/bamware/owner-blockers`; `.coordinator.json` records sweep coverage/time/failures. GET /api/decisions exposes coordinator and per-card ledger status after owner authentication.

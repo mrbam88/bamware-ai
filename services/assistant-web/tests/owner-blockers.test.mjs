@@ -67,3 +67,12 @@ test('server recovery excludes owner blockers from legacy model check and notifi
  let calls=0;const server=createServer(cfg,{log:()=>{},handoffRun:async()=>{calls++;return{summary:'fixture'}},handoffNotify:async()=>{calls++;return{messageId:'fixture'}}});
  await new Promise(r=>setTimeout(r,30));assert.equal(calls,0);assert.equal(fs.readdirSync(path.join(s.directory,'checks')).length,0);server.close();
 });
+
+test('status persistence failure stays visible and cannot freeze following supervision sweep',async t=>{
+ const s=setup(t,{notification:{status:'delivered',messageId:'existing'}});const logs=[];
+ const runtime=s.make({onFailure:event=>logs.push(event)});
+ const original=fs.writeFileSync;let deny=true;
+ t.mock.method(fs,'writeFileSync',function(file,...args){if(deny&&String(file).includes('.coordinator.json'))throw Error('synthetic disk failure');return original.call(fs,file,...args);});
+ await runtime.sweep();assert.equal(runtime.status().currentRuntimeFailure.detail.includes('could not be persisted'),true);assert.equal(logs.length,1);
+ deny=false;s.advance();await runtime.sweep();assert.equal(runtime.status().currentRuntimeFailure,null);assert.equal(runtime.status().scrumMaster.lastRun.status,'partial');assert.equal(runtime.status().scrumMaster.runs.length,2);
+});
