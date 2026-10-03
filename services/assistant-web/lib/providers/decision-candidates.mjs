@@ -15,6 +15,45 @@ export const REPO_URL = "https://github.com/mrbam88/bamware-ai";
 
 export const DECISION_CANDIDATES = Object.freeze([
 {
+  "id": "brewdesk-first-carousel-72",
+  "version": "1",
+  "title": "Approve BrewDesk\u2019s first checklist carousel",
+  "project": "BrewDesk marketing",
+  "context": "Review the five final slides and exact caption: https://app.notion.com/p/3eef2b09d2298126ad88c32d2fda14e0 . Approve ONE organic carousel on @_brew.desk from immutable asset revision 2ff6d64, save-only-v2. No ads, messages, profile changes or app-download CTA. Seven-day content-usefulness test; acquisition campaign remains pending photo-cost controls. Identity and quota checks pass; first publish/read-back and token expiry remain unverified. Approval triggers a coordination check, not automatic publishing; actual publisher pickup must be recorded.",
+  "source": {
+    "kind": "notion-page",
+    "ref": "BrewDesk #72 first-carousel review",
+    "url": "https://app.notion.com/p/3eef2b09d2298126ad88c32d2fda14e0"
+  },
+  "recommendation": {
+    "optionId": "publish_one",
+    "rationale": "Test whether people save a useful NYC laptop-work checklist before expanding the campaign."
+  },
+  "options": [
+    {
+      "id": "publish_one",
+      "action": "approve",
+      "label": "Approve publishing this one carousel"
+    },
+    {
+      "id": "revise",
+      "action": "discuss",
+      "label": "Discuss changes before publishing"
+    },
+    {
+      "id": "defer",
+      "action": "defer",
+      "label": "Defer publishing"
+    }
+  ],
+  "urgency": "low",
+  "owner": "Bilal Malik",
+  "blockedWork": [
+    "Publish the reviewed first carousel"
+  ],
+  "escalationReason": "specific_publication_approval"
+},
+{
   "id": "brewdesk-marketing-research-72",
   "version": "1",
   "title": "BrewDesk #72: research complete \u2014 review the proposed experiment",
