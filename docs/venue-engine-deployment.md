@@ -4,6 +4,16 @@ Decision confirmed by Bilal, 2026-09-19. Applies regardless of model, harness,
 or which agent previously deployed this service. This is the canonical route;
 repo entry instructions link here rather than maintaining separate recipes.
 
+## Server access preference — October 2, 2026
+
+Bilal explicitly prefers a locally installed, authenticated Vercel CLI on the
+always-on server for direct deployments. Historical Git-triggered successes do
+not resolve missing CLI access. Install/login/verify the existing project; keep
+Git integration as a fallback, not the default workaround. The server now has
+Vercel CLI 62.2.0 under Node 24.21.0 (`~/.local/bin/vercel`); device authorization
+and project access verification are pending. No deployment was performed as
+part of this access setup.
+
 ## Default route
 
 **Local validation → direct deployment to the existing Vercel project → live

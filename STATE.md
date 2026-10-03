@@ -8,6 +8,15 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-02 — Server-native Vercel access setup
+
+Founder clarified that direct installed/authenticated server CLIs are preferred.
+Vercel CLI 62.2.0 installed and version verified on omarchy under Node 24.21.0.
+Interactive device authorization pending; existing project access unverified.
+No production deployment. Assistant HTTPS separately awaits account-side
+Tailscale Serve enablement; website configuration cutover has not occurred.
+Details: docs/machines.md and docs/venue-engine-deployment.md.
+
 ## 2026-10-02 — Notion canvas and Discord communication policy
 
 - Notion owns organization and collaborative drafts across CEO, chief of staff

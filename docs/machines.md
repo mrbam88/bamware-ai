@@ -266,3 +266,18 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   (red-green colorblind) and wants dark themes; a light theme was rejected as
   unreadable. Use the blue/orange axis, keep contrast high, always add a label,
   and screenshot-check before shipping.
+
+## Server-native provider access — October 2 correction
+
+Bilal explicitly wants the always-on server to have installed, authenticated
+provider CLIs as the preferred execution path. Missing native access is a setup
+task, not a reason to default to connector or Git-triggered detours. Preserve
+existing integrations as fallbacks; this preference does not itself authorize a
+release, account expansion, credential copying, or paid service. Bilal performs
+interactive account authorization; agents verify identity/project access without
+printing credentials.
+
+Vercel CLI 62.2.0 is now installed under `~/.local/share/vercel-cli`, with
+`~/.local/bin/vercel` launching it under existing Node 24.21.0. Version check
+passed on omarchy. Device login initiated; account authorization and project
+access verification remain pending. No production deployment was performed.
