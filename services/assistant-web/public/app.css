@@ -1,29 +1,23 @@
+/* Tokyo Night Storm: installed tokyonight.nvim colors/storm.lua (cdc07ac).
+   Shared by Assistant, owner login and private admin; no desktop settings changed. */
 :root {
-  --bg: #f6f5f2;
-  --surface: #ffffff;
-  --ink: #1b1a17;
-  --muted: #6b675f;
-  --line: #e2dfd8;
-  --accent: #0a5d4e;
-  --accent-ink: #ffffff;
-  --user: #e8f1ee;
-  --danger: #a33a2a;
-  --ok: #2f9e6b;
-  --warn: #c98a1b;
-  --err: #c0392b;
+  color-scheme: dark;
+  --bg: #24283b;
+  --surface: #1f2335;
+  --ink: #c0caf5;
+  --muted: #a9b1d6;
+  --line: #3b4261;
+  --control-line: #737aa2;
+  --accent: #7aa2f7;
+  --accent-ink: #1b1e2d;
+  --user: #292e42;
+  --danger: #f7768e;
+  --ok: #7dcfff;
+  --warn: #ff9e64;
+  --err: #f7768e;
   --radius: 12px;
   --gutter: 16px;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #15161a; --surface: #1e2026; --ink: #ecebe6; --muted: #a09c93; --line: #2d3038;
-    --accent: #3fb59a; --accent-ink: #0c1a16; --user: #243130;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #15161a; --surface: #1e2026; --ink: #ecebe6; --muted: #a09c93; --line: #2d3038;
-  --accent: #3fb59a; --accent-ink: #0c1a16; --user: #243130;
 }
 
 * { box-sizing: border-box; }
@@ -221,3 +215,28 @@ button.link.danger { color: var(--danger); }
 .workViewSwitch button { min-height: 44px; }
 .workSourceLink, .workBranch > a, .workBranch > p > a { min-height: 44px; display: inline-flex; align-items: center; box-sizing: border-box; }
 #workTreeCoverage summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+
+/* Interactive boundaries/focus stay visible; status meaning also uses text and shape. */
+a { color: var(--accent); text-underline-offset: 3px; }
+a:visited { color: #bb9af7; }
+button, input, textarea, select { color: var(--ink); accent-color: var(--accent); }
+button, select { background: var(--surface); }
+input:not([type="checkbox"]), textarea, select, button.icon, .dc-actions button, .dc-actions select, .workViewSwitch button { border-color: var(--control-line); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+::selection { background: #394b70; color: var(--ink); }
+.hint { color: var(--muted); }
+#loginHint { color: var(--danger); }
+.workCost { font-variant-numeric: tabular-nums; }
+.rl-badge-fresh::before { content: "● "; }
+.wu-badge-verified-pass::before { content: "✓ "; }
+.rl-badge-stale::before, .wu-badge-stale::before, .dc-badge-medium::before { content: "◷ "; }
+.rl-badge-exhausted::before, .wu-badge-qa-fail::before, .dc-badge-high::before { content: "! "; }
+.rl-badge-unknown::before, .wu-badge-unknown::before { content: "? "; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+.wu-badge-cooking { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--surface)); border: 1px solid var(--warn); text-transform: none; font-size: 13px; }
+.wu-badge-cooking::before { content: "◌ "; display: inline-block; animation: cooking-pulse 1.8s ease-in-out infinite; }
+@keyframes cooking-pulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .wu-badge-cooking::before { animation: none; } }

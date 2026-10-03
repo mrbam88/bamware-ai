@@ -19,3 +19,6 @@
 .admin-error { color: var(--danger); padding: 12px 0; }
 .admin-app pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 520px) { .admin-app .top { flex-wrap: wrap; } }
+
+.admin-app input, .admin-app textarea { border-color: var(--control-line); }
+.admin-app button { border: 1px solid var(--control-line); border-radius: 6px; min-height: 44px; }

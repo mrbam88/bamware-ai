@@ -526,7 +526,12 @@ import { renderQuotaMeter } from './quota-meter.js';
     return li;
   }
 
+  let activityExpiryTimer;
   function renderActiveAgents(data) {
+    clearTimeout(activityExpiryTimer);
+    const now = Date.now();
+    const phases = {coding:"Coding",testing:"Testing",researching:"Researching",reviewing:"Reviewing","tool-use":"Using tools"};
+    const isCooking = a => a.state === "active" && a.executionStatus === "working" && phases[a.executionPhase] && Number.isFinite(Date.parse(a.executionLeaseExpiresAt)) && Date.parse(a.executionLeaseExpiresAt) > now && Date.parse(a.executionLeaseExpiresAt) <= now + 120_000;
     const list = els.activeAgentsList;
     list.innerHTML = "";
     const agents = (data.activeAgents || []).filter((a) => !workUsageProject || a.project === workUsageProject);
@@ -546,24 +551,29 @@ import { renderQuotaMeter } from './quota-meter.js';
       name.textContent = `${a.provider || "unknown provider"} · ${a.model || "unknown model"}`;
       title.appendChild(name);
       const badge = document.createElement("span");
-      badge.className = `wu-badge wu-badge-${a.state}`;
-      badge.textContent = HEARTBEAT_LABEL[a.state] || a.state;
+      const cooking = Boolean(isCooking(a));
+      badge.className = `wu-badge wu-badge-${cooking ? "cooking" : a.state === "active" ? "unknown" : a.state}`;
+      badge.textContent = cooking ? `Cooking · ${phases[a.executionPhase]}` : a.state === "stale" ? "Stale observation" : "Activity unverified";
       title.appendChild(badge);
       li.appendChild(title);
 
       const detail = document.createElement("div");
       detail.className = "wu-detail";
-      detail.textContent = `${machineLabel(a.machine)} · ${a.project ? `${a.project}${a.task ? " · " + (a.task.title || "#" + a.task.id) : ""}` : "no project attributed"}`;
+      const matches = (data.usageByProjectTask || []).filter(s => s.project === a.project && s.task?.id === a.task?.id);
+      const scope = matches.length === 1 ? matches[0] : null;
+      detail.textContent = `${machineLabel(a.machine)} · ${scope?.projectName || a.project || "Project not attributed"}${a.task ? " · " + (scope?.description?.title || a.task.title || "#" + a.task.id) : ""}`;
       li.appendChild(detail);
 
       const meta = document.createElement("div");
       meta.className = "wu-meta";
       meta.textContent = a.lastSeenAt
-        ? `Last heartbeat ${new Date(a.lastSeenAt).toLocaleString()} (${Math.round(a.heartbeatAgeSec / 60)}m ago)${a.state === "stale" ? " — stale, not necessarily still working" : ""}`
-        : "Last heartbeat unknown — pickup time not recorded";
+        ? `Last ${cooking ? "worker activity" : "observation"}: ${new Date(a.lastSeenAt).toLocaleString()}${cooking ? " · pickup and execution verified" : " · current execution not verified"}`
+        : "No worker activity timestamp · current execution not verified";
       li.appendChild(meta);
       list.appendChild(li);
     }
+    const expiries = agents.filter(isCooking).map(a=>Date.parse(a.executionLeaseExpiresAt));
+    if (expiries.length) activityExpiryTimer = setTimeout(()=>renderActiveAgents(data), Math.max(1, Math.min(...expiries)-now+1));
   }
 
   function renderWorkVsWait(data) {
