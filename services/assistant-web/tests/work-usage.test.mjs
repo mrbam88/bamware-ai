@@ -160,17 +160,17 @@ test("aggregateOutcomes counts states and retries with an honest sample size", (
 });
 
 // -------------------------------------------------------------- agents ---
-test("deriveActiveAgents: a recent heartbeat is active, an old one is stale, never the reverse", () => {
-  const events = [
-    normalizeUsageEvent({ agent: { sessionId: "s1" }, timing: { endedAt: new Date(NOW - 60_000).toISOString() } }),
-    normalizeUsageEvent({ agent: { sessionId: "s2" }, timing: { endedAt: new Date(NOW - 2 * 60 * 60_000).toISOString() } }),
-    normalizeUsageEvent({ agent: { sessionId: "s3" } }), // no timestamp at all
-  ];
-  const agents = deriveActiveAgents(events, { now: NOW, staleAfterMs: 15 * 60_000 });
-  const byId = Object.fromEntries(agents.map((a) => [a.sessionId, a.state]));
-  assert.equal(byId.s1, "active");
-  assert.equal(byId.s2, "stale");
-  assert.equal(byId.s3, "unknown");
+test("execution needs genuine pickup, phase and unexpired lease; observations cannot activate", () => {
+  const event = (id, age=1000, more={}) => normalizeUsageEvent({project:"p", task:{id:"1"},agent:{sessionId:id,provider:"codex"},execution:{version:1,source:"worker-lifecycle",status:"working",phase:"coding",observedAt:new Date(NOW-age).toISOString(),leaseExpiresAt:new Date(NOW-age+60000).toISOString(),pickupReceiptId:"receipt",...more}});
+  const events = [event("working"),event("stale",120000),event("future",-1000),event("no-pickup",1000,{pickupReceiptId:null}),event("blocked",1000,{status:"blocked"}),event("long-lease",1000,{leaseExpiresAt:new Date(NOW+3600000).toISOString()}),
+    normalizeUsageEvent({agent:{sessionId:"finished"},timing:{endedAt:new Date(NOW).toISOString()}}),normalizeUsageEvent({agent:{sessionId:"refreshed"},source:{fetchedAt:new Date(NOW).toISOString()}}),normalizeUsageEvent({source:{fetchedAt:new Date(NOW).toISOString()}})];
+  const agents=deriveActiveAgents(events,{now:NOW});const states=Object.fromEntries(agents.map(a=>[a.sessionId,a.state]));
+  assert.equal(states.working,"active");assert.equal(states.stale,"stale");
+  for(const id of ["future","no-pickup","blocked","long-lease","finished","refreshed"])assert.equal(states[id],"unknown");
+  assert.equal(agents.length,8);assert.equal(agents.find(a=>a.sessionId==="working").executionPhase,"coding");
+  assert.equal(agents.find(a=>a.sessionId==="blocked").executionStatus,"blocked");
+  const done=event("done");done.timing.endedAt=new Date(NOW).toISOString();assert.notEqual(deriveActiveAgents([done],{now:NOW})[0].state,"active");
+  assert.notEqual(deriveActiveAgents([event("conflict"),event("conflict",1000,{status:"done"})],{now:NOW})[0].state,"active");
 });
 
 // ------------------------------------------------------------ routing ---
@@ -225,6 +225,7 @@ test("self adapter reports repo/branch/machine identity but no usage numbers", a
   assert.equal(raw.usage.output, null);
   assert.equal(raw.outcome.notes, WORK_USAGE_SELF_COVERAGE_NOTE);
   assert.equal(raw.source.kind, "live");
+  assert.deepEqual(deriveActiveAgents([normalizeUsageEvent(raw)], {now:NOW}), []);
 });
 
 test("self adapter degrades to null branch/commit instead of throwing when git is unavailable", async () => {

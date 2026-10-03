@@ -221,6 +221,14 @@ export function normalizeUsageEvent(raw = {}) {
     trace,
     usage,
     timing,
+    execution: raw.execution?.version === 1 && raw.execution?.source === "worker-lifecycle" ? {
+      version: 1, source: "worker-lifecycle",
+      status: enumOr(raw.execution.status, ["queued", "working", "blocked", "review", "done", "failed"], "unknown"),
+      phase: enumOr(raw.execution.phase, ["coding", "testing", "researching", "reviewing", "tool-use"], "unknown"),
+      observedAt: typeof raw.execution.observedAt === "string" ? raw.execution.observedAt : null,
+      leaseExpiresAt: typeof raw.execution.leaseExpiresAt === "string" ? raw.execution.leaseExpiresAt : null,
+      pickupReceiptId: typeof raw.execution.pickupReceiptId === "string" ? raw.execution.pickupReceiptId : null,
+    } : null,
     outcome,
     classification,
     cost,
@@ -408,39 +416,44 @@ export function aggregateOutcomes(events) {
 
 // ------------------------------------------------------------ agents --
 /**
- * Derives "active agent" entries from the latest event per agent session
- * (or per provider+machine when no session id exists). A stale heartbeat is
- * reported as "stale", never presented as "active" — the dashboard must not
- * imply an agent is currently working from an old signal.
+ * Derives session entries from explicit worker lifecycle evidence. Repository
+ * metadata without a session is excluded. Only a fresh pickup-backed execution
+ * lease can activate; completed attempts and collector fetches never do.
  * @param {object[]} events
  * @param {{now?: number, staleAfterMs?: number}} [opts]
  */
 export function deriveActiveAgents(events, opts = {}) {
   const now = opts.now ?? Date.now();
-  const staleAfterMs = opts.staleAfterMs ?? DEFAULT_STALE_AFTER_MS;
+  // Execution leases are short even when historic observation retention is long.
+  const staleAfterMs = Math.min(opts.staleAfterMs ?? 120_000, 120_000);
   const byAgent = new Map();
   for (const e of events) {
-    const key = e.agent.sessionId ?? `${e.agent.provider ?? "unknown-provider"}:${e.agent.machine.id ?? e.agent.machine.hostname ?? "unknown-machine"}`;
-    const lastSeenMs = parseMs(e.timing.endedAt) ?? parseMs(e.source.fetchedAt);
+    // Repository/source metadata is not an agent identity or pickup receipt.
+    if (!e.agent.sessionId) continue;
+    const key = e.agent.sessionId;
+    const lastSeenMs = parseMs(e.execution?.observedAt) ?? parseMs(e.timing.endedAt) ?? parseMs(e.timing.startedAt);
     const prev = byAgent.get(key);
-    if (!prev || (lastSeenMs ?? -Infinity) >= (prev.lastSeenMs ?? -Infinity)) {
-      byAgent.set(key, { event: e, lastSeenMs });
-    }
+    if (!prev || (lastSeenMs ?? -Infinity) > (prev.lastSeenMs ?? -Infinity)) byAgent.set(key, {event:e,lastSeenMs,conflict:false});
+    else if (lastSeenMs === prev.lastSeenMs && JSON.stringify(e.execution) !== JSON.stringify(prev.event.execution)) prev.conflict = true;
   }
-  return [...byAgent.entries()].map(([key, { event: e, lastSeenMs }]) => {
-    const heartbeatAgeMs = lastSeenMs != null ? Math.max(0, now - lastSeenMs) : null;
-    const state = lastSeenMs == null ? "unknown" : heartbeatAgeMs <= staleAfterMs ? "active" : "stale";
+  return [...byAgent.entries()].map(([key, {event:e,lastSeenMs,conflict}]) => {
+    const execution = e.execution;
+    const observedMs = parseMs(execution?.observedAt), leaseMs = parseMs(execution?.leaseExpiresAt);
+    const age = observedMs == null ? null : now-observedMs;
+    const trustworthy = !conflict && observedMs != null && age >= 0 && Boolean(execution?.pickupReceiptId) && Boolean(e.project && e.task && e.agent.provider);
+    const fresh = trustworthy && age <= staleAfterMs && leaseMs != null && leaseMs > now && leaseMs <= observedMs+120_000;
+    const endedMs = parseMs(e.timing.endedAt);
+    const working = fresh && execution.status === "working" && execution.phase !== "unknown" && endedMs == null;
+    const state = working ? "active" : trustworthy && (age > staleAfterMs || (leaseMs != null && leaseMs <= now)) ? "stale" : "unknown";
     return {
-      key,
-      provider: e.agent.provider,
-      model: e.agent.model,
-      sessionId: e.agent.sessionId,
-      machine: e.agent.machine,
-      project: e.project,
-      task: e.task,
-      lastSeenAt: lastSeenMs != null ? new Date(lastSeenMs).toISOString() : null,
-      heartbeatAgeSec: heartbeatAgeMs != null ? Math.round(heartbeatAgeMs / 1000) : null,
+      key, provider:e.agent.provider, model:e.agent.model, sessionId:e.agent.sessionId,
+      machine:e.agent.machine, project:e.project, task:e.task,
+      lastSeenAt:lastSeenMs != null ? new Date(lastSeenMs).toISOString() : null,
+      heartbeatAgeSec: trustworthy ? Math.round(age/1000) : null,
       state,
+      executionStatus: working ? "working" : trustworthy && fresh && execution.status !== "working" ? execution.status : "unknown",
+      executionPhase: working ? execution.phase : null,
+      activityEvidence: working ? "Fresh worker execution lease and pickup receipt" : "Current execution not verified; observation timestamps are not heartbeats",
     };
   });
 }
