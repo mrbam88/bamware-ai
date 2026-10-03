@@ -96,6 +96,47 @@ Details: docs/machines.md and docs/venue-engine-deployment.md.
   Hermes profile, remote rollout, or working cross-provider retrieval is claimed.
 - Personal/career content stays private; this public repo records the role and
   routing contract only.
+> **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-02 — Private admin migration (#82)
+
+Preceding milestone: **admin migration #82 is partially deployed, not closed**.
+Assistant `2fc7f26` and public web `edc1a3e` are published on their existing
+release rails and production-verified. Independent concurrent Assistant commit
+`45dcb9a` was preserved and admin/auth/quota smoke re-run successfully.
+103 Assistant tests; 15 web tests plus lint/build; private owner 200/unauth 401;
+fresh PR43 snapshot and seven #81 quota windows; public AI-spend page 303/API
+410 and branding/contact/product routes intact. Missing existing capabilities
+block only remaining cutover, so public tools stay accessible behind their
+existing auth. [Inventory, limitations and rollback](docs/admin-migration.md).
+Receipts: `~/.local/state/bamware/chief-of-staff/82/`; exact evidence in #82.
+
+## 2026-10-02 — Quota meters and independent server coverage (#81)
+
+- `538c04b` published on the assistant release branch and deployed to the
+  existing `assistant-web` service, with real authenticated endpoint readback.
+- Hermes/OpenCode share provider-proven account windows, not duplicate meters.
+  Server reads do not depend on the X1; the existing ten-minute collector timer
+  is reused. Missing identity, capacity and spend controls remain explicit gaps.
+- Tests and exact remaining visual-QA/source gaps:
+  [assistant README](services/assistant-web/README.md#verified-release-evidence-2026-10-02-81).
+- Worker pickup/result receipts are private local state; public progress is in
+  [#81](https://github.com/mrbam88/bamware-ai/issues/81). Recurring sweep #79
+  was not implemented, enabled or claimed by this task.
+
+## 2026-10-01 — Assistant website: first vertical slice on real Hermes (#62, #63)
+
+- Canonical findings, gates, evidence: [docs/assistant-website.md](docs/assistant-website.md).
+  Code: `services/assistant-web` (zero-dependency Node, 13 tests, real smoke passed).
+- Verified on `omarchy`: Hermes 0.19.0, gateway live (Discord only), history in
+  `~/.hermes/state.db`, export/delete via `hermes sessions`. Website turn uses
+  `hermes chat -Q -q --resume`, same store/hook/plugins, no gateway restart.
+- Langfuse: nothing existed. Bundled Hermes plugin now enabled + SDK installed;
+  inert until Bilal adds keys (#65). Ingestion **not** verified, by design.
+- **Chief of Staff coordination does not exist** as a running system; it is a
+  PRD concept only. This slice was executed by a Claude Code session, not dispatched.
+- **Blocked on Bilal:** Langfuse keys (#65), `tailscale serve` HTTPS for iPhone
+  mic (#66), enable the systemd unit (#67), gateway restart for API streaming (#64).
 
 ## 2026-09-30 — BrewDesk marketing and Instagram API milestone
 

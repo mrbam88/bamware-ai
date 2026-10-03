@@ -1,0 +1,4 @@
+# Secrets live in ~/.config/bamware/langfuse.env, never here.
+*.env
+.env*
+!langfuse.env.example

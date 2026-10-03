@@ -1,0 +1,13 @@
+{
+  "name": "bamware-assistant-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Authenticated website and private admin for the Bamware assistant on the real Hermes runtime.",
+  "type": "module",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "setup:admin": "npm ci --prefix lib/admin --ignore-scripts --no-audit --no-fund",
+    "test": "node --test tests/"
+  }
+}

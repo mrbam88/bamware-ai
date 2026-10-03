@@ -1,0 +1,6 @@
+[Unit]
+Description=Sync sanitized Codex quota metadata to Bamware Assistant
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/lib/bamware/export-codex-quota.py --destination bilal@omarchy.tailb7fa1e.ts.net
+TimeoutStartSec=30

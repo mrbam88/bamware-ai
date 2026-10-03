@@ -6,7 +6,10 @@
 its agents were buggy and timed out often. He still sees potential, so it
 stays installed, but it is not a main driver for now. Don't route core
 workflows through it by default; anything built on it needs a non-Hermes
-fallback. Current trial: the Discord bot (`docs/discord.md`).
+fallback. Current trials: the Discord bot (`docs/discord.md`) and, from
+2026-10-01 by founder decision (#62), the assistant website
+(`docs/assistant-website.md`), which runs turns through `hermes chat -Q -q`
+and the shared `state.db` without touching the gateway.
 
 Bilal requested full integration on 2026-09-24, not a replacement for Bamware.
 Hermes supplies the local execution surface, skill discovery and context
