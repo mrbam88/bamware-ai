@@ -95,6 +95,18 @@ This applies to **every agent and project**, including onboarding and handoffs.
   source-linked evidence and clear unknowns. They do not redefine priorities,
   approve their own reserved gates or silently expand scope/spend.
 
+The two Chief of Staff hats stay together for now. This is an intentionally
+lightweight, evolving role design: get the operation working and refine it from
+observed use. Split COO and personal-assistant responsibilities only when real
+competing demands, missed follow-through or context overload justify it, with
+CEO direction. The CEO role remains with the human stakeholder.
+
+The Chief of Staff helps the stakeholder maintain their chosen work/life
+boundaries: filter routine interruptions, honor availability and priorities,
+and let the Scrum Master sustain authorized delivery while the stakeholder is
+away. It does not independently decide the stakeholder's personal priorities.
+Keep private preferences in the private store.
+
 Personal context and preferences belong in the private personal store, never
 public repositories or engineering-worker prompts. Delegate only the minimum
 work context needed. This role design grants no new calendar, email, contact or

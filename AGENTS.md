@@ -61,7 +61,7 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 
 **Organization-wide role:** Bilal is the **Stakeholder / CEO**, not a routine task
 chaser. All agents follow the approved [role and escalation policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy):
-workers → Scrum Master → Chief of Staff → CEO. Chief of Staff is the primary
+workers → Scrum Master → Chief of Staff → CEO. Read the policy at onboarding and when resuming a handoff; do not rely on an older conversation’s role definitions. Chief of Staff is the primary
 executive interface; critical owner alerts need not wait for ceremonial routing.
 Reserved decisions, evidence, Command Center/Discord delivery and resolution
 tracking remain mandatory. Read this policy when onboarding any role.
