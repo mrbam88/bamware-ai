@@ -121,3 +121,22 @@ Installed `skill_view("bamware-assistant", preprocess=False)` resolved the new
 section and no-argument bridge. This proves a fresh skill read, not hot reload of
 already running conversations. Gateway configuration and tool permissions stayed
 unchanged.
+
+## Capacity pause checkpoint — 2026-10-03
+
+PR #96 merged; application deployed `5d26f3a` and service active. Rollback app
+revision is in `~/.local/state/bamware/releases/pre-discussion-92-revision`.
+Feature flag remains disabled. No real Discord seed/thread was sent or created.
+The local suite reached164 passing tests and context CI passed before release.
+
+Canonical skill notation correction is main `7524eb7`; deployed exact skill
+SHA256 is `65c782be18130396300091fd57b0328dfa3b9c6894f727dd1a29941a3e927992`,
+superseding the earlier hash above. Existing gateway source checkout remains on
+its original branch with an intentional exact-file skill diff and saved rollback.
+
+Founder requested immediate capacity conservation. Stop model jobs, broad tests
+and live seed work pending budget decision. Remaining bounded operations after
+resume: set message flags to4100 (suppress notifications plus embeds) for silent
+seed; safely enable the existing feature flag; health and authenticated live API/UI
+readback; real seed/readback and restart/repeat dedupe; genuine owner reply/pickup,
+summary writeback and phone evidence. No such live evidence is claimed yet.
