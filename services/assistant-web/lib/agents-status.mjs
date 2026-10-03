@@ -32,7 +32,18 @@ export async function processState(pid, startTicks, readFile = fs.readFile) {
   }
 }
 
-export async function readAgentsState(stateDir, { readFile = fs.readFile, readdir = fs.readdir } = {}) {
+/** Is this run's executor worker (`runner.py worker <run dir>`) still alive? null when unknown. */
+export async function workerAlive(pid, runId, readFile = fs.readFile) {
+  if (!Number.isInteger(pid)) return null;
+  try {
+    const cmdline = (await readFile(`/proc/${pid}/cmdline`, "utf8")).split("\0");
+    return cmdline.some((a) => a.endsWith("runner.py")) && cmdline.includes("worker") && cmdline.some((a) => a.endsWith(runId));
+  } catch {
+    return false;
+  }
+}
+
+export async function readAgentsState(stateDir, { readFile = fs.readFile, readdir = fs.readdir, ownerBlockersDir } = {}) {
   const list = async (dir) => {
     try {
       return await readdir(dir);
@@ -52,10 +63,14 @@ export async function readAgentsState(stateDir, { readFile = fs.readFile, readdi
   for (const id of runIds) {
     const dir = path.join(stateDir, "overnight", id);
     const status = await readJson(path.join(dir, "status.json"), readFile);
-    if (status) runs.push({ id, status, batch: await readJson(path.join(dir, "batch.json"), readFile) });
+    if (!status) continue;
+    const pickup = status.phase === "finished" ? null : await readJson(path.join(dir, "pickup.json"), readFile);
+    runs.push({ id, status, batch: await readJson(path.join(dir, "batch.json"), readFile),
+      workerAlive: pickup ? await workerAlive(pickup.worker_pid, id, readFile) : null });
   }
-  const blockerFiles = (await list(path.join(stateDir, "owner-blockers"))).filter((f) => f.endsWith(".json") && !f.startsWith("."));
-  const blockers = (await Promise.all(blockerFiles.map((f) => readJson(path.join(stateDir, "owner-blockers", f), readFile)))).filter(Boolean);
+  const blockersDir = ownerBlockersDir ?? path.join(stateDir, "owner-blockers");
+  const blockerFiles = (await list(blockersDir)).filter((f) => f.endsWith(".json") && !f.startsWith("."));
+  const blockers = (await Promise.all(blockerFiles.map((f) => readJson(path.join(blockersDir, f), readFile)))).filter(Boolean);
   const capacity = await readJson(path.join(stateDir, "cfo", "capacity.json"), readFile);
   return { estop, batch, runs, blockers, capacity };
 }
@@ -80,7 +95,14 @@ export function deriveNow(runs, now) {
     const planned = run.batch?.tasks ?? [];
     const ticketOf = (id) => planned.find((t) => t.id === id)?.ticket ?? null;
     const records = run.status.tasks ?? [];
-    if (run.status.phase !== "finished") {
+    // A run whose worker died never writes phase "finished"; its tasks were interrupted, not running.
+    const dead = run.status.phase !== "finished" && run.workerAlive === false;
+    if (dead) {
+      for (const r of records.filter((r) => r.state === "running")) {
+        recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: "interrupted", exitCode: null,
+          finishedAt: seconds(r.started_at), durationMs: null, cost: null, smoke });
+      }
+    } else if (run.status.phase !== "finished") {
       const started = seconds(run.status.started_at);
       const stalled = started && now - started > STALLED_RUN_MS;
       for (const r of records.filter((r) => r.state === "running")) {
@@ -94,8 +116,7 @@ export function deriveNow(runs, now) {
       const startedAt = seconds(r.started_at);
       const finishedAt = seconds(r.finished_at);
       recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: r.state, exitCode: r.exit_code ?? null,
-        finishedAt, durationMs: startedAt && finishedAt ? finishedAt - startedAt : null, cost: largestCost(r.cost), smoke,
-        evidence: r.evidence_log ?? null });
+        finishedAt, durationMs: startedAt && finishedAt ? finishedAt - startedAt : null, cost: largestCost(r.cost), smoke });
     }
   }
   recent.sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0));
@@ -130,11 +151,12 @@ export function deriveCapacity(capacity, now) {
     .filter(([, s]) => s.last_error)
     .map(([name, s]) => `${name}: ${s.last_error}`);
   return {
-    state: now - generatedAt > CAPACITY_STALE_MS ? "stale" : "fresh",
+    state: !Number.isFinite(generatedAt) || now - generatedAt > CAPACITY_STALE_MS ? "stale" : "fresh",
     generatedAt,
     reservePct: capacity.policy?.reserve_used_pct ?? null,
     pools: (capacity.pools ?? []).map((p) => ({ key: p.key, label: p.label, usedPct: p.used_pct, level: p.level,
       stale: p.stale, ratePctH: p.rate_pct_h, etaReserveH: p.eta_reserve_h, etaExhaustH: p.eta_exhaust_h,
+      reserveBeforeReset: p.reserve_before_reset ?? null, exhaustBeforeReset: p.exhaust_before_reset ?? null,
       resetAt: seconds(p.reset_at), observedAt: seconds(p.observed_at) })),
     problems,
   };

@@ -304,6 +304,8 @@ def assess(window, now, policy=POLICY, factor=1.0):
     if used >= policy['critical_used_pct'] or before_reset(eta_exhaust, policy['critical_horizon_h']):
         level = 'critical'
     return {'level': level, 'used_pct': used, 'observed_at': t_last, 'rate_pct_h': rate, 'factor': factor,
+            'reserve_before_reset': before_reset(eta_reserve, float('inf')),
+            'exhaust_before_reset': before_reset(eta_exhaust, float('inf')),
             'eta_reserve_h': eta_reserve, 'eta_exhaust_h': eta_exhaust, 'to_reset_h': to_reset_h,
             'stale': now - t_last > policy['stale_after_min'] * 60}
 
@@ -420,7 +422,8 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
         capacity.append({'key': key, 'label': window['label'], 'window_min': window.get('window_min'),
                          'reset_at': window.get('reset_at'),
                          **{k: a[k] for k in ('level', 'used_pct', 'observed_at', 'rate_pct_h', 'eta_reserve_h',
-                                              'eta_exhaust_h', 'to_reset_h', 'stale', 'factor')}})
+                                              'eta_exhaust_h', 'to_reset_h', 'stale', 'factor',
+                                              'reserve_before_reset', 'exhaust_before_reset')}})
         if a['stale']:
             continue  # covered by the source's monitoring alert
         if a['level'] != 'ok':

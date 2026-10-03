@@ -6,7 +6,7 @@ import { execFile } from "node:child_process";
 const TTL_MS = 5 * 60_000;
 const IN_PROGRESS = "In Progress";
 
-function ghItems({ owner = "mrbam88", project = "2", timeoutMs = 20_000 } = {}) {
+function ghItems({ owner, project, timeoutMs = 20_000 }) {
   return new Promise((resolve, reject) => {
     execFile("gh", ["project", "item-list", project, "--owner", owner, "--format", "json", "--limit", "500"],
       { timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024 }, (err, stdout) => {
@@ -38,7 +38,8 @@ export function summarizeBoard(items, fetchedAt) {
 }
 
 /** Cached reader: returns the last good summary (with its age) and refreshes in the background. */
-export function createBoardReader({ fetchItems = ghItems, ttlMs = TTL_MS, clock = Date.now } = {}) {
+export function createBoardReader({ owner, project, fetchItems = () => ghItems({ owner, project }), ttlMs = TTL_MS, clock = Date.now } = {}) {
+  const url = owner && project ? `https://github.com/users/${owner}/projects/${project}` : null;
   let last = null;
   let error = null;
   let inflight = null;
@@ -54,6 +55,6 @@ export function createBoardReader({ fetchItems = ghItems, ttlMs = TTL_MS, clock 
       const pending = refresh();
       if (!last) await Promise.race([pending, new Promise((r) => setTimeout(r, waitMs))]);
     }
-    return last ? { ...last, error } : { fetchedAt: null, total: null, counts: {}, inProgress: [], error: error ?? "Board not loaded yet." };
+    return last ? { ...last, url, error } : { fetchedAt: null, total: null, counts: {}, inProgress: [], url, error: error ?? "Board not loaded yet." };
   };
 }

@@ -277,6 +277,17 @@ class BurnAlertTests(unittest.TestCase):
         self.assertEqual(doc['pools'][1]['level'], 'ok')
         self.assertEqual(doc['policy']['reserve_used_pct'], 85.0)
         self.assertIn('test', doc['sources'])
+        self.assertIs(doc['pools'][1]['reserve_before_reset'], False)
+
+    def test_capacity_says_whether_reserve_lands_before_reset(self):
+        h = Harness()
+        soon = T0 + 26 * 3600
+        for i in range(7):   # 1.5 %/h from 55%: reserve in ~19 h, exhaustion in ~29 h, reset in ~25 h
+            h.feed([obs(T0 + i * 600, 55 + i * 0.25, reset_at=soon)])
+        pool = json.loads((h.dir / 'capacity.json').read_text())['pools'][0]
+        self.assertIs(pool['reserve_before_reset'], True)
+        self.assertIs(pool['exhaust_before_reset'], False)   # exhaustion lands after the reset
+
 
 
 if __name__ == '__main__':

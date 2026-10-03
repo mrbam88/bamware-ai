@@ -76,6 +76,8 @@ export function loadConfig(env = process.env) {
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     stateDir: get("ASSISTANT_WEB_STATE_DIR", path.join(os.homedir(), ".local/state/bamware")),
     boardEnabled: get("ASSISTANT_WEB_BOARD", "1") !== "0",
+    boardOwner: get("ASSISTANT_WEB_BOARD_OWNER", "mrbam88"),
+    boardProject: get("ASSISTANT_WEB_BOARD_PROJECT", "2"),
     ownerBlockersEnabled: get("ASSISTANT_WEB_OWNER_BLOCKERS", "0") === "1",
     ownerBlockersDir: get("ASSISTANT_WEB_OWNER_BLOCKERS_DIR", path.join(os.homedir(), ".local/state/bamware/owner-blockers")),
     handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "0") === "1",
@@ -251,7 +253,7 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
   const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES.filter(c => !blockers?.snapshot(c.id)),run:handoffRun ?? agentCheckRunner(runner),notify:handoffNotify ?? notifyHandoffCheck,log}) : null;
   checks?.recover();
   const withCheck = decision => ({...decision, discussion: discussions?.snapshot(decision) ?? null, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
-  const board = cfg.boardEnabled ? createBoardReader() : null;
+  const board = cfg.boardEnabled ? createBoardReader({ owner: cfg.boardOwner, project: cfg.boardProject }) : null;
   board?.({ waitMs: 0 }); // warm the cache so the first page load does not wait on GitHub
   const limiter = new LoginLimiter();
   // One fixture-worker instance per server process so a dispatch's receiptId
@@ -326,7 +328,7 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
       // Agents tab V3 (Engineering Lead review, 2026-10-03): machine state, work
       // now, what needs the founder, CFO capacity and the board, in one read.
       if (route === "GET /api/agents") {
-        const snapshot = buildAgentsSnapshot(await readAgentsState(cfg.stateDir), Date.now(), { catalog: DECISION_CANDIDATES });
+        const snapshot = buildAgentsSnapshot(await readAgentsState(cfg.stateDir, { ownerBlockersDir: cfg.ownerBlockersDir }), Date.now(), { catalog: DECISION_CANDIDATES });
         return send(res, 200, { ...snapshot, board: board ? await board() : null });
       }
 

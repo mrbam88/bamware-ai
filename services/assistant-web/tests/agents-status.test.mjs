@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { deriveNow, deriveNeedsYou, deriveCapacity, deriveSystem, buildAgentsSnapshot, processState } from "../lib/agents-status.mjs";
+import { deriveNow, deriveNeedsYou, deriveCapacity, deriveSystem, buildAgentsSnapshot, processState, workerAlive } from "../lib/agents-status.mjs";
 import { summarizeBoard, createBoardReader } from "../lib/board.mjs";
 
 const NOW = 1791010000 * 1000;
@@ -98,3 +98,40 @@ test("board reader caches, serves the last good read on failure, and reports the
   assert.equal(stale.counts.Todo, 1, "last good read still served");
   assert.equal(after.error, "gh timed out");
 });
+
+test("a run whose worker died shows interrupted work, never 'running' or inflated queues", () => {
+  const live = run("5", "running", [{ id: "a", state: "running", started_at: 1791009500 }], [{ id: "a", ticket: "#1" }, { id: "b", ticket: "#2" }]);
+  const dead = deriveNow([{ ...live, workerAlive: false }], NOW);
+  assert.deepEqual(dead.running, []);
+  assert.deepEqual(dead.recent.map((t) => [t.ticket, t.state]), [["#1", "interrupted"]]);
+  assert.equal(deriveSystem({}, dead, []).state, "idle", "a dead run must not keep the banner on Working");
+  assert.equal(deriveNow([{ ...live, workerAlive: true }], NOW).running.length, 2, "a live worker is still running");
+  assert.equal(deriveNow([{ ...live, workerAlive: null }], NOW).running.length, 2, "unknown liveness keeps the old behaviour");
+});
+
+test("worker liveness requires this run's runner.py worker, not any process with that pid", async () => {
+  const cmd = (args) => async () => args.join("\0");
+  assert.equal(await workerAlive(42, "179", cmd(["/usr/bin/python3", "/x/services/overnight/runner.py", "worker", "/s/overnight/179"])), true);
+  assert.equal(await workerAlive(42, "179", cmd(["/usr/bin/python3", "/x/runner.py", "worker", "/s/overnight/180"])), false, "another run");
+  assert.equal(await workerAlive(42, "179", cmd(["/usr/bin/vim"])), false, "pid reused");
+  assert.equal(await workerAlive(42, "179", async () => { throw new Error("ENOENT"); }), false);
+  assert.equal(await workerAlive(undefined, "179"), null);
+});
+
+test("a capacity file without a readable timestamp is stale, not fresh", () => {
+  assert.equal(deriveCapacity({ pools: [], sources: {} }, NOW).state, "stale");
+  assert.equal(deriveCapacity({ generated_at: "garbage", pools: [], sources: {} }, NOW).state, "stale");
+});
+
+test("capacity passes the CFO's before-reset answers through untouched", () => {
+  const cap = { generated_at: NOW / 1000, sources: {}, pools: [{ key: "k", label: "L", used_pct: 40, level: "warn", stale: false, rate_pct_h: 5,
+    eta_reserve_h: 9, eta_exhaust_h: 12, reserve_before_reset: true, exhaust_before_reset: false, reset_at: 1, observed_at: 1 }] };
+  const [p] = deriveCapacity(cap, NOW).pools;
+  assert.deepEqual([p.reserveBeforeReset, p.exhaustBeforeReset], [true, false]);
+});
+
+test("board reader exposes the configured board link", async () => {
+  const read = createBoardReader({ owner: "acme", project: "7", fetchItems: async () => [] });
+  assert.equal((await read()).url, "https://github.com/users/acme/projects/7");
+});
+

@@ -16,7 +16,7 @@
     agentsUpdated: $("agentsUpdated"), agentsRefresh: $("agentsRefresh"), nowHint: $("nowHint"), nowRunning: $("nowRunning"),
     nowRecent: $("nowRecent"), needsCount: $("needsCount"), needsList: $("needsList"), openDecisions: $("openDecisions"),
     capacityHint: $("capacityHint"), capacityList: $("capacityList"), capacityProblems: $("capacityProblems"),
-    boardWidget: $("boardWidget"), boardCounts: $("boardCounts"), boardList: $("boardList"), boardHint: $("boardHint"),
+    boardWidget: $("boardWidget"), boardLink: $("boardLink"), boardCounts: $("boardCounts"), boardList: $("boardList"), boardHint: $("boardHint"),
     decisionsView: $("decisionsView"), decisionList: $("decisionList"), decisionsGenerated: $("decisionsGenerated"),
     decisionsDemoToggle: $("decisionsDemoToggle"), decisionsDemoBanner: $("decisionsDemoBanner"), decisionsRefresh: $("decisionsRefresh"),
   };
@@ -165,7 +165,7 @@
   }
 
   const TASK_TONE = { verified: "ok", running: "info", queued: "muted", failed: "err", verification_failed: "err",
-    timed_out: "warn", blocked_dependency: "muted", stalled: "warn" };
+    timed_out: "warn", blocked_dependency: "muted", stalled: "warn", interrupted: "warn" };
   const TASK_LABEL = { verification_failed: "checks failed", timed_out: "timed out", blocked_dependency: "blocked" };
 
   function renderSystem(system, generatedAt) {
@@ -220,11 +220,10 @@
       const fill = el("span", "barFill"); fill.style.width = `${Math.min(100, Math.max(0, p.usedPct))}%`;
       bar.appendChild(fill);
       if (capacity.reservePct) { const mark = el("span", "barMark"); mark.style.left = `${capacity.reservePct}%`; mark.title = `Reserve starts at ${capacity.reservePct}%`; bar.appendChild(mark); }
-      const toResetH = p.resetAt ? (p.resetAt - Date.now()) / 3.6e6 : null;
-      const hitsFirst = (eta) => eta != null && (toResetH == null || eta < toResetH);
+      // The CFO decides whether the reserve or exhaustion lands before the reset; the page only formats it.
       const forecast = !(p.ratePctH > 0.05) ? "no recent burn"
-        : hitsFirst(p.etaReserveH) || hitsFirst(p.etaExhaustH)
-          ? [hitsFirst(p.etaReserveH) ? `reserve in ${span(p.etaReserveH)}` : null, hitsFirst(p.etaExhaustH) ? `runs out in ${span(p.etaExhaustH)}` : null].filter(Boolean).join(" · ")
+        : p.reserveBeforeReset || p.exhaustBeforeReset
+          ? [p.reserveBeforeReset ? `reserve in ${span(p.etaReserveH)}` : null, p.exhaustBeforeReset ? `runs out in ${span(p.etaExhaustH)}` : null].filter(Boolean).join(" · ")
           : `burning ${p.ratePctH.toFixed(1)}%/h · safe until reset`;
       const li = row(el("span", "rowTitle", p.label), pill(p.stale ? "stale" : p.level, p.stale ? "muted" : { ok: "ok", warn: "warn", critical: "err" }[p.level] ?? "muted"));
       li.appendChild(bar);
@@ -236,8 +235,11 @@
   function renderBoard(board) {
     if (!board) { els.boardWidget.hidden = true; return; }
     els.boardWidget.hidden = false;
+    els.boardLink.hidden = !board.url;
+    if (board.url) els.boardLink.href = board.url;
     const order = ["In Progress", "Todo", "No status", "Done"];
-    const keys = Object.keys(board.counts).sort((a, b) => (order.indexOf(a) + 9) % 13 - (order.indexOf(b) + 9) % 13);
+    const rank = (k) => { const i = order.indexOf(k); return i < 0 ? 1.5 : i; }; // unknown statuses after Todo, before Done
+    const keys = Object.keys(board.counts).sort((a, b) => rank(a) - rank(b));
     els.boardCounts.replaceChildren(...keys.map((k) => el("span", `chip${k === "In Progress" ? " strong" : ""}`, `${k} ${board.counts[k]}`)));
     if (!board.inProgress.length) empty(els.boardList, board.fetchedAt ? "Nothing in progress." : "Loading the board…");
     else els.boardList.replaceChildren(...board.inProgress.map((i) => {
