@@ -32,10 +32,15 @@ class RunEngineerTests(unittest.TestCase):
         env = re_.subscription_env({'ANTHROPIC_API_KEY': 'x', 'CLAUDE_CODE_USE_BEDROCK': '1', 'PATH': '/bin'})
         self.assertEqual(env, {'PATH': '/bin'})
 
-    def test_permission_denials_and_errors_fail_the_task(self):
-        for result in ({'is_error': False, 'permission_denials': [{'tool': 'Bash'}]}, {'is_error': True}):
-            work, _, fake = self.work(result)
-            self.assertEqual(re_.run_task('t', work, run=fake)[0], 1)
+    def test_worker_errors_fail_the_task(self):
+        work, _, fake = self.work({'is_error': True})
+        self.assertEqual(re_.run_task('t', work, run=fake)[0], 1)
+
+    def test_denied_commands_are_counted_not_fatal(self):
+        work, _, fake = self.work({'is_error': False, 'subtype': 'success', 'permission_denials': [{'tool_name': 'Bash'}] * 13})
+        rc, summary = re_.run_task('t', work, run=fake)
+        self.assertEqual(rc, 0)
+        self.assertEqual(summary['denied_commands'], 13)
 
     def test_unparseable_result_fails_the_task(self):
         work, _, fake = self.work('not json')

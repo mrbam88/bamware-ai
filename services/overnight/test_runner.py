@@ -59,7 +59,7 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(task['cost']['attribution'], 'unmetered')
 
     def task(self, root, name, code, dependencies=None):
-        return {'id': name, 'approved': True, 'cwd': str(root),
+        return {'id': name, 'title': f'Test task {name}', 'approved': True, 'cwd': str(root),
                 'argv': [sys.executable, '-c', code], 'timeout_seconds': 1,
                 'preflight': [[sys.executable, '-c', 'pass']],
                 'verify': [[sys.executable, '-c', 'pass']],
@@ -110,6 +110,15 @@ class RunnerTests(unittest.TestCase):
             runner.worker(root)
             self.assertEqual(runner.read(root / 'status.json')['tasks'][0]['state'], 'verification_failed')
 
+
+    def test_tasks_must_say_what_they_are(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            task = self.task(Path(tmp), 't115', 'pass')
+            del task['title']
+            with self.assertRaisesRegex(ValueError, 'ticket .* or a plain-words title'):
+                runner.validate({'schema': 1, 'unresolved_decisions': [], 'tasks': [task]})
+            task['ticket'] = 'mrbam88/bamware-ai#115'
+            runner.validate({'schema': 1, 'unresolved_decisions': [], 'tasks': [task]})
 
 if __name__ == '__main__':
     unittest.main()
