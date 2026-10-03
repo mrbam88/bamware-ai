@@ -7,7 +7,7 @@ import { renderQuotaMeter } from './quota-meter.js';
   const app = $("app");
   const els = {
     dot: $("statusDot"), status: $("statusText"),
-    tabs: $("tabs"), tabChat: $("tabChat"), tabAgents: $("tabAgents"), tabDecisions: $("tabDecisions"),
+    tabs: $("tabs"), tabAgents: $("tabAgents"), tabDecisions: $("tabDecisions"),
     loginView: $("loginView"), loginForm: $("loginForm"), password: $("password"), loginHint: $("loginHint"),
     chatView: $("chatView"), transcript: $("transcript"), composer: $("composer"), text: $("text"), sendBtn: $("sendBtn"),
     micBtn: $("micBtn"), stopBtn: $("stopBtn"), voiceBar: $("voiceBar"), voiceState: $("voiceState"), interim: $("interim"),
@@ -39,13 +39,14 @@ import { renderQuotaMeter } from './quota-meter.js';
   }
 
   function showView(name) {
+    // Chat returns only after the documented shared Chief of Staff readiness gate.
+    if (name === "chat") name = "decisions";
     app.dataset.view = name;
     els.loginView.hidden = name !== "login";
     els.chatView.hidden = name !== "chat";
     els.agentsView.hidden = name !== "agents";
     els.decisionsView.hidden = name !== "decisions";
     els.tabs.hidden = name !== "chat" && name !== "agents" && name !== "decisions";
-    els.tabChat.setAttribute("aria-current", String(name === "chat"));
     els.tabAgents.setAttribute("aria-current", String(name === "agents"));
     els.tabDecisions.setAttribute("aria-current", String(name === "decisions"));
     if (name === "chat") els.text.focus();
@@ -87,7 +88,7 @@ import { renderQuotaMeter } from './quota-meter.js';
     const lf = me.langfuse || {};
     const lfText = !lf.pluginEnabled ? "Langfuse plugin off" : lf.keysPresent ? "Langfuse keys set" : "Langfuse: no keys (traces off)";
     setStatus("ok", `Connected to Hermes · ${lfText}`);
-    showView("chat");
+    showView("decisions");
     renderSession();
   }
 
@@ -1039,7 +1040,6 @@ import { renderQuotaMeter } from './quota-meter.js';
     catch (err) { addMessage("error", `Delete failed: ${err.message}`); }
   });
   els.logoutBtn.addEventListener("click", async () => { voice.stop(); try { await api("POST", "/api/logout"); } catch {} showView("login"); setStatus("ok", "Signed out"); });
-  els.tabChat.addEventListener("click", () => showView("chat"));
   els.tabAgents.addEventListener("click", () => showView("agents"));
   els.tabDecisions.addEventListener("click", () => showView("decisions"));
   els.decisionsRefresh.addEventListener("click", loadDecisions);
