@@ -229,8 +229,9 @@
     if (!items.length) return empty(els.needsList, "Nothing is waiting on you.");
     els.needsList.replaceChildren(...items.map((i) => {
       const title = i.url ? Object.assign(el("a", "rowTitle", i.title), { href: i.url, target: "_blank", rel: "noopener" }) : el("span", "rowTitle", i.title);
-      const li = row(pill(i.kind === "checkpoint" ? "checkpoint" : i.urgency ?? "blocker", i.urgency === "high" ? "err" : "warn"), title,
-        el("span", "rowMeta", [i.project, i.since ? `since ${ago(i.since)}` : null].filter(Boolean).join(" · ")));
+      const li = row(pill(i.kind === "checkpoint" ? "checkpoint" : i.urgency ?? "blocker", i.urgency === "high" ? "err" : "warn"),
+        i.project ? el("span", "projectTag", i.project) : null, title,
+        i.since ? el("span", "rowMeta", `since ${ago(i.since)}`) : null);
       if (i.action) li.appendChild(el("div", "rowNote", i.action));
       return li;
     }));
@@ -386,6 +387,7 @@
     const li = document.createElement("li");
     li.className = `decision-card urgency-${d.urgency}`;
     li.id = `decision-${d.id}`;
+    if (d.project) li.appendChild(el("div", "projectTag", d.project));
 
     const head = document.createElement("div");
     head.className = "dc-head";
@@ -413,7 +415,7 @@
     const sourceText = d.source && d.source.url
       ? d.source.ref
       : (d.source && d.source.ref) || "unknown source";
-    meta.textContent = `${d.project} · ${sourceText} · owner: ${d.owner}`;
+    meta.textContent = `${sourceText} · owner: ${d.owner}`;
     li.appendChild(meta);
     if (d.source && d.source.url) {
       const link = document.createElement("a");

@@ -104,6 +104,9 @@ body { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%;
 .decision-card.urgency-high { border-left-color: var(--err); }
 .decision-card.dc-empty, .decision-card.dc-loading, .decision-card.dc-error { border-left-color: var(--line); color: var(--muted); font-size: 13px; }
 .decision-card.dc-error { color: var(--danger); border-color: var(--danger); }
+/* Which project a card or blocker belongs to: the first thing the eye lands on. */
+.projectTag { display: inline-block; max-width: 100%; margin-bottom: 6px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); overflow-wrap: anywhere; }
+.row .projectTag { margin-bottom: 0; }
 .dc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .dc-title { font-weight: 600; font-size: 15px; }
 .dc-badges { display: flex; gap: 6px; flex-wrap: wrap; }
