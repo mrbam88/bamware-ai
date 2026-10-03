@@ -21,16 +21,15 @@ try {
   const disconnect = await request("/api/admin/logout", { method: "POST", headers: { cookie, "content-type": "application/json", "x-admin-action": "1", origin: base }, body: "{}" });
   assert.equal(disconnect.status, 200);
   evidence.checks.push({ route: "/api/admin/logout", sameOrigin: 200, scope: "verification session only" });
-  for (const route of ["/api/admin/status", "/api/admin/stats", "/api/admin/profiles", "/api/admin/ai-spend", "/api/admin/ai-usage", "/api/rate-limits"]) {
+  for (const route of ["/api/admin/status", "/api/admin/stats", "/api/admin/profiles", "/api/admin/ai-spend", "/api/admin/ai-usage"]) {
     const res = await request(route, { headers: { cookie } });
     const data = await res.json();
     const check = { route, authorized: res.status };
     if (route === "/api/admin/ai-spend") { assert.equal(res.status, 200); assert.ok(data.totals.events > 0); check.snapshotAt = data.generatedAt; check.stale = data.stale; check.hasData = true; }
-    if (route === "/api/rate-limits") { assert.equal(res.status, 200); assert.ok(data.coverage.length > 0); check.windowCount = data.windows.length; check.hasServerCoverage = data.coverage.some(c => c.harness === "hermes"); }
     if (!res.ok) evidence.limitations.push({ route, status: res.status, reason: data.error });
     evidence.checks.push(check);
   }
-  for (const route of ["/admin.js", "/admin.css", "/quota-meter.js"]) assert.equal((await request(route)).status, 200);
+  for (const route of ["/admin.js", "/admin.css"]) assert.equal((await request(route)).status, 200);
   evidence.outcome = "read-only migration smoke passed; see explicit unavailable capabilities";
   console.log(JSON.stringify(evidence, null, 2));
 } finally {

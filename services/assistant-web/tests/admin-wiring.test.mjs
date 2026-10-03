@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createServer, loadConfig } from "../server.mjs";
 
-test("real Assistant wiring protects pages, APIs and preserves quota assets", async () => {
+test("real Assistant wiring protects pages and APIs", async () => {
   const { cfg } = loadConfig({ ASSISTANT_WEB_ENV_FILE: "/nonexistent", ASSISTANT_ADMIN_ENV_FILE: "/nonexistent", ASSISTANT_WEB_PASSWORD: "synthetic-owner-password", ASSISTANT_WEB_SESSION_SECRET: "synthetic-owner-session-secret-over-32-characters", HERMES_HOME: "/nonexistent" });
   const calls = [];
   const adminService = new Proxy({}, { get: (_, name) => (...args) => { calls.push([name, ...args]); return { ok: true, synthetic: true }; } });
@@ -25,10 +25,8 @@ test("real Assistant wiring protects pages, APIs and preserves quota assets", as
     assert.equal((await fetch(base + "/api/admin/stats", { headers: { cookie } })).status, 200);
     assert.equal((await fetch(base + "/api/admin/seed", { method: "POST", headers: { cookie }, body: "{}" })).status, 403);
     assert.equal((await fetch(base + "/api/admin/seed", { method: "DELETE", headers: { cookie, "x-admin-action": "1" }, body: JSON.stringify({ confirmation: "synthetic" }) })).status, 200);
-    for (const asset of ["/admin.js", "/admin.css", "/quota-meter.js"]) assert.equal((await fetch(base + asset)).status, 200);
+    for (const asset of ["/admin.js", "/admin.css"]) assert.equal((await fetch(base + asset)).status, 200);
     const home = await (await fetch(base)).text(); assert.match(home, /href="\/admin"/); assert.match(home, /type="module"/);
-    // Agents V3 shows CFO capacity instead of per-provider meters. quota-meter.js is still served but now unused
-    // by any page; its removal (with rate-limits.mjs and /api/rate-limits) is tracked as a follow-up.
     assert.match(await (await fetch(base + "/app.js")).text(), /\/api\/agents/);
     await fetch(base + "/api/logout", { method: "POST", headers: { cookie } });
     assert.equal(calls.at(-1)[0], "logout");

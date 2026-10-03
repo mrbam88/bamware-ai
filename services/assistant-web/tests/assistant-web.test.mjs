@@ -73,9 +73,6 @@ async function withServer(fn, extraEnv = {}, dependencies = {}) {
     HERMES_CWD: HERE,
     HERMES_HOME: path.join(HERE, "fixtures", "hermes-home-missing"),
     HERMES_TIMEOUT_MS: "2000",
-    ASSISTANT_WEB_CODEX_QUOTA_FILE: "/nonexistent",
-    ASSISTANT_WEB_SERVER_QUOTA_FILE: "/nonexistent",
-    ASSISTANT_WEB_QUOTA_SAMPLES_FILE: "/nonexistent",
     ASSISTANT_WEB_STATE_DIR: "/nonexistent",
     ASSISTANT_WEB_BOARD: "0",
     ASSISTANT_WEB_HANDOFF_CHECKS: "0",
@@ -107,7 +104,7 @@ async function login(base) {
 
 test("unauthenticated clients get 401 on every /api route except health and login", async () => {
   await withServer(async (base) => {
-    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"], ["GET", "/api/agents"], ["GET", "/api/decisions"]]) {
+    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/agents"], ["GET", "/api/decisions"]]) {
       const res = await fetch(base + p, { method: m, headers: { "content-type": "application/json" }, body: m === "POST" ? "{}" : undefined });
       assert.equal(res.status, 401, `${m} ${p}`);
     }
@@ -188,36 +185,6 @@ test("me reports Langfuse presence booleans only", async () => {
     const me = await (await fetch(`${base}/api/me`, { headers: { cookie } })).json();
     assert.deepEqual(Object.keys(me.langfuse).sort(), ["hermesHome", "keysPresent", "pluginEnabled"]);
     assert.equal(me.langfuse.keysPresent, false);
-  });
-});
-
-test("GET /api/rate-limits defaults to live mode: honest unsupported, no fake cap", async () => {
-  await withServer(async (base) => {
-    const { cookie } = await login(base);
-    const res = await fetch(`${base}/api/rate-limits`, { headers: { cookie } });
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.equal(body.mode, "live");
-    assert.ok(body.version);
-    assert.equal(body.windows.length, 4);
-    assert.deepEqual(body.coverage.map(c => c.harness), ["hermes", "opencode"]);
-    assert.equal(body.windows[0].state, "unsupported");
-    assert.equal(body.windows[0].usedTokens, null);
-    assert.ok(!JSON.stringify(body).includes("1500000"), "must never present the old unverified 1.5M cap as fact");
-  });
-});
-
-test("GET /api/rate-limits?mode=demo returns only synthetic, clearly tagged windows", async () => {
-  await withServer(async (base) => {
-    const { cookie } = await login(base);
-    const res = await fetch(`${base}/api/rate-limits?mode=demo`, { headers: { cookie } });
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.equal(body.mode, "demo");
-    assert.ok(body.windows.length >= 5);
-    for (const w of body.windows) assert.equal(w.source.kind, "synthetic");
-    const states = new Set(body.windows.map((w) => w.state));
-    for (const required of ["fresh", "stale", "exhausted", "unknown"]) assert.ok(states.has(required));
   });
 });
 
