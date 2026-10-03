@@ -453,6 +453,7 @@ export function deriveActiveAgents(events, opts = {}) {
       state,
       executionStatus: working ? "working" : trustworthy && fresh && execution.status !== "working" ? execution.status : "unknown",
       executionPhase: working ? execution.phase : null,
+      executionLeaseExpiresAt: working ? new Date(leaseMs).toISOString() : null,
       activityEvidence: working ? "Fresh worker execution lease and pickup receipt" : "Current execution not verified; observation timestamps are not heartbeats",
     };
   });

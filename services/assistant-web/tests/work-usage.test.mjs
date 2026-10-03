@@ -167,6 +167,8 @@ test("execution needs genuine pickup, phase and unexpired lease; observations ca
   const agents=deriveActiveAgents(events,{now:NOW});const states=Object.fromEntries(agents.map(a=>[a.sessionId,a.state]));
   assert.equal(states.working,"active");assert.equal(states.stale,"stale");
   for(const id of ["future","no-pickup","blocked","long-lease","finished","refreshed"])assert.equal(states[id],"unknown");
+  assert.equal(agents.find(a=>a.sessionId==="working").executionLeaseExpiresAt,new Date(NOW+59000).toISOString());
+  assert.equal(agents.find(a=>a.sessionId==="finished").executionLeaseExpiresAt,null);
   assert.equal(agents.length,8);assert.equal(agents.find(a=>a.sessionId==="working").executionPhase,"coding");
   assert.equal(agents.find(a=>a.sessionId==="blocked").executionStatus,"blocked");
   const done=event("done");done.timing.endedAt=new Date(NOW).toISOString();assert.notEqual(deriveActiveAgents([done],{now:NOW})[0].state,"active");
