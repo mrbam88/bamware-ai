@@ -189,7 +189,7 @@
     els.nowHint.textContent = now.running.length ? `${now.running.length} in the current run` : "";
     if (!now.recent.length) return empty(els.nowRecent, "No executor runs recorded yet.");
     els.nowRecent.replaceChildren(...now.recent.map((t) => {
-      const meta = [t.finishedAt ? `finished ${ago(t.finishedAt)}` : null, t.durationMs != null ? span(t.durationMs / 3.6e6) : null,
+      const meta = [t.finishedAt ? `finished ${ago(t.finishedAt)}` : t.startedAt ? `started ${ago(t.startedAt)}, never finished` : null, t.durationMs != null ? span(t.durationMs / 3.6e6) : null,
         t.cost ? `${t.cost.pct.toFixed(1)}% of ${t.cost.pool}${t.cost.attribution === "shared" ? " (shared)" : ""}` : null,
         t.exitCode ? `exit ${t.exitCode}` : null].filter(Boolean).join(" · ");
       return row(pill(TASK_LABEL[t.state] ?? t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),

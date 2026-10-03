@@ -38,8 +38,9 @@ export async function workerAlive(pid, runId, readFile = fs.readFile) {
   try {
     const cmdline = (await readFile(`/proc/${pid}/cmdline`, "utf8")).split("\0");
     return cmdline.some((a) => a.endsWith("runner.py")) && cmdline.includes("worker") && cmdline.some((a) => a.endsWith(runId));
-  } catch {
-    return false;
+  } catch (err) {
+    // Only "no such process" means dead; anything else (e.g. a future ProtectProc sandbox) is unknown.
+    return err?.code === "ENOENT" ? false : null;
   }
 }
 
@@ -100,7 +101,7 @@ export function deriveNow(runs, now) {
     if (dead) {
       for (const r of records.filter((r) => r.state === "running")) {
         recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: "interrupted", exitCode: null,
-          finishedAt: seconds(r.started_at), durationMs: null, cost: null, smoke });
+          startedAt: seconds(r.started_at), finishedAt: null, sortAt: seconds(r.started_at), durationMs: null, cost: null, smoke });
       }
     } else if (run.status.phase !== "finished") {
       const started = seconds(run.status.started_at);
@@ -119,7 +120,7 @@ export function deriveNow(runs, now) {
         finishedAt, durationMs: startedAt && finishedAt ? finishedAt - startedAt : null, cost: largestCost(r.cost), smoke });
     }
   }
-  recent.sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0));
+  recent.sort((a, b) => (b.finishedAt ?? b.sortAt ?? 0) - (a.finishedAt ?? a.sortAt ?? 0));
   return { running, recent: recent.slice(0, RECENT_TASKS) };
 }
 

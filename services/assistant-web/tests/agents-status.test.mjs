@@ -104,6 +104,7 @@ test("a run whose worker died shows interrupted work, never 'running' or inflate
   const dead = deriveNow([{ ...live, workerAlive: false }], NOW);
   assert.deepEqual(dead.running, []);
   assert.deepEqual(dead.recent.map((t) => [t.ticket, t.state]), [["#1", "interrupted"]]);
+  assert.equal(dead.recent[0].finishedAt, null, "interrupted work never finished");
   assert.equal(deriveSystem({}, dead, []).state, "idle", "a dead run must not keep the banner on Working");
   assert.equal(deriveNow([{ ...live, workerAlive: true }], NOW).running.length, 2, "a live worker is still running");
   assert.equal(deriveNow([{ ...live, workerAlive: null }], NOW).running.length, 2, "unknown liveness keeps the old behaviour");
@@ -114,7 +115,8 @@ test("worker liveness requires this run's runner.py worker, not any process with
   assert.equal(await workerAlive(42, "179", cmd(["/usr/bin/python3", "/x/services/overnight/runner.py", "worker", "/s/overnight/179"])), true);
   assert.equal(await workerAlive(42, "179", cmd(["/usr/bin/python3", "/x/runner.py", "worker", "/s/overnight/180"])), false, "another run");
   assert.equal(await workerAlive(42, "179", cmd(["/usr/bin/vim"])), false, "pid reused");
-  assert.equal(await workerAlive(42, "179", async () => { throw new Error("ENOENT"); }), false);
+  assert.equal(await workerAlive(42, "179", async () => { throw Object.assign(new Error("gone"), { code: "ENOENT" }); }), false);
+  assert.equal(await workerAlive(42, "179", async () => { throw Object.assign(new Error("denied"), { code: "EACCES" }); }), null, "a sandbox denial is unknown, not dead");
   assert.equal(await workerAlive(undefined, "179"), null);
 });
 
