@@ -722,7 +722,28 @@ import { renderQuotaMeter } from './quota-meter.js';
     if (data.coordinator) {
       const c = data.coordinator, status = document.createElement("li");
       status.className = "decision-card";
-      status.textContent = `Server follow-through: ${c.status} · Last sweep: ${c.checkedAt || "pending"} · Next sweep: ${c.nextSweepAt || "pending"}. ${c.coverage || ""}${c.failures?.length ? ` Source errors: ${c.failures.map(f => f.id).join(", ")}.` : ""}`;
+      const sm = c.scrumMaster;
+      const headline = document.createElement("p");
+      headline.textContent = `Scrum Master · ${Array.isArray(sm?.assignments) ? `${sm.assignments.length} assigned efforts` : "Assignment data unavailable"} · ${c.currentRuntimeFailure ? "Runtime failure" : c.status || "Status unavailable"}`;
+      status.appendChild(headline);
+      const timing = document.createElement("p"); timing.className = "dc-meta";
+      timing.textContent = `Last sweep: ${c.checkedAt || "not observed"} · Next check: ${c.nextSweepAt || "not scheduled"}`; status.appendChild(timing);
+      if (c.currentRuntimeFailure) { const failure = document.createElement("p"); failure.setAttribute("role", "alert"); failure.textContent = `Runtime failure at ${c.currentRuntimeFailure.at || "unknown time"}: ${c.currentRuntimeFailure.detail || "Check unavailable; stored status may be older."}`; status.appendChild(failure); }
+      const details = document.createElement("details"), summary = document.createElement("summary");
+      summary.textContent = "Delivery assignments and receipts"; details.appendChild(summary);
+      const coverage = document.createElement("p"); coverage.textContent = sm?.coverage || c.coverage || "Coverage unavailable."; details.appendChild(coverage);
+      for (const a of sm?.assignments || []) {
+        const entry = document.createElement("section"), title = document.createElement("strong"); title.textContent = a.title || a.id; entry.appendChild(title);
+        const lines = [
+          `Assessment: ${a.assessment?.status || "not assessed"} · Next action: ${a.assessment?.nextAction || "not recorded"}`,
+          `Source check: ${a.lastSourceCheckAt || "not observed"} · Next check: ${a.nextCheckAt || "not scheduled"}`,
+          `Acceptance receipt: ${a.acceptance?.receiptId || "not recorded"} · Run receipt: ${a.assessment?.runReceiptId || "not recorded"}`,
+          `Worker: ${a.worker?.status || "not recorded"} · ${a.worker?.liveExecutionObserved === true ? "Execution evidence recorded; see source" : "No live worker execution observed"}`,
+        ];
+        for (const text of lines) { const p = document.createElement("p"); p.textContent = text; entry.appendChild(p); }
+        details.appendChild(entry);
+      }
+      status.appendChild(details);
       els.decisionList.appendChild(status);
     }
     if (!data.decisions || !data.decisions.length) {
@@ -733,11 +754,15 @@ import { renderQuotaMeter } from './quota-meter.js';
       return;
     }
     for (const d of data.decisions) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+    if (location.hash.startsWith("#decision=")) {
+      try { document.getElementById(`decision-${decodeURIComponent(location.hash.slice(10))}`)?.scrollIntoView({block: "start"}); } catch {}
+    }
   }
 
   function renderDecisionCard(d, mode) {
     const li = document.createElement("li");
     li.className = `decision-card urgency-${d.urgency}`;
+    li.id = `decision-${d.id}`;
 
     const head = document.createElement("div");
     head.className = "dc-head";
@@ -806,6 +831,36 @@ import { renderQuotaMeter } from './quota-meter.js';
       li.appendChild(box);
     }
 
+    if (mode === "live") {
+      const box = document.createElement("section"); box.className = "dc-discussion";
+      const status = document.createElement("p"); status.setAttribute("role", "status");
+      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: reopen to update context" : d.discussion.status === "ready" ? "Discussion ready" : "Discussion needs attention"}. ${d.discussion.detail || ""}` : "Discuss in Discord. Discussion does not approve execution.";
+      box.appendChild(status);
+      function source(url, label) {
+        if (!/^https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?$/.test(url || "")) return;
+        const a = document.createElement("a"); a.href = url; a.textContent = label; a.target = "_blank"; a.rel = "noopener noreferrer"; box.appendChild(a);
+      }
+      source(d.discussion?.url, "Open discussion in Discord ↗");
+      function control(label, endpoint) {
+        const button = document.createElement("button"); button.type = "button"; button.textContent = label;
+        button.addEventListener("click", async () => {
+          button.disabled = true; status.textContent = "Updating this discussion…";
+          try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/${endpoint}`, {candidateVersion: d.version}); await loadDecisions(); }
+          catch (e) { status.textContent = `Discussion unavailable: ${e.message}`; }
+          finally { button.disabled = false; }
+        }); box.appendChild(button);
+      }
+      control(d.discussion ? "Reopen / repair discussion" : "Discuss in Discord", "discussion");
+      if (d.discussion?.threadId) control("Refresh discussion", "discussion/sync");
+      if (d.discussion?.pickup) { const p = document.createElement("p"); p.textContent = "Assistant reply observed; no worker execution implied."; box.appendChild(p); }
+      const summary = d.discussion?.summary;
+      if (summary) {
+        for (const text of [`Discussion proposal · version ${summary.candidateVersion} · not approved`, summary.summary, summary.proposedRevision ? `Proposed revision: ${summary.proposedRevision}` : "", "This proposal does not change the source decision. Revise the source and its version before approving changed work."]) { const p = document.createElement("p"); p.textContent = text; box.appendChild(p); }
+        source(summary.url, "Source discussion message ↗");
+      }
+      li.appendChild(box);
+    }
+
     // Answer / handoff state for an existing response -----------------------
     if (d.response) {
       const answer = document.createElement("div");
@@ -864,7 +919,7 @@ import { renderQuotaMeter } from './quota-meter.js';
 
       const actions = document.createElement("div");
       actions.className = "dc-actions";
-      for (const action of ["selected", "reject", "discuss", "defer"]) {
+      for (const action of (mode === "live" ? ["selected", "reject", "defer"] : ["selected", "reject", "discuss", "defer"])) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = `dc-${action}`;
@@ -889,6 +944,10 @@ import { renderQuotaMeter } from './quota-meter.js';
         note: note || null,
         candidateVersion: d.version,
       });
+      if (action === "discuss" && mode === "live") {
+        try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/discussion`, {candidateVersion: d.version}); }
+        catch (e) { alert(`Response saved. Discussion unavailable: ${e.message}`); }
+      }
       loadDecisions();
     } catch (err) {
       alert(`Could not record response: ${err.message}`);

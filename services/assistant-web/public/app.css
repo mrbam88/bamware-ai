@@ -240,3 +240,8 @@ input:not([type="checkbox"]), textarea, select, button.icon, .dc-actions button,
 .wu-badge-cooking::before { content: "◌ "; display: inline-block; animation: cooking-pulse 1.8s ease-in-out infinite; }
 @keyframes cooking-pulse { 50% { opacity: .55; } }
 @media (prefers-reduced-motion: reduce) { .wu-badge-cooking::before { animation: none; } }
+
+.dc-discussion { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 10px; }
+.dc-discussion p { overflow-wrap: anywhere; }
+.dc-discussion button, .dc-discussion > a { display: inline-flex; align-items: center; min-height: 44px; margin: 4px 8px 4px 0; }
+.dc-discussion button { border: 1px solid var(--control-line); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
