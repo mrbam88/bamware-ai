@@ -82,7 +82,7 @@ from the transport is sanitized. Do not export private discussion transcripts.
 
 ## Evidence and remaining gates
 
-156 local tests pass, including real HTTP authorization/version/no-dispatch,
+164 local tests pass, including real HTTP authorization/version/no-dispatch,
 concurrent requests, interrupted locks, restart/adoption, ambiguous missing sends,
 archived/locked mapping, mention suppression, scoped provenance and revision
 isolation. Tests use fake Discord transport; no real messages are sent by tests.
@@ -104,3 +104,20 @@ is explicitly synthetic in the preview and marked not approved. No horizontal
 overflow or captured browser errors; Chat navigation remains absent. Keyboard
 Enter activates discussion opening. This is local transport-fixture UI evidence,
 not a live Discord conversation or physical-phone test.
+
+
+The existing coordinator card now exposes the shared Scrum Master assignment
+count, current runtime failure and sweep times. Assignment assessments, next
+actions, source timestamps and acceptance/run receipts are under a native details
+disclosure. Metadata does not imply live worker execution. This is a small display
+of the shared scheduler's existing data, not a new role process or scheduler.
+
+Canonical assistant skill published separately as main `71c9070`. The existing
+external skill source checkout remains on its original branch; only the reviewed
+skill file was replaced after a clean-preimage check, with rollback saved outside
+that checkout. Runtime skill SHA256:
+`4f662ac2c92343a4fe6421b7954459aca675085a96d82fb232f266acbd1c732b`.
+Installed `skill_view("bamware-assistant", preprocess=False)` resolved the new
+section and no-argument bridge. This proves a fresh skill read, not hot reload of
+already running conversations. Gateway configuration and tool permissions stayed
+unchanged.

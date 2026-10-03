@@ -722,7 +722,28 @@ import { renderQuotaMeter } from './quota-meter.js';
     if (data.coordinator) {
       const c = data.coordinator, status = document.createElement("li");
       status.className = "decision-card";
-      status.textContent = `Server follow-through: ${c.status} · Last sweep: ${c.checkedAt || "pending"} · Next sweep: ${c.nextSweepAt || "pending"}. ${c.coverage || ""}${c.failures?.length ? ` Source errors: ${c.failures.map(f => f.id).join(", ")}.` : ""}`;
+      const sm = c.scrumMaster;
+      const headline = document.createElement("p");
+      headline.textContent = `Scrum Master · ${Array.isArray(sm?.assignments) ? `Watching ${sm.assignments.length} efforts` : "Assignment data unavailable"} · ${c.currentRuntimeFailure ? "Runtime failure" : c.status || "Status unavailable"}`;
+      status.appendChild(headline);
+      const timing = document.createElement("p"); timing.className = "dc-meta";
+      timing.textContent = `Last sweep: ${c.checkedAt || "not observed"} · Next check: ${c.nextSweepAt || "not scheduled"}`; status.appendChild(timing);
+      if (c.currentRuntimeFailure) { const failure = document.createElement("p"); failure.setAttribute("role", "alert"); failure.textContent = `Runtime failure at ${c.currentRuntimeFailure.at || "unknown time"}: ${c.currentRuntimeFailure.detail || "Check unavailable; stored status may be older."}`; status.appendChild(failure); }
+      const details = document.createElement("details"), summary = document.createElement("summary");
+      summary.textContent = "Delivery assignments and receipts"; details.appendChild(summary);
+      const coverage = document.createElement("p"); coverage.textContent = sm?.coverage || c.coverage || "Coverage unavailable."; details.appendChild(coverage);
+      for (const a of sm?.assignments || []) {
+        const entry = document.createElement("section"), title = document.createElement("strong"); title.textContent = a.title || a.id; entry.appendChild(title);
+        const lines = [
+          `Assessment: ${a.assessment?.status || "not assessed"} · Next action: ${a.assessment?.nextAction || "not recorded"}`,
+          `Source check: ${a.lastSourceCheckAt || "not observed"} · Next check: ${a.nextCheckAt || "not scheduled"}`,
+          `Acceptance receipt: ${a.acceptance?.receiptId || "not recorded"} · Run receipt: ${a.assessment?.runReceiptId || "not recorded"}`,
+          `Worker: ${a.worker?.status || "not recorded"} · ${a.worker?.liveExecutionObserved === true ? "Execution evidence recorded; see source" : "No live worker execution observed"}`,
+        ];
+        for (const text of lines) { const p = document.createElement("p"); p.textContent = text; entry.appendChild(p); }
+        details.appendChild(entry);
+      }
+      status.appendChild(details);
       els.decisionList.appendChild(status);
     }
     if (!data.decisions || !data.decisions.length) {
