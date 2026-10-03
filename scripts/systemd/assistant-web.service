@@ -1,0 +1,25 @@
+# Bamware assistant website (services/assistant-web) as a user service on omarchy.
+# Install (Bilal-gated deploy step, see docs/assistant-website.md):
+#   cp scripts/systemd/assistant-web.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now assistant-web.service
+#   systemctl --user status assistant-web.service
+# Secrets come from ~/.config/bamware/assistant-web.env (read by the server itself).
+[Unit]
+Description=Bamware assistant website (real Hermes runtime)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/code/bamware-ai/services/assistant-web
+# mise shims provide node + hermes for this user.
+Environment=PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/.local/share/mise/shims/node server.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

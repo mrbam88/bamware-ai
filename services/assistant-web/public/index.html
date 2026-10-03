@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>Bamware Assistant</title>
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <main class="app" id="app" data-view="loading">
+    <header class="top">
+      <div class="brand">
+        <span class="dot" id="statusDot" aria-hidden="true"></span>
+        <h1>Bamware Assistant</h1>
+      </div>
+      <div class="status" id="statusText" role="status" aria-live="polite">Checking…</div>
+    </header>
+
+    <nav class="tabs" id="tabs" hidden>
+      <button type="button" class="tab" id="tabAgents" data-tab="agents">Agents</button>
+      <button type="button" class="tab" id="tabDecisions" data-tab="decisions">Decisions</button>
+      <a class="tab" href="/admin">Admin</a>
+      <button type="button" class="tab" id="logoutBtn">Sign out</button>
+    </nav>
+
+    <!-- Login -->
+    <section class="view login" id="loginView" hidden>
+      <form id="loginForm" autocomplete="off">
+        <label for="password">Owner password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required minlength="12" />
+        <button type="submit" class="primary">Sign in</button>
+        <p class="hint" id="loginHint" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Chat -->
+    <section class="view chat" id="chatView" hidden>
+      <ol class="transcript" id="transcript" aria-label="Conversation"></ol>
+
+      <div class="voiceBar" id="voiceBar" hidden>
+        <span class="voiceState" id="voiceState">Listening…</span>
+        <span class="interim" id="interim"></span>
+      </div>
+
+      <form class="composer" id="composer">
+        <button type="button" class="icon" id="micBtn" aria-pressed="false" title="Hold a conversation by voice">🎙️</button>
+        <textarea id="text" rows="1" placeholder="Ask the assistant…" maxlength="4000" required></textarea>
+        <button type="submit" class="primary" id="sendBtn">Send</button>
+        <button type="button" class="icon" id="stopBtn" hidden title="Stop speaking">⏹</button>
+      </form>
+
+      <footer class="meta">
+        <span id="sessionLabel">New conversation</span>
+        <span class="sep">·</span>
+        <button type="button" class="link" id="newBtn">New</button>
+        <button type="button" class="link" id="exportBtn" disabled>Export</button>
+        <button type="button" class="link danger" id="deleteBtn" disabled>Delete</button>
+        <span class="sep">·</span>
+        <span id="traceLabel" title="Langfuse groups traces by this Hermes session id"></span>
+        <span class="grow"></span>
+        <label class="toggle"><input type="checkbox" id="speakToggle" /> Speak replies</label>
+      </footer>
+    </section>
+
+    <!-- Agents -->
+    <section class="view agents" id="agentsView" hidden>
+      <div class="widget" id="rateLimitsWidget">
+        <div class="widgetHead">
+          <h2>Rate limits &amp; resets</h2>
+          <div class="widgetActions">
+            <span class="hint" id="rateLimitsGenerated"></span>
+            <label class="toggle" title="Load synthetic fixture data to preview every state; never real usage">
+              <input type="checkbox" id="rateLimitsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="rateLimitsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="rateLimitsDemoBanner" hidden>
+          ⚠ Synthetic demo data for preview only — not a real provider reading.
+        </p>
+        <ul class="rateLimitList" id="rateLimitList" aria-live="polite"></ul>
+        <h3 class="wuSubhead">Server harness coverage &amp; credit controls</h3>
+        <div id="quotaCoverage" aria-live="polite"></div>
+      </div>
+
+      <div class="widget" id="workUsageControls">
+        <div class="widgetHead">
+          <h2>Work &amp; agents</h2>
+          <div class="workViewSwitch" role="group" aria-label="Work view"><button type="button" id="workListButton" aria-pressed="true">List</button><button type="button" id="workTreeButton" aria-pressed="false">Work tree</button></div>
+          <div class="widgetActions">
+            <label class="toggle">Project:
+              <select id="workUsageProjectFilter"><option value="">All</option></select>
+            </label>
+            <span class="hint" id="workUsageGenerated"></span>
+            <label class="toggle" title="Load synthetic fixture data to preview every widget state; never real usage">
+              <input type="checkbox" id="workUsageDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="workUsageRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="workUsageDemoBanner" hidden>
+          ⚠ Synthetic demo data for preview only — not real project/agent usage.
+        </p>
+        <p class="hint" id="workUsageCoverage"></p>
+      </div>
+
+      <div class="widget" id="workTreeWidget" hidden>
+        <div class="widgetHead"><h2>Work tree</h2><span class="hint">Projects → tasks → recorded work</span></div>
+        <div class="hint" id="workTreeCoverage"></div>
+        <div id="workTreeContent"></div>
+      </div>
+      <div class="widget" id="usageByTaskWidget">
+        <div class="widgetHead"><h2>Usage by project &amp; ticket</h2></div>
+        <ul class="wuList" id="usageByTaskList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="activeAgentsWidget">
+        <div class="widgetHead"><h2>Active agents</h2></div>
+        <ul class="wuList" id="activeAgentsList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="workVsWaitWidget">
+        <div class="widgetHead"><h2>Work vs waiting</h2></div>
+        <ul class="wuList" id="workVsWaitList" aria-live="polite"></ul>
+      </div>
+
+      <div class="widget" id="outcomesWidget">
+        <div class="widgetHead"><h2>Outcomes &amp; rework</h2></div>
+        <ul class="wuList" id="outcomesList" aria-live="polite"></ul>
+        <h3 class="wuSubhead">Model routing signal (recommendation only — no automatic switching)</h3>
+        <ul class="wuList" id="routingList" aria-live="polite"></ul>
+      </div>
+    </section>
+
+    <!-- Decisions -->
+    <section class="view decisions" id="decisionsView" hidden>
+      <div class="widget" id="decisionsControls">
+        <div class="widgetHead">
+          <h2>Decisions</h2>
+          <div class="widgetActions">
+            <span class="hint" id="decisionsGenerated"></span>
+            <label class="toggle" title="Load a synthetic fixture deck to preview the response/handoff lifecycle; never a real decision">
+              <input type="checkbox" id="decisionsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="decisionsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="decisionsDemoBanner" hidden>
+          ⚠ Synthetic demo deck for preview only — not a real decision or handoff.
+        </p>
+      </div>
+      <ol class="decisionList" id="decisionList" aria-live="polite"></ol>
+    </section>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

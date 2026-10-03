@@ -1,7 +1,7 @@
-# Bamware — read me first (as of 2026-08-18)
+# Bamware — read me first
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
-Entry map for every session; details in `docs/` and `skills/`.
+Entry map; details in `docs/` and `skills/`.
 
 ## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
 
@@ -22,8 +22,7 @@ every switch.** Never rely on model memory.
 - Durable procedures go in canonical docs linked from here — never bury a rule
   in an incident log only. Route work by capability, not model name.
 - Distinguish **edited locally / published / deployed** — unpublished context
-  does not exist for the next machine. Procedure: `skills/session-handoff`;
-  contract: `docs/portability.md`.
+  does not exist for the next machine.
 
 ## 1. Where is the truth?
 
