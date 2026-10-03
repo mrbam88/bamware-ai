@@ -44,6 +44,7 @@ import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAcce
 import { loadAdminConfig } from "./lib/admin/config.mjs";
 import { createAdminRouter } from "./lib/admin/router.mjs";
 
+import { SCRUM_MASTER_ASSIGNMENTS } from "./lib/scrum-master-assignments.mjs";
 import { createOwnerBlockers } from './lib/owner-blockers.mjs';
 import { notifyOwnerBlocker } from './lib/owner-blocker-discord.mjs';
 
@@ -249,7 +250,7 @@ function hermesStatus(cfg) {
 export function createServer(cfg, { log = defaultLog, adminService, handoffRun, handoffNotify, discussionTransport } = {}) {
   const runner = new HermesRunner(cfg, log);
   const discussions = cfg.discussionsEnabled ? createDecisionDiscussions({ directory: cfg.discussionsDir, transport: discussionTransport ?? createDecisionDiscordTransport() }) : null;
-  const blockers = cfg.ownerBlockersEnabled ? createOwnerBlockers({ directory: cfg.ownerBlockersDir, candidates: DECISION_CANDIDATES, notify: notifyOwnerBlocker }) : null;
+  const blockers = cfg.ownerBlockersEnabled ? createOwnerBlockers({ directory: cfg.ownerBlockersDir, candidates: DECISION_CANDIDATES, notify: notifyOwnerBlocker, supervisionAssignments: SCRUM_MASTER_ASSIGNMENTS, onFailure: log }) : null;
   const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES.filter(c => !blockers?.snapshot(c.id)),run:handoffRun ?? agentCheckRunner(runner),notify:handoffNotify ?? notifyHandoffCheck,log}) : null;
   checks?.recover();
   const withCheck = decision => ({...decision, discussion: discussions?.snapshot(decision) ?? null, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
