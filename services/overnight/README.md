@@ -32,6 +32,14 @@ passed as `BAMWARE_BATCH_WORK` or `--work-dir`. Workers start through
 `run_engineer.py <task> --work-dir DIR --model MODEL`; pass the CFO-routed model.
 Every task is metered by `services/cfo/meter.py` (cost in % of each pool).
 
+## Every task says what it is
+
+Each task needs a `ticket` (`owner/repo#N`) or a plain-words `title`; the runner
+refuses to launch a batch otherwise. The Agents tab shows the ticket's real
+title (looked up on GitHub) or the task's `title`, never a bare id or number.
+A worker's denied commands are counted in its log, not treated as failure: the
+task's `verify` commands are the acceptance gate.
+
 ## Manifest and use
 
 Run on the server with Python 3 (standard library only):

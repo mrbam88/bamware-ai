@@ -137,3 +137,9 @@ test("board reader exposes the configured board link", async () => {
   assert.equal((await read()).url, "https://github.com/users/acme/projects/7");
 });
 
+test("a task's own plain-words title travels with it when there is no ticket", () => {
+  const r = run("6", "finished", [{ id: "review", state: "verified", started_at: 1791009000, finished_at: 1791009600 }],
+    [{ id: "review", title: "Engineering Lead review of the overnight PRs" }]);
+  assert.equal(deriveNow([r], NOW).recent[0].label, "Engineering Lead review of the overnight PRs");
+});
+

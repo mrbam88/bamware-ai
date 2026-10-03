@@ -35,6 +35,8 @@ def validate(batch):
         if not set(task.get('depends_on', [])) <= ids:
             raise ValueError('dependencies must refer to earlier tasks')
         ids.add(task['id'])
+        if not (task.get('ticket') or task.get('title')):
+            raise ValueError(f"{task['id']}: needs a ticket (owner/repo#N) or a plain-words title so people can read what it is")
         if task.get('approved') is not True:
             raise ValueError(f"{task['id']}: scope/permissions not approved")
         if not Path(task.get('cwd', '')).is_absolute() or not Path(task['cwd']).is_dir():

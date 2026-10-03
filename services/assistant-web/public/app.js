@@ -147,13 +147,16 @@
   function pill(text, tone) {
     return el("span", `pill ${tone}`, text);
   }
-  function ticketLink(ticket) {
-    const m = /^(?:([\w.-]+\/[\w.-]+))?#(\d+)$/.exec(ticket ?? "");
-    if (!m || !m[1]) return el("span", "rowTitle", ticket ?? "untitled");
-    const a = el("a", "rowTitle", `${m[1].split("/")[1]}#${m[2]}`);
-    a.href = `https://github.com/${m[1]}/issues/${m[2]}`;
-    a.target = "_blank"; a.rel = "noopener";
-    return a;
+  // People read titles, not numbers: the title is the link text, the repo name is context.
+  function ticketLink(t) {
+    const ref = t.ticket ?? "";
+    const m = /^([\w.-]+)\/([\w.-]+)#(\d+)$/.exec(ref);
+    const node = el(m ? "a" : "span", "rowTitle", t.title ?? t.label ?? (m ? `${m[2]} ticket` : humanize(t.task ?? ref)));
+    if (m) Object.assign(node, { href: `https://github.com/${m[1]}/${m[2]}/issues/${m[3]}`, target: "_blank", rel: "noopener", title: `${m[2]}#${m[3]}` });
+    return m && (t.title || t.label) ? [node, el("span", "rowMeta", m[2])] : [node];
+  }
+  function humanize(id) {
+    return String(id || "untitled").replace(/[-_]+/g, " ").replace(/^\w/, (c) => c.toUpperCase());
   }
   function row(...children) {
     const li = el("li", "row");
@@ -183,7 +186,7 @@
   function renderNow(now) {
     if (!now.running.length) empty(els.nowRunning, "Nothing running.");
     else els.nowRunning.replaceChildren(...now.running.map((t) => row(
-      pill(t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),
+      pill(t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t),
       el("span", "rowMeta", t.startedAt ? `started ${ago(t.startedAt)}` : "waiting to start"),
       t.smoke ? pill("smoke test", "muted") : null)));
     els.nowHint.textContent = now.running.length ? `${now.running.length} in the current run` : "";
@@ -192,7 +195,7 @@
       const meta = [t.finishedAt ? `finished ${ago(t.finishedAt)}` : t.startedAt ? `started ${ago(t.startedAt)}, never finished` : null, t.durationMs != null ? span(t.durationMs / 3.6e6) : null,
         t.cost ? `${t.cost.pct.toFixed(1)}% of ${t.cost.pool}${t.cost.attribution === "shared" ? " (shared)" : ""}` : null,
         t.exitCode ? `exit ${t.exitCode}` : null].filter(Boolean).join(" · ");
-      return row(pill(TASK_LABEL[t.state] ?? t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),
+      return row(pill(TASK_LABEL[t.state] ?? t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t),
         el("span", "rowMeta", meta), t.smoke ? pill("smoke test", "muted") : null);
     }));
   }

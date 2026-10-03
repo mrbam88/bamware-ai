@@ -14,9 +14,11 @@ the Engineering Lead's review. Code: `services/assistant-web/lib/agents-status.m
 | Board | Counts by status and in-progress items by priority | GitHub Projects board 2 via the server's `gh`, cached 5 min |
 
 All paths are under `~/.local/state/bamware/` (`ASSISTANT_WEB_STATE_DIR`).
-`ASSISTANT_WEB_BOARD=0` turns the board read off. Unknown is shown as unknown;
-stale CFO data (over 25 min) is labelled stale. Batches should give each task a
-`ticket` (for example `mrbam88/bamware-ai#75`) so rows link to the issue.
+`ASSISTANT_WEB_BOARD=0` turns the board and title reads off. Rows show the
+ticket's real title (GitHub, cached 6 h) or the batch task's own `title`, never a
+bare number (founder, 2026-10-03). Unknown is shown as unknown;
+stale CFO data (over 25 min) is labelled stale. The runner requires each batch task to
+carry a `ticket` (for example `mrbam88/bamware-ai#75`) or a `title`.
 
 Removed in V3: the work tree, the work-usage list, active agents, work vs
 waiting, outcomes, model routing, demo toggles, and the hard-coded Oct 2

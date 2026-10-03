@@ -32,6 +32,7 @@ import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
 import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
 import { readAgentsState, buildAgentsSnapshot } from "./lib/agents-status.mjs";
 import { createBoardReader } from "./lib/board.mjs";
+import { createTitleReader, withTitles } from "./lib/titles.mjs";
 import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
 import { loadDecisionStore } from "./lib/decision-store.mjs";
 import { createDecisionDiscussions } from './lib/decision-discussions.mjs';
@@ -254,6 +255,7 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
   checks?.recover();
   const withCheck = decision => ({...decision, discussion: discussions?.snapshot(decision) ?? null, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
   const board = cfg.boardEnabled ? createBoardReader({ owner: cfg.boardOwner, project: cfg.boardProject }) : null;
+  const titles = cfg.boardEnabled ? createTitleReader() : null; // same gh access as the board
   board?.({ waitMs: 0 }); // warm the cache so the first page load does not wait on GitHub
   const limiter = new LoginLimiter();
   // One fixture-worker instance per server process so a dispatch's receiptId
@@ -329,7 +331,9 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
       // now, what needs the founder, CFO capacity and the board, in one read.
       if (route === "GET /api/agents") {
         const snapshot = buildAgentsSnapshot(await readAgentsState(cfg.stateDir, { ownerBlockersDir: cfg.ownerBlockersDir }), Date.now(), { catalog: DECISION_CANDIDATES });
-        return send(res, 200, { ...snapshot, board: board ? await board() : null });
+        const tickets = [...snapshot.now.running, ...snapshot.now.recent].map((t) => t.ticket);
+        const [boardSummary, titleMap] = await Promise.all([board ? board() : null, titles ? titles(tickets) : {}]);
+        return send(res, 200, { ...snapshot, now: withTitles(snapshot.now, titleMap), board: boardSummary });
       }
 
       // Decisions card deck (Command Center MVP, bamware-ai#78). `mode=demo`

@@ -95,28 +95,29 @@ export function deriveNow(runs, now) {
     const smoke = run.batch?.smoke_test === true;
     const planned = run.batch?.tasks ?? [];
     const ticketOf = (id) => planned.find((t) => t.id === id)?.ticket ?? null;
+    const labelOf = (id) => planned.find((t) => t.id === id)?.title ?? null;
     const records = run.status.tasks ?? [];
     // A run whose worker died never writes phase "finished"; its tasks were interrupted, not running.
     const dead = run.status.phase !== "finished" && run.workerAlive === false;
     if (dead) {
       for (const r of records.filter((r) => r.state === "running")) {
-        recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: "interrupted", exitCode: null,
+        recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), label: labelOf(r.id), state: "interrupted", exitCode: null,
           startedAt: seconds(r.started_at), finishedAt: null, sortAt: seconds(r.started_at), durationMs: null, cost: null, smoke });
       }
     } else if (run.status.phase !== "finished") {
       const started = seconds(run.status.started_at);
       const stalled = started && now - started > STALLED_RUN_MS;
       for (const r of records.filter((r) => r.state === "running")) {
-        running.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: stalled ? "stalled" : "running", startedAt: seconds(r.started_at), smoke });
+        running.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), label: labelOf(r.id), state: stalled ? "stalled" : "running", startedAt: seconds(r.started_at), smoke });
       }
       for (const t of planned.filter((t) => !records.some((r) => r.id === t.id))) {
-        running.push({ runId: run.id, task: t.id, ticket: t.ticket ?? null, state: "queued", startedAt: null, smoke });
+        running.push({ runId: run.id, task: t.id, ticket: t.ticket ?? null, label: t.title ?? null, state: "queued", startedAt: null, smoke });
       }
     }
     for (const r of records.filter((r) => r.state !== "running")) {
       const startedAt = seconds(r.started_at);
       const finishedAt = seconds(r.finished_at);
-      recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: r.state, exitCode: r.exit_code ?? null,
+      recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), label: labelOf(r.id), state: r.state, exitCode: r.exit_code ?? null,
         finishedAt, durationMs: startedAt && finishedAt ? finishedAt - startedAt : null, cost: largestCost(r.cost), smoke });
     }
   }
