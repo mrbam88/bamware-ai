@@ -40,6 +40,14 @@ LEVELS = {'ok': 0, 'warn': 1, 'critical': 2}
 HOME = Path.home()
 STATE_DIR = HOME / '.local/state/bamware/cfo'
 OPENAI_SNAPSHOT = HOME / '.local/state/bamware/server-quota.json'
+# Written every 10 min by bamware-web's ai-quota-sample.ts (same override variable).
+CLAUDE_SAMPLES = Path(os.environ.get('AI_QUOTA_SAMPLES_PATH') or
+                      HOME / 'code/bamware-web/.claude/worktrees/ai-spend-dashboard/.data/ai-quota-samples.jsonl')
+CLAUDE_METERS = {
+    'session': ('Claude Max 5-hour session', 300.0),
+    'weekly': ('Claude Max weekly (all models)', 10080.0),
+    'weekly-fable': ('Claude Max Fable allowance (half of weekly)', 10080.0),
+}
 
 
 def epoch(value):
@@ -81,6 +89,35 @@ def openai_source(path=OPENAI_SNAPSHOT):
     return observations, None
 
 
+def claude_source(path=None, now=None, policy=POLICY, tail=12):
+    """Claude Max meters from the samples file, as Anthropic reports them in /usage."""
+    path = Path(path or CLAUDE_SAMPLES)
+    try:
+        lines = path.read_text().splitlines()[-tail:]
+    except OSError as error:
+        return [], f'claude samples unreadable: {error.__class__.__name__}'
+    observations, newest = [], None
+    for line in lines:
+        try:
+            sample = json.loads(line)
+        except ValueError:
+            continue
+        at = epoch(sample.get('at'))
+        newest = max(newest or at, at) if at else newest
+        for meter in sample.get('meters', []):
+            label, window_min = CLAUDE_METERS.get(meter.get('kind'), (None, None))
+            if label is None or meter.get('percent') is None or at is None:
+                continue
+            observations.append({'key': f"claude-max:{meter['kind']}", 'label': label,
+                                 'used_pct': float(meter['percent']), 'window_min': window_min,
+                                 'reset_at': epoch(meter.get('resetsAt')), 'observed_at': at})
+    now = now if now is not None else datetime.now(timezone.utc).timestamp()
+    if newest is None or now - newest > policy['stale_after_min'] * 60:
+        # Old data is not fresh data: a stopped sampler must surface as stale.
+        return observations, 'claude samples stale (sampler stopped or login expired?)'
+    return observations, None
+
+
 def copilot_source(run=subprocess.run, now=None):
     """GitHub Copilot monthly premium-request quota via the gh CLI."""
     try:
@@ -104,7 +141,7 @@ def copilot_source(run=subprocess.run, now=None):
     }], None
 
 
-SOURCES = {'openai-codex': openai_source, 'copilot': copilot_source}
+SOURCES = {'openai-codex': openai_source, 'claude-max': claude_source, 'copilot': copilot_source}
 
 
 # --- state -------------------------------------------------------------------
@@ -349,8 +386,9 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
         observations, error = source()
         status = state['sources'].setdefault(name, {})
         status.update(last_run=now, last_error=error)
-        if observations:
+        if observations and not error:
             status['last_ok'] = now
+        status.setdefault('last_ok', now)  # first sighting starts the stale clock
         for obs in observations:
             record(state, obs, policy)
         # Monitoring itself going dark is an alert, not a calm day.

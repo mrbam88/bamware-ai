@@ -8,6 +8,7 @@ must not spend the allowance it protects. Owner: CFO (`docs/bamware-agent-operat
 | Step | Process | Cadence |
 |---|---|---|
 | Collect OpenAI windows | `ai-quota-sample.timer` → `collect-server-quota.py` → `~/.local/state/bamware/server-quota.json` | every 10 min |
+| Collect Claude Max meters | bamware-web `ai-quota-sample.ts` (Claude Code's `/usage` endpoint) → `ai-quota-samples.jsonl` (`AI_QUOTA_SAMPLES_PATH`) | every 10 min |
 | Collect Copilot premium quota | `burn_alert.py` → `gh api /copilot_internal/user` | every run |
 | Evaluate, persist, alert | `bamware-cfo-burn-alert.timer` → `burn_alert.py` | every 10 min, 3 min after the collector |
 | Deliver | `scripts/discord-post.sh` (`BAMWARE_POST_TO=assistant`, #bamware-bot) | on escalation |
@@ -59,8 +60,11 @@ systemctl --user daemon-reload && systemctl --user enable --now bamware-cfo-burn
 
 ## Limits and next steps
 
-- Covered: OpenAI (Codex) windows and Copilot premium requests. Not yet: Claude
-  Max, Grok, Cursor, Google (no authoritative quota source wired).
+- Covered: OpenAI (Codex) windows, Claude Max (5-hour session, weekly, Fable
+  weekly share) and Copilot premium requests. Not yet: Grok, Cursor, Google
+  (no known usage API for those plans).
+- The Claude samples file lives in a bamware-web worktree today; move it to a
+  stable path with `AI_QUOTA_SAMPLES_PATH` when that service is productized.
 - Replay of the #101 incident fires at 43% used, 83 min before the 92% stage.
   10-min sampling cannot beat a sudden provider-side change.
 - Not yet: Command Center card (owner-blockers ledger), dispatch-pause policy.

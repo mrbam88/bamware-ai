@@ -222,5 +222,51 @@ class BurnAlertTests(unittest.TestCase):
         self.assertEqual((reading['used_pct'], reading['window_min']), (95.0, 10080.0))
 
 
+    # --- Claude Max ------------------------------------------------------------
+
+    def _claude_file(self, samples):
+        path = Path(tempfile.mkdtemp()) / 'ai-quota-samples.jsonl'
+        path.write_text(''.join(json.dumps(x) + '\n' for x in samples))
+        return path
+
+    def test_claude_source_reads_all_three_meters(self):
+        at = '2026-10-03T05:40:00Z'
+        path = self._claude_file([{'at': at, 'meters': [
+            {'kind': 'session', 'percent': 42, 'resetsAt': '2026-10-03T08:00:00Z', 'tokensInWindow': 1},
+            {'kind': 'weekly', 'percent': 63, 'resetsAt': '2026-10-10T01:59:00Z', 'tokensInWindow': 1},
+            {'kind': 'weekly-fable', 'percent': 30, 'resetsAt': '2026-10-10T01:59:00Z', 'tokensInWindow': 1},
+            {'kind': 'unknown-meter', 'percent': 99}]}])
+        observations, error = ba.claude_source(path, now=ba.epoch(at) + 60)
+        self.assertIsNone(error)
+        self.assertEqual({o['key']: (o['used_pct'], o['window_min']) for o in observations}, {
+            'claude-max:session': (42.0, 300.0), 'claude-max:weekly': (63.0, 10080.0),
+            'claude-max:weekly-fable': (30.0, 10080.0)})
+
+    def test_claude_source_flags_a_stopped_sampler(self):
+        at = '2026-10-03T05:00:00Z'
+        path = self._claude_file([{'at': at, 'meters': [{'kind': 'weekly', 'percent': 50, 'resetsAt': None}]}])
+        _, error = ba.claude_source(path, now=ba.epoch(at) + 3600)
+        self.assertIn('stale', error)
+        _, missing = ba.claude_source(Path(tempfile.mkdtemp()) / 'none.jsonl')
+        self.assertIn('unreadable', missing)
+
+    def test_stale_claude_data_raises_monitoring_alert(self):
+        h = Harness()
+        fresh = obs(T0, 50, key='claude-max:weekly')
+        h.feed([fresh])                                            # fresh: no error
+        h.feed([fresh], now=T0 + 45 * 60, error='claude samples stale')
+        self.assertTrue(any('monitoring stale' in s for s in h.sent))
+
+    def test_session_window_rollover_resets_the_trend(self):
+        h = Harness()
+        first_reset, next_reset = T0 + 3600, T0 + 6 * 3600
+        h.feed([obs(T0, 97, key='claude-max:session', reset_at=first_reset, window_min=300)])
+        h.feed([obs(T0 + 2 * 3600, 3, key='claude-max:session', reset_at=next_reset, window_min=300)])
+        state = ba.load_state(h.dir)
+        self.assertEqual(len(state['windows']['claude-max:session']['samples']), 1)
+        self.assertNotIn('claude-max:session', state['alerts'])
+        self.assertEqual(len(h.sent), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
