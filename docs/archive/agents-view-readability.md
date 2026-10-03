@@ -1,3 +1,5 @@
+> **ARCHIVED 2026-10-03.** Superseded by the Agents tab V3 (`docs/agents-tab.md`); the work tree, work-usage endpoint and tool receipts were removed.
+
 # Agents view readability (#87)
 
 The founder needs to recognize work, judge its recorded outcome and cost, and

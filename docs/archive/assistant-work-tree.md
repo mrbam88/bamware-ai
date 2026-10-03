@@ -1,3 +1,5 @@
+> **ARCHIVED 2026-10-03.** Superseded by the Agents tab V3 (`docs/agents-tab.md`); the work tree, work-usage endpoint and tool receipts were removed.
+
 # Assistant work tree — first slice
 
 Founder direction, October 2, 2026: Bamware Assistant is the home base for directing, supervising and joining work. The founder should not have to hold the project/task/worker hierarchy in his head. Keep multiple views over shared evidence: retain the Agents list and add a collapsible two-dimensional work tree. Optimize for recognizing where attention belongs, not visual spectacle.

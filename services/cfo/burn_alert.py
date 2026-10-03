@@ -304,6 +304,8 @@ def assess(window, now, policy=POLICY, factor=1.0):
     if used >= policy['critical_used_pct'] or before_reset(eta_exhaust, policy['critical_horizon_h']):
         level = 'critical'
     return {'level': level, 'used_pct': used, 'observed_at': t_last, 'rate_pct_h': rate, 'factor': factor,
+            'reserve_before_reset': before_reset(eta_reserve, float('inf')),
+            'exhaust_before_reset': before_reset(eta_exhaust, float('inf')),
             'eta_reserve_h': eta_reserve, 'eta_exhaust_h': eta_exhaust, 'to_reset_h': to_reset_h,
             'stale': now - t_last > policy['stale_after_min'] * 60}
 
@@ -408,6 +410,7 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
         results.append(('crosscheck:openai', notify(state, state_dir, 'crosscheck:openai', 'warn', None, text, sender, now, policy)))
     elif check:
         state['alerts'].pop('crosscheck:openai', None)
+    capacity = []
     for key, window in state['windows'].items():
         if not window['samples']:
             continue
@@ -416,13 +419,33 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
         factor = rate_factor(calibration, policy)
         a = assess(window, now, policy, factor)
         make_forecast(window, raw_rate(window, policy), policy)
+        capacity.append({'key': key, 'label': window['label'], 'window_min': window.get('window_min'),
+                         'reset_at': window.get('reset_at'),
+                         **{k: a[k] for k in ('level', 'used_pct', 'observed_at', 'rate_pct_h', 'eta_reserve_h',
+                                              'eta_exhaust_h', 'to_reset_h', 'stale', 'factor',
+                                              'reserve_before_reset', 'exhaust_before_reset')}})
         if a['stale']:
             continue  # covered by the source's monitoring alert
         if a['level'] != 'ok':
             accuracy = calibration_summary(calibration) if len(calibration) >= policy['calibration_min_n'] else None
             results.append((key, notify(state, state_dir, key, a['level'], window.get('reset_at'), message(window, a, policy, accuracy), sender, now, policy)))
     save_state(state_dir, state)
+    for pool in capacity:  # after delivery, so "sent" reflects this run
+        pool['sent_level'] = state['alerts'].get(pool['key'], {}).get('sent_level', 'ok')
+    publish_capacity(state_dir, capacity, state['sources'], now, policy)
     return results
+
+
+def publish_capacity(state_dir, pools, sources, now, policy=POLICY):
+    """The CFO's current view of every pool, for dashboards. One calculation, one owner."""
+    doc = {'version': 1, 'generated_at': now,
+           'policy': {k: policy[k] for k in ('reserve_used_pct', 'warn_used_pct', 'critical_used_pct')},
+           'pools': sorted(pools, key=lambda p: (-LEVELS[p['level']], -p['used_pct'])),
+           'sources': {name: {'last_ok': s.get('last_ok'), 'last_error': s.get('last_error')} for name, s in sources.items()}}
+    tmp = state_dir / 'capacity.json.tmp'
+    tmp.write_text(json.dumps(doc, indent=1) + '\n')
+    tmp.chmod(0o600)
+    tmp.replace(state_dir / 'capacity.json')
 
 
 def replay(fixture_path, policy=POLICY):
