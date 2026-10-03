@@ -66,7 +66,7 @@ add_skills() { npx -y skills add "$1" -g -y -a claude-code -s "$2"; }
 add_skills vercel-labs/skills find-skills
 add_skills anthropics/skills docx,pdf,webapp-testing,web-artifacts-builder,theme-factory,skill-creator,mcp-builder,frontend-design,doc-coauthoring,brand-guidelines,internal-comms
 add_skills vercel-labs/agent-skills vercel-react-best-practices,web-design-guidelines
-add_skills mattpocock/skills improve-codebase-architecture
+add_skills mattpocock/skills ask-matt,diagnosing-bugs,grill-with-docs,triage,improve-codebase-architecture,setup-matt-pocock-skills,tdd,to-spec,to-tickets,wayfinder,implement,prototype,research,domain-modeling,codebase-design,code-review,resolving-merge-conflicts,wizard,grill-me,grilling,handoff,teach,to-questionnaire,wait-what,writing-for-agents
 add_skills software-mansion/argent argent-react-native-app-workflow
 
 # --- bamware skills -> Claude Code (global) --------------------------------

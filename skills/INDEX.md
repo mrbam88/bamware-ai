@@ -25,6 +25,18 @@ Interview prep is **docs, not skills** — study material, indexed at
 [`docs/interview-prep/README.md`](../docs/interview-prep/README.md). Read that
 index before writing any new prep doc; the bank is closed by default.
 
+## Marketing
+
+| Skill | Use it for |
+|---|---|
+| `bamware-marketing` | Shared marketing research, strategy and content workflow router. |
+
+Start with [bamware-marketing](bamware-marketing/SKILL.md) for the project brief,
+evidence standards and routing. Installed community workflows: customer-research,
+competitor-profiling, content-strategy and social. Their real files and references
+are under `.agents/skills/<name>/` (use those paths for raw GitHub access).
+Source commit, license and hashes: `docs/marketing-skills-sources.json`.
+
 ## Engineering — organized by team role
 
 Bilal is admin/master. Agents fill roles; the loop is:

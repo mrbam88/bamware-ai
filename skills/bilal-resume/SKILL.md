@@ -5,19 +5,21 @@ description: Bilal Malik's current resume content and the rules for attaching it
 
 # Resume, current as of 2026-09-30
 
-Source: `Resume_BilalMalik_2026.pdf`, updated 2026-09-30 (company renames + LinkedIn in header).
-Supersedes all earlier resume versions.
+Canonical source: private `mrbam88/interviews`,
+`documents/resume/Resume_BilalMalik_2026.pdf`, with a paired `.txt` extraction.
+Read that repository's `README.md` and `library.json` first. The September 30
+version (company renames + LinkedIn in header) supersedes earlier versions.
+The factual summary below is a public reference, not a competing master copy.
 
 ## Upload rules
 
-1. **PDF first, always the default.** Bilal attaches the designed PDF at runtime.
-   It is deliberately not stored in git — it is a binary, it changes, and its
-   layout and QR codes are the point.
-2. **Plain text only when forced.** If the site rejects PDFs or demands pasted
-   text, use `resume.txt` for the current body. Its public contact header omits
-   the phone number; restore that from `mrbam88/interviews` at
-   `profile/private-answers.md` when needed. Never publish private contact
-   details here or trust a site's own PDF-to-text parser.
+1. **PDF first, always the default.** Retrieve the original designed PDF from
+   the private interview library. Bilal approved storing it there on October 2.
+   Do not ask for a runtime attachment when the canonical file is accessible.
+2. **Plain text only when forced.** Use the paired text in the private library
+   for current content and contact details. The public `resume.txt` is a legacy
+   reference, not the canonical document. Never copy private contact details
+   into this public repository or trust a site's PDF-to-text parser unchecked.
 3. Use the file-upload tool on the file input. Never click "Attach".
 
 ## Headline

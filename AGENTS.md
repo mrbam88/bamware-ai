@@ -5,23 +5,12 @@ Entry map for every session; details in `docs/` and `skills/`.
 
 ## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
 
-Set by Bilal 2026-09-24. Claude-specific diagnoses below apply only to Claude;
-other runtimes identify the actual denying component. Never bypass a denial. Detail:
-[docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
-
-1. **A denial is CLAUDE'S restriction, never Bilal's setup** — he has no
-   permission rules. Say that in one sentence on the FIRST denial.
-2. **Hand him the line to paste, then STOP.** No retries, no other routes, no
-   `/permissions` UI (he finds it confusing).
-3. **A denial NEVER stalls a batch.** Park that action; continue independent,
-   authorized work on the other tickets.
-4. **Before any unattended run, dry-run every gated command** (`gh pr create`,
-   `gh pr merge`, `git push`, deploy). `bypassPermissions` does NOT beat the
-   classifier. If one fails, tell him *while he is awake* and do not start.
-5. **Verify merge state with `gh pr list --state merged`.** Silent output
-   is not failure; ve#149 had merged when reported blocked.
-6. **Prefer routes with no gated step** — Venue Engine deploys by pushing
-   `main` (Vercel Git integration), no merge needed.
+Set by Bilal 2026-09-24. Before a merge, unattended run, or blocked-work
+report, read [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
+Never bypass a denial. Identify the actual denying component immediately,
+give Bilal the command to run, and stop that action; continue independent,
+authorized work. Preflight gated commands before unattended work. Verify merge
+state before reporting failure. Claude-specific diagnoses apply only to Claude.
 
 ## First-class principle: continuity across agents
 
@@ -38,14 +27,15 @@ every switch.** Never rely on model memory.
 
 ## 1. Where is the truth?
 
-This repo: github.com/mrbam88/bamware-ai (public). Everything durable about
-Bilal and Bamware lives here or is linked from here.
+Public operating map: github.com/mrbam88/bamware-ai.
 
-- Any copy outside git (Claude Project, vendor account, chat) is a CACHE.
-  If a cache and the repo disagree, the repo wins. Never edit the cache.
+- Notion is the organizational source of truth and shared working canvas.
+  Discord is the primary channel for alerts, reminders and direct communication.
+  Git owns code and versioned operating instructions; Drive owns shared files.
+  Vendor memories are caches, not substitutes for these authoritative stores.
+  Read `skills/bamware-assistant/SKILL.md` for drafting and email boundaries.
 - Staleness check: fetch CONTEXT_VERSION and state its contents in your
-  first reply as `context: <marker>`. An answer without a version is an
-  unverifiable claim.
+  first reply as `context: <marker>`.
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION
 - Can't reach the repo? Say so and STOP. Never work from memory or a cache.
 
@@ -63,8 +53,9 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   Check the connector first.
 - No write path at all? STOP and hand Bilal the patch. Never write durable
   context into a vendor cache instead.
-- New facts go to this repo, never to chat. Ending a session that made
-  decisions? Run the session-handoff skill.
+- Save facts in their authoritative store, not only chat. Publish operating
+  rules here; organization and working drafts belong in Notion. Run the
+  session-handoff skill after durable decisions.
 
 ## 3. How does Bilal work?
 
@@ -75,6 +66,12 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - Tool use proportional to the ask. Fan-outs need an explicit ask.
 - Never mention Baat in responses or career materials (Bilal, 2026-09-16).
   Project wording: skills/bilal-answers.
+
+## Shared storage — confirmed 2026-10-02
+
+Drive is shared agent file storage; ordinary task storage is authorized.
+Prefer local filesystem access and deterministic transfers. Archive boundaries
+and rollout: `docs/shared-storage.md`. Gmail stays read-only: no sends or drafts.
 
 ## Before you touch these, read the linked doc first
 
@@ -100,6 +97,8 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 | Need | Where |
 |---|---|
 | **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
+| **Engineering operating contract** | **docs/engineering-operating-contract.md** |
+| **Release manager contract** | **docs/release-manager-contract.md** |
 | All repos: purpose, deploy targets, endpoints | docs/repos.md |
 | Venue Engine release route | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |

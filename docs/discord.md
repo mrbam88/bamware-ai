@@ -136,3 +136,48 @@ invokes the configured Claude summarizer; it is not a no-model test.
 - ~~Board data needs a `read:project` gh scope on the posting machine.~~
   Done 2026-09-26: the server's gh has `project`, so the assistant can file
   delegated tickets onto board 2 and the digests can read it.
+
+
+## Completion handoffs — October 2, 2026
+
+Discord is Bilal's requested push-alert system. Chief-of-staff completion reports
+must also appear on the corresponding private Command Center card. The handoff
+procedure is in `skills/session-handoff/SKILL.md`; recurring implementation is #79.
+
+First verified case: #72 research completion (`ddb3009`). The Assistant deployment
+branch `worktree-assistant-web-slice` carries card commit `45dcb9a`; 103 tests passed
+on omarchy. Authenticated `/api/decisions` returned `brewdesk-marketing-research-72`
+version 1 after restart. The assistant bot sent a user-mentioned completion message
+and read it back (message ID `1555669487167209534`). Durable server receipt:
+`~/.local/state/bamware/handoffs/72-research-ddb3009.json`.
+
+The receipt records card verification and Discord read-back separately. Phone push
+receipt and rendered-browser verification were not observed. No whole-ticket
+closure, new-stage worker pickup or automatic future monitoring is claimed.
+The existing card explains that creative and measurement preparation remain.
+
+
+### Card-action trigger deployed — October 2
+
+Founder clarified that every Command Center action must trigger an agent handoff
+check. Implemented on Assistant deployment branch in `0d1b525`, with test-isolation
+fix `5ba78cc`. Production explicitly enables `ASSISTANT_WEB_HANDOFF_CHECKS=1`.
+All actions queue one durable coordination check, independently of downstream worker
+handoff. The checker uses the existing serialized Hermes runner, supplied card and
+response evidence, no toolset and a one-turn bound. It does not fetch fresh project
+state or dispatch project execution. Queued work recovers; interrupted work is
+visible and not silently retried. Results and Discord delivery receipts appear in
+`handoffCheck` on the authenticated Decisions API and on refreshed cards.
+
+108 tests pass. Real #72 check: `db76500a664fca54f2ba452c657c4dec`, Hermes session
+`20261002_161131_a7085d`, Discord read-back `1555673662663819264`. Authenticated API
+verified check completed and delivery confirmed; downstream worker handoff correctly
+remains pending. Phone push and rendered-browser verification were not observed.
+
+Verification incident: the first test run shared the production check directory
+and Discord notifier; two fixture echo alerts were sent. They were deleted after
+read-back, fixture artifacts quarantined, and the real approval was preserved.
+Checks now default disabled unless explicitly configured; HTTP tests disable them
+and use isolated directories. The real #72 job was requeued only after verifying
+it had no prior agent result or notification. No automatic retry of ambiguous
+Discord sends is allowed.

@@ -3,6 +3,23 @@
 Written 2026-09-24 after a full session was lost to this. Read it before any
 merge, and before telling Bilal that something is blocked.
 
+## Runtime scope and batch preflight
+
+Claude-specific diagnoses in this document apply only to Claude. Other runtimes
+identify the actual denying component; never attribute their denials to Claude.
+Never bypass a denial. On the first denial, explain its source, give Bilal the
+appropriate command to run, and stop that action. Do not retry through another
+route or send him into the permissions UI. Continue independent, authorized
+work on other tickets: one denial must not stall the entire batch.
+
+Before any unattended run, dry-run every gated command (`gh pr create`,
+`gh pr merge`, `git push`, deploy). `bypassPermissions` does not beat the
+classifier. If a preflight fails, tell Bilal while he is awake and do not start
+the affected unattended work. Prefer routes with no gated step where available;
+Venue Engine uses local validation → `main` → Vercel Git integration.
+Verify merge state with `gh pr list --state merged` before reporting failure;
+silent command output is not evidence of failure.
+
 ## The rule
 
 **A permission denial is CLAUDE'S restriction, not Bilal's setup.** Bilal has

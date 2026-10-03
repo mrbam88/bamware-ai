@@ -5,9 +5,85 @@
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
+> Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-02 — Server-native Vercel access setup
+
+Founder clarified that direct installed/authenticated server CLIs are preferred.
+Vercel CLI 62.2.0 installed and version verified on omarchy under Node 24.21.0.
+Interactive device authorization pending; existing project access unverified.
+No production deployment. Assistant HTTPS separately awaits account-side
+Tailscale Serve enablement; website configuration cutover has not occurred.
+Details: docs/machines.md and docs/venue-engine-deployment.md.
+
+## 2026-10-02 — Notion canvas and Discord communication policy
+
+- Notion owns organization and collaborative drafts across CEO, chief of staff
+  and agents; Discord is the primary channel for urgent and scheduled contact.
+- Gmail stays read-only: no sending and no Gmail drafts. Outgoing correspondence
+  is drafted in Notion; Bilal manually transfers and sends it. Discord may deliver
+  drafts and alerts to Bilal. Full inbox organization is deferred.
+- Application email is evidence for the private Notion Job Tracker. Rules are in
+  `skills/bamware-assistant/SKILL.md`; this update does not deploy email tracking,
+  schedule alerts, migrate existing assets or prove access for every runtime.
+- Next: connect the authorized read service to application reconciliation and
+  verify Notion updates and Discord delivery with source-linked evidence.
+
+## 2026-10-02 — BrewDesk marketing research pass complete (#72)
+
+- Source-linked [NYC research brief](docs/brewdesk-marketing-research-2026-10-02.md):
+  four audience threads, three alternatives and one proposed measurable experiment.
+- Recommendation: policy-first laptop checklist on the existing brand Instagram;
+  no campaign approval or publication. Small sample; no validated personas.
+- Apple public lookup verified 1.1 availability. Next: prepare exact creative,
+  verify measurement/destination/cost constraints, then request batch approval.
+
+## 2026-10-02 — Shared marketing skills added (#72)
+
+- Bilal explicitly requested adding reusable community marketing skills to Bamware context.
+- Added pinned MIT-licensed customer research, competitor profiling, content strategy
+  and social workflows, plus `skills/bamware-marketing` for routing and project rules.
+- Sources and hashes: `docs/marketing-skills-sources.json`. Static validation only;
+  no claim of marketing outcomes, Hermes retrieval, campaign selection or publishing.
+- Next: apply audience research and competitor profiling to a bounded NYC brief.
+
+## 2026-10-02 — Assistant role and interview continuity
+
+- Bilal clarified that Bamware Assistant should be his chief-of-staff point of
+  contact for interview preparation and own continuity across model providers.
+  Canonical role: [skills/bamware-assistant/SKILL.md](skills/bamware-assistant/SKILL.md).
+- Existing Notion chief-of-staff and career records were found; do not describe
+  this setup as existing only in conversation or ask for a fresh briefing.
+  Entry point and private source links: `mrbam88/interviews` README.
+- Both original ChatGPT and Claude interview projects were accessed. Source
+  inventories and partial context were recovered; Claude legacy memory was
+  exported into the private local career workspace. A partial recovery page
+  exists in Notion. Full document/conversation import remains incomplete.
+- Next: finish import and reconciliation, establish one portable knowledge
+  entry point, and verify retrieval from each configured provider. No new
+  Hermes profile, remote rollout, or working cross-provider retrieval is claimed.
+- Personal/career content stays private; this public repo records the role and
+  routing contract only.
+
+## 2026-09-30 — BrewDesk marketing and Instagram API milestone
+
+- Canonical plan, evidence, non-secret IDs and continuation:
+  [docs/brewdesk-marketing.md](docs/brewdesk-marketing.md).
+- Bilal wants anonymous, online-only, agent-executed brand marketing: no personal
+  promotion, friend outreach or in-person work. No ad spend. Approve batches
+  before public posts, messages or profile changes.
+- Existing `_brew.desk` Business account linked to **BrewDesk Marketing** Meta
+  app. Human entered the token locally outside git; real identity GET confirmed
+  the correct account. Publishing-limit GET passed (usage 0, quota 100/24 h).
+- **Not a completed publishing system:** no actual publish test, scheduler,
+  approval queue, token-expiry/renewal verification, webhook or remote rollout.
+  No content posted. Credential/helper exist only on this Linux host.
+- Next: expiry/renewal and minimal approved-post tooling, approval of proposed
+  profile copy, then storefront fixes and the first consumer content pack.
+  Live API profile still named/bioed `Bamware.io`, with zero posts.
+- Preview input repeatedly no-oped; normal-browser token generation worked.
+  Do not repeat clicks or restart the user's app to hide that tool limitation.
 ## 2026-09-30 — Standing engineer moves to the `omarchy` build server
 
 **Decision (Bilal): the runner belongs on the build server, not the M3.**
