@@ -33,6 +33,19 @@ constitution on every PR, finds redundancy and drift as codebases grow, and
 files refactors with a measured payoff. Goal: high-quality software at low
 cost. Role: `docs/bamware-agent-operating-system-prd.md` → Engineering Lead.
 
+### Worker hard stops
+
+Carried over from the retired standing engineer (2026-10-03). A worker stops
+and hands back only when:
+
+- the work needs a credential, an account, or an App Store action (Human-only;
+  reassign, never self-serve);
+- the ticket is marked DO-NOT-BUILD (guard on the issue number, not the title);
+- finishing would need a direct push to `main`. Several repos deploy on push;
+  changes reach `main` only through a PR the Engineering Lead approved.
+
+Everything else is a flag in the PR body, not a stop.
+
 ## 2. Lightweight Delivery Workflow
 
 Default flow:

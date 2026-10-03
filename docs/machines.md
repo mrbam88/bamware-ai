@@ -46,8 +46,9 @@ been verified. Do not reinstall merely because the earlier audit lacked access.
 - fastlane, App Store Connect upload, signing — the **free local rail** that
   replaces GitHub Actions macOS runners (Actions is BACKUP only, 2026-08-21;
   see the HARD SPEND RULE in AGENTS.md)
-- The headless DEV/QA runners: `skills/standing-engineer`,
-  `skills/night-supervisor`
+- Xcode tickets the Engineering Lead routes here (the server executor cannot
+  build Apple targets); the old standing-engineer/night-supervisor runners were
+  retired 2026-10-03
 - Android local rail: JDK 21 (Android Studio's JBR — newer system JDKs break
   AGP), `ANDROID_HOME=~/Library/Android/sdk`
 - Physical iPhone 15 Pro pairs here (device smokes, App Review screen recordings)
@@ -170,8 +171,8 @@ Good for the same work as the ThinkPad, with more headroom (RAM, disk, no
 glibc ceiling — rolling release, glibc 2.44).
 
 Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
-despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
-(`launchd`), so the headless runners are not installed here.
+despite its "any Mac" header. Unattended engineering runs here through the
+Overnight Mode executor (`services/overnight`).
 
 **Roles, in Bilal's words (2026-09-23):** this Intel MacBook is **the server** —
 always on, lid shut or not, sitting at his desk on a **6K display**. The X1 is
