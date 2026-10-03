@@ -44,6 +44,38 @@ export async function workerAlive(pid, runId, readFile = fs.readFile) {
   }
 }
 
+// Older manifests carry no title; the worker's prompt names its ticket (`Ticket: owner/repo#N "Title"`).
+const clip = (text, max = 90) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
+export function promptLabel(text) {
+  if (!text) return null;
+  const m = /^Ticket:\s*([\w.-]+\/[\w.-]+)#(\d+)\s*(.*)$/m.exec(text);
+  if (m) {
+    const quoted = /^"([^"]+)"/.exec(m[3].trim());
+    const title = quoted ? quoted[1] : m[3].trim().split(/\.\s/)[0].replace(/\.$/, "");
+    return { ticket: `${m[1]}#${m[2]}`, title: title ? clip(title) : null };
+  }
+  const task = /YOUR TASK:\s*\n+([^\n]+)/.exec(text);
+  return task ? { ticket: null, title: clip(task[1].split(/\.\s/)[0].trim()) } : null;
+}
+
+/** Per task: the worker's own token usage, denied commands and prompt label, from the batch work directory. */
+async function readWorkers(batch, readFile) {
+  const workers = {};
+  for (const t of batch?.tasks ?? []) {
+    const i = (t.argv ?? []).indexOf("--work-dir");
+    const dir = i >= 0 ? t.argv[i + 1] : null;
+    if (!dir || !path.isAbsolute(dir) || !/^[\w.-]+$/.test(t.id ?? "")) continue;
+    const result = await readJson(path.join(dir, `${t.id}.result.json`), readFile);
+    let prompt = null;
+    try {
+      prompt = await readFile(path.join(dir, `${t.id}.prompt`), "utf8");
+    } catch {}
+    workers[t.id] = { usage: result?.usage ?? null, turns: result?.num_turns ?? null,
+      denials: Array.isArray(result?.permission_denials) ? result.permission_denials.length : null, label: promptLabel(prompt) };
+  }
+  return workers;
+}
+
 export async function readAgentsState(stateDir, { readFile = fs.readFile, readdir = fs.readdir, ownerBlockersDir } = {}) {
   const list = async (dir) => {
     try {
@@ -66,7 +98,8 @@ export async function readAgentsState(stateDir, { readFile = fs.readFile, readdi
     const status = await readJson(path.join(dir, "status.json"), readFile);
     if (!status) continue;
     const pickup = status.phase === "finished" ? null : await readJson(path.join(dir, "pickup.json"), readFile);
-    runs.push({ id, status, batch: await readJson(path.join(dir, "batch.json"), readFile),
+    const batch = await readJson(path.join(dir, "batch.json"), readFile);
+    runs.push({ id, status, batch, workers: await readWorkers(batch, readFile),
       workerAlive: pickup ? await workerAlive(pickup.worker_pid, id, readFile) : null });
   }
   const blockersDir = ownerBlockersDir ?? path.join(stateDir, "owner-blockers");
@@ -87,6 +120,15 @@ function largestCost(cost) {
   return { pool: pool.label ?? key, pct: pool.delta_pct, attribution: cost.attribution ?? null };
 }
 
+/** Total tokens the worker processed, split by kind; cache reads usually dominate. */
+function tokenUsage(usage, turns) {
+  if (!usage) return null;
+  const parts = { input: usage.input_tokens ?? 0, cacheWrite: usage.cache_creation_input_tokens ?? 0,
+    cacheRead: usage.cache_read_input_tokens ?? 0, output: usage.output_tokens ?? 0 };
+  const total = parts.input + parts.cacheWrite + parts.cacheRead + parts.output;
+  return total ? { ...parts, total, turns: turns ?? null } : null;
+}
+
 /** Running and queued tasks of unfinished runs, plus recent finished tasks with real states. */
 export function deriveNow(runs, now) {
   const running = [];
@@ -94,30 +136,33 @@ export function deriveNow(runs, now) {
   for (const run of runs) {
     const smoke = run.batch?.smoke_test === true;
     const planned = run.batch?.tasks ?? [];
-    const ticketOf = (id) => planned.find((t) => t.id === id)?.ticket ?? null;
+    const worker = (id) => run.workers?.[id] ?? {};
+    const ticketOf = (id) => planned.find((t) => t.id === id)?.ticket ?? worker(id).label?.ticket ?? null;
+    const titleOf = (id) => planned.find((t) => t.id === id)?.title ?? worker(id).label?.title ?? null;
     const records = run.status.tasks ?? [];
     // A run whose worker died never writes phase "finished"; its tasks were interrupted, not running.
     const dead = run.status.phase !== "finished" && run.workerAlive === false;
     if (dead) {
       for (const r of records.filter((r) => r.state === "running")) {
-        recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: "interrupted", exitCode: null,
+        recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), title: titleOf(r.id), state: "interrupted", exitCode: null,
           startedAt: seconds(r.started_at), finishedAt: null, sortAt: seconds(r.started_at), durationMs: null, cost: null, smoke });
       }
     } else if (run.status.phase !== "finished") {
       const started = seconds(run.status.started_at);
       const stalled = started && now - started > STALLED_RUN_MS;
       for (const r of records.filter((r) => r.state === "running")) {
-        running.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: stalled ? "stalled" : "running", startedAt: seconds(r.started_at), smoke });
+        running.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), title: titleOf(r.id), state: stalled ? "stalled" : "running", startedAt: seconds(r.started_at), smoke });
       }
       for (const t of planned.filter((t) => !records.some((r) => r.id === t.id))) {
-        running.push({ runId: run.id, task: t.id, ticket: t.ticket ?? null, state: "queued", startedAt: null, smoke });
+        running.push({ runId: run.id, task: t.id, ticket: ticketOf(t.id), title: titleOf(t.id), state: "queued", startedAt: null, smoke });
       }
     }
     for (const r of records.filter((r) => r.state !== "running")) {
       const startedAt = seconds(r.started_at);
       const finishedAt = seconds(r.finished_at);
-      recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), state: r.state, exitCode: r.exit_code ?? null,
-        finishedAt, durationMs: startedAt && finishedAt ? finishedAt - startedAt : null, cost: largestCost(r.cost), smoke });
+      recent.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), title: titleOf(r.id), state: r.state, exitCode: r.exit_code ?? null,
+        finishedAt, durationMs: startedAt && finishedAt ? finishedAt - startedAt : null, cost: largestCost(r.cost),
+        tokens: tokenUsage(worker(r.id).usage, worker(r.id).turns), denials: worker(r.id).denials ?? null, smoke });
     }
   }
   recent.sort((a, b) => (b.finishedAt ?? b.sortAt ?? 0) - (a.finishedAt ?? a.sortAt ?? 0));

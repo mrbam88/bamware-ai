@@ -155,6 +155,28 @@
     a.target = "_blank"; a.rel = "noopener";
     return a;
   }
+  // A task's own title, with its ticket as a small link; bare ticket or task id when untitled.
+  function workLabel(t) {
+    if (!t.title) return [ticketLink(t.ticket ?? t.task)];
+    const nodes = [el("span", "rowTitle", t.title)];
+    if (t.ticket) {
+      const link = ticketLink(t.ticket);
+      link.className = "rowMeta";
+      nodes.push(link);
+    }
+    return nodes;
+  }
+  function tokenCount(n) {
+    if (n < 1000) return String(n);
+    if (n < 1e6) return `${Math.round(n / 1000)}k`;
+    return `${(n / 1e6).toFixed(1)}M`;
+  }
+  function tokenBreakdown(k) {
+    const pct = (n) => `${Math.round((n / k.total) * 100)}%`;
+    return `${k.total.toLocaleString()} tokens: ${tokenCount(k.cacheRead)} cache reads (${pct(k.cacheRead)}), ` +
+      `${tokenCount(k.cacheWrite)} cache writes, ${tokenCount(k.input)} new input, ${tokenCount(k.output)} output` +
+      (k.turns ? ` over ${k.turns} turns` : "");
+  }
   function row(...children) {
     const li = el("li", "row");
     for (const c of children.flat()) if (c) li.appendChild(c);
@@ -183,17 +205,22 @@
   function renderNow(now) {
     if (!now.running.length) empty(els.nowRunning, "Nothing running.");
     else els.nowRunning.replaceChildren(...now.running.map((t) => row(
-      pill(t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),
+      pill(t.state, TASK_TONE[t.state] ?? "muted"), workLabel(t),
       el("span", "rowMeta", t.startedAt ? `started ${ago(t.startedAt)}` : "waiting to start"),
       t.smoke ? pill("smoke test", "muted") : null)));
     els.nowHint.textContent = now.running.length ? `${now.running.length} in the current run` : "";
     if (!now.recent.length) return empty(els.nowRecent, "No executor runs recorded yet.");
     els.nowRecent.replaceChildren(...now.recent.map((t) => {
-      const meta = [t.finishedAt ? `finished ${ago(t.finishedAt)}` : t.startedAt ? `started ${ago(t.startedAt)}, never finished` : null, t.durationMs != null ? span(t.durationMs / 3.6e6) : null,
+      const meta = [t.finishedAt ? `finished ${ago(t.finishedAt)}` : t.startedAt ? `started ${ago(t.startedAt)}, never finished` : null,
+        t.durationMs != null ? `ran ${span(t.durationMs / 3.6e6)}` : null,
+        t.tokens ? `≈${tokenCount(t.tokens.total)} tokens` : null,
         t.cost ? `${t.cost.pct.toFixed(1)}% of ${t.cost.pool}${t.cost.attribution === "shared" ? " (shared)" : ""}` : null,
+        t.denials ? `${t.denials} command${t.denials === 1 ? "" : "s"} denied` : null,
         t.exitCode ? `exit ${t.exitCode}` : null].filter(Boolean).join(" · ");
-      return row(pill(TASK_LABEL[t.state] ?? t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),
-        el("span", "rowMeta", meta), t.smoke ? pill("smoke test", "muted") : null);
+      const metaNode = el("span", "rowMeta", meta);
+      if (t.tokens) metaNode.title = tokenBreakdown(t.tokens);
+      return row(pill(TASK_LABEL[t.state] ?? t.state, TASK_TONE[t.state] ?? "muted"), workLabel(t),
+        metaNode, t.smoke ? pill("smoke test", "muted") : null);
     }));
   }
 

@@ -51,6 +51,9 @@ array. Each task requires:
 - `verify`: nonempty list of independent acceptance-check argv arrays.
 - `timeout_seconds`: bounded wall time (1–14,400 seconds).
 - `depends_on`: optional earlier task ids. Only verified dependencies unblock.
+- `ticket` and `title`: optional but expected, e.g. `"mrbam88/bamware-ai#115"` and
+  `"Delete the orphaned rate-limits stack"`. The Agents tab shows them on every
+  row; without them it falls back to the prompt's `Ticket:` line, then the task id.
 
 Use `smoke_test: true` for synthetic tests. Commands are trusted coordinator
 inputs, never raw instructions imported from email or issue comments. Supply no
