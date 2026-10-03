@@ -14,7 +14,10 @@ the Engineering Lead's review. Code: `services/assistant-web/lib/agents-status.m
 | Board | Counts by status and in-progress items by priority | GitHub Projects board 2 via the server's `gh`, cached 5 min |
 
 All paths are under `~/.local/state/bamware/` (`ASSISTANT_WEB_STATE_DIR`).
-`ASSISTANT_WEB_BOARD=0` turns the board read off. Unknown is shown as unknown;
+`ASSISTANT_WEB_BOARD=0` turns the board and title reads off. Rows never show a
+bare number: a task's own title (batch `title`, or the worker prompt's `Ticket:`
+line), else the ticket's real GitHub title (cached 6 h, failures retried in ~5
+min). The runner requires every task to carry a `ticket` or `title`. Unknown is shown as unknown;
 stale CFO data (over 25 min) is labelled stale. Batches should give each task a
 `ticket` (for example `mrbam88/bamware-ai#75`) so rows link to the issue.
 

@@ -4,7 +4,10 @@
   run_engineer.py <task> [--work-dir DIR] [--model MODEL]
 
 Reads <work-dir>/<task>.prompt, writes <work-dir>/<task>.result.json and prints
-a one-line summary. Exits non-zero on a worker error or any permission denial.
+a one-line summary. Exits non-zero only when the worker itself reports an error.
+Permission denials are counted, not fatal: the executor's verify commands are the
+acceptance gate, so a worker that could not do required work still fails there.
+(2026-10-03: four finished tasks were marked failed over harmless denied `ls`/`find`.)
 API-key variables are stripped so workers always run on the Claude Max
 subscription, never on pay-as-you-go API billing.
 """
@@ -51,8 +54,9 @@ def run_task(task, work_dir=WORK_DIR, model=DEFAULT_MODEL, run=subprocess.run):
         data = json.loads(result_path.read_text())
     except (OSError, ValueError):
         return 1, {'error': 'worker returned no parseable result'}
-    summary = {k: data.get(k) for k in ('is_error', 'subtype', 'num_turns', 'session_id', 'permission_denials', 'usage')}
-    if data.get('is_error') or data.get('permission_denials'):
+    summary = {k: data.get(k) for k in ('is_error', 'subtype', 'num_turns', 'session_id', 'usage')}
+    summary['denied_commands'] = len(data.get('permission_denials') or [])
+    if data.get('is_error'):
         rc = 1
     return rc, summary
 

@@ -44,7 +44,9 @@ python3 services/overnight/runner.py status /absolute/path/to/run-directory
 A manifest uses `schema: 1`, `unresolved_decisions: []`, and a nonempty `tasks`
 array. Each task requires:
 
-- `id`: stable ticket reference; `approved`: explicit true after review.
+- `id`: stable task id within the batch; `approved`: explicit true after review.
+- `ticket` (`owner/repo#N`) or `title` (plain words): what the task is. At least
+  one is required, so the Agents tab and reports show a title, never a bare id.
 - `cwd`: existing absolute path to an isolated worktree.
 - `argv`: argv array for the existing runtime/adapter; no implicit shell.
 - `preflight`: nonempty list of argv arrays checking that task's capabilities.
