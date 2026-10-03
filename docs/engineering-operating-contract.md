@@ -28,6 +28,11 @@ Bamware engineering should optimize for changeability, clarity, testability, and
 
 These principles outrank any workflow, framework, tool, model, or agent preference.
 
+**Owner: the Engineering Lead** (founder decision, 2026-10-03). It enforces this
+constitution on every PR, finds redundancy and drift as codebases grow, and
+files refactors with a measured payoff. Goal: high-quality software at low
+cost. Role: `docs/bamware-agent-operating-system-prd.md` → Engineering Lead.
+
 ## 2. Lightweight Delivery Workflow
 
 Default flow:

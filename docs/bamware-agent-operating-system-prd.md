@@ -62,6 +62,8 @@ Stakeholder / CEO
     |
 Chief of Staff — executive direction and primary founder interface
     |
+    +-- Engineering Lead — how it is built, and is it built right
+    |
     +-- Scrum Master — what runs: delivery, pickup, follow-through
     |
     +-- CFO — on what model and budget: spend, limits, provider routing
@@ -74,6 +76,7 @@ Project engineering / research / review workers — transient execution
 | Role | Harness | Where |
 |---|---|---|
 | Chief of Staff | Hermes, `default` profile (Discord bot + Assistant web) | omarchy |
+| Engineering Lead | Claude Code headless (Opus), on demand: ticket shaping, PR review, batch planning, failure review | omarchy (Xcode work: the Mac) |
 | Scrum Master | Hermes, `scrum-master` profile | omarchy |
 | CFO | Hermes, `cfo` profile, over a deterministic routing policy | omarchy |
 | Accountant | Hermes, `accountant` profile, small model, private ledger | omarchy |
@@ -132,6 +135,27 @@ This applies to **every agent and project**, including onboarding and handoffs.
   recommends and the founder acts. Ledger lives in a private store, never in
   this repo or in tickets. Event-driven on a small model: refresh on a new
   receipt, answer from the ledger otherwise. Starts with subscriptions only.
+- **Engineering Lead (founder decision, 2026-10-03):** architect and engineering
+  manager, accountable for **high-quality software at low cost, not AI slop**.
+  Owns and enforces the Bamware engineering constitution
+  (`docs/engineering-operating-contract.md`: SOLID where it improves boundaries,
+  DRY for knowledge, KISS, YAGNI, single source of truth, abstractions must earn
+  their cost) and `docs/definition-of-done.md`.
+  - Shapes work: turns epics into Agent-ready tickets with real acceptance
+    criteria, and sets each ticket's tier (top / mid / small) for the CFO.
+  - Reviews before merge: workers never self-certify. Reads the diff for design,
+    duplication, test quality and scope creep; owns the QA verdict and the merge
+    decision under the MVP delivery default. Store submissions, spend, data and
+    security changes stay with the CEO.
+  - Guards the codebase: finds redundancy and drift as repos grow, and files
+    refactor tickets with a measured payoff. Owns cross-repo contracts
+    (`docs/contracts.md`), ADRs (`docs/adr/`) and tech debt.
+  - Routes the work: Xcode tickets to the Mac, everything else to the executor;
+    reviews repeated failures to fix the ticket or the process, not just retry.
+  - Absorbs the Release Manager contract and the `qa-engineer` verdict role.
+  Runs on demand, not resident: when a batch is planned, a PR opens, or a ticket
+  fails twice. Reports to the Chief of Staff. Peer of the Scrum Master: the Lead
+  decides what is technically ready and right; the Scrum Master keeps it moving.
 - **Workers:** implement, research or test within assigned authority, producing
   source-linked evidence and clear unknowns. They do not redefine priorities,
   approve their own reserved gates or silently expand scope/spend.

@@ -8,6 +8,15 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-03 — Engineering Lead added to the org chart
+
+**Decision (Bilal):** an Engineering Lead (architect + manager) owns software
+quality: enforces the engineering constitution, reviews every PR before merge
+(workers never self-certify), shapes tickets and sets their tier, hunts
+redundancy, and routes Xcode work to the Mac. Runs on demand on Claude Code
+(Opus). Replaces the standing-engineer idea: PR #61 closes; all-day pickup
+becomes Scrum Master dispatch of Lead-approved tickets through the executor.
+
 ## 2026-10-03 — Accountant added to the org chart
 
 **Decision (Bilal):** a personal Accountant agent holds privileged, read-only
