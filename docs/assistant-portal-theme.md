@@ -55,3 +55,23 @@ horizontal overflow. The temporary viewport override was reset. Live Admin
 verification was interrupted by a Chrome extension UI blocking automation;
 no bypass was attempted. Admin and login visual coverage therefore remains the
 independently accepted local preview, not a production-browser claim.
+
+## Chat navigation readiness gate
+
+Chat is removed from main navigation; sign-in and Admin return to Decisions.
+Existing chat code, API routes, session IDs and history remain intact. Old chat
+view requests fall back to Decisions, and stored session history is not cleared.
+Discord is the primary conversation surface while the portal shows work and decisions.
+
+Restore Chat navigation only after evidence demonstrates the same logical Chief
+of Staff and shared durable work/memory across Discord and web; real contextual
+assignment/pickup; restart and chat-close continuity; blocker/card/Discord delivery,
+source-confirmed recheck and resume; explicit approval boundaries; and responsive
+status/errors. Fixture tests or a working chat box alone do not satisfy this gate.
+The founder authorizes restoration once those conditions actually pass. Track
+proof in #79 and #92; do not advertise a unified persistent agent before it exists.
+
+The future purpose of web chat is a companion to voice: transcript, text fallback
+and context with that same unified Chief of Staff. It is not a separate Discord
+replacement. Preserve the implementation without expanding it now; voice is a
+future use case, not an automatic exception to the readiness gate.
