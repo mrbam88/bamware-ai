@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
-"""Publish review artifacts and an actionable report even when QA tooling fails."""
+"""Publish review artifacts and an actionable report even when QA tooling fails.
+
+Batch-specific facts live in <work-dir>/finalize.json, never in this file:
+  {"repo": "mrbam88/bamware-ai", "pr": "80", "branch": "feat/...",
+   "tasks": ["75", "76"], "title": "Overnight build report — 2026-10-02"}
+"""
 import json
+import os
 import subprocess
 from pathlib import Path
 
-ROOT = Path.home() / 'srv/overnight-mode'
-ARTIFACTS = ROOT / 'batch-work'
-REPO = 'mrbam88/bamware-ai'
-PR = '80'
-BRANCH = 'feat/overnight-20261002'
+ARTIFACTS = Path(os.environ.get('BAMWARE_BATCH_WORK') or Path.home() / '.local/state/bamware/overnight/work')
+CONFIG_KEYS = ('repo', 'pr', 'branch', 'tasks', 'title')
+
+
+def load_config():
+    config = json.loads((ARTIFACTS / 'finalize.json').read_text())
+    missing = [k for k in CONFIG_KEYS if not config.get(k)]
+    if missing:
+        raise ValueError(f'finalize.json missing {missing}')
+    return config
 
 
 def run(argv, timeout=60):
@@ -25,14 +36,16 @@ def evidence(task):
         return {}
 
 
-def finalize(qa_exit):
+def finalize(qa_exit, config=None):
+    config = config or load_config()
+    REPO, PR, BRANCH, tasks = config['repo'], str(config['pr']), config['branch'], [str(t) for t in config['tasks']]
     qa = evidence('qa')
     result = {'qa_process_exit': qa_exit, 'qa_status': qa.get('status', 'unknown'),
               'pr_url': None, 'code_published': False, 'report_published': False,
               'deployed': False, 'failures': [], 'report': str(ARTIFACTS / 'report.md')}
-    sections = ['# Overnight build report — 2026-10-02',
-                'Scope: #75, #76 and #78. This report is not deployment evidence.']
-    for task in ('75', '76', '78'):
+    sections = [f"# {config['title']}",
+                'Scope: ' + ', '.join(f'#{t}' for t in tasks) + '. This report is not deployment evidence.']
+    for task in tasks:
         data = evidence(task)
         sections += [f'## #{task}', f"Status: {data.get('status', 'no evidence')}",
                      str(data.get('summary', 'No completion evidence returned.')),
@@ -81,7 +94,7 @@ def finalize(qa_exit):
                 is_ready = False
             if not is_ready:
                 result['failures'].append('PR ready-for-review state unconfirmed')
-    for task in ('75', '76', '78'):
+    for task in tasks:
         data = evidence(task)
         note = ARTIFACTS / f'{task}.report.txt'
         note.write_text(f"Overnight implementation: {data.get('status', 'no evidence')}. "
@@ -101,7 +114,8 @@ def finalize(qa_exit):
 
 def main():
     # A timeout/crash cannot prevent the reporting stage.
-    qa = run(['/usr/bin/python3', str(ROOT / 'run-engineer.py'), 'qa'], timeout=1500)
+    qa = run(['/usr/bin/python3', str(Path(__file__).with_name('run_engineer.py')), 'qa',
+              '--work-dir', str(ARTIFACTS)], timeout=1500)
     finalize(qa.returncode)
 
 
