@@ -1,7 +1,6 @@
 // Bamware assistant website client. Text chat against the real Hermes
 // runtime, plus browser-side voice (Web Speech API STT, speechSynthesis TTS).
 // Voice needs a secure context (HTTPS or localhost); the UI says so when absent.
-import { renderQuotaMeter } from './quota-meter.js';
 (() => {
   const $ = (id) => document.getElementById(id);
   const app = $("app");
@@ -13,13 +12,11 @@ import { renderQuotaMeter } from './quota-meter.js';
     micBtn: $("micBtn"), stopBtn: $("stopBtn"), voiceBar: $("voiceBar"), voiceState: $("voiceState"), interim: $("interim"),
     sessionLabel: $("sessionLabel"), traceLabel: $("traceLabel"), newBtn: $("newBtn"), exportBtn: $("exportBtn"), deleteBtn: $("deleteBtn"),
     speakToggle: $("speakToggle"), logoutBtn: $("logoutBtn"),
-    agentsView: $("agentsView"), rateLimitList: $("rateLimitList"), rateLimitsDemoBanner: $("rateLimitsDemoBanner"),
-    quotaCoverage: $("quotaCoverage"),
-    rateLimitsDemoToggle: $("rateLimitsDemoToggle"), rateLimitsRefresh: $("rateLimitsRefresh"), rateLimitsGenerated: $("rateLimitsGenerated"),
-    workUsageProjectFilter: $("workUsageProjectFilter"), workUsageDemoToggle: $("workUsageDemoToggle"), workUsageDemoBanner: $("workUsageDemoBanner"),
-    workUsageRefresh: $("workUsageRefresh"), workUsageGenerated: $("workUsageGenerated"), workUsageCoverage: $("workUsageCoverage"),
-    usageByTaskList: $("usageByTaskList"), activeAgentsList: $("activeAgentsList"), workVsWaitList: $("workVsWaitList"),
-    outcomesList: $("outcomesList"), routingList: $("routingList"),
+    agentsView: $("agentsView"), systemBanner: $("systemBanner"), systemTitle: $("systemTitle"), systemDetail: $("systemDetail"),
+    agentsUpdated: $("agentsUpdated"), agentsRefresh: $("agentsRefresh"), nowHint: $("nowHint"), nowRunning: $("nowRunning"),
+    nowRecent: $("nowRecent"), needsCount: $("needsCount"), needsList: $("needsList"), openDecisions: $("openDecisions"),
+    capacityHint: $("capacityHint"), capacityList: $("capacityList"), capacityProblems: $("capacityProblems"),
+    boardWidget: $("boardWidget"), boardCounts: $("boardCounts"), boardList: $("boardList"), boardHint: $("boardHint"),
     decisionsView: $("decisionsView"), decisionList: $("decisionList"), decisionsGenerated: $("decisionsGenerated"),
     decisionsDemoToggle: $("decisionsDemoToggle"), decisionsDemoBanner: $("decisionsDemoBanner"), decisionsRefresh: $("decisionsRefresh"),
   };
@@ -51,7 +48,7 @@ import { renderQuotaMeter } from './quota-meter.js';
     els.tabDecisions.setAttribute("aria-current", String(name === "decisions"));
     if (name === "chat") els.text.focus();
     if (name === "login") els.password.focus();
-    if (name === "agents") { loadRateLimits(); loadWorkUsage(); }
+    if (name === "agents") loadAgents();
     if (name === "decisions") loadDecisions();
   }
 
@@ -117,563 +114,160 @@ import { renderQuotaMeter } from './quota-meter.js';
   }
 
   // ---------------------------------------------------------------- agents -
-  // Rate-limit widget (bamware-ai#75). `demoMode` only ever flips which query
-  // the client asks for; it can never relabel a live reading as demo or vice
-  // versa — that distinction is made server-side per window (source.kind).
-  let demoMode = false;
-  let rateLimitsLoading = false;
+  // Agents tab V3 (Engineering Lead review, 2026-10-03). One read of
+  // /api/agents answers: is the machine working, on what, what is blocking it,
+  // and can I afford it. Every value comes from a source of truth server-side;
+  // the client only formats. All text goes through textContent.
+  const AGENTS_REFRESH_MS = 60_000;
+  let agentsLoading = false;
 
-  const RL_STATE_LABEL = {
-    fresh: "Fresh", stale: "Stale", exhausted: "Exhausted", unknown: "Unknown", unsupported: "Unsupported",
-  };
-
-  async function loadRateLimits() {
-    if (rateLimitsLoading) return;
-    rateLimitsLoading = true;
-    els.rateLimitList.innerHTML = "";
-    const loading = document.createElement("li");
-    loading.className = "rl-item rl-loading";
-    loading.textContent = "Loading…";
-    els.rateLimitList.appendChild(loading);
-    try {
-      const data = await api("GET", `/api/rate-limits${demoMode ? "?mode=demo" : ""}`);
-      renderRateLimits(data);
-    } catch (err) {
-      els.rateLimitList.innerHTML = "";
-      const li = document.createElement("li");
-      li.className = "rl-item rl-error";
-      li.textContent = `Could not load rate limits: ${err.message}`;
-      els.rateLimitList.appendChild(li);
-      els.rateLimitsDemoBanner.hidden = true;
-      els.quotaCoverage.textContent = "Coverage unavailable until refresh succeeds.";
-    } finally {
-      rateLimitsLoading = false;
-    }
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
   }
-
-  function renderRateLimits(data) {
-    els.rateLimitsDemoBanner.hidden = data.mode !== "demo";
-    els.rateLimitList.innerHTML = "";
-    if (!data.windows || !data.windows.length) {
-      const li = document.createElement("li");
-      li.className = "rl-item rl-empty";
-      li.textContent = "No providers reported.";
-      els.rateLimitList.appendChild(li);
-    } else {
-      for (const w of data.windows) els.rateLimitList.appendChild(renderRateLimitItem(w));
-    }
-    els.rateLimitsGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
-    els.quotaCoverage.replaceChildren();
-    const seenControls = new Set();
-    for (const c of data.coverage || []) {
-      const row = document.createElement("p");
-      row.className = "rl-meta";
-      const age = c.freshnessSec == null ? "observation time unknown" : `${Math.round(c.freshnessSec)}s old`;
-      let text = `${c.harness} · ${c.machine} · ${c.provider} · ${c.account || "account unknown"}: ${c.status} · ${age}`;
-      if (c.reason) text += ` · ${c.reason}`;
-      const key = c.account && c.identityEvidence ? c.account : `${c.harness}:${c.provider}`;
-      if (!seenControls.has(key)) {
-        const controls = c.controls || {};
-        const yesNo = value => value == null ? "unknown" : value ? "yes" : "no";
-        text += ` · Credits available: ${yesNo(controls.hasCredits)} · Balance: ${controls.balance ?? "unknown"} · Unlimited credits: ${yesNo(controls.unlimited)} · Banked resets: ${controls.resetCredits ?? "unknown"} · Spend limit: ${controls.spendLimit ?? "unknown"}`;
-        seenControls.add(key);
-      } else text += " · Shares the account meters and credit controls above";
-      row.textContent = text;
-      els.quotaCoverage.appendChild(row);
-    }
+  function ago(ms) {
+    if (!ms) return "";
+    const s = Math.max(0, (Date.now() - ms) / 1000);
+    if (s < 90) return "just now";
+    if (s < 5400) return `${Math.round(s / 60)} min ago`;
+    if (s < 172800) return `${Math.round(s / 3600)} h ago`;
+    return `${Math.round(s / 86400)} days ago`;
   }
-
-  function renderRateLimitItem(w) {
-    const li = document.createElement("li");
-    li.className = `rl-item rl-${w.state}`;
-
-    const title = document.createElement("div");
-    title.className = "rl-title";
-    const name = document.createElement("span");
-    name.textContent = `${w.provider} · ${w.scope}`;
-    title.appendChild(name);
-    const badge = document.createElement("span");
-    badge.className = `rl-badge rl-badge-${w.state}`;
-    badge.textContent = w.state === "fresh" && w.warning ? "Warning" : RL_STATE_LABEL[w.state] || w.state;
-    title.appendChild(badge);
-    if (w.source && w.source.kind === "synthetic") {
-      const tag = document.createElement("span");
-      tag.className = "rl-demo-tag";
-      tag.textContent = "SYNTHETIC";
-      title.appendChild(tag);
-    }
-    li.appendChild(title);
-
-    const identity = document.createElement("div");
-    identity.className = "rl-meta";
-    const origins = (w.observations || [w]).map(o => `${o.harness || "harness unknown"} / ${o.machine || "machine unknown"}`);
-    identity.textContent = `${[...new Set(origins)].join(" + ")} · ${w.account || "Account unknown — matching unproven"}`;
-    li.appendChild(identity);
-    li.appendChild(renderQuotaMeter(w));
-
-    const meta = document.createElement("div");
-    meta.className = "rl-meta";
-    const resetText = w.resetAt
-      ? `Resets ${new Date(w.resetAt).toLocaleString("en-US", {timeZone: w.resetTimezone || "UTC"})} (${w.resetTimezone || "UTC"})`
-      : "Reset time unknown";
-    const sourceLabel = (w.source && (w.source.label || w.source.kind)) || "unknown source";
-    const freshText = w.freshnessSec != null ? `${sourceLabel} · ${Math.round(w.freshnessSec)}s old` : sourceLabel;
-    meta.textContent = `${resetText} · ${freshText}`;
-    li.appendChild(meta);
-
-    if (w.notes) {
-      const notes = document.createElement("div");
-      notes.className = "rl-notes";
-      notes.textContent = w.notes;
-      li.appendChild(notes);
-    }
+  function span(hours) {
+    if (hours == null) return null;
+    if (hours < 1) return `${Math.max(1, Math.round(hours * 60))} min`;
+    if (hours < 48) return `${hours.toFixed(1)} h`;
+    return `${(hours / 24).toFixed(1)} days`;
+  }
+  function clock(ms) {
+    return ms ? new Date(ms).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" }) : "";
+  }
+  function pill(text, tone) {
+    return el("span", `pill ${tone}`, text);
+  }
+  function ticketLink(ticket) {
+    const m = /^(?:([\w.-]+\/[\w.-]+))?#(\d+)$/.exec(ticket ?? "");
+    if (!m || !m[1]) return el("span", "rowTitle", ticket ?? "untitled");
+    const a = el("a", "rowTitle", `${m[1].split("/")[1]}#${m[2]}`);
+    a.href = `https://github.com/${m[1]}/issues/${m[2]}`;
+    a.target = "_blank"; a.rel = "noopener";
+    return a;
+  }
+  function row(...children) {
+    const li = el("li", "row");
+    for (const c of children.flat()) if (c) li.appendChild(c);
     return li;
   }
-
-  // ---------------------------------------------------------------- work-usage -
-  // Project/ticket usage, active agents, work-vs-waiting, outcomes/rework and a
-  // routing-recommendation signal (bamware-ai#76). `workUsageDemoMode` only
-  // ever changes which query the client asks for; the server decides
-  // source.kind per event, same rule as the rate-limits widget.
-  let workUsageDemoMode = false;
-  let workUsageLoading = false;
-  let workUsageLastData = null;
-  let workUsageProject = "";
-  let workView = "list";
-  const treeExpanded = new Set();
-  function setWorkView(view) {
-    workView = view;
-    $("workTreeWidget").hidden = view !== "tree";
-    for (const id of ["usageByTaskWidget", "activeAgentsWidget", "workVsWaitWidget", "outcomesWidget"]) $(id).hidden = view === "tree";
-    $("workListButton").setAttribute("aria-pressed", String(view === "list"));
-    $("workTreeButton").setAttribute("aria-pressed", String(view === "tree"));
-  }
-  $("workListButton").addEventListener("click", () => setWorkView("list"));
-  $("workTreeButton").addEventListener("click", () => setWorkView("tree"));
-
-  function workCostLabel(cost) {
-    if (!cost || (cost.estimated == null && cost.billed == null)) return "Cost unavailable";
-    const prefix = cost.incomplete ? "Known " : "";
-    return [cost.estimated == null ? null : `${prefix}${prefix ? "estimate" : "Estimated"} $${cost.estimated.toFixed(2)}`, cost.billed == null ? null : `${prefix}${prefix ? "billed" : "Billed"} $${cost.billed.toFixed(2)}`].filter(Boolean).join(" · ") + (cost.incomplete ? " · incomplete" : "") + " · recorded work";
-  }
-  function costEvidence(cost) {
-    if (!cost) return "Cost source unavailable.";
-    return `${cost.scope}. ${cost.from ? `Observed ${new Date(cost.from).toLocaleDateString()}–${new Date(cost.to).toLocaleDateString()}.` : "Period unavailable."} ${cost.sources.length ? `Pricing: ${cost.sources.join("; ")}.` : "Pricing source unavailable."}${cost.incomplete ? ` Missing readings: ${cost.unknown}; overlapping records excluded: ${cost.overlapping}.` : ""}`;
+  function empty(list, text) {
+    list.replaceChildren(el("li", "row muted", text));
   }
 
-  function renderWorkTree(data) {
-    const container = $("workTreeContent");
-    container.replaceChildren();
-    const coverage = $("workTreeCoverage");
-    coverage.replaceChildren();
-    const coverageNote = document.createElement("span"); coverageNote.textContent = "Recorded work, not live agent status.";coverage.appendChild(coverageNote);
-    const coverageDetails=document.createElement("details");const coverageSummary=document.createElement("summary");coverageSummary.textContent="Coverage details";coverageDetails.appendChild(coverageSummary);
-    const coverageText=document.createElement("p");coverageText.textContent=data.workTree?.coverage || "Work relationships are unavailable from this source.";coverageDetails.appendChild(coverageText);coverage.appendChild(coverageDetails);
-    const projects = (data.workTree?.projects || []).filter(p => !workUsageProject || p.project === workUsageProject);
-    const line = (tag, text, className) => {
-      const el = document.createElement(tag); el.textContent = text;
-      if (className) el.className = className;
-      return el;
-    };
-    const branch = (id, title, note) => {
-      const el = document.createElement("details");
-      el.className = "workBranch";
-      el.open = treeExpanded.has(`${data.mode}:${id}`);
-      const summary = line("summary", title);
-      summary.appendChild(line("span", note, "treeNote"));
-      el.appendChild(summary);
-      el.addEventListener("toggle", () => { if (!el.isConnected) return; const k = `${data.mode}:${id}`; el.open ? treeExpanded.add(k) : treeExpanded.delete(k); });
-      return el;
-    };
-    if (!projects.length) container.appendChild(line("p", "No observed work in this scope. Try another project or preview the labeled demo.", "hint"));
-    for (const project of projects) {
-      const p = branch(project.id, project.name, project.tasks.length ? `${project.taskCount} tasks · ${project.runCount} recorded runs${project.attentionCount ? ` · ${project.attentionCount} need attention` : ""}${project.uncertainCount ? ` · ${project.uncertainCount} uncertain` : ""}` : "Repository context only · no task or worker linked");
-      if (project.attentionCount) p.classList.add("treeAttention");
-      if (project.repositoryUrl === "https://github.com/mrbam88/bamware-ai") {
-        const repo = line("a", "Repository: mrbam88/bamware-ai", "hint");
-        repo.href = project.repositoryUrl;
-        p.appendChild(repo);
-      }
-      for (const metadata of project.metadata || []) {
-        p.appendChild(line("p", "Repository and machine metadata only. This is not an agent task or a worker status.", "hint"));
-        p.appendChild(line("p", `${metadata.machine || "Machine not identified"}${metadata.commit ? ` · Commit ${metadata.commit}` : ""}`, "hint"));
-        p.appendChild(line("p", `Source: ${metadata.source}${metadata.fetchedAt ? ` · Observed ${new Date(metadata.fetchedAt).toLocaleString()}` : ""}`, "hint"));
-      }
-      for (const task of project.tasks) {
-        const t = branch(task.id, task.title, task.state);
-        t.querySelector("summary").appendChild(line("span", workCostLabel(task.cost), "workCost"));
-        t.appendChild(line("p", costEvidence(task.cost), "hint"));
-        if (task.purpose) t.querySelector("summary").insertBefore(line("span", task.purpose, "taskPurpose"), t.querySelector(".treeNote"));
-        if (task.batch) t.querySelector("summary").appendChild(line("span", `${task.batchLabel || "Batch"} · ${task.batch}`, "workBatchTag"));
-        const taskSource = line("p", "", "hint");
-        if (task.sourceUrl && /^https:\/\/github\.com\/mrbam88\/bamware-ai\/issues\/\d+$/.test(task.sourceUrl)) {
-          const link = line("a", task.ticket || "Source issue");
-          link.href = task.sourceUrl;
-          link.title = task.sourceTitle || task.title;
-          taskSource.appendChild(link);
-        } else if (task.ticket) taskSource.appendChild(document.createTextNode(task.ticket));
-        if (taskSource.textContent) t.appendChild(taskSource);
-        if (task.metadataAsOf) t.appendChild(line("p", `Issue description cached ${task.metadataAsOf}`, "hint"));
-        else t.appendChild(line("p", "Recorded task label; purpose not available.", "hint"));
-        if (task.attention) t.classList.add("treeAttention");
-        for (const run of task.runs) {
-          const r = branch(run.id, `${run.kind} · ${run.provider || "Worker unknown"}`, run.state);
-          r.appendChild(line("p", `${run.model || "Model unknown"} · ${run.machine || "Machine unknown"}`, "hint"));
-          r.appendChild(line("p", `${run.freshness} · ${run.observedAt ? new Date(run.observedAt).toLocaleString() : "No recorded time"}`, "hint"));
-          r.appendChild(line("p", `Source: ${run.source} (${run.sourceKind})`, "hint"));
-          if (run.sessionId) r.appendChild(line("p", `Session: ${run.sessionId}`, "hint"));
-          if (!run.runKnown) r.appendChild(line("p", "Metadata only; worker run not established.", "hint"));
-          t.appendChild(r);
-        }
-        p.appendChild(t);
-      }
-      container.appendChild(p);
-    }
+  const TASK_TONE = { verified: "ok", running: "info", queued: "muted", failed: "err", verification_failed: "err",
+    timed_out: "warn", blocked_dependency: "muted", stalled: "warn" };
+  const TASK_LABEL = { verification_failed: "checks failed", timed_out: "timed out", blocked_dependency: "blocked" };
+
+  function renderSystem(system, generatedAt) {
+    els.systemBanner.dataset.state = system.state;
+    els.systemTitle.textContent = system.title;
+    const parts = [system.detail];
+    if (system.since) parts.push(`since ${clock(system.since)}`);
+    if (system.state === "paused" && system.recorded) parts.push(`${system.frozen} of ${system.recorded} sessions still frozen`);
+    if (system.note) parts.push(system.note);
+    if (system.waiting && system.state !== "awaiting") parts.push(`${system.waiting} waiting on you`);
+    els.systemDetail.textContent = parts.filter(Boolean).join(" · ");
+    els.agentsUpdated.textContent = `Updated ${ago(generatedAt)}`;
   }
 
-  const OUTCOME_LABEL = { "verified-pass": "Verified pass", "qa-fail": "QA fail", "retry-pending": "Retry pending", unverified: "Unverified", unknown: "Unknown" };
-  const HEARTBEAT_LABEL = { active: "Active", stale: "Stale", unknown: "Unknown" };
-
-  function fmtDuration(ms) {
-    if (ms == null) return "unknown";
-    const mins = Math.round(ms / 60_000);
-    if (mins < 1) return "<1m";
-    if (mins < 60) return `${mins}m`;
-    return `${Math.floor(mins / 60)}h ${mins % 60}m`;
-  }
-  function fmtTokens(n) {
-    return n == null ? "unknown" : n.toLocaleString();
-  }
-  function machineLabel(m) {
-    if (!m) return "unknown machine";
-    if (m.id) return m.id;
-    if (m.source === "hostname-ambiguous") return `ambiguous host (${m.hostname})`;
-    return m.hostname || "unknown machine";
+  function renderNow(now) {
+    if (!now.running.length) empty(els.nowRunning, "Nothing running.");
+    else els.nowRunning.replaceChildren(...now.running.map((t) => row(
+      pill(t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),
+      el("span", "rowMeta", t.startedAt ? `started ${ago(t.startedAt)}` : "waiting to start"),
+      t.smoke ? pill("smoke test", "muted") : null)));
+    els.nowHint.textContent = now.running.length ? `${now.running.length} in the current run` : "";
+    if (!now.recent.length) return empty(els.nowRecent, "No executor runs recorded yet.");
+    els.nowRecent.replaceChildren(...now.recent.map((t) => {
+      const meta = [t.finishedAt ? `finished ${ago(t.finishedAt)}` : null, t.durationMs != null ? span(t.durationMs / 3.6e6) : null,
+        t.cost ? `${t.cost.pct.toFixed(1)}% of ${t.cost.pool}${t.cost.attribution === "shared" ? " (shared)" : ""}` : null,
+        t.exitCode ? `exit ${t.exitCode}` : null].filter(Boolean).join(" · ");
+      return row(pill(TASK_LABEL[t.state] ?? t.state, TASK_TONE[t.state] ?? "muted"), ticketLink(t.ticket ?? t.task),
+        el("span", "rowMeta", meta), t.smoke ? pill("smoke test", "muted") : null);
+    }));
   }
 
-  async function loadWorkUsage() {
-    if (workUsageLoading) return;
-    workUsageLoading = true;
-    $("workTreeContent").textContent = "Loading work…";
-    for (const list of [els.usageByTaskList, els.activeAgentsList, els.workVsWaitList, els.outcomesList]) {
-      list.innerHTML = "";
-      const li = document.createElement("li");
-      li.className = "wu-item wu-loading";
-      li.textContent = "Loading…";
-      list.appendChild(li);
-    }
-    try {
-      const data = await api("GET", `/api/work-usage${workUsageDemoMode ? "?mode=demo" : ""}`);
-      workUsageLastData = data;
-      renderWorkUsage(data);
-    } catch (err) {
-      for (const list of [els.usageByTaskList, els.activeAgentsList, els.workVsWaitList, els.outcomesList]) {
-        list.innerHTML = "";
-        const li = document.createElement("li");
-        li.className = "wu-item wu-error";
-        li.textContent = `Could not load: ${err.message}`;
-        list.appendChild(li);
-      }
-      $("workTreeContent").textContent = `Could not load work: ${err.message}. Use Refresh to retry.`;
-      $("workTreeCoverage").textContent = "";
-      els.workUsageDemoBanner.hidden = true;
-      els.workUsageCoverage.textContent = "";
-    } finally {
-      workUsageLoading = false;
-    }
+  function renderNeeds(items) {
+    els.needsCount.textContent = items.length ? String(items.length) : "";
+    if (!items.length) return empty(els.needsList, "Nothing is waiting on you.");
+    els.needsList.replaceChildren(...items.map((i) => {
+      const title = i.url ? Object.assign(el("a", "rowTitle", i.title), { href: i.url, target: "_blank", rel: "noopener" }) : el("span", "rowTitle", i.title);
+      const li = row(pill(i.kind === "checkpoint" ? "checkpoint" : i.urgency ?? "blocker", i.urgency === "high" ? "err" : "warn"), title,
+        el("span", "rowMeta", [i.project, i.since ? `since ${ago(i.since)}` : null].filter(Boolean).join(" · ")));
+      if (i.action) li.appendChild(el("div", "rowNote", i.action));
+      return li;
+    }));
   }
 
-  function renderWorkUsage(data) {
-    els.workUsageDemoBanner.hidden = data.mode !== "demo";
-    els.workUsageGenerated.textContent = data.generatedAt ? `Snapshot: ${new Date(data.generatedAt).toLocaleString()}` : "";
-    const failedAdapters = (data.adapterNotes || []).filter((a) => !a.ok);
-    els.workUsageCoverage.textContent = failedAdapters.length
-      ? `Coverage gap: ${failedAdapters.map((a) => `${a.name} (${a.error})`).join("; ")}`
-      : data.duplicatesDropped
-        ? `${data.duplicatesDropped} duplicate reading(s) collapsed.`
-        : "";
-
-    const projects = [...new Set([...(data.usageByProjectTask || []).map(s => s.project), ...(data.workTree?.projects || []).map(p => p.project)].filter(Boolean))].sort();
-    const prevValue = els.workUsageProjectFilter.value;
-    els.workUsageProjectFilter.innerHTML = '<option value="">All</option>';
-    for (const p of projects) {
-      const opt = document.createElement("option");
-      opt.value = p;
-      opt.textContent = (data.workTree?.projects || []).find(project => project.project === p)?.name || p;
-      els.workUsageProjectFilter.appendChild(opt);
-    }
-    workUsageProject = projects.includes(prevValue) ? prevValue : "";
-    els.workUsageProjectFilter.value = workUsageProject;
-
-    renderWorkTree(data);
-    renderUsageByTask(data);
-    renderActiveAgents(data);
-    renderWorkVsWait(data);
-    renderOutcomes(data);
-  }
-
-  function renderUsageByTask(data) {
-    const list = els.usageByTaskList;
-    list.innerHTML = "";
-    const scopes = (data.usageByProjectTask || []).filter((s) => !workUsageProject || s.project === workUsageProject);
-    if (!scopes.length && !data.unallocatedUsage) {
-      const li = document.createElement("li");
-      li.className = "wu-item wu-empty";
-      li.textContent = "No project/ticket usage reported.";
-      list.appendChild(li);
-    }
-    for (const s of scopes) list.appendChild(renderUsageScopeItem(s));
-    if (data.unallocatedUsage && (!workUsageProject || data.unallocatedUsage.project === workUsageProject)) {
-      list.appendChild(renderUsageScopeItem(data.unallocatedUsage, true));
-    }
-  }
-
-  function renderUsageScopeItem(s, isUnallocated) {
-    const li = document.createElement("li");
-    li.className = `wu-item${isUnallocated ? " wu-unallocated" : ""}`;
-
-    const title = document.createElement("div");
-    title.className = "wu-title";
-    const name = document.createElement("span");
-    name.textContent = s.metadataOnly ? "Repository context" : isUnallocated ? "Unallocated usage (no project/ticket)" : s.description?.title || s.task.title || `#${s.task.id}`;
-    title.appendChild(name);
-    if (s.retryCount) {
-      const b = document.createElement("span");
-      b.className = "wu-badge";
-      b.textContent = `${s.retryCount} retry${s.retryCount > 1 ? "s" : ""}`;
-      title.appendChild(b);
-    }
-    if (s.qaAttemptCount) {
-      const b = document.createElement("span");
-      b.className = "wu-badge";
-      b.textContent = `${s.qaAttemptCount} QA`;
-      title.appendChild(b);
-    }
-    li.appendChild(title);
-    if (!s.metadataOnly) {
-      const status = document.createElement("div"); status.className="workTaskStatus";
-      status.textContent=s.state || "Activity unknown";li.appendChild(status);
-      if(s.attention) li.classList.add("treeAttention");
-    }
-    const context = document.createElement("div");
-    context.className = "workTaskContext";
-    const project = document.createElement("div");
-    project.className = "wu-meta";
-    project.textContent = s.projectName || s.project || "Project not attributed";
-    context.appendChild(project);
-    if (s.description?.repositoryUrl === "https://github.com/mrbam88/bamware-ai") {
-      const repo = document.createElement("a"); repo.className="workSourceLink";
-      repo.href=s.description.repositoryUrl;repo.textContent="Repository: mrbam88/bamware-ai";context.appendChild(repo);
-    }
-    if (s.metadataOnly) {
-      const note = document.createElement("p"); note.className = "taskPurpose";
-      note.textContent = "Repository and machine metadata only. No task, worker or usage reading is linked.";
-      context.appendChild(note); li.appendChild(context); return li;
-    }
-    const description = s.description || {};
-    const purpose = document.createElement("p"); purpose.className = "taskPurpose";
-    purpose.textContent = description.purpose || "Recorded task label; purpose not available.";
-    context.prepend(purpose);
-    if (description.batch) {
-      const batch = document.createElement("span"); batch.className = "workBatchTag";
-      batch.textContent = `${description.batchLabel || "Batch"} · ${description.batch}`; context.appendChild(batch);
-    }
-    if (description.sourceUrl && /^https:\/\/github\.com\/mrbam88\/bamware-ai\/issues\/\d+$/.test(description.sourceUrl)) {
-      const source = document.createElement("a"); source.className = "workSourceLink";
-      source.href = description.sourceUrl; source.textContent = description.ticket || "Source issue";
-      source.title = description.sourceTitle || description.title; context.appendChild(source);
-    }
-    const cost = document.createElement("div"); cost.className = "workCost";
-    cost.textContent = workCostLabel(s.cost); title.after(cost);
-    li.appendChild(context);
-
-    const detail = document.createElement("div");
-    detail.className = "wu-detail";
-    const partialMark = (f) => (s.partial[f] ? "≥" : "");
-    detail.textContent =
-      `in ${partialMark("input")}${fmtTokens(s.usage.input)} · out ${partialMark("output")}${fmtTokens(s.usage.output)} · ` +
-      `cache-write ${partialMark("cacheWrite5m")}${fmtTokens((s.usage.cacheWrite5m ?? 0) + (s.usage.cacheWrite1h ?? 0) || null)} · ` +
-      `cache-read ${partialMark("cacheRead")}${fmtTokens(s.usage.cacheRead)}`;
-    const accounting = document.createElement("details");
-    const accountingTitle = document.createElement("summary"); accountingTitle.textContent = "Usage and cost sources"; accounting.appendChild(accountingTitle);
-    const evidence = document.createElement("p"); evidence.className="wu-meta"; evidence.textContent=costEvidence(s.cost); accounting.appendChild(evidence);
-    if (description.metadataAsOf) {
-      const cached=document.createElement("p");cached.className="wu-meta";cached.textContent=`Issue description cached ${description.metadataAsOf}`;accounting.appendChild(cached);
-    }
-    accounting.appendChild(detail);li.appendChild(accounting);
-
-    if (Object.values(s.partial).some(Boolean)) {
-      const note = document.createElement("div");
-      note.className = "wu-notes";
-      note.textContent = "≥ marks a total with at least one unknown contributing reading (floor, not exact).";
-      accounting.appendChild(note);
-    }
-
-    const details = document.createElement("details");
-    details.className = "wu-attempts";
-    const summary = document.createElement("summary");
-    summary.textContent = `${s.attempts.length} attempt${s.attempts.length === 1 ? "" : "s"} — drill down`;
-    details.appendChild(summary);
-    for (const a of s.attempts) {
-      const row = document.createElement("div");
-      row.className = "wu-attempt";
-      const costText = a.cost.kind === "unknown" || a.cost.amountUsd == null ? "cost unknown" : `${a.cost.kind} $${a.cost.amountUsd.toFixed(2)}`;
-      row.textContent =
-        `${a.kind} · ${a.model || "unknown model"} · ${machineLabel(a.machine)} · ${OUTCOME_LABEL[a.outcome.state] || a.outcome.state} · ` +
-        `${costText}${a.source.kind === "synthetic" ? " · SYNTHETIC" : ""}`;
-      details.appendChild(row);
-    }
-    li.appendChild(details);
-    return li;
-  }
-
-  let activityExpiryTimer;
-  function renderActiveAgents(data) {
-    clearTimeout(activityExpiryTimer);
-    const now = Date.now();
-    const phases = {coding:"Coding",testing:"Testing",researching:"Researching",reviewing:"Reviewing","tool-use":"Using tools"};
-    const isCooking = a => a.state === "active" && a.executionStatus === "working" && phases[a.executionPhase] && Number.isFinite(Date.parse(a.executionLeaseExpiresAt)) && Date.parse(a.executionLeaseExpiresAt) > now && Date.parse(a.executionLeaseExpiresAt) <= now + 120_000;
-    const list = els.activeAgentsList;
-    list.innerHTML = "";
-    const agents = (data.activeAgents || []).filter((a) => !workUsageProject || a.project === workUsageProject);
-    if (!agents.length) {
-      const li = document.createElement("li");
-      li.className = "wu-item wu-empty";
-      li.textContent = "No agent sessions reported.";
-      list.appendChild(li);
-      return;
-    }
-    for (const a of agents) {
-      const li = document.createElement("li");
-      li.className = "wu-item";
-      const title = document.createElement("div");
-      title.className = "wu-title";
-      const name = document.createElement("span");
-      name.textContent = `${a.provider || "unknown provider"} · ${a.model || "unknown model"}`;
-      title.appendChild(name);
-      const badge = document.createElement("span");
-      const cooking = Boolean(isCooking(a));
-      badge.className = `wu-badge wu-badge-${cooking ? "cooking" : a.state === "active" ? "unknown" : a.state}`;
-      badge.textContent = cooking ? `Cooking · ${phases[a.executionPhase]}` : a.state === "stale" ? "Stale observation" : "Activity unverified";
-      title.appendChild(badge);
-      li.appendChild(title);
-
-      const detail = document.createElement("div");
-      detail.className = "wu-detail";
-      const matches = (data.usageByProjectTask || []).filter(s => s.project === a.project && s.task?.id === a.task?.id);
-      const scope = matches.length === 1 ? matches[0] : null;
-      detail.textContent = `${machineLabel(a.machine)} · ${scope?.projectName || a.project || "Project not attributed"}${a.task ? " · " + (scope?.description?.title || a.task.title || "#" + a.task.id) : ""}`;
-      li.appendChild(detail);
-
-      const meta = document.createElement("div");
-      meta.className = "wu-meta";
-      meta.textContent = a.lastSeenAt
-        ? `Last ${cooking ? "worker activity" : "observation"}: ${new Date(a.lastSeenAt).toLocaleString()}${cooking ? " · pickup and execution verified" : " · current execution not verified"}`
-        : "No worker activity timestamp · current execution not verified";
-      li.appendChild(meta);
-      list.appendChild(li);
-    }
-    const expiries = agents.filter(isCooking).map(a=>Date.parse(a.executionLeaseExpiresAt));
-    if (expiries.length) activityExpiryTimer = setTimeout(()=>renderActiveAgents(data), Math.max(1, Math.min(...expiries)-now+1));
-  }
-
-  function renderWorkVsWait(data) {
-    const list = els.workVsWaitList;
-    list.innerHTML = "";
-    const t = data.timing || {};
-    const li = document.createElement("li");
-    li.className = "wu-item";
-    const title = document.createElement("div");
-    title.className = "wu-title";
-    title.textContent = "Active vs waiting";
-    li.appendChild(title);
-    const detail = document.createElement("div");
-    detail.className = "wu-detail";
-    detail.textContent = `Active ${fmtDuration(t.activeMsTotal)} · Waiting ${fmtDuration(t.waitMsTotal)}`;
-    li.appendChild(detail);
-
-    const reasons = Object.entries(t.waitByReason || {});
-    if (reasons.length) {
-      const bar = document.createElement("div");
-      bar.className = "wu-waitbar";
-      const total = reasons.reduce((s, [, ms]) => s + ms, 0);
-      const colors = { "rate-limit": "var(--err)", permission: "var(--warn)", dependency: "var(--muted)", qa: "var(--accent)", queue: "var(--ok)" };
-      for (const [reason, ms] of reasons) {
-        const seg = document.createElement("span");
-        seg.style.width = `${total ? (ms / total) * 100 : 0}%`;
-        seg.style.background = colors[reason] || "var(--line)";
-        seg.title = `${reason}: ${fmtDuration(ms)}`;
-        bar.appendChild(seg);
-      }
+  function renderCapacity(capacity) {
+    els.capacityHint.textContent = capacity.state === "fresh" ? `CFO · ${ago(capacity.generatedAt)}` : capacity.state === "stale" ? `CFO data is stale (${ago(capacity.generatedAt)})` : "";
+    els.capacityHint.classList.toggle("warnText", capacity.state !== "fresh");
+    els.capacityProblems.textContent = capacity.problems.length ? `Monitoring gaps: ${capacity.problems.join(" · ")}` : "";
+    if (!capacity.pools.length) return empty(els.capacityList, capacity.state === "unavailable" ? "The CFO has not published capacity yet." : "No pools reported.");
+    els.capacityList.replaceChildren(...capacity.pools.map((p) => {
+      const bar = el("div", "bar");
+      bar.dataset.level = p.level;
+      const fill = el("span", "barFill"); fill.style.width = `${Math.min(100, Math.max(0, p.usedPct))}%`;
+      bar.appendChild(fill);
+      if (capacity.reservePct) { const mark = el("span", "barMark"); mark.style.left = `${capacity.reservePct}%`; mark.title = `Reserve starts at ${capacity.reservePct}%`; bar.appendChild(mark); }
+      const toResetH = p.resetAt ? (p.resetAt - Date.now()) / 3.6e6 : null;
+      const hitsFirst = (eta) => eta != null && (toResetH == null || eta < toResetH);
+      const forecast = !(p.ratePctH > 0.05) ? "no recent burn"
+        : hitsFirst(p.etaReserveH) || hitsFirst(p.etaExhaustH)
+          ? [hitsFirst(p.etaReserveH) ? `reserve in ${span(p.etaReserveH)}` : null, hitsFirst(p.etaExhaustH) ? `runs out in ${span(p.etaExhaustH)}` : null].filter(Boolean).join(" · ")
+          : `burning ${p.ratePctH.toFixed(1)}%/h · safe until reset`;
+      const li = row(el("span", "rowTitle", p.label), pill(p.stale ? "stale" : p.level, p.stale ? "muted" : { ok: "ok", warn: "warn", critical: "err" }[p.level] ?? "muted"));
       li.appendChild(bar);
-      const meta = document.createElement("div");
-      meta.className = "wu-meta";
-      meta.textContent = reasons.map(([reason, ms]) => `${reason}: ${fmtDuration(ms)}`).join(" · ");
-      li.appendChild(meta);
-    }
-    if (t.unknownTimingCount) {
-      const note = document.createElement("div");
-      note.className = "wu-notes";
-      note.textContent = `${t.unknownTimingCount} event(s) have no timing recorded at all (not counted as zero).`;
-      li.appendChild(note);
-    }
-    list.appendChild(li);
+      li.appendChild(el("div", "rowNote", [`${Math.round(p.usedPct)}% used`, p.resetAt ? `resets ${clock(p.resetAt)}` : null, forecast].filter(Boolean).join(" · ")));
+      return li;
+    }));
   }
 
-  function renderOutcomes(data) {
-    const list = els.outcomesList;
-    list.innerHTML = "";
-    const o = data.outcomes || {};
-    const li = document.createElement("li");
-    li.className = "wu-item";
-    const title = document.createElement("div");
-    title.className = "wu-title";
-    title.textContent = `Sample size: ${o.sampleSize ?? 0} attempt(s)`;
-    li.appendChild(title);
-    const detail = document.createElement("div");
-    detail.className = "wu-detail";
-    detail.textContent = Object.entries(o.counts || {})
-      .filter(([, n]) => n > 0)
-      .map(([state, n]) => `${OUTCOME_LABEL[state] || state}: ${n}`)
-      .join(" · ") || "No outcomes reported.";
-    li.appendChild(detail);
-    if (o.retryCount) {
-      const meta = document.createElement("div");
-      meta.className = "wu-meta";
-      meta.textContent = `${o.retryCount} retry attempt(s) in this range.`;
-      li.appendChild(meta);
-    }
-    list.appendChild(li);
+  function renderBoard(board) {
+    if (!board) { els.boardWidget.hidden = true; return; }
+    els.boardWidget.hidden = false;
+    const order = ["In Progress", "Todo", "No status", "Done"];
+    const keys = Object.keys(board.counts).sort((a, b) => (order.indexOf(a) + 9) % 13 - (order.indexOf(b) + 9) % 13);
+    els.boardCounts.replaceChildren(...keys.map((k) => el("span", `chip${k === "In Progress" ? " strong" : ""}`, `${k} ${board.counts[k]}`)));
+    if (!board.inProgress.length) empty(els.boardList, board.fetchedAt ? "Nothing in progress." : "Loading the board…");
+    else els.boardList.replaceChildren(...board.inProgress.map((i) => {
+      const a = el(i.url ? "a" : "span", "rowTitle", i.title);
+      if (i.url) Object.assign(a, { href: i.url, target: "_blank", rel: "noopener" });
+      return row(i.priority ? pill(i.priority.split(" ")[0], i.priority.startsWith("P0") ? "err" : "muted") : null, a,
+        el("span", "rowMeta", i.repo && i.number ? `${i.repo}#${i.number}` : ""));
+    }));
+    els.boardHint.textContent = board.error ? `Board read failed: ${board.error}${board.fetchedAt ? ` (showing ${ago(board.fetchedAt)})` : ""}` : board.fetchedAt ? `From GitHub ${ago(board.fetchedAt)}` : "";
+  }
 
-    const routingList = els.routingList;
-    routingList.innerHTML = "";
-    if (!data.routing || !data.routing.length) {
-      const empty = document.createElement("li");
-      empty.className = "wu-item wu-empty";
-      empty.textContent = "No routing rules configured.";
-      routingList.appendChild(empty);
-      return;
-    }
-    for (const r of data.routing) {
-      const item = document.createElement("li");
-      item.className = "wu-item";
-      const t = document.createElement("div");
-      t.className = "wu-title";
-      const name = document.createElement("span");
-      name.textContent = `${r.ruleId} → ${r.recommendedModel}`;
-      t.appendChild(name);
-      const badge = document.createElement("span");
-      badge.className = "wu-badge";
-      badge.textContent = r.evidence === "sufficient" ? `${Math.round((r.successRate ?? 0) * 100)}% of ${r.sampleSize}` : "insufficient evidence";
-      t.appendChild(badge);
-      item.appendChild(t);
-      if (r.note) {
-        const note = document.createElement("div");
-        note.className = "wu-notes";
-        note.textContent = r.note;
-        item.appendChild(note);
-      }
-      routingList.appendChild(item);
+  async function loadAgents() {
+    if (agentsLoading) return;
+    agentsLoading = true;
+    els.agentsRefresh.disabled = true;
+    try {
+      const data = await api("GET", "/api/agents");
+      renderSystem(data.system, data.generatedAt);
+      renderNow(data.now);
+      renderNeeds(data.needsYou);
+      renderCapacity(data.capacity);
+      renderBoard(data.board);
+    } catch (err) {
+      if (err.status === 401) return showView("login");
+      els.systemBanner.dataset.state = "error";
+      els.systemTitle.textContent = "Could not load status";
+      els.systemDetail.textContent = err.message;
+    } finally {
+      agentsLoading = false;
+      els.agentsRefresh.disabled = false;
     }
   }
 
@@ -1104,13 +698,11 @@ import { renderQuotaMeter } from './quota-meter.js';
   els.decisionsRefresh.addEventListener("click", loadDecisions);
   els.decisionsDemoToggle.addEventListener("change", (e) => { decisionsDemoMode = e.target.checked; loadDecisions(); });
   setInterval(() => {
-    if (!document.hidden && !els.agentsView.hidden) loadRateLimits();
-  }, 60_000);
-  els.rateLimitsRefresh.addEventListener("click", loadRateLimits);
-  els.rateLimitsDemoToggle.addEventListener("change", (e) => { demoMode = e.target.checked; loadRateLimits(); });
-  els.workUsageRefresh.addEventListener("click", loadWorkUsage);
-  els.workUsageDemoToggle.addEventListener("change", (e) => { workUsageDemoMode = e.target.checked; loadWorkUsage(); });
-  els.workUsageProjectFilter.addEventListener("change", (e) => { workUsageProject = e.target.value; if (workUsageLastData) renderWorkUsage(workUsageLastData); });
+    if (!document.hidden && !els.agentsView.hidden) loadAgents();
+  }, AGENTS_REFRESH_MS);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && !els.agentsView.hidden) loadAgents(); });
+  els.agentsRefresh.addEventListener("click", loadAgents);
+  els.openDecisions.addEventListener("click", () => showView("decisions"));
   window.addEventListener("offline", () => setStatus("error", "Offline"));
   window.addEventListener("online", () => setStatus("ok", "Connected to Hermes"));
 

@@ -27,7 +27,8 @@ test("real Assistant wiring protects pages, APIs and preserves quota assets", as
     assert.equal((await fetch(base + "/api/admin/seed", { method: "DELETE", headers: { cookie, "x-admin-action": "1" }, body: JSON.stringify({ confirmation: "synthetic" }) })).status, 200);
     for (const asset of ["/admin.js", "/admin.css", "/quota-meter.js"]) assert.equal((await fetch(base + asset)).status, 200);
     const home = await (await fetch(base)).text(); assert.match(home, /href="\/admin"/); assert.match(home, /type="module"/);
-    assert.match(await (await fetch(base + "/app.js")).text(), /quota-meter.js/);
+    // Agents V3 shows CFO capacity instead of per-provider meters; the meter asset stays served for admin (line above).
+    assert.match(await (await fetch(base + "/app.js")).text(), /\/api\/agents/);
     await fetch(base + "/api/logout", { method: "POST", headers: { cookie } });
     assert.equal(calls.at(-1)[0], "logout");
     const serializedLogs = JSON.stringify(logs);

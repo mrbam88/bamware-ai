@@ -268,5 +268,16 @@ class BurnAlertTests(unittest.TestCase):
         self.assertEqual(len(h.sent), 1)
 
 
+    def test_capacity_is_published_for_every_pool_worst_first(self):
+        h = Harness()
+        h.feed([obs(T0, 30, key='calm'), obs(T0, 96, key='hot')])
+        doc = json.loads((h.dir / 'capacity.json').read_text())
+        self.assertEqual([p['key'] for p in doc['pools']], ['hot', 'calm'])
+        self.assertEqual((doc['pools'][0]['level'], doc['pools'][0]['sent_level']), ('critical', 'critical'))
+        self.assertEqual(doc['pools'][1]['level'], 'ok')
+        self.assertEqual(doc['policy']['reserve_used_pct'], 85.0)
+        self.assertIn('test', doc['sources'])
+
+
 if __name__ == '__main__':
     unittest.main()
