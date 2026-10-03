@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { parseEnvFile, parseHermesOutput, validateChatInput, signSession, verifySession, safeEqual, LoginLimiter } from "../lib.mjs";
 import { createServer, loadConfig } from "../server.mjs";
@@ -76,7 +76,8 @@ async function withServer(fn, extraEnv = {}, dependencies = {}) {
     ASSISTANT_WEB_CODEX_QUOTA_FILE: "/nonexistent",
     ASSISTANT_WEB_SERVER_QUOTA_FILE: "/nonexistent",
     ASSISTANT_WEB_QUOTA_SAMPLES_FILE: "/nonexistent",
-    ASSISTANT_WEB_OVERNIGHT_USAGE_FILE: "/nonexistent",
+    ASSISTANT_WEB_STATE_DIR: "/nonexistent",
+    ASSISTANT_WEB_BOARD: "0",
     ASSISTANT_WEB_HANDOFF_CHECKS: "0",
     ASSISTANT_WEB_HANDOFF_CHECKS_DIR: path.join(decisionsDir, "checks"),
     ASSISTANT_WEB_DECISIONS_FILE: path.join(decisionsDir, "decisions.json"),
@@ -106,7 +107,7 @@ async function login(base) {
 
 test("unauthenticated clients get 401 on every /api route except health and login", async () => {
   await withServer(async (base) => {
-    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"], ["GET", "/api/work-usage"], ["GET", "/api/decisions"]]) {
+    for (const [m, p] of [["GET", "/api/me"], ["POST", "/api/chat"], ["GET", "/api/sessions/20260101_000000_abcdef/export"], ["DELETE", "/api/sessions/20260101_000000_abcdef"], ["GET", "/api/rate-limits"], ["GET", "/api/agents"], ["GET", "/api/decisions"]]) {
       const res = await fetch(base + p, { method: m, headers: { "content-type": "application/json" }, body: m === "POST" ? "{}" : undefined });
       assert.equal(res.status, 401, `${m} ${p}`);
     }
@@ -220,56 +221,6 @@ test("GET /api/rate-limits?mode=demo returns only synthetic, clearly tagged wind
   });
 });
 
-test("GET /api/work-usage defaults to live mode: real repo/branch/machine correlation, no fabricated numbers", async () => {
-  await withServer(async (base) => {
-    const { cookie } = await login(base);
-    const res = await fetch(`${base}/api/work-usage`, { headers: { cookie } });
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.equal(body.mode, "live");
-    assert.ok(body.version);
-    assert.equal(body.adapterNotes[0].name, "self");
-    assert.equal(body.adapterNotes[0].ok, true);
-    // The self adapter has no project/task (batch branch), so it must land as unallocated, not fabricated into a task total.
-    assert.equal(body.usageByProjectTask.length, 0);
-    assert.ok(body.unallocatedUsage);
-    assert.equal(body.unallocatedUsage.usage.input, null);
-    assert.equal(body.routing.length, 0, "no routing rules are configured for live mode");
-  });
-});
-
-test("GET /api/work-usage?mode=demo returns the full synthetic widget feature set", async () => {
-  await withServer(async (base) => {
-    const { cookie } = await login(base);
-    const res = await fetch(`${base}/api/work-usage?mode=demo`, { headers: { cookie } });
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.equal(body.mode, "demo");
-    assert.equal(body.duplicatesDropped, 1, "the rewritten-transcript duplicate must be collapsed, not summed");
-    assert.equal(body.usageByProjectTask.length, 3, "tasks #76, #77 and #78 each get their own scope");
-    const task76 = body.usageByProjectTask.find((s) => s.task.id === "76");
-    assert.equal(task76.attempts.length, 3, "implementation + retry + qa, deduplicated");
-    assert.equal(task76.retryCount, 1);
-    assert.equal(task76.qaAttemptCount, 1);
-    assert.ok(task76.usage.input > 0);
-    assert.ok(body.unallocatedUsage, "the project/task-less event must surface as unallocated, not be dropped");
-    assert.equal(body.unallocatedUsage.usage.input, 5000);
-    const active = body.activeAgents.find((a) => a.sessionId === "demo-session-5");
-    assert.equal(active.state, "active");
-    const stale = body.activeAgents.find((a) => a.sessionId === "demo-session-6");
-    assert.equal(stale.state, "stale", "an old heartbeat must never read as active");
-    assert.ok(body.timing.activeMsTotal > 0);
-    assert.ok(body.timing.waitMsTotal > 0);
-    assert.ok(body.timing.waitByReason.qa > 0);
-    assert.equal(body.outcomes.counts["verified-pass"], 2);
-    assert.equal(body.outcomes.counts["qa-fail"], 1);
-    assert.ok(body.routing.length >= 2);
-    const insufficient = body.routing.find((r) => r.evidence === "insufficient");
-    assert.ok(insufficient, "a rule with no matching verified evidence must say so, not claim a recommendation");
-  });
-});
-
-// -------------------------------------------------------------- decisions -
 test("GET /api/decisions (live) lists the real, explicit candidates, all pending", async () => {
   await withServer(async (base) => {
     const { cookie } = await login(base);
@@ -401,21 +352,26 @@ test("an unknown decision id is 404, not silently ignored", async () => {
 });
 
 
-test("opt-in tool receipt reader returns recorded command evidence through authenticated API", async () => {
-  const dir=mkdtempSync(path.join(tmpdir(),"tool-receipt-api-"));
-  const at=new Date().toISOString();
-  writeFileSync(path.join(dir,"aabbcc.json"),JSON.stringify({version:1,event:{id:"tool:fixture",project:"fixture",repo:"fixture",task:{id:"qa",title:"Fixture QA"},agent:{provider:"node-test",sessionId:"tool:fixture"},timing:{startedAt:at,endedAt:at},execution:{version:1,source:"worker-lifecycle",scope:"test-command",status:"done",phase:"testing",pickupReceiptId:"fixture",observedAt:at,leaseExpiresAt:at},source:{kind:"synthetic"}}}));
+test("GET /api/agents answers what the machine is doing from real state files", async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "agents-state-"));
+  mkdirSync(path.join(dir, "overnight", "1790000000000000000"), { recursive: true });
+  writeFileSync(path.join(dir, "emergency-stop.json"), JSON.stringify({ reason: "Founder emergency stop: quota capacity incident", pausedAt: 1790999195, automaticResume: false, processes: [] }));
+  writeFileSync(path.join(dir, "overnight", "1790000000000000000", "status.json"), JSON.stringify({ phase: "finished", started_at: 1790000000, tasks: [{ id: "implementation-75", state: "failed", exit_code: 1, started_at: 1790000000, finished_at: 1790000600 }] }));
+  writeFileSync(path.join(dir, "overnight", "1790000000000000000", "batch.json"), JSON.stringify({ schema: 1, tasks: [{ id: "implementation-75", ticket: "mrbam88/bamware-ai#75" }] }));
   try {
-    await withServer(async base=>{
-      const {cookie}=await login(base);
-      const body=await (await fetch(`${base}/api/work-usage`,{headers:{cookie}})).json();
-      assert.equal(body.adapterNotes.find(x=>x.name==="tool-execution").ok,true);
-      const agent=body.activeAgents.find(x=>x.sessionId==="tool:fixture");
-      assert.equal(agent.state,"recorded");assert.equal(agent.executionStatus,"done");assert.equal(agent.executionScope,"test-command");assert.equal(agent.executionLeaseExpiresAt,null);
-    },{ASSISTANT_WEB_TOOL_EXECUTION_DIR:dir});
-  } finally {rmSync(dir,{recursive:true,force:true});}
+    await withServer(async (base) => {
+      const { cookie } = await login(base);
+      const res = await fetch(`${base}/api/agents`, { headers: { cookie } });
+      assert.equal(res.status, 200);
+      const body = await res.json();
+      assert.equal(body.system.state, "paused");
+      assert.equal(body.now.recent[0].state, "failed", "the executor's real state, never 'finished, unverified'");
+      assert.equal(body.now.recent[0].ticket, "mrbam88/bamware-ai#75");
+      assert.equal(body.capacity.state, "unavailable");
+      assert.equal(body.board, null, "board disabled in tests");
+    }, { ASSISTANT_WEB_STATE_DIR: dir });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
-
 
 test("discussion endpoints require owner auth, current version and never dispatch", async () => {
   const directory = mkdtempSync(path.join(tmpdir(), "aw-discussion-http-")); let sends = 0;

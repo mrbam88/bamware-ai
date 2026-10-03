@@ -26,4 +26,4 @@ PR #86 deployed as5e44a0b on the existing server rail; rollback baseline2dfece6.
 
 After restart, the durable sweep timestamp advanced from02:38:56Z to02:39:56Z with no API-triggered sweep; both notification receipts remained unchanged (Docker attempts1). Closing the originating conversation and actual worker pickup/resumption have not been verified; those remain #79 acceptance gaps.
 
-Activity truth and source coverage: [execution telemetry](execution-telemetry.md).
+Activity truth and source coverage: [Agents tab](agents-tab.md).

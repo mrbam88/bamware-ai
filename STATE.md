@@ -8,6 +8,27 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-03 (night) — Agents tab V3 live; services run from main
+
+- **Agents tab V3 deployed** (PR #114, Engineering Lead plan, reviewed and
+  approved after one blocking fix). The page answers: is the machine working,
+  on what, what blocks it, can I afford it. Status banner (paused by the
+  emergency stop, with how many recorded sessions are still frozen), Needs you,
+  Now (real executor task states and metered cost), Capacity (from the CFO's
+  `cfo/capacity.json`), Board (GitHub board 2). Net −1,500 lines; dead widgets,
+  the frozen Oct 2 export and the hard-coded issue cache removed. Doc:
+  `docs/agents-tab.md`.
+- **One deployed copy:** assistant-web merged to `main` (PR #112) and deployed
+  from `~/code/worktrees/bamware-ai-main`; the Overnight executor runs from
+  `main` with batch facts in `finalize.json` (PR #111). Rule in the engineering
+  contract; five collisions logged in `docs/incidents.md`; rest in #110.
+- **CFO:** burn alert live for OpenAI, Claude Max and Copilot (#105, #106),
+  self-grading forecasts; per-task cost metering in % of each pool (#109).
+  Drive modes (#108) and Accountant ledger (#102) next.
+- **Open, founder's call:** the emergency stop still freezes 20 of 21 recorded
+  Claude sessions on omarchy (no auto-resume); 4 items wait in Needs you (three
+  #85 blockers, today's batch checkpoint). Orphaned rate-limits stack: #115.
+
 ## 2026-10-03 — `scrum-master` Hermes profile created on omarchy (#98)
 
 - Created; isolated from the CoS (no Discord, Notion or Gmail).

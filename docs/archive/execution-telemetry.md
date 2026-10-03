@@ -1,3 +1,5 @@
+> **ARCHIVED 2026-10-03.** Superseded by the Agents tab V3 (`docs/agents-tab.md`); the work tree, work-usage endpoint and tool receipts were removed.
+
 # Execution activity evidence (#79)
 
 Repository metadata, page fetch time, an open session, process existence and a finished attempt are not execution heartbeats. The Agents projection must never label them Active. Metadata without a session identity is not counted as an agent.
