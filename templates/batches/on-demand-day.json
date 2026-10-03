@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "date": null,
+  "timezone": "America/New_York",
+  "mode": "on-demand-trial",
+  "reminders": false,
+  "executiveOwner": "chief_of_staff",
+  "deliveryOwner": "scrum_master",
+  "stakeholderRole": "Stakeholder / CEO",
+  "status": "awaiting-founder-checkpoints",
+  "executionAuthorized": false,
+  "budget": {
+    "batchCeiling": null,
+    "dailyCeiling": null,
+    "concurrencyLimit": null,
+    "status": "not-established-for-new-unattended-paid-work"
+  },
+  "readyQueue": [],
+  "carryover": [],
+  "checkpoints": [
+    {
+      "id": "morning-review-plan",
+      "status": "not-started",
+      "actualAt": null,
+      "outcomes": [],
+      "decisions": [],
+      "nextBatch": [],
+      "nextReview": null
+    },
+    {
+      "id": "afternoon-inspect-adjust",
+      "status": "not-started",
+      "actualAt": null,
+      "outcomes": [],
+      "decisions": [],
+      "nextBatch": [],
+      "nextReview": null
+    },
+    {
+      "id": "evening-review-handoff",
+      "status": "not-started",
+      "actualAt": null,
+      "outcomes": [],
+      "decisions": [],
+      "nextBatch": [],
+      "nextReview": null
+    }
+  ],
+  "history": []
+}

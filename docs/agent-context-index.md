@@ -13,6 +13,7 @@
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
 | Current state | STATE.md |
+| Three on-demand checkpoints / batch continuity | docs/operating-cadence.md |
 | CRM | docs/bamware-crm.md |
 | All skills (procedures) | skills/INDEX.md |
 | Interview prep | docs/interview-prep/README.md |
