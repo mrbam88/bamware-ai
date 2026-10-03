@@ -45,16 +45,22 @@ def refresh(run=subprocess.run):
     return errors
 
 
-def other_claude_sessions(run=subprocess.run):
-    """Interactive Claude sessions share the Claude Max pool and blur attribution."""
+def claude_transcripts(root=None, within_s=86400):
+    """Recently written Claude Code transcripts and their mtimes on this machine.
+
+    Other sessions writing during a task share the Claude Max pool and blur
+    attribution. Process counts are useless here (idle helpers share the name);
+    transcript writes mean real activity.
+    """
+    root = Path(root or HOME / '.claude/projects')
+    cutoff = datetime.now(timezone.utc).timestamp() - within_s
     try:
-        out = run(['pgrep', '-c', '-x', 'claude'], capture_output=True, text=True, timeout=5)
-        return int(out.stdout.strip() or 0)
-    except (OSError, ValueError, subprocess.SubprocessError):
+        return {str(p): p.stat().st_mtime for p in root.glob('*/*.jsonl') if p.stat().st_mtime >= cutoff}
+    except OSError:
         return None
 
 
-def snapshot(sources=None, refresher=refresh, sessions=other_claude_sessions):
+def snapshot(sources=None, refresher=refresh, sessions=claude_transcripts):
     errors = refresher()
     sources = sources or {'openai-codex': burn_alert.openai_source,
                           'claude-max': lambda: burn_alert.claude_source(tail=1),
@@ -70,10 +76,26 @@ def snapshot(sources=None, refresher=refresh, sessions=other_claude_sessions):
                 pools[obs['key']] = {'label': obs['label'], 'used_pct': obs['used_pct'],
                                      'reset_at': obs['reset_at'], 'observed_at': obs['observed_at']}
     return {'at': datetime.now(timezone.utc).timestamp(), 'pools': pools, 'errors': errors,
-            'other_claude_sessions': sessions()}
+            'claude_transcripts': sessions()}
 
 
-def cost(before, after):
+def project_dir_name(cwd):
+    """Claude Code names a project's transcript folder after its cwd."""
+    return str(cwd).replace('/', '-').replace('.', '-') if cwd else None
+
+
+def attribution(before, after, cwd=None):
+    """exclusive-local: no other session on this machine was active during the task.
+    Sessions on other machines share the same account and cannot be seen here."""
+    b, a = before.get('claude_transcripts'), after.get('claude_transcripts')
+    if b is None or a is None:
+        return 'unknown'
+    own = project_dir_name(cwd)
+    active = [p for p, m in a.items() if m > b.get(p, 0) and Path(p).parent.name != own]
+    return 'shared' if active else 'exclusive-local'
+
+
+def cost(before, after, cwd=None):
     """Per-pool delta. A reset rollover or a drop makes the delta unknown, never negative."""
     pools = {}
     for key, b in before.get('pools', {}).items():
@@ -88,15 +110,13 @@ def cost(before, after):
         else:
             pools[key] = {'delta_pct': max(delta, 0.0), 'before': b['used_pct'], 'after': a['used_pct'],
                           'label': a.get('label')}
-    busy = [n for n in (before.get('other_claude_sessions'), after.get('other_claude_sessions')) if n]
-    return {'pools': pools, 'attribution': 'shared' if busy else 'exclusive' if None not in
-            (before.get('other_claude_sessions'), after.get('other_claude_sessions')) else 'unknown'}
+    return {'pools': pools, 'attribution': attribution(before, after, cwd)}
 
 
 def record(entry, ledger=LEDGER):
     result = {**{k: entry.get(k) for k in ('batch', 'task', 'ticket', 'state')},
               'started_at': entry['before'].get('at'), 'finished_at': entry['after'].get('at'),
-              **cost(entry['before'], entry['after'])}
+              **cost(entry['before'], entry['after'], entry.get('cwd'))}
     ledger.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     with open(ledger, 'a') as stream:
         stream.write(json.dumps(result) + '\n')

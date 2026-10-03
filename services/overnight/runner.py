@@ -161,7 +161,7 @@ def worker(root):
                     record.update(state='failed', reason=str(exc))
                 after = meter('snapshot')
                 record['cost'] = meter('record', {'batch': root.name, 'task': task['id'], 'ticket': task.get('ticket'),
-                                                  'state': record['state'], 'before': before, 'after': after}) \
+                                                  'cwd': task['cwd'], 'state': record['state'], 'before': before, 'after': after}) \
                     if before and after else {'pools': {}, 'attribution': 'unmetered'}
             record['finished_at'] = time.time()
             record['evidence_log'] = str(log)
