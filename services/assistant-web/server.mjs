@@ -41,6 +41,9 @@ import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAcce
 import { loadAdminConfig } from "./lib/admin/config.mjs";
 import { createAdminRouter } from "./lib/admin/router.mjs";
 
+import { createOwnerBlockers } from './lib/owner-blockers.mjs';
+import { notifyOwnerBlocker } from './lib/owner-blocker-discord.mjs';
+
 import { createHandoffChecks, agentCheckRunner, notifyHandoffCheck } from './lib/handoff-checks.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -71,6 +74,8 @@ export function loadConfig(env = process.env) {
     serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
     quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     overnightUsageFile: get("ASSISTANT_WEB_OVERNIGHT_USAGE_FILE", path.join(os.homedir(), ".local/state/bamware/overnight/usage.json")),
+    ownerBlockersEnabled: get("ASSISTANT_WEB_OWNER_BLOCKERS", "0") === "1",
+    ownerBlockersDir: get("ASSISTANT_WEB_OWNER_BLOCKERS_DIR", path.join(os.homedir(), ".local/state/bamware/owner-blockers")),
     handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "0") === "1",
     handoffChecksDir: get("ASSISTANT_WEB_HANDOFF_CHECKS_DIR", path.join(os.homedir(), ".local/state/bamware/handoff-checks")),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
@@ -235,11 +240,12 @@ function hermesStatus(cfg) {
 }
 
 // ---------------------------------------------------------------- server ---
-export function createServer(cfg, { log = defaultLog, adminService } = {}) {
+export function createServer(cfg, { log = defaultLog, adminService, handoffRun, handoffNotify } = {}) {
   const runner = new HermesRunner(cfg, log);
-  const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES,run:agentCheckRunner(runner),notify:notifyHandoffCheck,log}) : null;
+  const blockers = cfg.ownerBlockersEnabled ? createOwnerBlockers({ directory: cfg.ownerBlockersDir, candidates: DECISION_CANDIDATES, notify: notifyOwnerBlocker }) : null;
+  const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES.filter(c => !blockers?.snapshot(c.id)),run:handoffRun ?? agentCheckRunner(runner),notify:handoffNotify ?? notifyHandoffCheck,log}) : null;
   checks?.recover();
-  const withCheck = decision => ({...decision, handoffCheck: checks?.snapshot(decision) ?? null});
+  const withCheck = decision => ({...decision, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
   const limiter = new LoginLimiter();
   // One fixture-worker instance per server process so a dispatch's receiptId
   // can later be found by a refresh check (demo lifecycle proof only).
@@ -337,7 +343,7 @@ export function createServer(cfg, { log = defaultLog, adminService } = {}) {
       const decisionsMatch = url.pathname.match(/^\/api\/decisions(?:\/([^/]+)(\/respond|\/handoff\/refresh)?)?$/);
       if (decisionsMatch) {
         const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
-        const candidates = mode === "demo" ? demoDecisionCandidates() : DECISION_CANDIDATES;
+        const candidates = mode === "demo" ? demoDecisionCandidates() : [...DECISION_CANDIDATES, ...(blockers?.additionalCandidates() ?? [])];
         const storeFile = mode === "demo" ? cfg.decisionsDemoFile : cfg.decisionsFile;
         const [, decisionId, action] = decisionsMatch;
 
@@ -345,7 +351,7 @@ export function createServer(cfg, { log = defaultLog, adminService } = {}) {
           const store = loadDecisionStore(storeFile);
           const snapshot=buildDecisionsSnapshot(candidates,store);
           if(mode==='live') snapshot.decisions=snapshot.decisions.map(withCheck);
-          return send(res, 200, { ...snapshot, mode });
+          return send(res, 200, { ...snapshot, mode, coordinator: mode === "live" ? blockers?.status() ?? null : null });
         }
 
         if (decisionId) {
@@ -358,7 +364,7 @@ export function createServer(cfg, { log = defaultLog, adminService } = {}) {
             try {
               const { decision, duplicate } = await respondToDecision(storeFile, candidate, body, { worker });
               log({ event: "decision.respond", requestId, mode, decisionId, action: body.action, duplicate });
-              if(mode==='live') checks?.enqueue(candidate);
+              if(mode==='live') { blockers?.recordResponse(candidate.id, body); if (!blockers?.snapshot(candidate.id)) checks?.enqueue(candidate); }
               return send(res, 200, { decision: mode==='live'?withCheck(decision):decision, duplicate, mode });
             } catch (err) {
               if (err.status) return send(res, err.status, { error: err.message, code: err.code });
@@ -424,6 +430,8 @@ export function createServer(cfg, { log = defaultLog, adminService } = {}) {
   });
   server.requestTimeout = cfg.hermesTimeoutMs + 30_000;
   server.headersTimeout = 30_000;
+  server.on("listening", () => { blockers?.start()?.catch(() => log({event:"owner-blockers.failed"})); });
+  server.on("close", () => blockers?.stop());
   return server;
 }
 

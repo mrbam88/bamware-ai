@@ -6,7 +6,7 @@ import path from 'node:path';
 import {createHandoffChecks} from '../lib/handoff-checks.mjs';
 import {respondToDecision} from '../lib/decisions.mjs';
 import {DECISION_CANDIDATES} from '../lib/providers/decision-candidates.mjs';
-const candidate=DECISION_CANDIDATES[0];
+const candidate=DECISION_CANDIDATES.find(c=>c.options.some(o=>o.action==='approve'));
 function setup(run=async()=>({summary:'Checked; no worker pickup claimed'}),notify=async()=>({messageId:'fixture-only'})) {
  const dir=mkdtempSync(path.join(os.tmpdir(),'handoff-check-'));
  const storeFile=path.join(dir,'decisions.json');
@@ -14,7 +14,7 @@ function setup(run=async()=>({summary:'Checked; no worker pickup claimed'}),noti
  return {storeFile,options,checks:createHandoffChecks(options)};
 }
 async function response(s,action='approve',note=null) {
- return respondToDecision(s.storeFile,candidate,{action,candidateVersion:candidate.version,selectedOptionId:candidate.options[0].id,note});
+ return respondToDecision(s.storeFile,candidate,{action,candidateVersion:candidate.version,selectedOptionId:action==='approve'?candidate.options.find(o=>o.action==='approve').id:null,note});
 }
 test('all four actions queue one coordination check; duplicates/restart do not rerun',async()=>{
  for(const action of ['approve','reject','discuss','defer']) {

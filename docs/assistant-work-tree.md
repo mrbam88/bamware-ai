@@ -27,3 +27,5 @@ Independent review of the original implementation passed. Integrated release099f
 Live HTTPS authenticated smoke passed: login200, work-usage200 with tree version1 and recorded tasks/runs, decisions200 including the account-email owner-action blocker from #85. Service active. No email sent, model invoked or approval executed by verification.
 
 The current tree has recorded project/task membership, not authoritative project goals, delegation or current responsible-agent ownership. Those remain the next source-integration slice.
+
+Server follow-through runtime: [Chief of Staff reconciliation](chief-of-staff-runtime.md).

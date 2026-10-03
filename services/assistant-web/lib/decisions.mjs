@@ -106,6 +106,8 @@ function validateResponsePayload(candidate, payload) {
   if (payload.selectedOptionId != null) {
     if (!isNonEmptyString(payload.selectedOptionId)) throw new InvalidDecisionResponseError("selectedOptionId must be a string.");
     if (!candidate.options.some((o) => o.id === payload.selectedOptionId)) throw new InvalidDecisionResponseError("selectedOptionId is not one of this decision's options.");
+    const option = candidate.options.find(o => o.id === payload.selectedOptionId);
+    if (option.action && option.action !== payload.action) throw new InvalidDecisionResponseError("Selected option does not authorize that action.");
     selectedOptionId = payload.selectedOptionId;
   }
   if (payload.action === "approve" && selectedOptionId == null) throw new InvalidDecisionResponseError("approve requires selectedOptionId.");
