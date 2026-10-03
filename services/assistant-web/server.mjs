@@ -25,11 +25,6 @@ import {
   LoginLimiter,
   SESSION_ID_RE,
 } from "./lib.mjs";
-import { buildSnapshot } from "./lib/rate-limits.mjs";
-import { codexQuotaAdapter } from "./lib/providers/codex-quota-adapter.mjs";
-import { readServerQuota } from "./lib/providers/server-quota-adapter.mjs";
-import { claudeMaxAdapter } from "./lib/providers/claude-max-adapter.mjs";
-import { demoAdapter } from "./lib/providers/demo-adapter.mjs";
 import { readAgentsState, buildAgentsSnapshot } from "./lib/agents-status.mjs";
 import { createBoardReader } from "./lib/board.mjs";
 import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
@@ -71,9 +66,6 @@ export function loadConfig(env = process.env) {
     maxQueue: Number(get("ASSISTANT_WEB_MAX_QUEUE", "3")),
     publicDir: path.join(HERE, "public"),
     admin: loadAdminConfig({ ...fileVars, ...env }),
-    codexQuotaFile: get("ASSISTANT_WEB_CODEX_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/codex-quota.json")),
-    serverQuotaFile: get("ASSISTANT_WEB_SERVER_QUOTA_FILE", path.join(os.homedir(), ".local/state/bamware/server-quota.json")),
-    quotaSamplesFile: get("ASSISTANT_WEB_QUOTA_SAMPLES_FILE", ""),
     stateDir: get("ASSISTANT_WEB_STATE_DIR", path.join(os.homedir(), ".local/state/bamware")),
     boardEnabled: get("ASSISTANT_WEB_BOARD", "1") !== "0",
     boardOwner: get("ASSISTANT_WEB_BOARD_OWNER", "mrbam88"),
@@ -168,7 +160,6 @@ const STATIC = {
   "/": ["index.html", "text/html; charset=utf-8"],
   "/index.html": ["index.html", "text/html; charset=utf-8"],
   "/app.js": ["app.js", "text/javascript; charset=utf-8"],
-  "/quota-meter.js": ["quota-meter.js", "text/javascript; charset=utf-8"],
   "/app.css": ["app.css", "text/css; charset=utf-8"],
   "/admin.js": ["admin.js", "text/javascript; charset=utf-8"],
   "/admin.css": ["admin.css", "text/css; charset=utf-8"],
@@ -312,17 +303,6 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
 
       if (route === "GET /api/me") {
         return send(res, 200, { ok: true, hermes: { bin: cfg.hermesBin, cwd: cfg.hermesCwd }, langfuse: hermesStatus(cfg) });
-      }
-
-      // Rate-limit / reset visibility (Agents view, bamware-ai#75). `mode=demo`
-      // serves only synthetic, clearly-labelled fixtures for UI preview/QA;
-      // it never substitutes for or blends with the live snapshot.
-      if (route === "GET /api/rate-limits") {
-        const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
-        const serverQuota = mode === "live" ? await readServerQuota({ serverQuotaFile: cfg.serverQuotaFile }) : { coverage: [], windows: [] };
-        const adapters = mode === "demo" ? [{ name: "demo", run: demoAdapter }] : [{ name: "claude-max", run: claudeMaxAdapter }, { name: "codex", run: codexQuotaAdapter }, { name: "server", run: () => serverQuota.windows }];
-        const snapshot = await buildSnapshot(adapters, { quotaSamplesFile: cfg.quotaSamplesFile, codexQuotaFile: cfg.codexQuotaFile }, { now: Date.now() });
-        return send(res, 200, { ...snapshot, mode, coverage: serverQuota.coverage });
       }
 
       // Agents tab V3 (Engineering Lead review, 2026-10-03): machine state, work

@@ -50,7 +50,6 @@ locked PR43 collector worktree: its existing data/capabilities are read in place
 | `POST /api/login` `{password}` | no | sets `aw_session` cookie (HttpOnly, SameSite=Strict, 7 days); 5 failures / 15 min per client → 429 |
 | `POST /api/logout` | no | clears cookie |
 | `GET /api/me` | cookie | Hermes bin/cwd and Langfuse **presence booleans** (never values) |
-| `GET /api/rate-limits[?mode=demo]` | cookie | Live Claude sample feed, X1 Codex events, and independent server Hermes/OpenCode OpenAI usage readings. Windows carry harness/machine/account provenance and accessible visual meters; additive `coverage` lists server capability gaps and observed credit controls. Proven shared account/scope windows merge; unknown identity never merges or adds capacity. Missing capacity stays unknown. Demo fixtures are isolated and always synthetic. See feeds below. |
 | `GET /api/agents` | cookie | Agents tab V3: machine state, needs-you, executor work, CFO capacity, board (`docs/agents-tab.md`). |
 | `GET /api/decisions[?mode=demo]` | cookie | Command Center Decisions deck (bamware-ai#78): a small explicit, hand-curated set of founder-level decision candidates (`lib/providers/decision-candidates.mjs`), each merged with any durable response on file. Default `mode=live` serves 3 real candidates grounded in already-verified repo facts (issue #77, and the Langfuse/Tailscale blockers documented in `docs/assistant-website.md`) — never an extraction over every open issue. `mode=demo` serves one clearly `source.kind:"synthetic"` fixture decision for previewing the full lifecycle. |
 | `POST /api/decisions/:id/respond[?mode=demo]` `{action, selectedOptionId?, note?, candidateVersion}` | cookie | Records a durable, versioned response (`approve｜reject｜discuss｜defer`) to a decision in a file-backed store (`~/.config/bamware/assistant-web-decisions*.json`, path overridable via `ASSISTANT_WEB_DECISIONS_FILE`/`_DEMO_FILE`). `candidateVersion` must match the current candidate or the call is `409 stale_decision`. Only `approve` attempts a handoff; in `mode=live` there is no confirmed worker interface, so it always and honestly records `handoff.status:"handoff_pending"` — never a fabricated pickup. Resubmitting an identical response is idempotent (`duplicate:true`, no second handoff dispatch); submitting a different action is a legitimate reconsideration. `mode=demo` can also dispatch to a fixture worker (`simulateWorker:"unavailable"` or the default accepting fixture) to prove `pickup_confirmed`/`completed` exist as real, reachable states — synthetic only. |
@@ -82,12 +81,11 @@ the button explains when it is unavailable.
 ## Test
 
 ```sh
-cd services/assistant-web && npm test      # auth, contracts, quota dedup, meter semantics, usage and decisions
+cd services/assistant-web && npm test      # auth, contracts, usage and decisions
 python3 scripts/test_collect_server_quota.py
 python3 scripts/test_export_codex_quota.py
 # Existing credentials remain in memory; no model call, transcript or password output:
-node scripts/verify-quota.mjs --local       # this checkout on loopback
-node scripts/verify-quota.mjs               # configured production endpoint
+node scripts/verify-admin.mjs               # read-only production verification
 ```
 
 Mocked tests are not integration proof. The real check is one authenticated
@@ -105,75 +103,15 @@ Mocked tests are not integration proof. The real check is one authenticated
 
 The Agents tab reads executor runs, CFO capacity and owner blockers directly; see `docs/agents-tab.md`.
 
-### Claude quota feed
-`ASSISTANT_WEB_QUOTA_SAMPLES_FILE` points to the existing server collector's
-sanitized JSONL samples (`at`, `meters[].kind/percent/resetsAt`). The private
-Assistant reads only the last 64 KiB; it does not read provider credentials or
-transcripts. Provider percentages remain separate from token totals. Samples
-older than 15 minutes are stale; after a reported reset the old percentage is
-hidden until a new sample arrives. The existing collector runs every ten minutes.
-A missing/malformed sample remains unavailable. Codex uses a separate sanitized snapshot adapter. The upstream collector uses an undocumented Claude usage endpoint;
-endpoint/schema changes must be treated as missing data, never an inferred cap.
+### Quota feeds removed (bamware-ai#115)
 
-### Codex quota feed
-The X1 runs `scripts/export-codex-quota.py` via the supplied user systemd timer
-every two minutes. It exports only provider quota percentages, window lengths,
-reset times and original event timestamps from recent Codex events to
-`~/.local/state/bamware/codex-quota.json` on the server over existing SSH.
-No credentials, prompts, responses, file paths or token transcripts are copied.
-SSH failure leaves the old timestamp intact; after 15 minutes the UI marks it
-stale. Laptop sleep/offline or expired SSH authentication therefore cannot
-masquerade as a fresh reading. This reads the most recent provider event; it
-does not spend tokens to force a quota update. Override server snapshot path
-with `ASSISTANT_WEB_CODEX_QUOTA_FILE`.
-
-### Independent server coverage (#81)
-
-`scripts/collect-server-quota.py` reads existing default-profile Hermes and
-OpenCode OpenAI OAuth capabilities in memory and GETs the same usage endpoint
-used by installed Hermes `agent/account_usage.py`. No model call, OAuth refresh,
-provider switch, token copying, credit redemption or new grant occurs. Requests
-are pinned to the provider host and redirects are refused. It never reads
-transcripts; OpenCode inventory selects only provider IDs from SQLite metadata.
-
-The collector writes only allowlisted percentages, scopes, resets, credit
-booleans/numbers, observation times and opaque account aliases to
-`~/.local/state/bamware/server-quota.json` (atomic, mode 0600). The web process
-reads that sanitized snapshot, not provider auth. Override with
-`ASSISTANT_WEB_SERVER_QUOTA_FILE`. Both harnesses' account identifiers matched
-locally during #81; aliases are a domain-separated SHA-256 digest, never an
-email, name or raw identifier. Distinct/unknown accounts stay separate. An
-ambiguous Hermes credential pool is not silently resolved to another account.
-
-Known account + provider + quota scope + source kind identifies one meter. The
-newest reading wins, all observation sources remain attached, percentages are
-never summed. The X1 feed does not yet carry identity evidence: it is explicitly
-unmatched and potentially overlapping, not an extra allowance. OpenCode-hosted
-provider usage is observed in metadata but has no authoritative quota collector.
-Credit/spend fields unavailable from a source remain unknown (including Claude
-credit controls absent from the existing sample schema); token usage is not a cap.
-
-Meters show used/remaining, warning/exhausted labels, reset timezone and age.
-Stale numbers are labelled historical; a passed reset hides the old percentage.
-Unknowns render a dashed placeholder with no numeric ARIA meter. The browser
-refreshes visible widgets every minute; it does not call a provider on refresh.
-
-Reuse the existing ten-minute `ai-quota-sample.timer` on the server, with a
-drop-in that collects OpenAI first so Claude ingestion failures cannot block it:
-
-```sh
-install -Dm644 services/assistant-web/systemd/ai-quota-sample-server.conf \
-  ~/.config/systemd/user/ai-quota-sample.service.d/server-quota.conf
-systemctl --user daemon-reload
-systemctl --user start ai-quota-sample.service
-```
-
-The template intentionally targets the existing `~/srv/bamware-ai` production
-checkout. Fetch/reconcile `worktree-assistant-web-slice` before moving that
-checkout, never copy a worktree over it. Restart `assistant-web`, then run the
-readback verifier above. Roll back code with a revert on the release branch;
-remove only `server-quota.conf` and reload systemd to detach the new collection.
-The old Claude collector, X1 timer and other services remain untouched.
+The per-provider meter widget described below, its API endpoint and its
+contract/adapter modules were deleted: nothing rendered them after Agents tab
+V3 shipped, and they duplicated the CFO's capacity calculation
+(`services/cfo`, `cfo/capacity.json`). `scripts/collect-server-quota.py` is
+kept because `services/cfo/burn_alert.py` still reads its `server-quota.json`
+output directly; assistant-web itself no longer reads it. See `services/cfo/README.md`
+for the current, single capacity calculation.
 
 #### Verified release evidence (2026-10-02, #81)
 
