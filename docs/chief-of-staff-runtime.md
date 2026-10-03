@@ -17,3 +17,9 @@ A future registered resolution probe must return evidence before the card become
 125 tests pass, including restart receipt adoption, concurrent pause, source failure, bounded retry, ambiguous-send no replay, scheduler activity without requests, dispatch-intent lookup and preventing legacy Hermes checks from duplicating owner-blocker alerts. Option/action compatibility now rejects approve-on-discuss. Browser Defer persists paused; mobile layout fits390px. These tests use fake check/worker hooks. They do not establish actual engineering pickup or resumption.
 
 Deployment uses existing assistant-web.service and release branch worktree-assistant-web-slice; no new infrastructure, model calls or paid service. #79 remains open for real sources, worker pickup/resumption, board coverage and chat-close end-to-end evidence.
+
+## Release evidence — 2026-10-03
+
+PR #86 deployed as5e44a0b on the existing server rail; rollback baseline2dfece6. Owner-blocker opt-in enabled. Authenticated live Decisions returned200 with both AWS operator-access and Docker integration-runtime blockers. Docker notification delivered and read back once; the preexisting AWS notification receipt was preserved. Actual service restart recovered both ledgers without replaying notifications. Scheduler is deterministic infrastructure, not a Hermes worker or conversational agent.
+
+After restart, the durable sweep timestamp advanced from02:38:56Z to02:39:56Z with no API-triggered sweep; both notification receipts remained unchanged (Docker attempts1). Closing the originating conversation and actual worker pickup/resumption have not been verified; those remain #79 acceptance gaps.
