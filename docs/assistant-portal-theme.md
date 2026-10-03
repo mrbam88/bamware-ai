@@ -39,3 +39,19 @@ refresh; historical rows remain unverified. No console errors were captured.
 The existing narrow-phone 200% zoom global toolbar overflow remains tracked;
 no physical iPhone, screen-reader or full WCAG conformance claim is made.
 Production verification is recorded after deployment.
+
+## Production — 2026-10-02
+
+PR #91 merged and deployed as `df31b21` on the existing release rail, including
+execution-lease response field `5d59847`. The prior server revision `2ae7655` is
+saved in `~/.local/state/bamware/releases/pre-tokyo-night-storm-revision`. Service
+is active and HTTPS health returned 200 after startup.
+
+The owner's authenticated Chrome session confirmed the Storm palette and real
+list/tree content. Historical activity remained unverified with observation
+labels and zero Cooking badges. At 390x844, the expanded work tree preserved
+readable purpose, status, prominent estimated cost and batch distinction with no
+horizontal overflow. The temporary viewport override was reset. Live Admin
+verification was interrupted by a Chrome extension UI blocking automation;
+no bypass was attempted. Admin and login visual coverage therefore remains the
+independently accepted local preview, not a production-browser claim.
