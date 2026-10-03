@@ -60,5 +60,5 @@ assignments:
   - {who: "Hermes cron: Interview Tracker - application monitoring", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03}
   - {who: "Hermes cron: Interview Tracker - historical audit batches", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "move to claude-haiku-4.5 if matching quality drops"}
   - {who: "Overnight Mode workers (run-engineer.py)", tier: mid, model: sonnet}
-  - {who: "Hermes scrum-master profile (board sweeps, status, triage)", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "#98; first sweep was shallow (no PR-check flags), CFO may move sweeps to mid"}
+  - {who: "Hermes cron: Scrum Master - board sweep (85076cec9bb9), scrum-master profile", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "#98; summarizes deterministic collector output only, no tool calls"}
   - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: mid, provider: xai-oauth, model: grok-4.5, since: 2026-10-03, note: "moved off gpt-6-astra; was 19.4M tokens in 2 days"}

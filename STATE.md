@@ -15,8 +15,14 @@
   Versioned in `config/hermes/scrum-master/`.
 - First read-only sweep: 195 board items, 32 active, 29 findings (28 stale
   >72h, 1 no owner), 0 actions. Receipt is private on the server.
-- **Not yet:** recurring schedule (needs a gateway service and a CEO-approved
-  cadence), restart proof, dispatch. Detail: `docs/hermes-integration.md`.
+- Bilal approved twice-daily sweeps: cron 09:00 and 17:00 ET on its own gateway
+  service, no Discord, receipt plus `latest.json` for the CoS. The sweep is a
+  deterministic collector (`services/scrum-master/`); the model only summarizes.
+  The live collector run found 5 merged-but-active and 6 closed-but-active items.
+- **Merge needed:** the cron runs the collector from the `main` worktree. Until
+  #113 merges and that worktree is updated, each run reports "collector not deployed".
+- **Not yet:** the CoS reading `latest.json`, and dispatch.
+  Detail: `docs/hermes-integration.md`.
 
 ## 2026-10-03 — Engineering Lead added to the org chart
 

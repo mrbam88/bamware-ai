@@ -158,11 +158,29 @@ The server copy is a cache of those files.
 - **Receipts:** `~/.local/state/bamware/scrum-master/sweeps/*.json` (private).
   The first good sweep: 195 items, 32 active, 29 findings, 0 actions; GitHub
   search showed no item changed during the run.
-- **Not yet:** no cron and no gateway. A schedule needs a `scrum-master`
-  gateway service, because cron only fires inside a running gateway. It needs
-  CEO approval of the cadence. It must not duplicate the deterministic
-  assistant-web sweep (`docs/scrum-master-runtime.md`). Dispatch waits on
-  Engineering Lead-approved tickets.
+- **Schedule (Bilal approved 2026-10-03):** cron `85076cec9bb9` "Scrum Master -
+  board sweep", `0 9,17 * * *` America/New_York, `--deliver local` (no
+  Discord), workdir = the `main` worktree, skills `bamware-scrum-master` +
+  Collector: `--script board-sweep.sh` runs `services/scrum-master/board_sweep.py`
+  (deterministic, read-only, no model). The model only summarizes it
+  (`config/hermes/scrum-master/sweep-prompt.md`) and makes no tool calls.
+  Each run writes a receipt and `~/.local/state/bamware/scrum-master/latest.json`
+  for the CoS. The CoS reading `latest.json` in its briefing is not wired yet.
+- **Why a script:** cron blocks `execute_code` and `bash -c` (no one to
+  approve). When the sweep was prompt-only, the model wrote an unreviewed
+  `/tmp` script that failed. Never relax `approvals.cron_mode` to work around it.
+- **Gateway:** `hermes-gateway-scrum-master.service` (user unit, enabled,
+  linger on). Cron only fires inside a running gateway. No platforms
+  configured; the CoS `hermes-gateway.service` is separate.
+- **Pinned model:** `cron create` has no model flag. Set `provider`/`model` on
+  the job in `~/.hermes/profiles/scrum-master/cron/jobs.json` with the gateway
+  stopped.
+- **Hook allowlist:** the profile has its own
+  `shell-hooks-allowlist.json` approving only the `main`-worktree
+  `hermes-context.py`. Without it the gateway skips the context hook.
+- It does not duplicate the deterministic assistant-web sweep
+  (`docs/scrum-master-runtime.md`), which covers only named assignments.
+  Dispatch waits on Engineering Lead-approved tickets.
 
 Rebuild on omarchy:
 
@@ -172,6 +190,14 @@ cp config/hermes/scrum-master/{config.yaml,SOUL.md} ~/.hermes/profiles/scrum-mas
 sed -i '/^DISCORD_/d' ~/.hermes/profiles/scrum-master/.env
 rm -rf ~/.hermes/profiles/scrum-master/skills/{google-chief-of-staff,email-evidence-reconciliation}
 hermes -p scrum-master skills list | grep bamware-scrum-master   # must load from main
+printf '%s' '{"approvals":[{"event":"pre_llm_call","command":"/usr/bin/python3 /home/bilal/code/worktrees/bamware-ai-main/scripts/hermes-context.py"}]}' \
+  > ~/.hermes/profiles/scrum-master/shell-hooks-allowlist.json
+hermes -p scrum-master gateway install --no-start-now --start-on-login
+install -D -m 700 config/hermes/scrum-master/board-sweep.sh ~/.hermes/profiles/scrum-master/scripts/board-sweep.sh
+hermes -p scrum-master cron create "0 9,17 * * *" "$(cat config/hermes/scrum-master/sweep-prompt.md)" \
+  --name "Scrum Master - board sweep" --deliver local --script board-sweep.sh \
+  --workdir ~/code/worktrees/bamware-ai-main
+# then pin provider/model in cron/jobs.json, and: systemctl --user start hermes-gateway-scrum-master
 ```
 
 ## Machines and integrations
