@@ -66,6 +66,8 @@ Chief of Staff — executive direction and primary founder interface
     |
     +-- CFO — on what model and budget: spend, limits, provider routing
     |
+    +-- Accountant — the founder's personal finances; privileged, read-only
+    |
 Project engineering / research / review workers — transient execution
 ```
 
@@ -74,6 +76,7 @@ Project engineering / research / review workers — transient execution
 | Chief of Staff | Hermes, `default` profile (Discord bot + Assistant web) | omarchy |
 | Scrum Master | Hermes, `scrum-master` profile | omarchy |
 | CFO | Hermes, `cfo` profile, over a deterministic routing policy | omarchy |
+| Accountant | Hermes, `accountant` profile, small model, private ledger | omarchy |
 | Workers | Claude Code headless, launched by the Overnight Mode executor | omarchy (Xcode work: the Mac) |
 
 Models are chosen per profile and can change; no role is tied to a vendor.
@@ -119,6 +122,16 @@ This applies to **every agent and project**, including onboarding and handoffs.
   or API keys still need the CEO. Reports to the Chief of Staff; budget
   breaches are critical alerts. Origin: one day of `gpt-6-astra` on everything
   used ~90% of a weekly OpenAI limit (2026-10-02). Detail: #100.
+- **Accountant (founder decision, 2026-10-03):** the one agent with privileged,
+  read-only access to the founder's financial information (Gmail receipts and
+  invoices first; other sources only with explicit approval). Keeps a private
+  ledger: subscriptions, recurring charges, prices, renewal dates. Other agents
+  ask it questions and get facts back, never raw emails, receipts or account
+  numbers. The CFO gets plan and price facts here; live usage still comes from
+  provider counters. Never pays, cancels, signs up or moves money; it
+  recommends and the founder acts. Ledger lives in a private store, never in
+  this repo or in tickets. Event-driven on a small model: refresh on a new
+  receipt, answer from the ledger otherwise. Starts with subscriptions only.
 - **Workers:** implement, research or test within assigned authority, producing
   source-linked evidence and clear unknowns. They do not redefine priorities,
   approve their own reserved gates or silently expand scope/spend.

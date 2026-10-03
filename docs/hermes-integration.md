@@ -128,6 +128,7 @@ so model, memory, cron and gateway stay isolated per role.
 |---|---|---|
 | `default` | Chief of Staff: Discord bot, Assistant web, founder interface | Running |
 | `scrum-master` | Scrum Master: board sweep, pickup/progress, stalled-work recovery, dispatch to Overnight Mode, evidence, escalation to the Chief of Staff | Decided, not created |
+| `accountant` | Accountant: privileged read-only personal finance; answers other agents with facts from a private ledger | Decided 2026-10-03, not created |
 | `cfo` | CFO: budgets, burn alerts, tier → provider/model routing policy for every profile, cron job and worker | Decided 2026-10-03, being set up (#100) |
 
 The Scrum Master reports to the Chief of Staff, not to Bilal directly, except

@@ -8,6 +8,13 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-03 — Accountant added to the org chart
+
+**Decision (Bilal):** a personal Accountant agent holds privileged, read-only
+access to his financial information; other agents ask it and get facts, never
+raw data. First job: a subscriptions ledger from Gmail receipts, so the CFO
+never has to ask Bilal what he pays for. Not created yet.
+
 ## 2026-10-03 — CFO added to the org chart
 
 **Decision (Bilal):** a CFO agent owns AI spend, limits and provider/model
