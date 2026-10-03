@@ -1,6 +1,7 @@
 // Server-owned reconciliation; no model invocation or implicit execution authority.
 import fs from 'node:fs';
 import path from 'node:path';
+import { createScrumMaster } from './scrum-master.mjs';
 import { assertValidCandidate } from './decisions.mjs';
 
 const iso = n => new Date(n).toISOString();
@@ -11,8 +12,9 @@ function save(file, value) {
   fs.writeFileSync(tmp, JSON.stringify(value, null, 2), { mode: 0o600 });
   fs.renameSync(tmp, file);
 }
-export function createOwnerBlockers({ directory, candidates, checks = {}, resumes = {}, notify, now = Date.now, intervalMs = 60_000, checkEveryMs = 300_000 }) {
-  let busy = false, timer;
+export function createOwnerBlockers({ directory, candidates, checks = {}, resumes = {}, notify, now = Date.now, intervalMs = 60_000, checkEveryMs = 300_000, supervisionAssignments = [], readSupervisionSource, onFailure = () => {} }) {
+  let busy = false, timer, activeSweepReceipt, currentRuntimeFailure = null;
+  const scrumMaster = createScrumMaster({directory, assignments:supervisionAssignments, now, ...(readSupervisionSource?{readSource:readSupervisionSource}:{})});
   const statusFile = path.join(directory, '.coordinator.json');
   const candidateMap = new Map(candidates.map(c => [c.id, c]));
   const files = () => fs.existsSync(directory) ? fs.readdirSync(directory).filter(n => /^[a-z0-9][a-z0-9-]*\.json$/.test(n)).map(n => path.join(directory, n)) : [];
@@ -23,8 +25,8 @@ export function createOwnerBlockers({ directory, candidates, checks = {}, resume
     try { return read(file); } catch { return { id, status: 'source_error', error: 'Blocker ledger is unreadable; no action taken.' }; }
   }
   function status() {
-    try { return { ...read(statusFile), running: Boolean(timer), runtime: 'assistant-web.service / server / deterministic reconciliation' }; }
-    catch { return { running: Boolean(timer), status: 'not_yet_checked', runtime: 'assistant-web.service / server / deterministic reconciliation' }; }
+    try { return { ...read(statusFile), ...(currentRuntimeFailure?{status:"unavailable"}:{}), running: Boolean(timer), runtime: 'assistant-web.service / Scrum Master / deterministic supervision', scrumMaster:scrumMaster.status(), currentRuntimeFailure }; }
+    catch { return { running: Boolean(timer), status: 'not_yet_checked', runtime: 'assistant-web.service / Scrum Master / deterministic supervision', scrumMaster:scrumMaster.status(), currentRuntimeFailure }; }
   }
   function candidateFor(b) {
     const c = candidateMap.get(b.id) ?? b.candidate;
@@ -39,6 +41,7 @@ export function createOwnerBlockers({ directory, candidates, checks = {}, resume
     let original = fs.readFileSync(file, 'utf8');
     let b = JSON.parse(original);
     const persist = () => {
+      scrumMaster.assertAllowed();
       if (fs.readFileSync(file, 'utf8') !== original) throw Error('Concurrent ledger change; retry next sweep');
       save(file, b); original = fs.readFileSync(file, 'utf8');
     };
@@ -54,7 +57,8 @@ export function createOwnerBlockers({ directory, candidates, checks = {}, resume
     b.notifications ??= {};
     // Adopt the original manual delivery receipt. Never replay it after restart.
     if (b.notification && !b.notifications.waiting_for_owner) b.notifications.waiting_for_owner = { ...b.notification };
-    b.runtime = 'assistant-web.service / server / deterministic reconciliation';
+    b.runtime = 'assistant-web.service / Scrum Master / deterministic supervision';
+    b.operationalOwner = 'scrum_master'; b.executiveOwner = 'chief_of_staff'; b.sweepReceiptId = activeSweepReceipt;
     b.lastSweepAt = iso(now());
     b.nextCheckAt = iso(now() + checkEveryMs);
     if (b.status !== 'resolved') {
@@ -106,11 +110,33 @@ export function createOwnerBlockers({ directory, candidates, checks = {}, resume
     if (busy) return;
     busy = true;
     const startedAt = iso(now());
+    const failures = [];
+    let roleRun;
     try {
-      const failures = [];
-      for (const file of files()) { try { await reconcile(file); } catch { failures.push({ id: path.basename(file, '.json'), error: 'Ledger or card source unavailable; no action taken.' }); } }
-      save(statusFile, { status: failures.length ? 'partial' : 'checked', startedAt, checkedAt: iso(now()), nextSweepAt: iso(now()+intervalMs), failures, coverage: 'Registered owner-blocker ledgers only; no board sweep or autonomous engineering dispatch.' });
-    } finally { busy = false; }
+      activeSweepReceipt = scrumMaster.beginRun();
+      if (!activeSweepReceipt) {
+        save(statusFile, {status:'paused',startedAt,checkedAt:iso(now()),nextSweepAt:iso(now()+intervalMs),failures:[],coverage:'Scrum Master mandate paused or revoked; no reconciliation or notifications attempted.'});
+        return;
+      }
+      for (const file of files()) {
+        try {scrumMaster.assertAllowed();await reconcile(file);}
+        catch {failures.push({id:path.basename(file,'.json'),error:'Ledger, role mandate or card source unavailable; no further action inferred.'});}
+      }
+      await scrumMaster.reconcileAssignments(activeSweepReceipt);
+      const records=files().map(f=>snapshot(path.basename(f,'.json')));
+      roleRun=scrumMaster.finishRun(activeSweepReceipt,{failures,blockerSummary:{registered:records.length,unavailable:records.filter(b=>b?.reconciliation?.state==='unavailable').length,paused:records.filter(b=>['paused','cancelled'].includes(b?.status)).length}});
+    } catch {
+      failures.push({id:'scrum-master',error:'Supervision state or source unavailable; inspect role receipts. No model or coding dispatch attempted.'});
+      if(activeSweepReceipt){try{roleRun=scrumMaster.finishRun(activeSweepReceipt,{failures});}catch{}}
+    } finally {
+      try { if(activeSweepReceipt || failures.length){
+        let previous;try{previous=read(statusFile);}catch{}
+        save(statusFile,{status:failures.length?(roleRun?'partial':'failed'):roleRun?.status==='partial'?'partial':'checked',startedAt,checkedAt:iso(now()),nextSweepAt:iso(now()+intervalMs),lastSuccessfulReconciliationAt:roleRun?.status==='completed'?iso(now()):previous?.lastSuccessfulReconciliationAt??null,failures,roleRunId:activeSweepReceipt??null,coverage:'Registered owner blockers and explicitly accepted assignments only; no general board sweep or coding dispatch.'});
+      }
+      if(!failures.length)currentRuntimeFailure=null;
+      } catch {currentRuntimeFailure={at:iso(now()),detail:'Supervisor receipt could not be persisted; last durable status may be stale.'};try{onFailure({event:'scrum-master.persistence-failed',at:currentRuntimeFailure.at});}catch{}}
+      finally {activeSweepReceipt=null;busy=false;}
+    }
   }
   function recordResponse(id, response) {
     const b = snapshot(id);
