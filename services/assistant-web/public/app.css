@@ -182,3 +182,16 @@ button.link.danger { color: var(--danger); }
   .status { max-width: 45%; }
   .meta .sep { display: none; }
 }
+
+/* Observed work hierarchy: native disclosures retain keyboard/touch support. */
+.workViewSwitch { display: flex; gap: 6px; }
+.workViewSwitch button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.workBranch { border: 1px solid var(--line); border-radius: 9px; margin: 10px 0; padding: 0 12px; overflow-wrap: anywhere; }
+.workBranch > summary { cursor: pointer; padding: 14px 0; font-weight: 600; min-height: 44px; }
+.workBranch > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.workBranch .workBranch { margin-left: 10px; border-left: 3px solid var(--line); }
+.treeNote { display: block; color: var(--muted); font-size: 12px; font-weight: 400; margin-top: 5px; line-height: 1.5; }
+.workBranch.treeAttention { border-left: 3px solid var(--warn); }
+@media (max-width: 480px) { .workBranch { padding: 0 8px; } .workBranch .workBranch { margin-left: 4px; } }
+#workTreeWidget .hint { color: var(--muted); }
+.workViewSwitch button { min-height: 36px; border: 1px solid var(--line); border-radius: 7px; padding: 6px 12px; background: var(--surface); color: var(--ink); cursor: pointer; }
