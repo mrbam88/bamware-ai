@@ -37,6 +37,8 @@ import { workUsageSelfAdapter } from "./lib/providers/work-usage-self-adapter.mj
 import { workUsageDemoAdapter, demoRoutingRules } from "./lib/providers/work-usage-demo-fixtures.mjs";
 import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
 import { loadDecisionStore } from "./lib/decision-store.mjs";
+import { createDecisionDiscussions } from './lib/decision-discussions.mjs';
+import { createDecisionDiscordTransport } from './lib/decision-discord-transport.mjs';
 import { DECISION_CANDIDATES } from "./lib/providers/decision-candidates.mjs";
 import { demoDecisionCandidates, fixtureWorkerUnavailable, makeFixtureWorkerAccepting } from "./lib/providers/decision-candidates-demo-fixtures.mjs";
 import { loadAdminConfig } from "./lib/admin/config.mjs";
@@ -80,6 +82,8 @@ export function loadConfig(env = process.env) {
     ownerBlockersDir: get("ASSISTANT_WEB_OWNER_BLOCKERS_DIR", path.join(os.homedir(), ".local/state/bamware/owner-blockers")),
     handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "0") === "1",
     handoffChecksDir: get("ASSISTANT_WEB_HANDOFF_CHECKS_DIR", path.join(os.homedir(), ".local/state/bamware/handoff-checks")),
+    discussionsEnabled: get("ASSISTANT_WEB_DISCUSSIONS", "0") === "1",
+    discussionsDir: get("ASSISTANT_WEB_DISCUSSIONS_DIR", path.join(os.homedir(), ".local/state/bamware/decision-discussions")),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),
   };
@@ -242,12 +246,13 @@ function hermesStatus(cfg) {
 }
 
 // ---------------------------------------------------------------- server ---
-export function createServer(cfg, { log = defaultLog, adminService, handoffRun, handoffNotify } = {}) {
+export function createServer(cfg, { log = defaultLog, adminService, handoffRun, handoffNotify, discussionTransport } = {}) {
   const runner = new HermesRunner(cfg, log);
+  const discussions = cfg.discussionsEnabled ? createDecisionDiscussions({ directory: cfg.discussionsDir, transport: discussionTransport ?? createDecisionDiscordTransport() }) : null;
   const blockers = cfg.ownerBlockersEnabled ? createOwnerBlockers({ directory: cfg.ownerBlockersDir, candidates: DECISION_CANDIDATES, notify: notifyOwnerBlocker }) : null;
   const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES.filter(c => !blockers?.snapshot(c.id)),run:handoffRun ?? agentCheckRunner(runner),notify:handoffNotify ?? notifyHandoffCheck,log}) : null;
   checks?.recover();
-  const withCheck = decision => ({...decision, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
+  const withCheck = decision => ({...decision, discussion: discussions?.snapshot(decision) ?? null, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
   const limiter = new LoginLimiter();
   // One fixture-worker instance per server process so a dispatch's receiptId
   // can later be found by a refresh check (demo lifecycle proof only).
@@ -342,7 +347,7 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
       // response/handoff lifecycle can be exercised safely; the real deck
       // never dispatches to that fixture and always reports an honest
       // "handoff_pending" because no live worker interface is confirmed.
-      const decisionsMatch = url.pathname.match(/^\/api\/decisions(?:\/([^/]+)(\/respond|\/handoff\/refresh)?)?$/);
+      const decisionsMatch = url.pathname.match(/^\/api\/decisions(?:\/([^/]+)(\/respond|\/handoff\/refresh|\/discussion|\/discussion\/sync)?)?$/);
       if (decisionsMatch) {
         const mode = url.searchParams.get("mode") === "demo" ? "demo" : "live";
         const candidates = mode === "demo" ? demoDecisionCandidates() : [...DECISION_CANDIDATES, ...(blockers?.additionalCandidates() ?? [])];
@@ -360,13 +365,20 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
           const candidate = candidates.find((c) => c.id === decisionId);
           if (!candidate) return send(res, 404, { error: "Unknown decision id for this mode." });
 
+          if (req.method === "POST" && (action === "/discussion" || action === "/discussion/sync")) {
+            if (mode !== "live" || !discussions) return send(res, 503, { error: "Discord discussions are not enabled for this mode." });
+            const body = await readJson(req);
+            const discussion = await discussions[action === "/discussion" ? "open" : "sync"](candidate, body.candidateVersion);
+            return send(res, 200, { discussion, mode });
+          }
+
           if (req.method === "POST" && action === "/respond") {
             const body = await readJson(req);
             const worker = mode === "demo" ? (body.simulateWorker === "unavailable" ? fixtureWorkerUnavailable : demoAcceptingWorker) : undefined;
             try {
               const { decision, duplicate } = await respondToDecision(storeFile, candidate, body, { worker });
               log({ event: "decision.respond", requestId, mode, decisionId, action: body.action, duplicate });
-              if(mode==='live') { blockers?.recordResponse(candidate.id, body); if (!blockers?.snapshot(candidate.id)) checks?.enqueue(candidate); }
+              if(mode==='live') { blockers?.recordResponse(candidate.id, body); if (body.action !== 'discuss' && !blockers?.snapshot(candidate.id)) checks?.enqueue(candidate); }
               return send(res, 200, { decision: mode==='live'?withCheck(decision):decision, duplicate, mode });
             } catch (err) {
               if (err.status) return send(res, err.status, { error: err.message, code: err.code });

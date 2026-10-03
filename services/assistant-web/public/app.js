@@ -733,11 +733,15 @@ import { renderQuotaMeter } from './quota-meter.js';
       return;
     }
     for (const d of data.decisions) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+    if (location.hash.startsWith("#decision=")) {
+      try { document.getElementById(`decision-${decodeURIComponent(location.hash.slice(10))}`)?.scrollIntoView({block: "start"}); } catch {}
+    }
   }
 
   function renderDecisionCard(d, mode) {
     const li = document.createElement("li");
     li.className = `decision-card urgency-${d.urgency}`;
+    li.id = `decision-${d.id}`;
 
     const head = document.createElement("div");
     head.className = "dc-head";
@@ -806,6 +810,36 @@ import { renderQuotaMeter } from './quota-meter.js';
       li.appendChild(box);
     }
 
+    if (mode === "live") {
+      const box = document.createElement("section"); box.className = "dc-discussion";
+      const status = document.createElement("p"); status.setAttribute("role", "status");
+      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: reopen to update context" : d.discussion.status === "ready" ? "Discussion ready" : "Discussion needs attention"}. ${d.discussion.detail || ""}` : "Discuss in Discord. Discussion does not approve execution.";
+      box.appendChild(status);
+      function source(url, label) {
+        if (!/^https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?$/.test(url || "")) return;
+        const a = document.createElement("a"); a.href = url; a.textContent = label; a.target = "_blank"; a.rel = "noopener noreferrer"; box.appendChild(a);
+      }
+      source(d.discussion?.url, "Open discussion in Discord ↗");
+      function control(label, endpoint) {
+        const button = document.createElement("button"); button.type = "button"; button.textContent = label;
+        button.addEventListener("click", async () => {
+          button.disabled = true; status.textContent = "Updating this discussion…";
+          try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/${endpoint}`, {candidateVersion: d.version}); await loadDecisions(); }
+          catch (e) { status.textContent = `Discussion unavailable: ${e.message}`; }
+          finally { button.disabled = false; }
+        }); box.appendChild(button);
+      }
+      control(d.discussion ? "Reopen / repair discussion" : "Discuss in Discord", "discussion");
+      if (d.discussion?.threadId) control("Refresh discussion", "discussion/sync");
+      if (d.discussion?.pickup) { const p = document.createElement("p"); p.textContent = "Assistant reply observed; no worker execution implied."; box.appendChild(p); }
+      const summary = d.discussion?.summary;
+      if (summary) {
+        for (const text of [`Discussion proposal · version ${summary.candidateVersion} · not approved`, summary.summary, summary.proposedRevision ? `Proposed revision: ${summary.proposedRevision}` : "", "This proposal does not change the source decision. Revise the source and its version before approving changed work."]) { const p = document.createElement("p"); p.textContent = text; box.appendChild(p); }
+        source(summary.url, "Source discussion message ↗");
+      }
+      li.appendChild(box);
+    }
+
     // Answer / handoff state for an existing response -----------------------
     if (d.response) {
       const answer = document.createElement("div");
@@ -864,7 +898,7 @@ import { renderQuotaMeter } from './quota-meter.js';
 
       const actions = document.createElement("div");
       actions.className = "dc-actions";
-      for (const action of ["selected", "reject", "discuss", "defer"]) {
+      for (const action of (mode === "live" ? ["selected", "reject", "defer"] : ["selected", "reject", "discuss", "defer"])) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = `dc-${action}`;
@@ -889,6 +923,10 @@ import { renderQuotaMeter } from './quota-meter.js';
         note: note || null,
         candidateVersion: d.version,
       });
+      if (action === "discuss" && mode === "live") {
+        try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/discussion`, {candidateVersion: d.version}); }
+        catch (e) { alert(`Response saved. Discussion unavailable: ${e.message}`); }
+      }
       loadDecisions();
     } catch (err) {
       alert(`Could not record response: ${err.message}`);

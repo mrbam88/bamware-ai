@@ -63,7 +63,7 @@ test("loadConfig refuses weak secrets", () => {
 });
 
 // ------------------------------------------------------------ HTTP flow ---
-async function withServer(fn, extraEnv = {}) {
+async function withServer(fn, extraEnv = {}, dependencies = {}) {
   const decisionsDir = mkdtempSync(path.join(tmpdir(), "aw-decisions-http-"));
   const { cfg, problems } = loadConfig({
     ASSISTANT_WEB_ENV_FILE: "/nonexistent",
@@ -85,7 +85,7 @@ async function withServer(fn, extraEnv = {}) {
   });
   assert.deepEqual(problems, []);
   const logs = [];
-  const server = createServer(cfg, { log: (f) => logs.push(f) });
+  const server = createServer(cfg, { log: (f) => logs.push(f), ...dependencies });
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
@@ -414,4 +414,28 @@ test("opt-in tool receipt reader returns recorded command evidence through authe
       assert.equal(agent.state,"recorded");assert.equal(agent.executionStatus,"done");assert.equal(agent.executionScope,"test-command");assert.equal(agent.executionLeaseExpiresAt,null);
     },{ASSISTANT_WEB_TOOL_EXECUTION_DIR:dir});
   } finally {rmSync(dir,{recursive:true,force:true});}
+});
+
+
+test("discussion endpoints require owner auth, current version and never dispatch", async () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "aw-discussion-http-")); let sends = 0;
+  const transport = {
+    identity: async () => ({ channelId:"100000000000000000",guildId:"200000000000000000",ownerId:"300000000000000000",botId:"400000000000000000" }),
+    sendMessage: async () => ({id: String(500000000000000000n + BigInt(++sends))}),
+    ensureThread: async (_, id) => ({id}), checkThread: async () => ({}), messages: async () => [], findMessage: async () => null,
+  };
+  await withServer(async base => {
+    const { cookie } = await login(base);
+    const deck = await (await fetch(`${base}/api/decisions`, {headers:{cookie}})).json(); const c = deck.decisions[0];
+    const endpoint = `${base}/api/decisions/${c.id}/discussion`;
+    const post = (url, version, authenticated=true) => fetch(url, {method:"POST",headers:{"content-type":"application/json",...(authenticated?{cookie}:{})},body:JSON.stringify({candidateVersion:version})});
+    assert.equal((await post(endpoint,c.version,false)).status,401);assert.equal(sends,0);
+    assert.equal((await post(endpoint,"stale")).status,409);assert.equal(sends,0);
+    const opened=await (await post(endpoint,c.version)).json();assert.equal(opened.discussion.status,"ready");const count=sends;
+    assert.equal((await post(endpoint,c.version)).status,200);assert.equal(sends,count);
+    assert.equal((await post(endpoint+"/sync",c.version,false)).status,401);
+    assert.equal((await post(endpoint+"/sync",c.version)).status,200);
+    const after=await (await fetch(`${base}/api/decisions`,{headers:{cookie}})).json();const current=after.decisions.find(x=>x.id===c.id);
+    assert.equal(current.response,null);assert.equal(current.handoff.status,"not_applicable");assert.equal(current.discussion.threadId,opened.discussion.threadId);assert.equal(current.discussion.stale,false);
+  },{ASSISTANT_WEB_DISCUSSIONS:"1",ASSISTANT_WEB_DISCUSSIONS_DIR:directory},{discussionTransport:transport});
 });
