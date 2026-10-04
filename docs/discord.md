@@ -11,14 +11,15 @@ Factory cadence: `docs/factory-cadence.md`.
 | **`#general`** / status webhook | GitHub events, high-level milestones |
 | **`#chief-of-staff`** | CEO ↔ CoS: status, adhoc, unblock (was `#bamware-bot`) |
 | **`#command-center`** | Command Center decision-card discussion (web CC → here) |
+| **`#cfo`** | CFO burn alerts, stale-monitoring reminders, 8:15 AM daily status (#132). `BAMWARE_POST_TO=cfo`; escalations set `BAMWARE_MENTION=1`. Suggested: All Messages |
 | **`#cron`** | Scheduled job / CFO snapshot noise; optional read |
 | **`#scrum-master`** | SM delivery / board / overnight (agent home) |
 | **`#engineering-lead`** | EL PR/quality (agent home) |
 
 Env (private machines): `DISCORD_HOME_CHANNEL` + `DISCORD_ASSISTANT_CHANNEL` = CoS;
 `DISCORD_COMMAND_CENTER_CHANNEL` / `DISCORD_DISCUSSION_CHANNEL` = CC cards;
-`DISCORD_CRON_CHANNEL`; `DISCORD_SCRUM_MASTER_CHANNEL`; `DISCORD_ENGINEERING_LEAD_CHANNEL`.
-
+`DISCORD_CRON_CHANNEL`; `DISCORD_SCRUM_MASTER_CHANNEL`; `DISCORD_ENGINEERING_LEAD_CHANNEL`;
+`DISCORD_CFO_CHANNEL` = `#cfo` spend alerts (falls back to CoS channel while unset).
 
 ## What posts there
 

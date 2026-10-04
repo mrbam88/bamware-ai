@@ -1,0 +1,9 @@
+[Unit]
+Description=Bamware CFO daily status at 08:15, after the morning briefing
+
+[Timer]
+OnCalendar=*-*-* 08:15:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target

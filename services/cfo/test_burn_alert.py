@@ -18,13 +18,14 @@ def obs(t, used, key='pool', reset_at=RESET, window_min=WEEK):
 class Harness:
     def __init__(self, fail_sends=0):
         self.dir = Path(tempfile.mkdtemp())
-        self.sent, self.fail_sends = [], fail_sends
+        self.sent, self.mentions, self.fail_sends = [], [], fail_sends
 
-    def sender(self, text):
+    def sender(self, text, mention=False):
         if self.fail_sends:
             self.fail_sends -= 1
             raise RuntimeError('discord down')
         self.sent.append(text)
+        self.mentions.append(mention)
         return True
 
     def feed(self, observations, now=None, error=None, verifier=None, name='test'):
@@ -306,10 +307,51 @@ class BurnAlertTests(unittest.TestCase):
     def test_claude_source_flags_a_stopped_sampler(self):
         at = '2026-10-03T05:00:00Z'
         path = self._claude_file([{'at': at, 'meters': [{'kind': 'weekly', 'percent': 50, 'resetsAt': None}]}])
-        _, error = ba.claude_source(path, now=ba.epoch(at) + 3600)
+        _, error = ba.claude_source(path, now=ba.epoch(at) + 3600, hint=None)
         self.assertIn('stale', error)
         _, missing = ba.claude_source(Path(tempfile.mkdtemp()) / 'none.jsonl')
         self.assertIn('unreadable', missing)
+
+    def test_stale_claude_error_carries_the_samplers_reason(self):
+        at = '2026-10-03T05:00:00Z'
+        path = self._claude_file([{'at': at, 'meters': [{'kind': 'weekly', 'percent': 50, 'resetsAt': None}]}])
+        _, error = ba.claude_source(path, now=ba.epoch(at) + 3600, hint=lambda: 'Usage endpoint returned 429')
+        self.assertIn('sampler says: Usage endpoint returned 429', error)
+
+    def test_sampler_last_error_reads_the_journal(self):
+        class Out:
+            stdout = ('quota sample skipped: Claude Code login has expired. Open Claude Code once.\n'
+                      'some other line\nquota sample skipped: Usage endpoint returned 429\n')
+        self.assertEqual(ba.sampler_last_error(run=lambda *a, **k: Out()), 'Usage endpoint returned 429')
+        Out.stdout = 'Finished.\n'
+        self.assertIsNone(ba.sampler_last_error(run=lambda *a, **k: Out()))
+
+    def test_stale_monitoring_reminds_every_6h_then_restores_once(self):
+        # The 2026-10-03 outage: 34 h with one alert (#132).
+        h = Harness()
+        fresh = obs(T0, 50, key='claude-max:weekly')
+        h.feed([fresh])
+        for minutes in range(40, 34 * 60, 10):           # dark for ~34 h, a run every 10 min
+            h.feed([fresh], now=T0 + minutes * 60, error='claude samples stale')
+        stale = [s for s in h.sent if 'monitoring stale' in s]
+        # warn at ~40 min, escalate to critical at 6 h, then remind every 6 h (#132+#133).
+        self.assertEqual(len(stale), 6)                  # warn, critical, + reminders at 12/18/24/30 h
+        self.assertEqual(h.mentions[:6], [True, True] + [False] * 4)  # escalations ping; reminders don't
+        self.assertIn('no fresh quota data for 40 min', stale[0])
+        self.assertIn('monitoring stale (critical)', stale[1])
+        back = T0 + 34 * 3600
+        h.feed([obs(back, 52, key='claude-max:weekly')], now=back)
+        h.feed([obs(back + 600, 52, key='claude-max:weekly')], now=back + 600)
+        restored = [s for s in h.sent if 'monitoring restored' in s]
+        self.assertEqual(len(restored), 1)
+        self.assertIn('34.0 h blind', restored[0])
+        self.assertNotIn('monitor:test', ba.load_state(h.dir)['alerts'])
+
+    def test_quiet_source_never_announces_a_restore(self):
+        h = Harness()
+        h.feed([obs(T0, 50)])
+        h.feed([obs(T0 + 600, 50)])
+        self.assertEqual(h.sent, [])
 
     def test_stale_claude_data_raises_monitoring_alert(self):
         h = Harness()
@@ -348,6 +390,68 @@ class BurnAlertTests(unittest.TestCase):
         pool = json.loads((h.dir / 'capacity.json').read_text())['pools'][0]
         self.assertIs(pool['reserve_before_reset'], True)
         self.assertIs(pool['exhaust_before_reset'], False)   # exhaustion lands after the reset
+
+    # --- window-to-date pace (#132) -------------------------------------------
+
+    COPILOT_RESET = T0 + 652.8 * 3600                   # 2026-10-04 live reading
+    MONTH = 30 * 24 * 60
+
+    def copilot(self, t, used):
+        return obs(t, used, key='copilot:premium-monthly', reset_at=self.COPILOT_RESET, window_min=self.MONTH)
+
+    def test_copilot_pace_that_runs_out_before_reset_warns(self):
+        # 15.6% used 67 h into a 30-day window, flat for the last hour: the one-hour
+        # rate sees nothing, but the month-to-date pace runs out ~11 days early.
+        h = Harness()
+        for i in range(7):
+            h.feed([self.copilot(T0 + i * 600, 15.6)])
+        self.assertEqual(len(h.sent), 1)
+        self.assertIn('(warn)', h.sent[0])
+        self.assertIn('Pace since the window opened: 5.6%/day', h.sent[0])
+        self.assertEqual(h.mentions, [True])
+        pool = json.loads((h.dir / 'capacity.json').read_text())['pools'][0]
+        self.assertIs(pool['runout_before_reset'], True)
+        self.assertGreater(pool['to_reset_h'] - pool['eta_exhaust_pace_h'], 10 * 24)
+
+    def test_on_pace_pool_stays_quiet(self):
+        h = Harness()
+        h.feed([self.copilot(T0, 5.0)])                  # 1.8%/day: lasts past the reset
+        self.assertEqual(h.sent, [])
+
+    def test_pace_waits_for_a_day_of_window_and_skips_short_pools(self):
+        early = {'samples': [[T0, 10.0]], 'reset_at': T0 + 6.5 * 86400, 'window_min': WEEK}   # 12 h in
+        self.assertIsNone(ba.assess(early, T0)['pace_pct_h'])
+        session = {'samples': [[T0, 40.0]], 'reset_at': T0 + 3600, 'window_min': 300}
+        self.assertIsNone(ba.assess(session, T0)['pace_pct_h'])
+        no_window = {'samples': [[T0, 40.0]], 'reset_at': T0 + 3600}
+        self.assertIsNone(ba.assess(no_window, T0)['pace_pct_h'])
+
+    # --- daily digest ------------------------------------------------------------
+
+    def test_digest_lists_every_pool_and_dark_sources(self):
+        h = Harness()
+        h.feed([obs(T0, 96, key='hot'), self.copilot(T0, 15.6)])
+        # Past stale_after_min (30) so the source is dark, not a transient error.
+        h.feed([], now=T0 + 45 * 60, error='claude samples stale')
+        text = ba.digest(h.dir, now=T0 + 45 * 60)
+        self.assertIn('CFO daily status', text)
+        self.assertIn('🚨 Test pool: 96% used', text)
+        self.assertIn('runs out', text)
+        self.assertIn('no fresh data from test', text)
+
+    def test_digest_fresh_error_is_not_labeled_dark(self):
+        h = Harness()
+        h.feed([obs(T0, 40)])
+        h.feed([], now=T0 + 600, error='transient')  # 10 min < 30 min threshold
+        text = ba.digest(h.dir, now=T0 + 600)
+        self.assertIn('all sources fresh', text)
+        self.assertNotIn('no fresh data from test', text)
+
+    def test_digest_says_when_the_detector_stopped(self):
+        h = Harness()
+        h.feed([obs(T0, 40)])
+        self.assertIn('last ran 3.0 h ago', ba.digest(h.dir, now=T0 + 3 * 3600))
+        self.assertIn('not running', ba.digest(Path(tempfile.mkdtemp())))
 
 
 

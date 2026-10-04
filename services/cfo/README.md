@@ -11,7 +11,8 @@ must not spend the allowance it protects. Owner: CFO (`docs/bamware-agent-operat
 | Collect Claude Max meters | bamware-web `ai-quota-sample.ts` (Claude Code's `/usage` endpoint) → `ai-quota-samples.jsonl` (`AI_QUOTA_SAMPLES_PATH`) | every 10 min |
 | Collect Copilot premium quota | `burn_alert.py` → `gh api /copilot_internal/user` | every run |
 | Evaluate, persist, alert | `bamware-cfo-burn-alert.timer` → `burn_alert.py` | every 10 min, 3 min after the collector |
-| Deliver (alerts) | `scripts/discord-post.sh` (`BAMWARE_POST_TO=assistant`, #bamware-bot) | on escalation |
+| Deliver (alerts) | `scripts/discord-post.sh` (`BAMWARE_POST_TO=cfo`: `#cfo` via `DISCORD_CFO_CHANNEL`, else CoS/`#bamware-bot`) | on escalation; stale reminders every 6 h |
+| Daily status | `bamware-cfo-digest.timer` → `burn_alert.py --digest` (reads `capacity.json`) | 8:15 AM ET |
 | CoS capacity brief | `scripts/cfo-capacity-snapshot.sh` → stdout or `#cron` (`BAMWARE_POST_TO=cron`) | on demand / optional timer |
 
 State: `~/.local/state/bamware/cfo/state.json` (per-window history, sent level,
@@ -26,13 +27,22 @@ or when it reaches exhaustion within 6 h and before the reset. One alert per
 escalation; a reset rollover starts a new trend. Nothing is switched
 automatically.
 
-**Monitoring itself is monitored.** No fresh data from a source for 30 min is
-a "monitoring stale" warning. Still dark after 6 h, it escalates to critical:
-one more message, naming how long the source has been blind, the last known
-reading of each of its pools, and the command that shows why the collector
-stopped. When the source reports again, one "monitoring restored" line closes
-the loop. Cause: on 2026-10-03 the Claude sampler got HTTP 429 for 34 h; the
-CFO warned once at 06:43 and said nothing more (#133).
+- **Run-out before reset (#132).** Pools of a day or longer also warn when the
+  pace since the window opened (used ÷ hours elapsed, after at least 24 h)
+  exhausts the pool before it resets. This catches a slow, steady burn the
+  one-hour rate only sees a day before the pool runs dry (Copilot, 2026-10-04:
+  15.6% used 2.8 days into its month, on pace to run out ~11 days early).
+- **Monitoring itself is monitored (#133 + #132).** No fresh data from a source
+  for 30 min is a "monitoring stale" warning (with the sampler's last journal
+  error when available). Still dark after 6 h, it escalates to critical, naming
+  how long the source has been blind, the last known reading of each of its
+  pools, and the command that shows why the collector stopped. While dark it
+  keeps reminding every 6 h. When the source reports again, one "monitoring
+  restored" line closes the loop. Cause: on 2026-10-03 the Claude sampler got
+  HTTP 429 for 34 h; the CFO warned once and said nothing more.
+- **Visibility.** Alerts post in `#cfo`. Escalations @mention Bilal
+  (`DISCORD_USER_ID`) so they push to his phone; reminders and the daily
+  status do not.
 
 ## Self-verification
 
@@ -71,6 +81,7 @@ python3 services/cfo/burn_alert.py --replay services/cfo/fixtures/incident-101.j
 python3 services/cfo/burn_alert.py --dry-run     # evaluate live data, print, change no state
 python3 services/cfo/burn_alert.py --status      # the CFO check: every source's health, every pool (reads capacity.json)
 python3 services/cfo/burn_alert.py --calibration # forecast accuracy, learned correction, cross-checks
+python3 services/cfo/burn_alert.py --digest --dry-run   # print today's #cfo status, post nothing
 python3 services/cfo/meter.py summary --days 7    # cost per ticket and per day, in % of each pool
 python3 -m unittest discover -s services/cfo      # from the repo root
 journalctl --user -u ai-quota-sample.service -n 20  # why a collector stopped (Claude sampler + OpenAI collector)
@@ -80,8 +91,10 @@ systemctl --user list-timers bamware-cfo-burn-alert.timer
 Install on omarchy:
 ```
 git -C ~/code/bamware-ai worktree add --detach ~/code/worktrees/bamware-ai-main origin/main
-cp ~/code/worktrees/bamware-ai-main/scripts/systemd/bamware-cfo-burn-alert.* ~/.config/systemd/user/
-systemctl --user daemon-reload && systemctl --user enable --now bamware-cfo-burn-alert.timer
+cp ~/code/worktrees/bamware-ai-main/scripts/systemd/bamware-cfo-{burn-alert,digest}.* ~/.config/systemd/user/
+systemctl --user daemon-reload && systemctl --user enable --now bamware-cfo-{burn-alert,digest}.timer
+# #cfo channel: right-click it in Discord → Copy Channel ID, then
+echo 'DISCORD_CFO_CHANNEL=<channel id>' >> ~/.config/bamware/discord.env
 ```
 
 ## Limits and next steps
@@ -93,10 +106,8 @@ systemctl --user daemon-reload && systemctl --user enable --now bamware-cfo-burn
   stable path with `AI_QUOTA_SAMPLES_PATH` when that service is productized.
 - The Claude sampler (`ai-quota-sample.ts`) gives up on a 429 from the usage
   endpoint and does not back off or re-login; it was dark 2026-10-03 09:40 UTC
-  to 2026-10-04 19:25 UTC. The CFO now escalates (above) but cannot restart it.
-  Fix belongs in bamware-web.
-- Stale escalation stops at critical; a source dark for days gets two
-  messages, not a daily reminder.
+  to 2026-10-04 19:25 UTC. The CFO now escalates and reminds (above) but cannot
+  restart it. Fix belongs in bamware-web.
 - Replay of the #101 incident fires at 43% used, 83 min before the 92% stage.
   10-min sampling cannot beat a sudden provider-side change.
 - Not yet: Command Center card (owner-blockers ledger), dispatch-pause policy.
