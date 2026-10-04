@@ -8,6 +8,17 @@
 > Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
+## 2026-10-04 — CFO check: 34 h Claude blind spot, warned once
+
+- The Claude Max sampler got HTTP 429 from the usage endpoint on every run from
+  Oct 3 09:40 UTC to Oct 4 19:25 UTC. The burn alert sent one "monitoring
+  stale" warning at 10:43 UTC and nothing more; three Claude pools had no burn
+  detection for 34 h. Ticket #133 (PR open, Engineering Lead review): stale
+  monitoring escalates to critical at 6 h, names the collector to check,
+  announces recovery; `burn_alert.py --status` is the CFO check in one command.
+  Sampler back-off/re-login is a bamware-web follow-up. Deploy after merge:
+  refresh `~/code/worktrees/bamware-ai-main` to origin/main.
+
 ## 2026-10-03 (night) — Agents tab V3 live; services run from main
 
 - **Agents tab V3 deployed** (PR #114, Engineering Lead plan, reviewed and
