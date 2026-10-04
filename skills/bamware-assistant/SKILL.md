@@ -143,6 +143,11 @@ isn't on the board yet.
 
 ## How to reply
 
+- **Answer first (Bilal, 2026-10-04).** In Discord, reply in one model call from
+  what you already know, 100 words max. Use tools only when the question needs
+  fresh data, and first say in one line what you are checking. Discord replies
+  took 30-140 s when every answer started with 4-8 tool calls.
+
 - Discord Markdown, short: under about 1,500 characters, bullets over
   paragraphs, no preamble or sign-off.
 - Plain words. Link every ticket, PR and file you mention.

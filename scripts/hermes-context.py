@@ -45,7 +45,7 @@ def handle(payload, root):
     if not relevant and not mentioned:
         return {}
     try:
-        return snapshot(root)
+        return snapshot(root, compact=extra.get("platform") == "discord")
     except (OSError, subprocess.SubprocessError, UnicodeError):
         # Never echo Git stderr: a misconfigured remote can contain credentials.
         return {"context": "[BAMWARE_CONTEXT_BLOCKED] Cannot verify current canonical context. "
@@ -53,7 +53,13 @@ def handle(payload, root):
                 "Do not use a cached profile or assume old instructions are current."}
 
 
-def snapshot(root):
+ANSWER_FIRST = ("Discord answer-first rule (Bilal, 2026-10-04): reply in ONE model call from "
+                "this context, 100 words max. Use tools only when the question needs fresh data; "
+                "then first say in one line what you are checking. Never reconcile checkouts, "
+                "load skills or read STATE.md for a simple question.")
+
+
+def snapshot(root, compact=False):
     git(root, "fetch", "--quiet", "origin", "main")
     revision = git(root, "rev-parse", "FETCH_HEAD")
     def read(path):
@@ -67,6 +73,15 @@ def snapshot(root):
         "needed files with git show at the fetched revision. Never silently use stale skills."
     )
     edits = "LOCAL_EDITS_UNPUBLISHED" if dirty else "WORKTREE_CLEAN"
+    if compact:
+        # Chat replies need the rules, not the whole operating map: roughly a third of the
+        # full bootstrap, and no checkout reconciliation before answering (2026-10-04).
+        return {"context": "\n\n".join([
+            TAG, f"context: {marker}", ANSWER_FIRST,
+            f"Fetched revision: {revision}. For details, read files with git show at this "
+            "revision only when needed.",
+            "## Canonical AGENTS.md\n" + read("AGENTS.md"),
+        ])}
     return {"context": "\n\n".join([
         TAG, f"context: {marker}\nwrite-path: native git (push access not tested)",
         f"Canonical repo: {root}\nFetched revision: {revision}",
