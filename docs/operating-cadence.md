@@ -1,5 +1,10 @@
 # Three on-demand checkpoints — trial
 
+**Factory default rhythm (2026-10-04):** rolling 24h sprints — see
+`docs/factory-cadence.md`. Prepaid capacity steer: `docs/cfo-capacity-analytics.md`.
+These checkpoints remain the CEO on-demand review lenses; they do not pause
+eligible execution.
+
 Founder-approved trial starts **2026-10-03**, America/New_York (local date was
 2026-10-02 when “tomorrow” was agreed). This is an informal iteration rhythm,
 not meetings or engineering work hours. All checkpoints happen when the founder

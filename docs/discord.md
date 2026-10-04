@@ -1,19 +1,20 @@
 # Discord: Bamware status channel and assistant
 
-Set up 2026-09-24 so Bilal can see Bamware status at a glance. For now there is
-**one channel for everything** (Bilal's choice); split into #github /
-#ci-deploys / #agents later by adding webhooks.
+Set up 2026-09-24 so Bilal can see Bamware status at a glance.
+**Channel split (CEO, 2026-10-04):** more channels, less noise in CoS chat.
+Factory cadence: `docs/factory-cadence.md`.
 
 ## Channels
 
 - **Status channel** (the first one, webhook): GitHub events and agent
   milestone posts.
-- **`#bamware-bot`**: the Bamware personal assistant (`skills/bamware-assistant`).
-  Chat with it, and the morning briefing, evening recap and deadline
-  reminders post here as the bot, so Bilal can reply to them. Scripts choose
-  it with `BAMWARE_POST_TO=assistant` (the default in the digest and deadline
-  scripts) and fall back to the status webhook when the bot token or
-  `DISCORD_ASSISTANT_CHANNEL` is missing.
+- **`#bamware-bot`**: Chief of Staff ↔ CEO only (decisions, short status).
+  Critical owner alerts still land here. Digests/deadlines may post here so
+  Bilal can reply; prefer moving routine job noise to `#cron`.
+- **`#cron`**: scheduled job / CFO snapshot noise; optional CEO read. CoS
+  consumes and surfaces actions on status. Bot posts via
+  `BAMWARE_POST_TO=cron` + `DISCORD_CRON_CHANNEL` (see
+  `scripts/cfo-capacity-snapshot.sh`).
 
 ## What posts there
 
