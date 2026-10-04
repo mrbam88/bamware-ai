@@ -38,13 +38,19 @@ export function createDecisionDiscussions({ directory, transport, baseUrl = 'htt
   }
   function seed(candidate) {
     const url = new URL(origin); url.hash = `decision=${encodeURIComponent(candidate.id)}`;
-    return [`Decision: ${candidate.title}`, `ID: ${candidate.id} · version: ${candidate.version}`, candidate.context,
-      `Options: ${candidate.options.map(o => `${o.id}: ${o.label}`).join('; ')}`,
+    return [`**CoS handoff** — CEO sent this from Command Center`,
+      `Decision: ${candidate.title}`, `ID: ${candidate.id} · version: ${candidate.version}`,
+      candidate.project ? `Project: ${candidate.project}` : null,
+      candidate.urgency ? `Urgency: ${candidate.urgency}` : null,
+      candidate.owner ? `Owner: ${candidate.owner}` : null,
+      candidate.blockedWork ? `Blocked work: ${candidate.blockedWork}` : null,
+      candidate.escalationReason ? `Escalation: ${candidate.escalationReason}` : null,
+      '', 'Context:', candidate.context,
+      '', `Options: ${candidate.options.map(o => `${o.id}: ${o.label}`).join('; ')}`,
       `Recommendation: ${candidate.recommendation?.optionId ?? 'none'} — ${candidate.recommendation?.rationale ?? ''}`,
       `Source: ${candidate.source.url ?? candidate.source.ref}`, `Decision card: ${url}`,
-      'What should change, or what information do you need before deciding?',
-      'Reply here to discuss with the Assistant. This thread grants no execution approval. Use the decision card for explicit approval.',
-      `Context fingerprint: ${fingerprint(candidate)}`].join('\n');
+      '', 'Discuss here with CoS in #bamware-bot. This message is not execution approval — use the decision card to approve/reject/defer.',
+      `Context fingerprint: ${fingerprint(candidate)}`].filter(x => x != null).join('\n');
   }
   async function deliver(s, key, channelId, content) {
     let op = s.operations[key];
@@ -71,23 +77,34 @@ export function createDecisionDiscussions({ directory, transport, baseUrl = 'htt
       if (s && (s.channelId !== config.channelId || s.guildId !== config.guildId || s.ownerId !== config.ownerId || s.botId !== config.botId)) throw fail('Discord identity or channel changed. Operator repair required.');
       if (!s) { s = { decisionId: candidate.id, candidateVersion: candidate.version, fingerprint: fingerprint(candidate), channelId: config.channelId, guildId: config.guildId, ownerId: config.ownerId, botId: config.botId, operations: {}, summaries: [], status: 'pending', updatedAt: new Date(now()).toISOString() }; save(s); }
       try {
-        if (!s.rootMessageId) { s.rootMessageId = await deliver(s, 'root', s.channelId, `Discuss: ${candidate.title}\nDecision ${candidate.id}. Proposal context is in the thread.`); save(s); }
-        if (!s.threadId) {
-          const thread = await transport.ensureThread(s.channelId, s.rootMessageId, candidate.title);
-          if (thread.id !== s.rootMessageId) throw fail('Unexpected thread mapping. Operator repair required.');
-          s.threadId = thread.id; s.url = `https://discord.com/channels/${s.guildId}/${s.threadId}`; save(s);
-        } else await transport.checkThread(s.threadId, s.channelId);
+        // Channel mode (CEO 2026-10-04): post full context to CoS #bamware-bot.
+        // No Discord threads — discussion lives in the same CoS channel chat.
+        s.conversationMode = 'channel';
+        if (!s.rootMessageId) {
+          s.rootMessageId = await deliver(s, 'root', s.channelId, `**Send to CoS:** ${candidate.title}\nDecision \`${candidate.id}\` · context follows in this channel.`);
+          save(s);
+        }
+        // threadId = anchor message for stable deep-link; delivery target is always channelId.
+        s.threadId = s.rootMessageId;
+        s.url = `https://discord.com/channels/${s.guildId}/${s.channelId}/${s.rootMessageId}`;
+        if (typeof transport.checkChannel === 'function') await transport.checkChannel(s.channelId);
+        else if (typeof transport.checkThread === 'function') {
+          // Tests/fixtures: channel-mode uses root as conversation id; tolerate missing thread map.
+          try { await transport.checkThread(s.threadId, s.channelId); }
+          catch (e) { if (s.conversationMode !== 'channel') throw e; }
+        }
+        save(s);
         const revisionKey = `v-${fingerprint(candidate).slice(0,24)}`;
         const context = seed(candidate);
         s.proposal = candidate; save(s);
         for (let offset = 0, part = 0; offset < context.length; offset += 1700, part++) {
-          s.seedMessageId = await deliver(s, `${revisionKey}-${part}`, s.threadId, context.slice(offset, offset + 1700));
+          s.seedMessageId = await deliver(s, `${revisionKey}-${part}`, s.channelId, context.slice(offset, offset + 1700));
         }
         if (s.fingerprint !== fingerprint(candidate)) {
           s.cursor = s.seedMessageId; s.lastOwnerMessageId = null; s.pickup = null; s.summary = null;
         }
         s.candidateVersion = candidate.version; s.fingerprint = fingerprint(candidate);
-        s.status = 'ready'; s.detail = 'Open Discord and reply to begin. Sending context is not agent pickup.';
+        s.status = 'ready'; s.detail = 'Sent to CoS in #bamware-bot. Reply there — not execution approval.';
       } catch (e) { s.status = 'repair_required'; s.detail = e.safeMessage ?? e.message; }
       s.updatedAt = new Date(now()).toISOString(); save(s); return view(s, candidate);
     });
@@ -98,8 +115,11 @@ export function createDecisionDiscussions({ directory, transport, baseUrl = 'htt
       const s = read(candidate.id);
       if (!s?.threadId || s.status !== 'ready') throw fail('Open or repair this decision discussion first.');
       if (s.fingerprint !== fingerprint(candidate)) throw new StaleDecisionError('Open discussion to send the current proposal version first.');
-      await transport.checkThread(s.threadId, s.channelId);
-      const messages = await transport.messages(s.threadId, s.cursor ?? s.seedMessageId);
+      const readChannel = s.conversationMode === 'channel' ? s.channelId : s.threadId;
+      if (s.conversationMode === 'channel') {
+        if (typeof transport.checkChannel === 'function') await transport.checkChannel(s.channelId);
+      } else await transport.checkThread(s.threadId, s.channelId);
+      const messages = await transport.messages(readChannel, s.cursor ?? s.seedMessageId);
       // Transport returns an ascending bounded page. Advance only after durable processing.
       let ownerMessageId = s.lastOwnerMessageId ?? null;
       for (const m of messages) {

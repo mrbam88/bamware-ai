@@ -39,6 +39,14 @@ export function createDecisionDiscordTransport({ fetchImpl = fetch, config } = {
   }
   return {
     identity: getIdentity, checkThread,
+    /** Channel-mode CoS handoff: confirm the home text channel still exists. */
+    async checkChannel(id) {
+      const c = await getIdentity();
+      if (id !== c.channelId) throw Error('Discussion mapping mismatch. Operator repair required.');
+      const channel = await api(`/channels/${id}`);
+      if (channel.id !== id || channel.type !== 0 || channel.guild_id !== c.guildId) throw Error('Discussion mapping mismatch. Operator repair required.');
+      return channel;
+    },
     async ensureThread(parent, message, title) {
       try { return await checkThread(message, parent); }
       catch (e) { if (e.httpStatus !== 404) throw e; }

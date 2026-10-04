@@ -75,7 +75,8 @@ export function loadConfig(env = process.env) {
     ownerBlockersDir: get("ASSISTANT_WEB_OWNER_BLOCKERS_DIR", path.join(os.homedir(), ".local/state/bamware/owner-blockers")),
     handoffChecksEnabled: get("ASSISTANT_WEB_HANDOFF_CHECKS", "0") === "1",
     handoffChecksDir: get("ASSISTANT_WEB_HANDOFF_CHECKS_DIR", path.join(os.homedir(), ".local/state/bamware/handoff-checks")),
-    discussionsEnabled: get("ASSISTANT_WEB_DISCUSSIONS", "0") === "1",
+    // Default ON: Command Center "Send to CoS" posts decision context to #bamware-bot.
+    discussionsEnabled: get("ASSISTANT_WEB_DISCUSSIONS", "1") === "1",
     discussionsDir: get("ASSISTANT_WEB_DISCUSSIONS_DIR", path.join(os.homedir(), ".local/state/bamware/decision-discussions")),
     decisionsFile: get("ASSISTANT_WEB_DECISIONS_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.json")),
     decisionsDemoFile: get("ASSISTANT_WEB_DECISIONS_DEMO_FILE", path.join(os.homedir(), ".config", "bamware", "assistant-web-decisions.demo.json")),

@@ -459,25 +459,25 @@
     if (mode === "live") {
       const box = document.createElement("section"); box.className = "dc-discussion";
       const status = document.createElement("p"); status.setAttribute("role", "status");
-      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: reopen to update context" : d.discussion.status === "ready" ? "Discussion ready" : "Discussion needs attention"}. ${d.discussion.detail || ""}` : "Discuss in Discord. Discussion does not approve execution.";
+      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: resend to update CoS" : d.discussion.status === "ready" ? "Sent to CoS" : "CoS handoff needs attention"}. ${d.discussion.detail || ""}` : "Send this decision’s context to CoS in #bamware-bot. Not execution approval.";
       box.appendChild(status);
       function source(url, label) {
         if (!/^https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?$/.test(url || "")) return;
         const a = document.createElement("a"); a.href = url; a.textContent = label; a.target = "_blank"; a.rel = "noopener noreferrer"; box.appendChild(a);
       }
-      source(d.discussion?.url, "Open discussion in Discord ↗");
+      source(d.discussion?.url, "Open in #bamware-bot ↗");
       function control(label, endpoint) {
         const button = document.createElement("button"); button.type = "button"; button.textContent = label;
         button.addEventListener("click", async () => {
-          button.disabled = true; status.textContent = "Updating this discussion…";
+          button.disabled = true; status.textContent = "Sending to CoS…";
           try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/${endpoint}`, {candidateVersion: d.version}); await loadDecisions(); }
-          catch (e) { status.textContent = `Discussion unavailable: ${e.message}`; }
+          catch (e) { status.textContent = `Send to CoS failed: ${e.message}`; }
           finally { button.disabled = false; }
         }); box.appendChild(button);
       }
-      control(d.discussion ? "Reopen / repair discussion" : "Discuss in Discord", "discussion");
-      if (d.discussion?.threadId) control("Refresh discussion", "discussion/sync");
-      if (d.discussion?.pickup) { const p = document.createElement("p"); p.textContent = "Assistant reply observed; no worker execution implied."; box.appendChild(p); }
+      control(d.discussion ? "Resend / repair to CoS" : "Send to CoS", "discussion");
+      if (d.discussion?.threadId) control("Refresh CoS thread", "discussion/sync");
+      if (d.discussion?.pickup) { const p = document.createElement("p"); p.textContent = "CoS reply observed; no worker execution implied."; box.appendChild(p); }
       const summary = d.discussion?.summary;
       if (summary) {
         for (const text of [`Discussion proposal · version ${summary.candidateVersion} · not approved`, summary.summary, summary.proposedRevision ? `Proposed revision: ${summary.proposedRevision}` : "", "This proposal does not change the source decision. Revise the source and its version before approving changed work."]) { const p = document.createElement("p"); p.textContent = text; box.appendChild(p); }
