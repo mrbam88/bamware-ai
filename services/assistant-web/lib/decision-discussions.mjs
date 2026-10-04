@@ -49,7 +49,7 @@ export function createDecisionDiscussions({ directory, transport, baseUrl = 'htt
       '', `Options: ${candidate.options.map(o => `${o.id}: ${o.label}`).join('; ')}`,
       `Recommendation: ${candidate.recommendation?.optionId ?? 'none'} — ${candidate.recommendation?.rationale ?? ''}`,
       `Source: ${candidate.source.url ?? candidate.source.ref}`, `Decision card: ${url}`,
-      '', 'Discuss here with CoS in #bamware-bot. This message is not execution approval — use the decision card to approve/reject/defer.',
+      '', 'Discuss here with CoS / agents in #command-center. This message is not execution approval — use the decision card to approve/reject/defer.',
       `Context fingerprint: ${fingerprint(candidate)}`].filter(x => x != null).join('\n');
   }
   async function deliver(s, key, channelId, content) {
@@ -104,7 +104,7 @@ export function createDecisionDiscussions({ directory, transport, baseUrl = 'htt
           s.cursor = s.seedMessageId; s.lastOwnerMessageId = null; s.pickup = null; s.summary = null;
         }
         s.candidateVersion = candidate.version; s.fingerprint = fingerprint(candidate);
-        s.status = 'ready'; s.detail = 'Sent to CoS in #bamware-bot. Reply there — not execution approval.';
+        s.status = 'ready'; s.detail = 'Sent to #command-center. Reply there with CoS — not execution approval.';
       } catch (e) { s.status = 'repair_required'; s.detail = e.safeMessage ?? e.message; }
       s.updatedAt = new Date(now()).toISOString(); save(s); return view(s, candidate);
     });
