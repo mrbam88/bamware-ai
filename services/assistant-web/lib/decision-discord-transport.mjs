@@ -10,7 +10,10 @@ export function createDecisionDiscordTransport({ fetchImpl = fetch, config } = {
     try {
       const c = parseEnvFile(fs.readFileSync(path.join(os.homedir(), '.config/bamware/discord.env'), 'utf8'));
       const h = parseEnvFile(fs.readFileSync(path.join(os.homedir(), '.hermes/.env'), 'utf8'));
-      return { channelId: c.DISCORD_ASSISTANT_CHANNEL, ownerId: c.DISCORD_USER_ID, token: h.DISCORD_BOT_TOKEN };
+      // Command Center card discussions → #command-center; fall back to CoS home.
+      const channelId = c.DISCORD_DISCUSSION_CHANNEL || c.DISCORD_COMMAND_CENTER_CHANNEL || h.DISCORD_COMMAND_CENTER_CHANNEL
+        || c.DISCORD_ASSISTANT_CHANNEL || h.DISCORD_HOME_CHANNEL;
+      return { channelId, ownerId: c.DISCORD_USER_ID || h.DISCORD_ALLOWED_USERS?.split(',')[0], token: h.DISCORD_BOT_TOKEN };
     } catch { throw Object.assign(Error('Discord capability unavailable.'), { safeToRetry: true }); }
   }
   async function api(route, method = 'GET', body) {
@@ -39,6 +42,14 @@ export function createDecisionDiscordTransport({ fetchImpl = fetch, config } = {
   }
   return {
     identity: getIdentity, checkThread,
+    /** Channel-mode CoS handoff: confirm the home text channel still exists. */
+    async checkChannel(id) {
+      const c = await getIdentity();
+      if (id !== c.channelId) throw Error('Discussion mapping mismatch. Operator repair required.');
+      const channel = await api(`/channels/${id}`);
+      if (channel.id !== id || channel.type !== 0 || channel.guild_id !== c.guildId) throw Error('Discussion mapping mismatch. Operator repair required.');
+      return channel;
+    },
     async ensureThread(parent, message, title) {
       try { return await checkThread(message, parent); }
       catch (e) { if (e.httpStatus !== 404) throw e; }

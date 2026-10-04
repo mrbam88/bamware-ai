@@ -4,17 +4,21 @@ Set up 2026-09-24 so Bilal can see Bamware status at a glance.
 **Channel split (CEO, 2026-10-04):** more channels, less noise in CoS chat.
 Factory cadence: `docs/factory-cadence.md`.
 
-## Channels
+## Channels (CEO layout 2026-10-04)
 
-- **Status channel** (the first one, webhook): GitHub events and agent
-  milestone posts.
-- **`#bamware-bot`**: Chief of Staff ↔ CEO only (decisions, short status).
-  Critical owner alerts still land here. Digests/deadlines may post here so
-  Bilal can reply; prefer moving routine job noise to `#cron`.
-- **`#cron`**: scheduled job / CFO snapshot noise; optional CEO read. CoS
-  consumes and surfaces actions on status. Bot posts via
-  `BAMWARE_POST_TO=cron` + `DISCORD_CRON_CHANNEL` (see
-  `scripts/cfo-capacity-snapshot.sh`).
+| Channel | Purpose |
+|---|---|
+| **`#general`** / status webhook | GitHub events, high-level milestones |
+| **`#chief-of-staff`** | CEO ↔ CoS: status, adhoc, unblock (was `#bamware-bot`) |
+| **`#command-center`** | Command Center decision-card discussion (web CC → here) |
+| **`#cron`** | Scheduled job / CFO snapshot noise; optional read |
+| **`#scrum-master`** | SM delivery / board / overnight (agent home) |
+| **`#engineering-lead`** | EL PR/quality (agent home) |
+
+Env (private machines): `DISCORD_HOME_CHANNEL` + `DISCORD_ASSISTANT_CHANNEL` = CoS;
+`DISCORD_COMMAND_CENTER_CHANNEL` / `DISCORD_DISCUSSION_CHANNEL` = CC cards;
+`DISCORD_CRON_CHANNEL`; `DISCORD_SCRUM_MASTER_CHANNEL`; `DISCORD_ENGINEERING_LEAD_CHANNEL`.
+
 
 ## What posts there
 
