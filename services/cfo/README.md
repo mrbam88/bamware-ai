@@ -11,7 +11,8 @@ must not spend the allowance it protects. Owner: CFO (`docs/bamware-agent-operat
 | Collect Claude Max meters | bamware-web `ai-quota-sample.ts` (Claude Code's `/usage` endpoint) → `ai-quota-samples.jsonl` (`AI_QUOTA_SAMPLES_PATH`) | every 10 min |
 | Collect Copilot premium quota | `burn_alert.py` → `gh api /copilot_internal/user` | every run |
 | Evaluate, persist, alert | `bamware-cfo-burn-alert.timer` → `burn_alert.py` | every 10 min, 3 min after the collector |
-| Deliver | `scripts/discord-post.sh` (`BAMWARE_POST_TO=assistant`, #bamware-bot) | on escalation |
+| Deliver (alerts) | `scripts/discord-post.sh` (`BAMWARE_POST_TO=assistant`, #bamware-bot) | on escalation |
+| CoS capacity brief | `scripts/cfo-capacity-snapshot.sh` → stdout or `#cron` (`BAMWARE_POST_TO=cron`) | on demand / optional timer |
 
 State: `~/.local/state/bamware/cfo/state.json` (per-window history, sent level,
 pending retries). Delivery log: `cfo/alerts.jsonl` records every attempt and
