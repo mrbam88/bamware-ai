@@ -57,7 +57,7 @@ pacing:
 # Current assignments. Unpinned Hermes cron jobs fall back to the profile
 # default and are skipped if that default changes, so always pin.
 assignments:
-  - {who: "Hermes cron: Interview Tracker - application monitoring", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03}
-  - {who: "Hermes cron: Interview Tracker - historical audit batches", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "move to claude-haiku-4.5 if matching quality drops"}
+  - {who: "Hermes cron: Interview Tracker - application monitoring", tier: small, provider: xai-oauth, model: grok-4.5, schedule: "every 2 h, 8-20", since: 2026-10-04, note: "moved off Copilot (52 runs, 12.9M tokens in 2 days); founder prefers not to spend Copilot"}
+  - {who: "Hermes cron: Interview Tracker - historical audit batches", tier: small, provider: xai-oauth, model: grok-4.5, since: 2026-10-04}
   - {who: "Overnight Mode workers (run-engineer.py)", tier: mid, model: sonnet}
   - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: mid, provider: xai-oauth, model: grok-4.5, since: 2026-10-03, note: "moved off gpt-6-astra; was 19.4M tokens in 2 days"}
