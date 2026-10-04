@@ -27,9 +27,9 @@ class Harness:
         self.sent.append(text)
         return True
 
-    def feed(self, observations, now=None, error=None, verifier=None):
+    def feed(self, observations, now=None, error=None, verifier=None, name='test'):
         now = now if now is not None else max(o['observed_at'] for o in observations)
-        return ba.run(self.dir, {'test': lambda: (observations, error)}, self.sender, now, verifier=verifier)
+        return ba.run(self.dir, {name: lambda: (observations, error)}, self.sender, now, verifier=verifier)
 
 
 class BurnAlertTests(unittest.TestCase):
@@ -73,6 +73,67 @@ class BurnAlertTests(unittest.TestCase):
         h.feed([obs(T0, 40)])
         h.feed([], now=T0 + 45 * 60, error='snapshot unreadable')
         self.assertTrue(any('monitoring stale' in s for s in h.sent))
+
+    def test_prolonged_stale_source_escalates_to_critical_once(self):
+        # 2026-10-03: the Claude sampler was dark for 34 h and the CFO warned exactly once.
+        h = Harness()
+        h.feed([obs(T0, 40, key='test:pool')])
+        for minutes in (45, 180, 420, 480):
+            h.feed([], now=T0 + minutes * 60, error='samples stale')
+        self.assertEqual(len(h.sent), 2)
+        self.assertIn('monitoring stale (warn)', h.sent[0])
+        self.assertIn('monitoring stale (critical)', h.sent[1])
+        self.assertIn('Last known: Test pool 40%', h.sent[1])
+        self.assertIn('7.0 h', h.sent[1])
+
+    def test_monitoring_recovery_is_announced_once(self):
+        h = Harness()
+        h.feed([obs(T0, 40, key='test:pool')])
+        h.feed([], now=T0 + 45 * 60, error='samples stale')
+        outcome = h.feed([obs(T0 + 2 * 3600, 41, key='test:pool')])
+        self.assertEqual(outcome, [('monitor:test', 'restored')])
+        self.assertIn('monitoring restored', h.sent[-1])
+        self.assertIn('after 2.0 h blind. Now: Test pool 41%', h.sent[-1])
+        h.feed([obs(T0 + 2 * 3600 + 600, 41, key='test:pool')])
+        self.assertEqual(len(h.sent), 2)                # warn, restored; nothing more
+        self.assertNotIn('monitor:test', ba.load_state(h.dir)['alerts'])
+        log = [json.loads(l) for l in (h.dir / 'alerts.jsonl').read_text().splitlines()]
+        self.assertEqual([e['level'] for e in log], ['warn', 'restored'])
+        h.feed([], now=T0 + 4 * 3600, error='samples stale')   # a new outage alerts again
+        self.assertEqual(len(h.sent), 3)
+
+    def test_stale_alert_names_the_collector_to_check(self):
+        h = Harness()
+        h.feed([obs(T0, 50, key='claude-max:weekly')], name='claude-max')
+        h.feed([], now=T0 + 45 * 60, error='claude samples stale', name='claude-max')
+        self.assertIn('journalctl --user -u ai-quota-sample.service', h.sent[0])
+        self.assertIn('Nothing was switched automatically', h.sent[0])
+
+    def test_capacity_marks_a_dark_source(self):
+        h = Harness()
+        h.feed([obs(T0, 40)])
+        h.feed([], now=T0 + 2 * 3600, error='down')
+        source = json.loads((h.dir / 'capacity.json').read_text())['sources']['test']
+        self.assertIs(source['stale'], True)
+        self.assertEqual(source['blind_h'], 2.0)
+        h.feed([obs(T0 + 3 * 3600, 40)])
+        source = json.loads((h.dir / 'capacity.json').read_text())['sources']['test']
+        self.assertIs(source['stale'], False)
+
+    def test_status_prints_sources_and_pools_without_touching_state(self):
+        h = Harness()
+        h.feed([obs(T0, 96, key='hot'), obs(T0, 30, key='calm')])
+        h.feed([], now=T0 + 2 * 3600, error='down')
+        before = (h.dir / 'state.json').read_text()
+        lines = []
+        ba.print_status(h.dir, now=T0 + 2 * 3600, out=lines.append)
+        self.assertIn('source test: STALE 2.0 h', lines[1])
+        self.assertTrue(lines[2].startswith('critical  96.0%'))
+        self.assertIn('STALE, sent critical', lines[2])
+        self.assertEqual((h.dir / 'state.json').read_text(), before)
+        empty = []
+        ba.print_status(Path(tempfile.mkdtemp()), out=empty.append)
+        self.assertIn('has not run', empty[0])
 
     def test_reset_rollover_starts_new_trend(self):
         h = Harness()

@@ -156,6 +156,27 @@ agents shipped by copying or branching to get unblocked, and no review asked
 executor now runs from `main` with batch facts in `finalize.json`. Remaining
 collisions (3–5) are tracked as their own ticket.
 
+## 2026-10-03 — the monitor went dark for 34 h and said so once
+
+The CFO burn alert (#101) went live on 2026-10-03 to catch quota spikes. Four
+hours later its Claude Max source died: the sampler got HTTP 429 from the usage
+endpoint on every 10-minute run until a manual run on 2026-10-04 19:25 UTC. The
+detector noticed within the hour and sent one "monitoring stale" warning at
+06:43 local time. Then every run for 33 hours logged `monitor:claude-max: None`
+and sent nothing. A spike on any Claude pool in that window would have gone
+unalerted, exactly the failure #101 was built against.
+
+Nothing looked wrong: the timer ran, the OpenAI alert was current, the Agents
+tab showed numbers. The one warning was correct and insufficient: an alert that
+asks for action and is not acted on must escalate, and the end of a blind spot
+must be announced, or nobody knows whether the system is watching.
+
+**Rules it produced:** stale monitoring escalates to critical at 6 h, names the
+last known reading and the collector to check, and sends a "restored" line
+when data returns (#133, `services/cfo/README.md`). The CFO check is one
+command, `burn_alert.py --status`, so "is the monitor alive" is never a
+hand-read of `state.json` again.
+
 ## The pattern
 
 Every one of these was a *copy* diverging from its source — or an agent

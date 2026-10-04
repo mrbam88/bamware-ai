@@ -24,6 +24,7 @@ POLICY = {
     'rate_window_min': 60.0,     # burn rate is measured over the trailing hour
     'rate_min_span_min': 15.0,   # ...from samples spanning at least this long
     'stale_after_min': 30.0,     # newest sample older than this = monitoring stale
+    'stale_critical_after_h': 6.0,  # blind this long = critical: a dark collector must not hide for a day
     'history_h': 48.0,
     'max_delivery_attempts': 5,
     # Self-verification: every forecast is graded against the API's later reading.
@@ -142,6 +143,13 @@ def copilot_source(run=subprocess.run, now=None):
 
 
 SOURCES = {'openai-codex': openai_source, 'claude-max': claude_source, 'copilot': copilot_source}
+# What to run when a source goes dark. The detector cannot see inside the collectors, so the
+# alert names the place that can (2026-10-03: the Claude sampler got 429s for 34 h; one warning).
+SOURCE_HINTS = {
+    'openai-codex': 'journalctl --user -u ai-quota-sample.service -n 20 (collect-server-quota.py runs first)',
+    'claude-max': 'journalctl --user -u ai-quota-sample.service -n 20 (429 = Claude /usage rate-limited; login expired = claude /login)',
+    'copilot': 'gh auth status (burn_alert.py reads gh api /copilot_internal/user)',
+}
 
 
 # --- state -------------------------------------------------------------------
@@ -335,6 +343,33 @@ def message(window, a, policy=POLICY, accuracy=None):
     return '\n'.join(lines)
 
 
+def source_pools(state, name):
+    """The windows one source feeds, each with its last known reading: (label, used_pct, observed_at)."""
+    return [(w['label'], w['samples'][-1][1], w['samples'][-1][0])
+            for key, w in state['windows'].items() if key.startswith(name + ':') and w['samples']]
+
+
+def last_known(pools):
+    return '; '.join(f"{label} {used:.0f}%" for label, used, _ in pools) or 'nothing recorded yet'
+
+
+def monitor_message(name, error, blind_h, level, pools, since, policy=POLICY):
+    icon = '🚨' if level == 'critical' else '⚠️'
+    lines = [f"{icon} **CFO monitoring stale ({level})**: {name} has had no fresh quota data for {hours(blind_h)}"
+             f" (since {clock(since)}): {error}. Burn alerts for it are blind.",
+             f"- Last known: {last_known(pools)}" + (f" (as of {clock(max(p[2] for p in pools))})" if pools else '')]
+    if level == 'critical':
+        lines.append(f"- Blind for over {policy['stale_critical_after_h']:.0f} h: a spike on these pools would go unalerted. Fix the collector now.")
+    if name in SOURCE_HINTS:
+        lines.append(f"- Check: {SOURCE_HINTS[name]}")
+    lines.append('- Nothing was switched automatically.')
+    return '\n'.join(lines)
+
+
+def restored_message(name, blind_h, pools):
+    return f"✅ **CFO monitoring restored**: {name} is reporting again after {hours(blind_h)} blind. Now: {last_known(pools)}."
+
+
 def deliver(text, sender):
     try:
         return sender(text), None
@@ -387,18 +422,27 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
     for name, source in (sources if sources is not None else SOURCES).items():
         observations, error = source()
         status = state['sources'].setdefault(name, {})
+        previous_ok = status.get('last_ok', now)
         status.update(last_run=now, last_error=error)
         if observations and not error:
             status['last_ok'] = now
         status.setdefault('last_ok', now)  # first sighting starts the stale clock
         for obs in observations:
             record(state, obs, policy)
-        # Monitoring itself going dark is an alert, not a calm day.
-        if error and now - status.get('last_ok', now) > policy['stale_after_min'] * 60:
-            text = f"⚠️ **CFO monitoring stale**: {name} has had no fresh quota data since {clock(status['last_ok'])} ({error}). Burn alerts for it are blind."
-            results.append((f'monitor:{name}', notify(state, state_dir, f'monitor:{name}', 'warn', None, text, sender, now, policy)))
+        # Monitoring itself going dark is an alert, not a calm day. It escalates: a warning nobody
+        # acts on must become a critical, and the end of the blind spot must be announced.
+        monitor_key, blind_h = f'monitor:{name}', (now - status['last_ok']) / 3600
+        if error and blind_h * 60 > policy['stale_after_min']:
+            level = 'critical' if blind_h >= policy['stale_critical_after_h'] else 'warn'
+            text = monitor_message(name, error, blind_h, level, source_pools(state, name), status['last_ok'], policy)
+            results.append((monitor_key, notify(state, state_dir, monitor_key, level, None, text, sender, now, policy)))
         elif not error:
-            state['alerts'].pop(f'monitor:{name}', None)
+            if state['alerts'].pop(monitor_key, {}).get('sent_level', 'ok') != 'ok':
+                # One attempt, logged either way: the alert said "blind", so say when sight returns.
+                ok, failure = deliver(restored_message(name, (now - previous_ok) / 3600, source_pools(state, name)), sender)
+                log_event(state_dir, {'at': now, 'key': monitor_key, 'level': 'restored', 'attempt': 1,
+                                      'delivered': bool(ok), 'error': failure})
+                results.append((monitor_key, 'restored' if ok else 'failed'))
     try:
         reading = verifier() if verifier else None
     except (OSError, ValueError):
@@ -441,11 +485,33 @@ def publish_capacity(state_dir, pools, sources, now, policy=POLICY):
     doc = {'version': 1, 'generated_at': now,
            'policy': {k: policy[k] for k in ('reserve_used_pct', 'warn_used_pct', 'critical_used_pct')},
            'pools': sorted(pools, key=lambda p: (-LEVELS[p['level']], -p['used_pct'])),
-           'sources': {name: {'last_ok': s.get('last_ok'), 'last_error': s.get('last_error')} for name, s in sources.items()}}
+           'sources': {name: {'last_ok': s.get('last_ok'), 'last_error': s.get('last_error'),
+                              'blind_h': round((now - s.get('last_ok', now)) / 3600, 2),
+                              'stale': now - s.get('last_ok', now) > policy['stale_after_min'] * 60}
+                       for name, s in sources.items()}}
     tmp = state_dir / 'capacity.json.tmp'
     tmp.write_text(json.dumps(doc, indent=1) + '\n')
     tmp.chmod(0o600)
     tmp.replace(state_dir / 'capacity.json')
+
+
+def print_status(state_dir, now=None, out=print):
+    """The CFO check in one command: every source's health and every pool, read from capacity.json."""
+    try:
+        doc = json.loads((state_dir / 'capacity.json').read_text())
+    except (OSError, ValueError):
+        out('no capacity.json yet: the detector has not run')
+        return
+    now = now if now is not None else datetime.now(timezone.utc).timestamp()
+    out(f"capacity as of {clock(doc['generated_at'])} ({hours((now - doc['generated_at']) / 3600)} ago)")
+    for name, s in doc.get('sources', {}).items():
+        health = f"STALE {hours(s['blind_h'])}" if s.get('stale') else 'ok'
+        out(f"source {name}: {health}, last fresh {clock(s['last_ok'])}" + (f", error: {s['last_error']}" if s.get('last_error') else ''))
+    for p in doc.get('pools', []):
+        rate = f"{p['rate_pct_h']:+.1f}%/h" if p.get('rate_pct_h') is not None else 'rate unknown'
+        eta = f", reserve in {hours(p['eta_reserve_h'])}" if p.get('eta_reserve_h') is not None else ''
+        out(f"{p['level']:8} {p['used_pct']:5.1f}%  {p['label']}: {rate}{eta}, resets in {hours(p.get('to_reset_h'))}"
+            + (', STALE' if p.get('stale') else '') + f", sent {p.get('sent_level', 'ok')}")
 
 
 def replay(fixture_path, policy=POLICY):
@@ -471,9 +537,12 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='print alerts instead of posting')
     parser.add_argument('--replay', type=Path, help='replay a synthetic fixture; never posts')
     parser.add_argument('--calibration', action='store_true', help='print forecast accuracy and cross-checks')
+    parser.add_argument('--status', action='store_true', help='every source and pool from capacity.json; the CFO check')
     args = parser.parse_args()
     if args.replay:
         return replay(args.replay)
+    if args.status:
+        return print_status(args.state_dir)
     if args.calibration:
         state = load_state(args.state_dir)
         for key, calibration in state.get('calibration', {}).items():
