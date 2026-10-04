@@ -428,7 +428,7 @@ Blocks current work: No
 [Yes] [No] [Ask why]
 ```
 
-A CEO response must become durable organizational state, not another chat message.
+A CEO response must become durable organizational state, not another chat message. To ensure CEO requests are findable and traceable, every CEO-originated instruction or question must have an associated GitHub issue in mrbam88/bamware-ai. If no issue exists when the CEO asks, the Scrum Master will create one immediately in the repo with the title prefixed by "CEO Request:" and include timestamps, the executing machine (e.g. X1), and receipt paths. The issue number is the canonical lookup handle for that request. The Chief of Staff and Scrum Master will not route CEO messages as ephemeral chat-only items; they become the item's comment history. This change enforces discoverability and a single source of truth. (Policy update — Scrum Master, 2026-10-04)
 
 A decision should record:
 
