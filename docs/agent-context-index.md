@@ -14,6 +14,7 @@
 | App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
 | Current state | STATE.md |
 | Factory cadence (rolling 24h sprints) | docs/factory-cadence.md |
+| Spaces steal list (ideas only) | docs/spaces-steal-list.md |
 | CFO capacity analytics (prepaid pools) | docs/cfo-capacity-analytics.md |
 | Three on-demand checkpoints / batch continuity | docs/operating-cadence.md |
 | CRM | docs/bamware-crm.md |
