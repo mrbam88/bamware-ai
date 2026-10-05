@@ -220,10 +220,13 @@ export function deriveSystem({ estop }, work, needsYou) {
   }
   if (work.running.some((t) => t.state === "running" || t.state === "stalled")) {
     const active = work.running.find((t) => t.state !== "queued");
-    return { state: active.state === "stalled" ? "attention" : "running", title: active.state === "stalled" ? "A run looks stalled" : `Working on ${active.ticket ?? active.task}`,
-      detail: `${work.running.filter((t) => t.state === "queued").length} queued`, since: active.startedAt, waiting };
+    const nQ = work.running.filter((t) => t.state === "queued").length;
+    if (active.state === "stalled") {
+      return { state: "attention", title: "FACTORY STALLED", detail: `Stuck on ${active.ticket ?? active.task}`, since: active.startedAt, waiting };
+    }
+    return { state: "running", title: "FACTORY BUILDING", detail: `Now: ${active.ticket ?? active.task}${nQ ? ` · ${nQ} queued` : ""}`, since: active.startedAt, waiting };
   }
-  if (waiting) return { state: "awaiting", title: `Waiting on you (${waiting})`, detail: "Nothing is running; the next step needs your decision.", since: null, waiting };
+  if (waiting) return { state: "awaiting", title: "WAITING ON YOU", detail: `${waiting} decision(s) block the line — nothing building until then.`, since: null, waiting };
   return { state: "idle", title: "Idle", detail: "Nothing running and nothing waiting on you.", since: null, waiting };
 }
 

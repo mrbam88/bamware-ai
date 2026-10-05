@@ -218,3 +218,12 @@ a.rowTitle:hover { text-decoration: underline; }
 .chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; background: var(--user); color: var(--muted); }
 .chip.strong { color: var(--ink); font-weight: 700; }
 .warnText { color: var(--warn); }
+
+/* CEO factory light — unmistakable building indicator */
+.banner { padding: 18px 16px; border-left-width: 6px; }
+.bannerDot { width: 18px; height: 18px; }
+.banner[data-state="running"] .bannerDot { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent); }
+.bannerTitle { font-size: 20px; letter-spacing: 0.02em; }
+.banner[data-state="running"] .bannerTitle { color: var(--accent); }
+.banner[data-state="idle"] .bannerTitle { color: var(--muted); }
+.banner[data-state="awaiting"] .bannerTitle { color: var(--warn); }
