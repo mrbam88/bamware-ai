@@ -32,3 +32,4 @@ Paths above are relative to the repository root. Start with `AGENTS.md` for mand
 
 | BrewDesk 3-week sprint roadmap | docs/brewdesk-sprint-roadmap.md |
 | BrewDesk post-MVP doctrine | docs/brewdesk-post-mvp-doctrine.md |
+| CFO burst policy (dynamic intelligence) | docs/cfo-burst-policy.md |

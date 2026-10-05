@@ -5,7 +5,7 @@
 # reorders them from live quota (server-quota.json / codex-quota.json),
 # reset times, cost and observed quality. New spend or accounts need the CEO.
 version: 1
-updated: 2026-10-03
+updated: 2026-10-05
 
 tiers:
   top:
@@ -54,6 +54,26 @@ pacing:
   warn_at_pct: [50, 80, 95]       # of a weekly window; 95 = small tier only
   near_limit: shift to the next provider in the tier, else drop a tier, else pause non-urgent work
 
+
+# Burst mode (docs/cfo-burst-policy.md) — temporary top-tier on a lane.
+burst:
+  max_concurrent: 2
+  max_minutes: 60
+  max_burst_hours_per_day: 3
+  state_file: "~/.local/state/bamware/cfo/bursts.json"
+  # Provider preference under current headroom (CFO updates when pools move)
+  top_prefer_now:
+    - {provider: anthropic, model: fable, harness: claude-code, note: "Claude Max Fable headroom"}
+    - {provider: anthropic, model: opus, harness: claude-code}
+    - {provider: xai-oauth, model: grok-4.5}
+    - {provider: openai-codex, model: gpt-6-astra, note: "DEFER while Codex weekly critical"}
+  commands:
+    - burst marketing
+    - burst eng
+    - burst cos
+    - burst off
+    - burst status
+
 # Current assignments. Unpinned Hermes cron jobs fall back to the profile
 # default and are skipped if that default changes, so always pin.
 assignments:
@@ -61,4 +81,5 @@ assignments:
   - {who: "Hermes cron: Interview Tracker - historical audit batches", tier: small, provider: xai-oauth, model: grok-4.5, since: 2026-10-04}
   - {who: "Overnight Mode workers (run-engineer.py)", tier: mid, model: sonnet}
   - {who: "Hermes cron: Scrum Master - board sweep (85076cec9bb9), scrum-master profile", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "#98; summarizes deterministic collector output only, no tool calls"}
-  - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: mid, provider: xai-oauth, model: grok-4.5, since: 2026-10-03, note: "moved off gpt-6-astra; was 19.4M tokens in 2 days"}
+  - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: mid, provider: xai-oauth, model: grok-4.5, since: 2026-10-03, note: "steady mid; burst cos → top when CEO spikes; see cfo-burst-policy"}
+  - {who: "Hermes profile marketing", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-05, note: "steady; burst marketing → top for game plans"}
