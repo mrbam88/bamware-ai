@@ -29,3 +29,5 @@
 | Assistant website | docs/assistant-website.md |
 
 Paths above are relative to the repository root. Start with `AGENTS.md` for mandatory policies.
+
+| BrewDesk 3-week sprint roadmap | docs/brewdesk-sprint-roadmap.md |
