@@ -1,0 +1,28 @@
+# Scrum Master profile (bamware-ai#98). Role: docs/bamware-agent-operating-system-prd.md
+# Model comes from the CFO routing policy (config/model-routing.yaml), small tier.
+model:
+  provider: copilot
+  default: gpt-5-mini
+skills:
+  external_dirs:
+    - /home/bilal/code/worktrees/bamware-ai-main/skills
+hooks:
+  pre_llm_call:
+    - command: /usr/bin/python3 /home/bilal/code/worktrees/bamware-ai-main/scripts/hermes-context.py
+      timeout: 30
+onboarding:
+  seen:
+    profile_build_offered: true
+_config_version: 33
+session_reset:
+  mode: idle
+  idle_minutes: 240
+plugins:
+  enabled:
+    - observability/langfuse
+  disabled: []
+memory:
+  write_approval: true
+terminal:
+  # Real HOME for tools (gh keyring, ~/.local/state receipts); Hermes state stays in the profile.
+  home_mode: real
