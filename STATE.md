@@ -1369,19 +1369,14 @@ assets, not because this work is queued.
 - Remaining App Store gates: physical location states, production logging
   confirmation, questionnaires, submission
 
-**Google Play — deadline 2026-09-30 (Human-only, ~5 min):** Android developer
-verification. Register `io.bamware.brewdesk` + its signing key in Play Console
-("Register your apps and signing keys"); Play-distributed apps are pre-filled,
-Bilal reviews + confirms. Unregistered apps are removed from Play globally after
-2026-09-30. Final-reminder mail 2026-08-31.
+**Google Play package/key registration — CLOSED 2026-10-05 (Bilal):** CEO cleared the Android Play Console register-`io.bamware.brewdesk` + signing-key ticket. Removed from deadlines. Production gate / tester clock still separate if Android unparks later.
 **Play production gate confirmed 2026-09-08:** personal account → closed test
 with ≥12 opted-in testers for ≥14 consecutive days, then "Apply for access to
 production" questionnaire. Status: 0 testers opted in. Clock has NOT started.
 Earliest production ≈ 14 days after the 12th tester opts in.
 **Decision 2026-09-08 (Bilal): Android PARKED.** No tester hunt, no org
 account, no self-made tester accounts (ToS violation, account-ban risk).
-Revisit after Apple approves. Only Android to-do before then: the 2026-09-30
-package/key registration above. No Play review-outcome email has
+Revisit after Apple approves. Package/key registration closed 2026-10-05. No Play review-outcome email has
 arrived since the 2026-08-31 submission (checked 2026-09-08).
 
 **Infra / credentials — not blocking BrewDesk:**
