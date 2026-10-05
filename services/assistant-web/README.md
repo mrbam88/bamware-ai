@@ -58,6 +58,24 @@ locked PR43 collector worktree: its existing data/capabilities are read in place
 | `GET /api/sessions/:id/export` | cookie | `hermes sessions export --format jsonl -` (download) |
 | `DELETE /api/sessions/:id` | cookie | `hermes sessions delete --yes` |
 
+### Decision card copy rules (bamware-ai#141)
+
+Decision candidates in `lib/providers/decision-candidates.mjs` are written for
+a CEO scanning the Command Center on a phone, not for an engineer re-deriving
+context:
+
+- `title`: the decision in plain English.
+- `summary`: one plain-English sentence, no jargon, no ids/ticket numbers —
+  this is what renders on the card face under the title.
+- `blockedWork`: short bullets, ~50 words total, plain language.
+- `context`: the full source-grounded paragraph (issue refs, verification
+  detail, etc.) still lives here for audit/trust, but the UI tucks it behind
+  a collapsed "Full details" control instead of showing it by default.
+
+`summary` is optional on the candidate shape (`assertValidCandidate` only
+validates it when present) so older dynamically-created ledger candidates
+keep rendering; add one on every new hand-curated candidate.
+
 `sessionId` is the Hermes session id; send it back to continue the same
 conversation. Langfuse groups traces under that same id (trace name
 "Hermes turn", environment tag `assistant-web`), so `trace.langfuseSessionId`

@@ -410,6 +410,41 @@
     head.appendChild(badges);
     li.appendChild(head);
 
+    // Plain-English one-liner for the card face; full jargon-y context moves
+    // into a collapsed <details> below so a CEO can scan title+summary+
+    // bullets without reading the source-grounding paragraph first.
+    if (d.summary) {
+      const summary = document.createElement("p");
+      summary.className = "dc-summary";
+      summary.textContent = d.summary;
+      li.appendChild(summary);
+    }
+
+    if (d.recommendation) {
+      const rec = document.createElement("div");
+      rec.className = "dc-recommendation";
+      const opt = (d.options || []).find((o) => o.id === d.recommendation.optionId);
+      rec.textContent = `Recommendation: ${opt ? opt.label : d.recommendation.optionId} — ${d.recommendation.rationale}`;
+      li.appendChild(rec);
+    }
+
+    if (d.blockedWork && d.blockedWork.length) {
+      const blocked = document.createElement("div");
+      blocked.className = "dc-blocked";
+      const label = document.createElement("span");
+      label.className = "dc-blocked-label";
+      label.textContent = "Blocked work";
+      blocked.appendChild(label);
+      const list = document.createElement("ul");
+      for (const item of d.blockedWork) {
+        const row = document.createElement("li");
+        row.textContent = item;
+        list.appendChild(row);
+      }
+      blocked.appendChild(list);
+      li.appendChild(blocked);
+    }
+
     const meta = document.createElement("div");
     meta.className = "dc-meta";
     const sourceText = d.source && d.source.url
@@ -428,24 +463,27 @@
       li.appendChild(link);
     }
 
-    const context = document.createElement("div");
-    context.className = "dc-context";
-    context.textContent = d.context;
-    li.appendChild(context);
-
-    if (d.recommendation) {
-      const rec = document.createElement("div");
-      rec.className = "dc-recommendation";
-      const opt = (d.options || []).find((o) => o.id === d.recommendation.optionId);
-      rec.textContent = `Recommendation: ${opt ? opt.label : d.recommendation.optionId} — ${d.recommendation.rationale}`;
-      li.appendChild(rec);
-    }
-
-    if (d.blockedWork && d.blockedWork.length) {
-      const blocked = document.createElement("div");
-      blocked.className = "dc-blocked";
-      blocked.textContent = `Blocked work: ${d.blockedWork.join("; ")}`;
-      li.appendChild(blocked);
+    if (d.context) {
+      if (d.summary) {
+        const details = document.createElement("details");
+        details.className = "dc-context-details";
+        const label = document.createElement("summary");
+        label.textContent = "Full details";
+        details.appendChild(label);
+        const context = document.createElement("p");
+        context.className = "dc-context";
+        context.textContent = d.context;
+        details.appendChild(context);
+        li.appendChild(details);
+      } else {
+        // No plain summary on file for this candidate (e.g. an older
+        // dynamically-created ledger entry) — show the context plainly
+        // rather than hiding the only description behind a click.
+        const context = document.createElement("div");
+        context.className = "dc-context";
+        context.textContent = d.context;
+        li.appendChild(context);
+      }
     }
 
     if (d.ownerBlocker) {

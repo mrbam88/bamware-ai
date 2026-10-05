@@ -45,6 +45,7 @@ export function assertValidCandidate(c) {
   if (!isNonEmptyString(c?.version)) problems.push("version is required");
   if (!isNonEmptyString(c?.title)) problems.push("title is required");
   if (!isNonEmptyString(c?.context)) problems.push("context is required");
+  if (c?.summary != null && !isNonEmptyString(c.summary)) problems.push("summary, when present, must be a non-empty string");
   if (!c?.source || !isNonEmptyString(c.source.kind) || !isNonEmptyString(c.source.ref)) problems.push("source.kind and source.ref are required");
   if (!Array.isArray(c?.options) || c.options.length === 0) problems.push("options must be a non-empty array");
   else if (c.options.some((o) => !isNonEmptyString(o?.id) || !isNonEmptyString(o?.label))) problems.push("every option needs id and label");

@@ -10,6 +10,7 @@ export const DEMO_DECISION_CANDIDATES = Object.freeze([
     id: "demo-reservations-partner",
     version: "1",
     title: "[SYNTHETIC] BrewDesk wants native reservations — build or integrate a partner?",
+    summary: "[Demo] BrewDesk wants table reservations. Build it ourselves, or plug in a partner?",
     project: "BrewDesk (demo)",
     context: "Demo fixture from the PRD's own worked example: BrewDesk (a hypothetical client) asked for a reservations feature.",
     source: { kind: "synthetic", ref: "fixture:demo-reservations-partner", url: null },
