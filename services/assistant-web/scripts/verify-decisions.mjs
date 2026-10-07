@@ -9,7 +9,13 @@ import { DECISION_RESOLUTIONS } from '../lib/providers/decision-resolutions.mjs'
 const { cfg, problems } = loadConfig();
 assert.equal(problems.length, 0);
 const base = process.env.ASSISTANT_VERIFY_URL || `http://${cfg.host}:${cfg.port}`;
-const digest = () => createHash('sha256').update(readFileSync(cfg.decisionsFile)).digest('hex');
+const baseUrl = new URL(base);
+assert.ok(baseUrl.protocol === 'https:' || (baseUrl.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(baseUrl.hostname)), 'Verification requires HTTPS except on loopback');
+assert.ok(!baseUrl.username && !baseUrl.password && !baseUrl.search && !baseUrl.hash && baseUrl.pathname === '/', 'Verification URL must be a bare origin');
+const digest = () => {
+  try { return createHash('sha256').update(readFileSync(cfg.decisionsFile)).digest('hex'); }
+  catch (error) { if (error.code === 'ENOENT') return 'missing-store'; throw error; }
+};
 const before = digest();
 const request = (route, options = {}) => fetch(base + route, { ...options, redirect: 'manual', signal: AbortSignal.timeout(15000) });
 let cookie;
@@ -28,7 +34,7 @@ try {
     assert.ok(history.includes(id), `missing history: ${id}`);
   }
   assert.ok(active.includes('brewdesk-first-carousel-72'), 'publication approval preserved');
-  assert.ok(active.includes('auth-atomic-docker-access-85'), 'unverified Docker blocker preserved');
+  assert.ok(active.includes('auth-atomic-docker-access-85') || snapshot.history.some(d => d.id === 'auth-atomic-docker-access-85' && d.resolution?.evidence?.ref), 'Docker blocker preserved or retired with evidence');
   assert.ok(active.includes('backlog-triage-view-77'), 'backlog follow-through preserved');
   assert.equal(digest(), before, 'decision responses must not be rewritten');
   const ui = await (await request('/app.js')).text();

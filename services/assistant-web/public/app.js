@@ -386,7 +386,11 @@
         const entry = document.createElement("section");
         entry.appendChild(el("h3", "", d.title));
         entry.appendChild(el("p", "", `${d.resolution.status === "resolved" ? "Resolved" : "Replaced"} — ${d.resolution.reason}`));
-        if (d.response) entry.appendChild(el("p", "", `Your recorded response: ${d.response.action}.`));
+        if (d.response) {
+          const choice = d.options.find(o => o.id === d.response.selectedOptionId)?.label ?? d.response.selectedOptionId;
+          entry.appendChild(el("p", "", `Your recorded response: ${d.response.action}${choice ? ` — ${choice}` : ""}.`));
+          if (d.response.note) entry.appendChild(el("p", "", d.response.note));
+        }
         const ref = d.resolution.evidence.ref;
         if (/^https?:\/\//.test(ref)) {
           const link = el("a", "", "Resolution source");
