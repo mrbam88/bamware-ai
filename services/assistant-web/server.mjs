@@ -28,7 +28,8 @@ import {
 import { readAgentsState, buildAgentsSnapshot } from "./lib/agents-status.mjs";
 import { createBoardReader } from "./lib/board.mjs";
 import { createTitleReader, withTitles } from "./lib/titles.mjs";
-import { buildDecisionsSnapshot, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
+import { buildDecisionsSnapshot, decisionResolution, respondToDecision, refreshHandoff } from "./lib/decisions.mjs";
+import { DECISION_RESOLUTIONS } from "./lib/providers/decision-resolutions.mjs";
 import { loadDecisionStore } from "./lib/decision-store.mjs";
 import { createDecisionDiscussions } from './lib/decision-discussions.mjs';
 import { createDecisionDiscordTransport } from './lib/decision-discord-transport.mjs';
@@ -243,7 +244,7 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
   const runner = new HermesRunner(cfg, log);
   const discussions = cfg.discussionsEnabled ? createDecisionDiscussions({ directory: cfg.discussionsDir, transport: discussionTransport ?? createDecisionDiscordTransport() }) : null;
   const blockers = cfg.ownerBlockersEnabled ? createOwnerBlockers({ directory: cfg.ownerBlockersDir, candidates: DECISION_CANDIDATES, notify: notifyOwnerBlocker, supervisionAssignments: SCRUM_MASTER_ASSIGNMENTS, onFailure: log }) : null;
-  const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES.filter(c => !blockers?.snapshot(c.id)),run:handoffRun ?? agentCheckRunner(runner),notify:handoffNotify ?? notifyHandoffCheck,log}) : null;
+  const checks = cfg.handoffChecksEnabled ? createHandoffChecks({directory:cfg.handoffChecksDir,storeFile:cfg.decisionsFile,candidates:DECISION_CANDIDATES.filter(c => !blockers?.snapshot(c.id) && !decisionResolution(c, { resolutions: DECISION_RESOLUTIONS })),run:handoffRun ?? agentCheckRunner(runner),notify:handoffNotify ?? notifyHandoffCheck,log}) : null;
   checks?.recover();
   const withCheck = decision => ({...decision, discussion: discussions?.snapshot(decision) ?? null, handoffCheck: checks?.snapshot(decision) ?? null, ownerBlocker: blockers?.snapshot(decision.id) ?? null});
   const board = cfg.boardEnabled ? createBoardReader({ owner: cfg.boardOwner, project: cfg.boardProject }) : null;
@@ -328,10 +329,14 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
         const candidates = mode === "demo" ? demoDecisionCandidates() : [...DECISION_CANDIDATES, ...(blockers?.additionalCandidates() ?? [])];
         const storeFile = mode === "demo" ? cfg.decisionsDemoFile : cfg.decisionsFile;
         const [, decisionId, action] = decisionsMatch;
+        const reconciliation = mode === 'demo' ? {} : {
+          resolutions: DECISION_RESOLUTIONS,
+          blockers: Object.fromEntries(candidates.map(c => [c.id, blockers?.snapshot(c.id)])),
+        };
 
         if (req.method === "GET" && !decisionId) {
           const store = loadDecisionStore(storeFile);
-          const snapshot=buildDecisionsSnapshot(candidates,store);
+          const snapshot=buildDecisionsSnapshot(candidates,store,reconciliation);
           if(mode==='live') snapshot.decisions=snapshot.decisions.map(withCheck);
           return send(res, 200, { ...snapshot, mode, coordinator: mode === "live" ? blockers?.status() ?? null : null });
         }
@@ -339,6 +344,9 @@ export function createServer(cfg, { log = defaultLog, adminService, handoffRun, 
         if (decisionId) {
           const candidate = candidates.find((c) => c.id === decisionId);
           if (!candidate) return send(res, 404, { error: "Unknown decision id for this mode." });
+          if (req.method === 'POST' && decisionResolution(candidate, reconciliation)) {
+            return send(res, 409, { error: 'This ask is resolved or superseded. Refresh to see current decisions and history.', code: 'retired_decision' });
+          }
 
           if (req.method === "POST" && (action === "/discussion" || action === "/discussion/sync")) {
             if (mode !== "live" || !discussions) return send(res, 503, { error: "Discord discussions are not enabled for this mode." });

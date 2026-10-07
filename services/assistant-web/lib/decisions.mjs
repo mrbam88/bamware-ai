@@ -71,14 +71,39 @@ export function reconcileDecision(candidate, stored) {
   };
 }
 
+/** Explicit evidence retires one ask, never its entire parent project.
+ * Tombstones are keyed by immutable ask ID: a genuinely new ask needs a new ID.
+ * No response, issue-closed flag, or missing source implies resolution.
+ */
+export function decisionResolution(candidate, { resolutions = {}, blockers = {} } = {}) {
+  const resolution = resolutions[candidate.id];
+  if (['resolved', 'superseded'].includes(resolution?.status)
+      && isNonEmptyString(resolution.reason) && isNonEmptyString(resolution.evidence?.ref)
+      && Number.isFinite(Date.parse(resolution.verifiedAt))) return resolution;
+  const blocker = blockers[candidate.id];
+  if (blocker?.id === candidate.id && blocker.candidateVersion === candidate.version
+      && blocker.status === 'resolved' && isNonEmptyString(blocker.resolutionEvidence?.ref)
+      && Number.isFinite(Date.parse(blocker.resolvedAt))) {
+    return { status: 'resolved', reason: 'This specific blocker has verified resolution evidence. Downstream work is tracked separately.', evidence: blocker.resolutionEvidence, verifiedAt: blocker.resolvedAt };
+  }
+  return null;
+}
+
 /** Builds the full /api/decisions list payload. Pure given an already-loaded store. */
 export function buildDecisionsSnapshot(candidates, store, opts = {}) {
   const now = opts.now ?? Date.now();
   for (const c of candidates) assertValidCandidate(c);
+  const decisions = [], history = [];
+  for (const candidate of candidates) {
+    const decision = reconcileDecision(candidate, store.responses[candidate.id]);
+    const resolution = decisionResolution(candidate, opts);
+    if (resolution) history.push({ ...decision, resolution });
+    else decisions.push(decision);
+  }
   return {
     version: DECISION_CONTRACT_VERSION,
     generatedAt: new Date(now).toISOString(),
-    decisions: candidates.map((c) => reconcileDecision(c, store.responses[c.id])),
+    decisions, history,
   };
 }
 

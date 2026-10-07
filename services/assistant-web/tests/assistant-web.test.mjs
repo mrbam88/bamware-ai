@@ -195,7 +195,13 @@ test("GET /api/decisions (live) lists the real, explicit candidates, all pending
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.mode, "live");
-    assert.equal(body.decisions.length, DECISION_CANDIDATES.length);
+    assert.deepEqual(body.decisions.map(d => d.id), ['brewdesk-first-carousel-72', 'backlog-triage-view-77']);
+    assert.deepEqual(body.history.map(d => d.id), ['auth-email-aws-access-85', 'brewdesk-marketing-research-72']);
+    for (const action of ['respond', 'handoff/refresh', 'discussion', 'discussion/sync']) {
+      const retired = await fetch(`${base}/api/decisions/auth-email-aws-access-85/${action}`, { method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: '{}' });
+      assert.equal(retired.status, 409);
+      assert.equal((await retired.json()).code, 'retired_decision');
+    }
     for (const d of body.decisions) {
       assert.notEqual(d.source.kind, "synthetic");
       assert.equal(d.response, null);
@@ -218,7 +224,7 @@ test("GET /api/decisions?mode=demo lists only clearly-tagged synthetic candidate
 test("respond -> reload: a durable response survives a fresh GET (restart simulation)", async () => {
   await withServer(async (base) => {
     const { cookie } = await login(base);
-    const candidate = DECISION_CANDIDATES[0];
+    const candidate = DECISION_CANDIDATES.find(c => c.id === 'brewdesk-first-carousel-72');
     const r = await fetch(`${base}/api/decisions/${candidate.id}/respond`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie },
@@ -255,7 +261,7 @@ test("duplicate respond calls are idempotent over HTTP; real mode never claims a
 test("a stale candidateVersion is rejected over HTTP with 409", async () => {
   await withServer(async (base) => {
     const { cookie } = await login(base);
-    const candidate = DECISION_CANDIDATES[0];
+    const candidate = DECISION_CANDIDATES.find(c => c.id === 'brewdesk-first-carousel-72');
     const res = await fetch(`${base}/api/decisions/${candidate.id}/respond`, {
       method: "POST",
       headers: { "content-type": "application/json", cookie },
