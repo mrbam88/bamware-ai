@@ -18,6 +18,7 @@ export const DECISION_CANDIDATES = Object.freeze([
   "id": "auth-email-aws-access-85",
   "version": "1",
   "title": "Action needed: enable live account-email verification",
+  "summary": "Sign back into AWS on X1 so we can check email is set up correctly.",
   "project": "Bamware shared account recovery",
   "context": "Blocker auth-email-aws-access-85; status: waiting for owner action. Checked 2026-10-03T02:21Z: X1 AWS STS returned NoCredentials; server has no AWS CLI. This is operator access, not proof that Lambda lacks permissions or email configuration. On X1 run: aws login. Complete the AWS browser sign-in for the existing Bamware account, then say done here. Do not paste credentials. Chief of Staff will recheck identity and inspect only configuration presence/sender readiness before resuming delivery verification. This does not authorize sending email or spending; a controlled recipient and explicit test consent are separate. Auth code and web work continue meanwhile.",
   "source": {
@@ -58,6 +59,7 @@ export const DECISION_CANDIDATES = Object.freeze([
   "id": "brewdesk-first-carousel-72",
   "version": "1",
   "title": "Approve BrewDesk\u2019s first checklist carousel",
+  "summary": "Approve posting BrewDesk's first Instagram carousel \u2014 one post, no ads, no spend.",
   "project": "BrewDesk marketing",
   "context": "Review the five final slides and exact caption: https://app.notion.com/p/3eef2b09d2298126ad88c32d2fda14e0 . Approve ONE organic carousel on @_brew.desk from immutable asset revision 2ff6d64, save-only-v2. No ads, messages, profile changes or app-download CTA. Seven-day content-usefulness test; acquisition campaign remains pending photo-cost controls. Identity and quota checks pass; first publish/read-back and token expiry remain unverified. Approval triggers a coordination check, not automatic publishing; actual publisher pickup must be recorded.",
   "source": {
@@ -97,6 +99,7 @@ export const DECISION_CANDIDATES = Object.freeze([
   "id": "brewdesk-marketing-research-72",
   "version": "1",
   "title": "BrewDesk #72: research complete \u2014 review the proposed experiment",
+  "summary": "Marketing research is done. Review the proposed Instagram test before anything publishes.",
   "project": "BrewDesk marketing",
   "context": "Completed: shared marketing skills and NYC audience/competitor research (commit ddb3009). Brief: https://github.com/mrbam88/bamware-ai/blob/main/docs/brewdesk-marketing-research-2026-10-02.md . Recommendation: one seven-day Instagram laptop-work checklist test. Ticket remains open: actual slides, measurement and destination checks remain before publishing approval. Nothing posted. Research owner: Codex; no next-stage worker pickup confirmed.",
   "source": {
@@ -129,6 +132,7 @@ export const DECISION_CANDIDATES = Object.freeze([
     id: "backlog-triage-view-77",
     version: "2",
     title: "Select #77 (backlog triage / Command Center view) for a future batch, or keep it backlog-only?",
+    summary: "Decide whether to build a backlog-planning view now, or wait and revisit later.",
     project: "Bamware Assistant / Command Center",
     context:
       "Issue #77 asks for a private backlog-triage view so Bilal can filter/prioritize tickets and plan overnight batches from one place. It is explicitly intake-only today: \"not selected for tonight,\" no owner/session assigned. It depends on the same Decisions design shipped in #78 and the Agents data from #75/#76, whose initial implementation is now available.",
