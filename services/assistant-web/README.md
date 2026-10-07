@@ -51,12 +51,39 @@ locked PR43 collector worktree: its existing data/capabilities are read in place
 | `POST /api/logout` | no | clears cookie |
 | `GET /api/me` | cookie | Hermes bin/cwd and Langfuse **presence booleans** (never values) |
 | `GET /api/agents` | cookie | Agents tab V3: machine state, needs-you, executor work, CFO capacity, board (`docs/agents-tab.md`). |
-| `GET /api/decisions[?mode=demo]` | cookie | Command Center Decisions deck (bamware-ai#78): a small explicit, hand-curated set of founder-level decision candidates (`lib/providers/decision-candidates.mjs`), each merged with any durable response on file. Default `mode=live` serves 3 real candidates grounded in already-verified repo facts (issue #77, and the Langfuse/Tailscale blockers documented in `docs/assistant-website.md`) — never an extraction over every open issue. `mode=demo` serves one clearly `source.kind:"synthetic"` fixture decision for previewing the full lifecycle. |
+| `GET /api/decisions[?mode=demo]` | cookie | Command Center Decisions deck (bamware-ai#78): a small explicit, hand-curated set of founder-level decision candidates (`lib/providers/decision-candidates.mjs`), each merged with any durable response on file. Default `mode=live` serves active, source-backed asks plus read-only `history`; reviewed retirements live in `lib/providers/decision-resolutions.mjs` and verified dynamic blocker resolutions come from their durable ledgers. It never treats every open issue as a decision or every closed parent as proof of resolution. `mode=demo` serves one clearly `source.kind:"synthetic"` fixture decision for previewing the full lifecycle. |
 | `POST /api/decisions/:id/respond[?mode=demo]` `{action, selectedOptionId?, note?, candidateVersion}` | cookie | Records a durable, versioned response (`approve｜reject｜discuss｜defer`) to a decision in a file-backed store (`~/.config/bamware/assistant-web-decisions*.json`, path overridable via `ASSISTANT_WEB_DECISIONS_FILE`/`_DEMO_FILE`). `candidateVersion` must match the current candidate or the call is `409 stale_decision`. Only `approve` attempts a handoff; in `mode=live` there is no confirmed worker interface, so it always and honestly records `handoff.status:"handoff_pending"` — never a fabricated pickup. Resubmitting an identical response is idempotent (`duplicate:true`, no second handoff dispatch); submitting a different action is a legitimate reconsideration. `mode=demo` can also dispatch to a fixture worker (`simulateWorker:"unavailable"` or the default accepting fixture) to prove `pickup_confirmed`/`completed` exist as real, reachable states — synthetic only. |
 | `POST /api/decisions/:id/handoff/refresh[?mode=demo]` | cookie | Re-checks a `pickup_confirmed` handoff against the worker (fixture-only in `mode=demo`; a no-op in `mode=live` since no worker is wired). Never self-promotes a status without worker evidence. |
 | `POST /api/chat` `{text, sessionId?}` | cookie | runs one Hermes turn → `{reply, sessionId, requestId, elapsedMs, trace}` |
 | `GET /api/sessions/:id/export` | cookie | `hermes sessions export --format jsonl -` (download) |
 | `DELETE /api/sessions/:id` | cookie | `hermes sessions delete --yes` |
+
+### Source reconciliation and history (#141)
+
+`GET /api/decisions` returns active `decisions` and an additive `history` array.
+The collapsed History section is read-only. Existing response files are not
+rewritten; response and handoff evidence stay separate from source resolution.
+Stale browser actions against retired asks return `409 retired_decision`.
+
+To retire a curated ask, verify the exact source (not just a closed parent), then
+add an ID-keyed record to `lib/providers/decision-resolutions.mjs` with status,
+plain-English reason, verification time and evidence link. Keep the original
+candidate and tombstone: refresh, restart and a version bump cannot resurrect
+that ask. A genuinely new ask needs a new ID. This is reviewed reconciliation,
+not automatic interpretation of arbitrary GitHub prose. Newly resolved dynamic
+blockers also move to history when their durable ledger has matching ID/version,
+`resolvedAt` and `resolutionEvidence.ref`. Unavailable probes, owner responses,
+approvals and parent closure alone never retire an ask. Keep ledger files for history.
+
+The October 7 reconciliation retires the superseded X1 AWS-login request and
+research handoff, and the merged/green push CI permission fix. It does **not**
+claim AWS configuration, email delivery, Docker integration or publishing is done.
+The carousel approval and remaining unverified work stay visible.
+
+Read-only deployed verification (existing credentials stay in process):
+`ASSISTANT_VERIFY_URL=https://omarchy.tailb7fa1e.ts.net node scripts/verify-decisions.mjs`.
+Checks authenticated active/history IDs, 401 protection, unchanged response store
+and served history UI. No chat, model, Discord operation or decision submission.
 
 ### Decision card copy rules (bamware-ai#141)
 

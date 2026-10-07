@@ -375,9 +375,29 @@
       li.className = "decision-card dc-empty";
       li.textContent = "No decisions need your input right now.";
       els.decisionList.appendChild(li);
-      return;
     }
-    for (const d of data.decisions) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+    for (const d of data.decisions || []) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+    if (data.history?.length) {
+      const li = document.createElement("li");
+      li.className = "decision-card";
+      const history = document.createElement("details");
+      history.appendChild(el("summary", "", `History (${data.history.length})`));
+      for (const d of data.history) {
+        const entry = document.createElement("section");
+        entry.appendChild(el("h3", "", d.title));
+        entry.appendChild(el("p", "", `${d.resolution.status === "resolved" ? "Resolved" : "Replaced"} — ${d.resolution.reason}`));
+        if (d.response) entry.appendChild(el("p", "", `Your recorded response: ${d.response.action}.`));
+        const ref = d.resolution.evidence.ref;
+        if (/^https?:\/\//.test(ref)) {
+          const link = el("a", "", "Resolution source");
+          link.href = ref; link.target = "_blank"; link.rel = "noopener noreferrer";
+          entry.appendChild(link);
+        } else entry.appendChild(el("p", "", `Evidence: ${ref}`));
+        history.appendChild(entry);
+      }
+      li.appendChild(history);
+      els.decisionList.appendChild(li);
+    }
     if (location.hash.startsWith("#decision=")) {
       try { document.getElementById(`decision-${decodeURIComponent(location.hash.slice(10))}`)?.scrollIntoView({block: "start"}); } catch {}
     }
