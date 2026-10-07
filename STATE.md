@@ -1,5 +1,26 @@
 # State of the Union — Bamware
 
+## 2026-10-07 — Venue evidence repair review-only slice deployed
+
+- [ve#153](https://github.com/mrbam88/bamware-venue-engine/issues/153) closed/Done;
+  growth parent ve#151 remains open. Source `1eac1c9`, existing venuekit Production
+  deployment `Cp83NdaZnVThfPf1V7NVofMFbuRE`; native CLI logged out, documented Git
+  integration fallback used without deployment/config changes or paid model calls.
+- Real LangGraph offline retrieval/recorded-candidate validation, conflicts, bounded
+  retry, mandatory human review; no inference, fresh web research or auto-apply.
+  Ten real Greenwich Village gap reviews abstained and replayed byte-identically.
+- Local: typecheck, 887 tests passed / 12 DB skipped, two enforced truth cases pass;
+  Qahwah still pending. Live health 200 / 6,937 venues; new capability 200; existing
+  detail + full/compact search unchanged. Admin report auth 401 without credentials;
+  authenticated report tested locally, not live. CLI needs no admin credential.
+- [Runbook](https://github.com/mrbam88/bamware-venue-engine/blob/main/docs/evidence-repair/README.md)
+  and [verified evidence](https://github.com/mrbam88/bamware-venue-engine/issues/153#issuecomment-6045362240).
+  Remaining: approved project inference provider/priced bounded adapter, permitted
+  sources, real inference/held-out entailment eval and human review. No model-quality
+  or growth gains claimed. No Langfuse export or additional model workers enabled.
+- Completion notification/Command Center delivery belongs to Chief of Staff;
+  implementation worker had no Discord API access and did not claim notification.
+
 ## 2026-09-19 — Venue database migration tickets created (planning only)
 
 Bilal requested tickets to migrate the standalone venue engine from mutable

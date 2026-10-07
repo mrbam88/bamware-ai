@@ -13,6 +13,11 @@ description: Preserve durable Bamware session context in bamware-ai and publish 
   skill only when its trigger and procedure are distinct.
 - Record API changes on both provider and consumer sides. Never trust a client
   type without checking the current backend schema.
+- For AI workflow releases, distinguish deployed capability metadata, authenticated
+  execution, offline replay/fixtures and actual inference. Record each verified
+  boundary separately; an HTTP 200 metadata endpoint or 401 auth gate is not proof
+  of model execution. Keep remaining provider/source/evaluation gates with the
+  existing execution parent, and do not call a shipped dry-run the full AI feature.
 
 ## Exclude
 
