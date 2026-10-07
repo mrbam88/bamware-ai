@@ -15,7 +15,7 @@
 ## Modes
 
 ### Steady (default)
-- CoS chat: mid (Grok 4.5 or best mid with headroom)
+- CoS chat: **top** (gpt-6-astra on Hermes; Fable on Claude Code). Fallback Grok on rate-limit. CEO 2026-10-07.
 - Marketing / Scrum Master profiles: small (gpt-5-mini)
 - Overnight builders: mid (Claude Sonnet on Max)
 - Timers/scripts: no model
@@ -37,7 +37,7 @@ CFO reorders by headroom. **As of 2026-10-05:**
 
 | Tier | Prefer now | Avoid now |
 |---|---|---|
-| **top** (burst) | Claude Max **Fable/Opus** (headroom); Grok 4.5 | **Codex/Astra** (~95% critical) until reset |
+| **top** (burst / CoS) | **Astra** (Hermes CoS); Claude Max **Fable/Opus** (Claude Code) | Demote to Grok mid when OpenAI/Claude pool critical |
 | **mid** | Claude Sonnet (Max or Copilot path); Grok 4.5 | Codex heavy |
 | **small** | gpt-5-mini; Haiku | Premium burn for chatter |
 
@@ -64,7 +64,7 @@ Intelligence is the **brief + one review**, not 8 hours of frontier chat.
 |---|---|
 | `burst marketing` | Marketing lane → top for ≤60m |
 | `burst eng` | Next eng/overnight ticket → top |
-| `burst cos` | This CoS session prefers top |
+| `burst cos` | No-op (CoS already top as of 2026-10-07) |
 | `burst off` | All lanes steady |
 | `burst status` | CoS reports active bursts + headroom |
 
@@ -74,7 +74,7 @@ State file: `~/.local/state/bamware/cfo/bursts.json` (private).
 
 | Lane | Steady | Burst when |
 |---|---|---|
-| CoS | mid/strong | Ambiguous org/strategy; CEO deep work |
+| CoS | **top** (Astra/Fable) | Always top; CFO protects pool via worker throttle + Hermes fallback |
 | Marketing | small | Game plan, creative direction, “impress me” |
 | Scrum Master | small | Never need top for sweeps |
 | Overnight eng | mid | Hard ticket flagged burst |

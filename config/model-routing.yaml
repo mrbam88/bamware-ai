@@ -63,10 +63,10 @@ burst:
   state_file: "~/.local/state/bamware/cfo/bursts.json"
   # Provider preference under current headroom (CFO updates when pools move)
   top_prefer_now:
-    - {provider: anthropic, model: fable, harness: claude-code, note: "Claude Max Fable headroom"}
+    - {provider: openai-codex, model: gpt-6-astra, note: "Hermes CoS primary; OpenAI pool headroom OK 2026-10-07"}
+    - {provider: anthropic, model: fable, harness: claude-code, note: "Claude Max Fable — engineering/Claude Code path only"}
     - {provider: anthropic, model: opus, harness: claude-code}
-    - {provider: xai-oauth, model: grok-4.5}
-    - {provider: openai-codex, model: gpt-6-astra, note: "DEFER while Codex weekly critical"}
+    - {provider: xai-oauth, model: grok-4.5, note: "Hermes CoS fallback on rate-limit"}
   commands:
     - burst marketing
     - burst eng
@@ -81,5 +81,5 @@ assignments:
   - {who: "Hermes cron: Interview Tracker - historical audit batches", tier: small, provider: xai-oauth, model: grok-4.5, since: 2026-10-04}
   - {who: "Overnight Mode workers (run-engineer.py)", tier: mid, model: sonnet}
   - {who: "Hermes cron: Scrum Master - board sweep (85076cec9bb9), scrum-master profile", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "#98; summarizes deterministic collector output only, no tool calls"}
-  - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: mid, provider: xai-oauth, model: grok-4.5, since: 2026-10-03, note: "steady mid; burst cos → top when CEO spikes; see cfo-burst-policy"}
+  - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: top, provider: openai-codex, model: gpt-6-astra, since: 2026-10-07, note: "CEO: CoS always top (Astra). Fallback Grok on rate-limit. CFO demotes workers before CoS. Fable stays Claude Code path (not Hermes)."}
   - {who: "Hermes profile marketing", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-05, note: "steady; burst marketing → top for game plans"}
