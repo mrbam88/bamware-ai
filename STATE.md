@@ -1,5 +1,18 @@
 # State of the Union — Bamware
 
+## 2026-10-08 — CRM Workspaces/access architecture slice in review (#31)
+
+- Claimed bamware-ai#31 after collision check (no active worker; CRM source
+  already private on GitHub as `mrbam88/bamware-crm`).
+- Next bounded architecture slice implemented in CRM:
+  [bamware-crm#1](https://github.com/mrbam88/bamware-crm/pull/1)
+  (`feat/crm-31-workspaces-access`).
+- New `@bamware/crm-workspaces`: membership authority + pure task mutation
+  policy (ownership, versions, tombstones, conflicts). Server SQLite is a
+  durability adapter only. **25** tests pass; typecheck + server/web builds pass.
+- bamware-ai docs updated: repos map, CRM entry, release adapter (this PR).
+- Do not merge without QA. No live auth, deploy, spend, or store work.
+
 ## 2026-10-07 — Venue evidence repair review-only slice deployed
 
 - [ve#153](https://github.com/mrbam88/bamware-venue-engine/issues/153) closed/Done;

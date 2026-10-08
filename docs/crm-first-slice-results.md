@@ -6,9 +6,12 @@ Implementation context: `2026-09-19T20:30:41Z 4bf9841`.
 ## Delivery
 
 - Bilal approved the architecture proof and said to start building it.
-- Local repo: sibling `code/bamware-crm`, branch `feat/crm-offline-tasks`.
+- Local repo: published as private `mrbam88/bamware-crm`, default branch
+  `feat/crm-offline-tasks` (initial commit 2026-09-24).
 - Ticket: https://github.com/mrbam88/bamware-ai/issues/31.
-- No source commits, remote repo, pushes or PRs were requested/performed.
+- No source commits, remote repo, pushes or PRs were requested/performed at
+  first verification. Source was later published private on GitHub (2026-09-24).
+  Follow-up architecture PR: [bamware-crm#1](https://github.com/mrbam88/bamware-crm/pull/1).
 - No paid builds, services or deployments were used.
 
 ## Implemented

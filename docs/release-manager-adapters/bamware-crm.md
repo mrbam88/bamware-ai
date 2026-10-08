@@ -15,7 +15,7 @@ CRM is a separate top-level Bamware product, not part of Bamware Web.
 
 ## Current verified scope
 
-The first architecture slice is implemented and locally verified:
+The first architecture slice is implemented and verified (private GitHub source):
 
 - workspace + role-scoped permissions,
 - offline Tasks,
@@ -24,7 +24,12 @@ The first architecture slice is implemented and locally verified:
 - conflict/retry/revocation handling,
 - shared auth middleware integration seam.
 
-The current ticket explicitly excludes live auth registration/deployment, push integration, store release, paid runs, and production operations.
+**Next slice in review** ([bamware-crm#1](https://github.com/mrbam88/bamware-crm/pull/1)):
+`@bamware/crm-workspaces` pure membership + task mutation policy; server SQLite
+is a durability adapter. Tracker remains bamware-ai#31.
+
+The product ticket excludes live auth registration/deployment, push integration,
+store release, paid runs, and production operations.
 
 ## Execution source of truth
 
