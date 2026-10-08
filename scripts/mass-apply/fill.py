@@ -35,6 +35,7 @@ values you add to answers.json under "eeo" (not committed by default).
 
 Usage:
   python3 fill.py run queue.txt            # fill everything, no submit
+  python3 fill.py run queue.txt --eeo      # also self-identification (answers.json "eeo", private)
   python3 fill.py submit 3                 # submit the 3rd job from the last run
   python3 fill.py status                   # what is filled / submitted
 
@@ -170,6 +171,8 @@ def fill_greenhouse(page: Page, kit: str, filled: dict):
         filled["heard-checkbox"] = "LinkedIn"
     except Exception:
         pass
+    fill_knockouts_greenhouse(page, filled)
+    fill_eeo_greenhouse(page, filled)
 
 
 def ashby_entry(page: Page, label_regex: str):
@@ -255,6 +258,8 @@ def fill_ashby(page: Page, kit: str, filled: dict):
         except Exception:
             pass
 
+    fill_eeo_ashby(page, filled)
+
 
 def fill_lever(page: Page, kit: str, filled: dict):
     fill_common(page, kit, filled)
@@ -265,6 +270,88 @@ def fill_lever(page: Page, kit: str, filled: dict):
             filled[q] = ans
         except Exception:
             pass
+
+
+EEO = "--eeo" in sys.argv   # fill self-identification from answers.json["eeo"] (private repo)
+
+
+def pick_eeo_select(page: Page, label_regex: str, options, filled: dict) -> bool:
+    """Open the react-select under `label_regex` and click the first option whose
+    text matches one of `options` (regexes, tried in order, anchored by the
+    caller). We scan the open menu instead of typing because EEO wording differs
+    per company ("No, I am not a veteran" vs "I am not a protected veteran",
+    "South Asian (...)" vs "Asian")."""
+    if isinstance(options, str): options = [options]
+    try:
+        box = page.get_by_label(re.compile(label_regex, re.I)).first
+        if box.count() == 0: return False
+        box.click(); page.wait_for_timeout(400)
+        for rx in options:
+            opt = page.get_by_role("option", name=re.compile(rx, re.I)).first
+            if opt.count():
+                opt.click(); page.wait_for_timeout(200)
+                filled["eeo:" + label_regex] = rx; return True
+        page.keyboard.press("Escape"); return False
+    except Exception:
+        try: page.keyboard.press("Escape")
+        except Exception: pass
+        return False
+
+
+# Option wordings seen so far per answer key; first match wins. Values come from
+# answers.json["eeo"] only to decide WHICH list applies (so a different answer
+# in the private file disables the list rather than silently picking ours).
+EEO_OPTIONS = {
+    "gender":      {"Male": [r"^Male$", r"^Male\b", r"^Man\b"]},
+    "hispanic":    {"No":   [r"^No$", r"^No\b"]},
+    "race":        {"Asian": [r"^Asian$", r"^Asian\b", r"^South Asian", r"^Asian \("]},
+    "veteran":     {"I am not a protected veteran": [r"^I am not a protected veteran", r"^No, I am not a veteran", r"^I am not", r"^No\b"]},
+    "disability":  {"No, I do": [r"^No, I do", r"^No$", r"^No\b"]},
+    "orientation": {"Heterosexual": [r"^Heterosexual", r"^Straight"]},
+}
+
+
+def fill_eeo_greenhouse(page: Page, filled: dict):
+    e = ANSWERS.get("eeo", {})
+    if not EEO or not e: return
+    for rx, key in [(r"gender", "gender"), (r"hispanic", "hispanic"), (r"race|ethnicity", "race"),
+                    (r"veteran", "veteran"), (r"disab", "disability"), (r"sexual orientation", "orientation")]:
+        opts = EEO_OPTIONS.get(key, {}).get(e.get(key, ""))
+        if opts:
+            pick_eeo_select(page, rx, opts, filled)
+
+
+def fill_eeo_ashby(page: Page, filled: dict):
+    e = ANSWERS.get("eeo", {})
+    if not EEO or not e: return
+    for rx, key in [(r"^gender", "gender"), (r"^race", "race"), (r"veteran", "veteran"), (r"disab", "disability")]:
+        if key not in e: continue
+        try:
+            lab = ashby_entry(page, rx).locator("label", has_text=re.compile("^" + re.escape(e[key]), re.I)).first
+            if lab.count():
+                lab.click(timeout=1500); filled["eeo:" + rx] = e[key]
+        except Exception:
+            pass
+
+
+def fill_knockouts_greenhouse(page: Page, filled: dict):
+    """Standard yes/no and consent questions from skills/bilal-answers: answered,
+    never left blank (a blank auto-rejects). Company essays stay with Bilal."""
+    for rx, ans in [(r"employed by|worked (at|for)|currently work(ing)? (at|for)|previously worked", r"^No\b"),
+                    (r"highest level of (completed )?education", r"^Bachelor"),
+                    (r"european union|eu resident", r"^No\b"),
+                    (r"live or (want to )?relocate", r"^Yes\b"),   # Bilal is in NYC already
+                    (r"non-?compete|restrictive covenant", r"^No\b"),
+                    (r"18 years|over 18|at least 18", r"^Yes\b"),
+                    (r"background check|drug (screen|test)", r"^Yes\b")]:
+        pick_eeo_select(page, rx, ans, filled)
+    # consent / acknowledgement checkboxes
+    try:
+        boxes = page.get_by_role("checkbox", name=re.compile(r"consent|acknowledge|agree|privacy|by clicking", re.I))
+        for i in range(min(boxes.count(), 4)):
+            boxes.nth(i).check(timeout=1000); filled[f"consent-{i}"] = True
+    except Exception:
+        pass
 
 
 FILLERS = {"greenhouse": fill_greenhouse, "ashby": fill_ashby, "lever": fill_lever}
