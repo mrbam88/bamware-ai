@@ -1,0 +1,257 @@
+#!/usr/bin/env python3
+"""
+Mass-apply filler for Bilal's job search, meant to run from Claude Code CLI on
+the M3 (or any machine with Chrome + Playwright). It does NOT submit.
+
+The pattern ("fill, screenshot, wait for a human yes"):
+
+  1. You give it a queue file: one job per line, `<apply-url> <kit>` where kit is
+     mobile-ios | mobile-rn | fullstack | manager.
+  2. For each job it opens the page in a *persistent* Chrome profile (so your
+     LinkedIn / ATS logins carry over), fills every field it recognizes from the
+     private answers file, uploads the resume + cover letter from the kit, and
+     saves a full-page screenshot + a JSON record of what it filled.
+  3. It leaves every tab open and exits with a summary. Submitting is a separate
+     command: `fill.py submit <n>` clicks the submit button in tab n only after
+     you have looked at the screenshot. There is no auto-submit path on purpose
+     (Bilal, 2026-10-08: "too risky").
+
+Why Playwright and not the Claude-in-Chrome extension: the extension asks for a
+site permission on every new domain and dies when the laptop sleeps. A
+Playwright session in the CLI asks nothing after the first `settings.json`
+allowlist, and `caffeinate -i` keeps it alive with the lid closed on power.
+
+Supported ATSes (fields recognised by label text, so they survive small
+layout changes):
+  - Greenhouse (job-boards.greenhouse.io, incl. /embed/job_app?for=...)
+  - Ashby      (jobs.ashbyhq.com/<org>/<id>/application)
+  - Lever      (jobs.lever.co/<org>/<id>/apply)
+Anything else is opened and screenshotted but left for a human.
+
+Private data: everything personal comes from the private `mrbam88/interviews`
+repo (`profile/answers.json`). This script never contains an answer itself.
+EEO / demographic dropdowns are filled ONLY with --eeo, from private-answers.md
+values you add to answers.json under "eeo" (not committed by default).
+
+Usage:
+  python3 fill.py run queue.txt            # fill everything, no submit
+  python3 fill.py submit 3                 # submit the 3rd job from the last run
+  python3 fill.py status                   # what is filled / submitted
+
+Requires: pip install playwright && playwright install chromium
+"""
+import json, re, sys, time, pathlib, datetime
+
+from playwright.sync_api import sync_playwright, Page, TimeoutError as PWTimeout
+
+# ---------- paths ----------
+# INTERVIEWS = private repo checkout. Override with $INTERVIEWS_REPO.
+import os
+INTERVIEWS = pathlib.Path(os.environ.get("INTERVIEWS_REPO", pathlib.Path.home() / "interviews"))
+ANSWERS = json.loads((INTERVIEWS / "profile" / "answers.json").read_text())
+PROFILE_DIR = pathlib.Path.home() / ".bamware" / "mass-apply-profile"   # persistent Chrome profile
+STATE_DIR = INTERVIEWS / "imports" / "mass-apply-runs"                   # screenshots + JSON, private repo
+STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# ---------- small helpers ----------
+def kit_paths(kit: str):
+    """Absolute PDF paths for a kit name. Raises if the kit is unknown so a typo
+    never silently uploads the wrong resume."""
+    k = ANSWERS["kits"][kit]
+    root = INTERVIEWS / ANSWERS["kits_root"]
+    return root / k["resume"], root / k["cover"]
+
+
+def ats_of(url: str) -> str:
+    if "greenhouse.io" in url: return "greenhouse"
+    if "ashbyhq.com" in url:   return "ashby"
+    if "lever.co" in url:      return "lever"
+    return "unknown"
+
+
+def fill_by_label(page: Page, label_regex: str, value: str, filled: dict) -> bool:
+    """Type `value` into the first visible textbox whose accessible label matches
+    the regex. Returns True on success. We match on labels, not CSS, because
+    Greenhouse/Ashby regenerate class names constantly but keep the label text."""
+    try:
+        loc = page.get_by_label(re.compile(label_regex, re.I)).first
+        if loc.count() == 0: return False
+        tag = loc.evaluate("e => e.tagName.toLowerCase()")
+        if tag not in ("input", "textarea"): return False
+        loc.fill(value)
+        filled[label_regex] = value
+        return True
+    except Exception:
+        return False
+
+
+def pick_react_select(page: Page, label_regex: str, option_text: str, filled: dict) -> bool:
+    """Greenhouse/Ashby use react-select: click the combobox, type, then click the
+    matching option. Plain `select_option` does not work on these."""
+    try:
+        box = page.get_by_label(re.compile(label_regex, re.I)).first
+        if box.count() == 0: return False
+        box.click()
+        box.type(option_text, delay=20)
+        page.wait_for_timeout(400)
+        opt = page.get_by_role("option", name=re.compile(re.escape(option_text), re.I)).first
+        if opt.count() == 0:
+            page.keyboard.press("Escape"); return False
+        opt.click()
+        filled[label_regex] = option_text
+        return True
+    except Exception:
+        return False
+
+
+def upload(page: Page, label_regex: str, path: pathlib.Path, filled: dict) -> bool:
+    """Greenhouse has two file inputs per field (the visible 'Attach' button and the
+    real <input type=file>); set_input_files on the real one works for all three ATSes."""
+    try:
+        inputs = page.locator("input[type=file]")
+        n = inputs.count()
+        # Heuristic: the first file input is the resume, the second the cover letter.
+        idx = 0 if re.search("resume|cv", label_regex, re.I) else 1
+        if n <= idx: return False
+        inputs.nth(idx).set_input_files(str(path))
+        filled[label_regex] = path.name
+        return True
+    except Exception:
+        return False
+
+
+# ---------- per-ATS fillers ----------
+def fill_common(page: Page, kit: str, filled: dict):
+    """Fields that look the same on every ATS."""
+    a = ANSWERS
+    fill_by_label(page, r"^first name", a["first_name"], filled)
+    fill_by_label(page, r"^last name", a["last_name"], filled)
+    fill_by_label(page, r"^full name|^name\*?$", f'{a["first_name"]} {a["last_name"]}', filled)
+    fill_by_label(page, r"preferred (first )?name", a["preferred_name"], filled)
+    fill_by_label(page, r"^e-?mail", a["email"], filled)
+    fill_by_label(page, r"^phone", a["phone"], filled)
+    fill_by_label(page, r"linkedin", a["linkedin"], filled)
+    fill_by_label(page, r"github|website|portfolio", a["github"], filled)
+    fill_by_label(page, r"current (company|employer)", a["current_company"], filled)
+    fill_by_label(page, r"current location|location \(city, state\)", a["location_city_state"], filled)
+    resume, cover = kit_paths(kit)
+    upload(page, "resume", resume, filled)
+    upload(page, "cover letter", cover, filled)
+
+
+def fill_greenhouse(page: Page, kit: str, filled: dict):
+    fill_common(page, kit, filled)
+    pick_react_select(page, r"^country", "United States", filled)
+    pick_react_select(page, r"location \(city\)", ANSWERS["location_greenhouse"], filled)
+    # Knockouts: answer, never leave blank (bilal-answers rule).
+    pick_react_select(page, r"sponsorship", "No", filled)
+    pick_react_select(page, r"authori[sz]ed to work", "Yes", filled)
+    pick_react_select(page, r"how did you hear", ANSWERS["how_heard"], filled)
+    pick_react_select(page, r"^school", ANSWERS["school"], filled)
+    pick_react_select(page, r"^degree", ANSWERS["degree"], filled)
+    fill_by_label(page, r"accommodation", ANSWERS["accommodations"], filled)
+    # "How did you hear" as checkboxes (Twilio style)
+    try:
+        page.get_by_label(re.compile(r"^linkedin$", re.I)).first.check(timeout=1000)
+        filled["heard-checkbox"] = "LinkedIn"
+    except Exception:
+        pass
+
+
+def fill_ashby(page: Page, kit: str, filled: dict):
+    page.wait_for_selector("text=Application", timeout=15000)
+    fill_common(page, kit, filled)
+    # Ashby yes/no questions are button pairs; click by question text + answer.
+    for q, ans in [(r"based in the united states", "Yes"), (r"sponsorship", "No"), (r"authori[sz]ed", "Yes")]:
+        try:
+            block = page.get_by_text(re.compile(q, re.I)).first.locator("xpath=ancestor::*[.//button][1]")
+            block.get_by_role("button", name=re.compile(f"^{ans}$", re.I)).first.click(timeout=1500)
+            filled[q] = ans
+        except Exception:
+            pass
+
+
+def fill_lever(page: Page, kit: str, filled: dict):
+    fill_common(page, kit, filled)
+    # Lever uses native <select>; select_option works.
+    for q, ans in [(r"authori[sz]ed", "Yes"), (r"sponsorship", "No"), (r"how did you hear", ANSWERS["how_heard"])]:
+        try:
+            page.get_by_label(re.compile(q, re.I)).first.select_option(label=ans)
+            filled[q] = ans
+        except Exception:
+            pass
+
+
+FILLERS = {"greenhouse": fill_greenhouse, "ashby": fill_ashby, "lever": fill_lever}
+
+
+# ---------- commands ----------
+def run(queue_file: str):
+    jobs = [l.split() for l in pathlib.Path(queue_file).read_text().splitlines() if l.strip() and not l.startswith("#")]
+    run_id = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+    out = STATE_DIR / run_id; out.mkdir()
+    records = []
+    with sync_playwright() as p:
+        # headless=False so you can look at (and submit from) the real tabs.
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome")
+        for i, (url, kit) in enumerate(jobs, 1):
+            page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
+            page.wait_for_timeout(2500)
+            ats = ats_of(url); filled = {}
+            try:
+                FILLERS.get(ats, lambda *_: None)(page, kit, filled)
+            except Exception as e:
+                filled["_error"] = repr(e)
+            shot = out / f"{i:02d}.png"
+            page.screenshot(path=str(shot), full_page=True)
+            rec = {"n": i, "url": url, "kit": kit, "ats": ats, "filled": filled, "screenshot": str(shot), "submitted": False}
+            records.append(rec)
+            print(f"[{i:02d}] {ats:10} {kit:10} {len(filled):2d} fields  {url}")
+        (out / "run.json").write_text(json.dumps(records, indent=1))
+        print(f"\nDone. Review screenshots in {out}. Tabs are still open.")
+        print("Submit with:  python3 fill.py submit <n>   (one at a time, after you looked)")
+        input("Press Enter to close the browser (tabs will close; re-run to refill)...")
+        ctx.close()
+
+
+def latest_run():
+    runs = sorted(STATE_DIR.glob("*/run.json"))
+    return runs[-1] if runs else None
+
+
+def status():
+    r = latest_run()
+    if not r: print("no runs"); return
+    for rec in json.loads(r.read_text()):
+        print(f"[{rec['n']:02d}] {'SUBMITTED' if rec['submitted'] else 'filled   '} {rec['url']}")
+
+
+def submit(n: int):
+    """Re-opens job n in the persistent profile, re-fills it (Greenhouse forms do
+    not persist across sessions) and then clicks Submit — but only after printing
+    the screenshot path and asking for a typed 'yes' in the terminal."""
+    r = latest_run(); recs = json.loads(r.read_text()); rec = recs[n - 1]
+    print("Screenshot:", rec["screenshot"]); print("URL:", rec["url"])
+    if input("Type yes to submit this one: ").strip().lower() != "yes":
+        print("not submitted"); return
+    with sync_playwright() as p:
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome")
+        page = ctx.new_page(); page.goto(rec["url"], wait_until="domcontentloaded"); page.wait_for_timeout(2500)
+        filled = {}; FILLERS.get(rec["ats"], lambda *_: None)(page, rec["kit"], filled)
+        page.get_by_role("button", name=re.compile(r"submit", re.I)).first.click()
+        page.wait_for_timeout(4000)
+        ok = bool(re.search(r"thank|received|submitted", page.content(), re.I))
+        page.screenshot(path=rec["screenshot"].replace(".png", "-submitted.png"), full_page=True)
+        rec["submitted"] = ok; rec["submitted_at"] = datetime.datetime.now().isoformat()
+        r.write_text(json.dumps(recs, indent=1))
+        print("submitted" if ok else "clicked submit but no confirmation text found — check the tab")
+        input("Enter to close...")
+        ctx.close()
+
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "status"
+    if cmd == "run":    run(sys.argv[2])
+    elif cmd == "submit": submit(int(sys.argv[2]))
+    else:               status()
