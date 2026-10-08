@@ -112,6 +112,35 @@ Runs are serialised (the Hermes CLI claims one active `cli` session per host).
 Server logs are JSON lines with request ids, timings and byte counts, never
 message content.
 
+### Command Center action feedback
+
+Approve/Reject/Defer and discussion Send share a browser-side pending lock.
+The active button changes its label; card controls and deck refresh/demo controls
+are disabled until the request and follow-up refresh finish. A sticky, polite
+live region keeps success/error feedback visible after cards are rebuilt. Failed
+submissions retain the choice/note; a saved response with a failed list refresh
+is reported separately. A Discord `repair_required` response is never shown as
+successful delivery, even when HTTP is 200. Approval is not worker completion.
+Operational receipts remain below the decisions, with sweep timing collapsed.
+No API, durable store, auth or worker behavior changes.
+
+Browser regression smoke (Node >=22.18, existing Chromium and an external
+`playwright-core` installation; no added production dependency):
+
+```sh
+PLAYWRIGHT_MODULE=/absolute/path/to/playwright-core/index.mjs \
+CHROMIUM_BIN=/usr/bin/chromium node scripts/verify-action-feedback.mjs
+```
+
+All requests are intercepted test fixtures using public candidate copy: no live
+login, decision write, Discord send or model call. It checks pending locks,
+duplicate-click prevention, success/error (including 401/409/503 and Discord
+repair), saved-but-refresh-failed, selected discussion, demo isolation and mobile
+layout. Screenshots default to `/tmp/assistant-action-feedback`; `SCREENSHOT_DIR`
+overrides it. `ASSET_ROOT` plus `BASELINE_ONLY=1` captures the same two cards with
+an older renderer. Checked-in `tests/evidence/action-feedback/` images compare
+the production/main baseline renderer with this UI, **not live account state**.
+
 ## Voice
 
 Browser-side only, no new services: Web Speech API for speech-to-text,
