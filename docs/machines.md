@@ -183,11 +183,23 @@ off/on" 2 to 8 times a day the week of 2026-10-01, each taking 1 to 3 min to
 recover. The Mac never sleeps (`sleep 0`, caffeinate running), so this is the
 DisplayPort link failing to re-train, not system wake. A keypress through the
 switch forces macOS to re-probe displays, which is why hitting Enter works.
-Cable for the M3: a certified Thunderbolt 4 passive cable, 1 m or shorter,
-100 W rated (Apple Thunderbolt 4 Pro 1 m, or a Cable Matters or Anker TB4
-0.8 m). Fallback other G32P owners report as plug-and-play: USB-C to
-DisplayPort into the DP 2.1 input, which gives up charging and the hub on
-that cable.
+Cable for the M3: any full-featured USB-C or Thunderbolt 4 cable, 1 m or
+shorter, 100 W rated. **A Thunderbolt cable does not change the link
+(verified 2026-10-08 after Bilal swapped one in):** the Mac's USB-C port
+offers CC, USB2, USB3, CIO (Thunderbolt) and DisplayPort, but the G32P only
+ever negotiates CC, USB2 and DisplayPort, with all four high-speed pairs in
+DisplayPort pin assignment C and `Tunneled = No`. Its PD partner chip is
+WCH (vendor 0x1A86) and its hub is a Terminus USB 2.0 hub, and Kuycon's own
+buying guide describes the port as DisplayPort Alt Mode. So the USB-C input
+is DP alt mode only, whatever the "80 Gbps" marketing says, and no cable
+makes it Thunderbolt. macOS exposes no cable e-marker (no SOP' identity), so
+a cable's real spec can only be checked by plugging it into a known
+Thunderbolt device. The port logged 24 plug events in 39 h after the
+2026-10-07 boot: the monitor's switch does a real USB-C detach and re-attach
+on every flip, so each flip is a full PD, alt-mode and 6K DSC renegotiation.
+That is the monitor's design, not the cable. Fallback other G32P owners
+report as plug-and-play: USB-C to DisplayPort into the DP 2.1 input, which
+gives up charging and the hub on that cable.
 
 Desktop setup (Mac-style keys, dictation, emulator window sizing, displays, and
 how Bilal uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
