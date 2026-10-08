@@ -204,6 +204,19 @@ and above the laptop. `monitors.lua` places the 6K (`desc:GKT Kuycon G32P`),
 the TV, and any display with no EDID at `position = "auto-center-up"`, which
 centers them above eDP-1.
 
+## Headphone jack auto-switch (2026-10-07)
+
+- The sound card's UCM config puts Speaker and Headphones in separate HiFi
+  profiles. WirePlumber stayed on the Speaker profile even after the jack
+  detected a plug, so the 3.5 mm port played nothing.
+- `~/.local/bin/headphone-autoswitch` (user service
+  `headphone-autoswitch.service`, started with the graphical session) watches
+  `pactl subscribe` card events. When the Headphones port is available it
+  switches to the Headphones profile, otherwise back to the Speaker profile, and
+  sets the matching default sink.
+- Verified 2026-10-07: unplug switched to Speaker, replug to Headphones, about
+  a second each. Log: `journalctl --user -u headphone-autoswitch`.
+
 ## Input and bar tweaks (2026-09-24)
 
 - **Touchpad** (Sensel haptic `SNSL0028`): tap-to-click and tap-and-drag are
