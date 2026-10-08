@@ -106,6 +106,13 @@ body { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%;
 .dc-actions button { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: inherit; font-size: 13px; font-weight: 600; }
 .dc-actions button.dc-approve { border-color: var(--ok); color: var(--ok); }
 .dc-actions button.dc-reject { border-color: var(--danger); color: var(--danger); }
+.dc-feedback { position: sticky; top: 8px; z-index: 2; margin: 0; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--surface); color: var(--accent); font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.dc-feedback[hidden] { display: none; }
+.dc-feedback[data-state="success"] { color: var(--ok); border-color: var(--ok); }
+.dc-feedback[data-state="error"] { color: var(--err); border-color: var(--err); }
+.dc-feedback[data-state="warning"] { color: var(--warn); border-color: var(--warn); }
+.decision-card[aria-busy="true"] { border-color: var(--accent); }
+.decisions button:disabled, .decisions select:disabled, .decisions textarea:disabled { opacity: 0.55; cursor: wait; }
 .dc-answer { margin-top: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; }
 .dc-answer.dc-stale { border: 1px dashed var(--warn); color: var(--warn); }
 .dc-handoff { font-size: 12px; color: var(--muted); margin-top: 6px; }

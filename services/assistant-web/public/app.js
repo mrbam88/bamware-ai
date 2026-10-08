@@ -316,8 +316,52 @@
     completed: "Completed by worker",
   };
 
-  async function loadDecisions() {
-    if (decisionsLoading) return;
+  let decisionActionPending = false;
+  const feedback = el("p", "dc-feedback");
+  feedback.setAttribute("role", "status");
+  feedback.setAttribute("aria-live", "polite");
+  feedback.tabIndex = -1;
+  feedback.hidden = true;
+  els.decisionList.before(feedback);
+
+  function decisionFeedback(state, text) {
+    feedback.dataset.state = state;
+    feedback.textContent = text;
+    feedback.hidden = false;
+  }
+
+  // One mutation at a time: a refresh must not replace a pending card or
+  // let a second click submit a conflicting choice. No optimistic approval.
+  async function decisionAction(card, button, pending, submit, success) {
+    if (decisionActionPending || decisionsLoading) return;
+    decisionActionPending = true;
+    const controls = [...els.decisionsView.querySelectorAll("button, select, textarea, input")];
+    const disabled = controls.map(control => control.disabled);
+    controls.forEach(control => { control.disabled = true; });
+    const label = button.textContent;
+    button.textContent = pending;
+    card.setAttribute("aria-busy", "true");
+    decisionFeedback("pending", `${pending} — ${card.querySelector(".dc-title").textContent}`);
+    try {
+      const result = await submit();
+      const outcome = success(result);
+      const message = typeof outcome === "string" ? outcome : outcome.text;
+      decisionFeedback(outcome.state || "success", message);
+      const refreshed = await loadDecisions(true);
+      if (!refreshed) decisionFeedback("warning", `${message} The list could not refresh. Refresh before taking another action.`);
+      feedback.focus({ preventScroll: true });
+    } catch (err) {
+      decisionFeedback("error", `${card.querySelector(".dc-title").textContent}: Could not confirm this action: ${err.message}. Refresh to check its status before retrying.`);
+    } finally {
+      card.removeAttribute("aria-busy");
+      button.textContent = label;
+      controls.forEach((control, i) => { control.disabled = disabled[i]; });
+      decisionActionPending = false;
+    }
+  }
+
+  async function loadDecisions(afterAction = false) {
+    if (decisionsLoading || (decisionActionPending && afterAction !== true)) return false;
     decisionsLoading = true;
     els.decisionList.innerHTML = "";
     const loading = document.createElement("li");
@@ -327,6 +371,7 @@
     try {
       const data = await api("GET", `/api/decisions${decisionsDemoMode ? "?mode=demo" : ""}`);
       renderDecisions(data);
+      return true;
     } catch (err) {
       els.decisionList.innerHTML = "";
       const li = document.createElement("li");
@@ -334,6 +379,7 @@
       li.textContent = `Could not load decisions: ${err.message}`;
       els.decisionList.appendChild(li);
       els.decisionsDemoBanner.hidden = true;
+      return false;
     } finally {
       decisionsLoading = false;
     }
@@ -351,10 +397,11 @@
       headline.textContent = `Scrum Master · ${Array.isArray(sm?.assignments) ? `${sm.assignments.length} assigned efforts` : "Assignment data unavailable"} · ${c.currentRuntimeFailure ? "Runtime failure" : c.status || "Status unavailable"}`;
       status.appendChild(headline);
       const timing = document.createElement("p"); timing.className = "dc-meta";
-      timing.textContent = `Last sweep: ${c.checkedAt || "not observed"} · Next check: ${c.nextSweepAt || "not scheduled"}`; status.appendChild(timing);
+      timing.textContent = `Last sweep: ${c.checkedAt || "not observed"} · Next check: ${c.nextSweepAt || "not scheduled"}`;
       if (c.currentRuntimeFailure) { const failure = document.createElement("p"); failure.setAttribute("role", "alert"); failure.textContent = `Runtime failure at ${c.currentRuntimeFailure.at || "unknown time"}: ${c.currentRuntimeFailure.detail || "Check unavailable; stored status may be older."}`; status.appendChild(failure); }
       const details = document.createElement("details"), summary = document.createElement("summary");
       summary.textContent = "Delivery assignments and receipts"; details.appendChild(summary);
+      details.appendChild(timing);
       const coverage = document.createElement("p"); coverage.textContent = sm?.coverage || c.coverage || "Coverage unavailable."; details.appendChild(coverage);
       for (const a of sm?.assignments || []) {
         const entry = document.createElement("section"), title = document.createElement("strong"); title.textContent = a.title || a.id; entry.appendChild(title);
@@ -377,6 +424,8 @@
       els.decisionList.appendChild(li);
     }
     for (const d of data.decisions || []) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+    // Keep operational receipts available, below the decisions that need input.
+    if (data.coordinator) els.decisionList.appendChild(els.decisionList.firstElementChild);
     if (data.history?.length) {
       const li = document.createElement("li");
       li.className = "decision-card";
@@ -521,7 +570,7 @@
     if (mode === "live") {
       const box = document.createElement("section"); box.className = "dc-discussion";
       const status = document.createElement("p"); status.setAttribute("role", "status");
-      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: resend to update" : d.discussion.status === "ready" ? "Sent to #command-center" : "Handoff needs attention"}. ${d.discussion.detail || ""}` : "Send this decision’s context to #command-center for CoS/agent discussion. Not execution approval.";
+      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: resend to update" : d.discussion.status === "ready" ? "Sent to #command-center" : "Send needs attention"}.${d.discussion.status !== "ready" && d.discussion.detail ? ` ${d.discussion.detail}` : ""}` : "Discuss with CoS — not execution approval.";
       box.appendChild(status);
       function source(url, label) {
         if (!/^https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?$/.test(url || "")) return;
@@ -530,12 +579,13 @@
       source(d.discussion?.url, "Open in #command-center ↗");
       function control(label, endpoint) {
         const button = document.createElement("button"); button.type = "button"; button.textContent = label;
-        button.addEventListener("click", async () => {
-          button.disabled = true; status.textContent = "Sending to #command-center…";
-          try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/${endpoint}`, {candidateVersion: d.version}); await loadDecisions(); }
-          catch (e) { status.textContent = `Send failed: ${e.message}`; }
-          finally { button.disabled = false; }
-        }); box.appendChild(button);
+        button.addEventListener("click", () => decisionAction(li, button,
+          endpoint === "discussion" ? "Sending…" : "Refreshing…",
+          () => api("POST", `/api/decisions/${encodeURIComponent(d.id)}/${endpoint}`, {candidateVersion: d.version}),
+          result => {
+            if (result.discussion?.status !== "ready") throw new Error(result.discussion?.detail || "Send needs attention");
+            return `${d.title}: ${endpoint === "discussion" ? "Sent to #command-center. Not execution approval." : "Discussion refreshed."}`;
+          })); box.appendChild(button);
       }
       control(d.discussion ? "Resend / repair" : "Send to #command-center", "discussion");
       if (d.discussion?.threadId) control("Refresh discussion", "discussion/sync");
@@ -591,6 +641,7 @@
     // Response controls -------------------------------------------------------
     if (!d.response || d.stale || d.ownerBlocker) {
       const select = document.createElement("select");
+      select.setAttribute("aria-label", "Decision option");
       for (const o of d.options || []) {
         const opt = document.createElement("option");
         opt.value = o.id;
@@ -601,6 +652,7 @@
       const note = document.createElement("textarea");
       note.className = "dc-note";
       note.placeholder = "Optional note…";
+      note.setAttribute("aria-label", "Optional note");
       li.appendChild(select);
       li.appendChild(note);
 
@@ -613,7 +665,7 @@
         btn.textContent = action === "selected" ? "Use selected option" : action.charAt(0).toUpperCase() + action.slice(1);
         btn.addEventListener("click", () => {
           const selected = (d.options || []).find(o => o.id === select.value);
-          respondToDecision(d, action === "selected" ? selected?.action || "approve" : action, action === "selected" ? select.value : null, note.value, mode);
+          respondToDecision(d, action === "selected" ? selected?.action || "approve" : action, action === "selected" ? select.value : null, note.value, mode, li, btn);
         });
         actions.appendChild(btn);
       }
@@ -623,22 +675,27 @@
     return li;
   }
 
-  async function respondToDecision(d, action, selectedOptionId, note, mode) {
-    try {
-      await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/respond${mode === "demo" ? "?mode=demo" : ""}`, {
-        action,
-        selectedOptionId: selectedOptionId || null,
-        note: note || null,
-        candidateVersion: d.version,
-      });
-      if (action === "discuss" && mode === "live") {
-        try { await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/discussion`, {candidateVersion: d.version}); }
-        catch (e) { alert(`Response saved. Discussion unavailable: ${e.message}`); }
-      }
-      loadDecisions();
-    } catch (err) {
-      alert(`Could not record response: ${err.message}`);
-    }
+  async function respondToDecision(d, action, selectedOptionId, note, mode, card, button) {
+    const pending = { approve: "Approving…", reject: "Rejecting…", defer: "Deferring…", discuss: "Saving…" };
+    const saved = { approve: "Approval saved. Worker completion is separate.", reject: "Rejected.", defer: "Deferred.", discuss: "Discussion request saved." };
+    return decisionAction(card, button, pending[action] || "Saving…",
+      async () => {
+        await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/respond${mode === "demo" ? "?mode=demo" : ""}`, {
+          action,
+          selectedOptionId: selectedOptionId || null,
+          note: note || null,
+          candidateVersion: d.version,
+        });
+        if (action === "discuss" && mode === "live") {
+          try {
+            const result = await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/discussion`, {candidateVersion: d.version});
+            if (result.discussion?.status !== "ready") throw new Error(result.discussion?.detail || "Send needs attention");
+          } catch (err) { return { discussionError: err.message }; }
+        }
+        return {};
+      }, result => result.discussionError
+        ? { state: "warning", text: `${d.title}: Response saved. Discussion needs attention: ${result.discussionError}` }
+        : `${d.title}: ${saved[action] || "Response saved."}`);
   }
 
   async function refreshDecisionHandoff(id, mode) {
