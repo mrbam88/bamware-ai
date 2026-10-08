@@ -63,6 +63,9 @@ run one at a time, so the delta is that task's cost. Records land in
   (they draw on the same Claude Max pool); otherwise `exclusive`.
 - Metering never blocks work: a missing or failing meter records `unmetered`.
   `BAMWARE_METER=off` disables it.
+- `meter.py`'s OpenAI collector defaults to the one main checkout
+  (`~/code/worktrees/bamware-ai-main/services/assistant-web/scripts/collect-server-quota.py`,
+  #110); override with `BAMWARE_OPENAI_COLLECTOR` only for local testing.
 
 ## Commands
 

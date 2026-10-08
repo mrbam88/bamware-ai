@@ -1,4 +1,6 @@
+import importlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -78,6 +80,36 @@ class MeterTests(unittest.TestCase):
         (day, pools), = report['per_day'].items()
         self.assertAlmostEqual(pools['claude-max:weekly'], 4.5)
         self.assertEqual(json.loads(ledger.read_text().splitlines()[0])['attribution'], 'exclusive-local')
+
+
+class OpenaiCollectorDefaultTests(unittest.TestCase):
+    """~/srv/bamware-ai is retired (#110): the default collector path must
+    point at the one main checkout, not the archived deploy clone."""
+
+    def test_default_points_at_main_checkout_not_srv(self):
+        saved = os.environ.pop('BAMWARE_OPENAI_COLLECTOR', None)
+        try:
+            importlib.reload(meter)
+            self.assertEqual(meter.OPENAI_COLLECTOR,
+                              meter.HOME / 'code/worktrees/bamware-ai-main'
+                              / 'services/assistant-web/scripts/collect-server-quota.py')
+        finally:
+            if saved is not None:
+                os.environ['BAMWARE_OPENAI_COLLECTOR'] = saved
+            importlib.reload(meter)
+
+    def test_env_override_still_wins(self):
+        saved = os.environ.get('BAMWARE_OPENAI_COLLECTOR')
+        os.environ['BAMWARE_OPENAI_COLLECTOR'] = '/custom/collector.py'
+        try:
+            importlib.reload(meter)
+            self.assertEqual(meter.OPENAI_COLLECTOR, Path('/custom/collector.py'))
+        finally:
+            if saved is None:
+                os.environ.pop('BAMWARE_OPENAI_COLLECTOR', None)
+            else:
+                os.environ['BAMWARE_OPENAI_COLLECTOR'] = saved
+            importlib.reload(meter)
 
 
 if __name__ == '__main__':
