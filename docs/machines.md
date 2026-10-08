@@ -20,7 +20,7 @@ same session.** Record only what's known: "model unknown" beats a guess.
 | `thinkpad` | ThinkPad X1 Carbon Gen 12, Omarchy | Portable daily driver (section below) |
 | `omarchy` | MacBook Pro 16" 2019 (Intel), Omarchy | Always-on Linux build/agent server; stays put |
 | `mac` | MacBook Pro M3 Pro, macOS | All iOS work; sometimes travels |
-| Monitor | **6K monitor** (Kuycon G32P, 32" 6K) | Usually the M3's display; either laptop can use it over USB-C |
+| Monitor | **6K monitor** (Kuycon G32P, 32" 6K) | Built-in 3-way USB switch: M3, X1 and server. Usually the M3's display |
 | TV | **Samsung Living Room 65" TV** (Samsung QBQ90, 4K) | Display via a Ugreen USB-C to HDMI cable |
 | TV | **TCL 55" 4K TV** (TCL 55R615) | Display via a Realtek USB-C to HDMI adapter |
 | Phone | iPhone 15 Pro | Physical test device; pairs with the `mac` |
@@ -161,7 +161,14 @@ connector names like `DP-1`.
 laptops, the X1 and the M3. He tries to use only the X1 but sometimes needs
 the Mac. He plugs either laptop into any of the three displays, but the M3
 usually goes on the 6K monitor. The server stays on all the time and isn't
-one of the laptops he moves between displays. Display setup has been fairly
+one of the laptops he moves between displays.
+
+**The 6K monitor is the desk hub.** It has a built-in 3-way USB switch with the
+M3, the X1 and the server all connected. One button moves the USB devices
+(keyboard, trackpad and the rest) between the three machines. Bilal uses it as
+a hub because it's quick and works well. The switch moves USB devices only, not
+the picture. Every laptop connected to the 6K runs with its lid closed, so the
+6K is its only screen. Display setup has been fairly
 consistent so far, though it does change. Any of the three displays may be
 connected to the X1, so its config must handle all three.
 
@@ -193,8 +200,9 @@ Overnight Mode executor (`services/overnight`).
 always on, lid shut or not, sitting at his desk on a **6K display**. The X1 is
 his **daily laptop**, and he reaches the server from it over Tailscale SSH. The
 M3 MacBook is the only machine that can ship Apple work. Assume a session here
-is Bilal at a terminal, not an unattended runner. (As of 2026-10-07 the 6K monitor usually serves
-the M3; see "Who uses which display" above.)
+is Bilal at a terminal, not an unattended runner. (2026-10-07: the server is
+one of three machines on the 6K monitor's USB switch, with the M3 and the X1;
+see "Who uses which display" above.)
 
 ⚠️ **Sessions here are not crash-proof by default.** Tailscale SSH parents the
 shell (`tailscaled -> login -> bash -> claude`), and the agent runs in the
