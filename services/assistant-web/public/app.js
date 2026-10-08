@@ -321,6 +321,37 @@
     completed: "Worker finished",
   };
 
+  // Presentation only: never infer completion from approval, a checker finishing,
+  // or an agent replying in Discord. Uncertain/error follow-through stays visible.
+  function decisionPresentation(d) {
+    const state = (tone, label, archive = false) => ({ tone, label, archive });
+    const b = d.ownerBlocker;
+    const delivery = b?.notifications?.[b.status === "resolved" ? "resolved" : "waiting_for_owner"] ?? b?.notification;
+    const failed = s => ["failed", "interrupted", "unknown", "unavailable", "source_error", "dispatch_unknown", "repair_required"].includes(s);
+    if (failed(d.handoffCheck?.status) || failed(d.handoffCheck?.notification?.status)
+        || failed(b?.status) || failed(b?.reconciliation?.state) || failed(b?.resume?.status)
+        || failed(delivery?.status) || /^Worker error:/.test(d.handoff?.reason || "")
+        || (d.discussion && d.discussion.status !== "ready")) {
+      return state("error", "! Follow-through needs attention");
+    }
+    if (d.resolution) return state("resolved", d.resolution.status === "resolved" ? "✓ Resolved" : "↪ Replaced", true);
+    if (d.stale) return state("awaiting", "! Needs a fresh look");
+    // A still-open blocker takes precedence over an old worker completion.
+    if (b && b.status !== "resolved" && !["paused", "cancelled"].includes(b.status)) {
+      return state("awaiting", "! Waiting on your action");
+    }
+    if (!d.response) return state("awaiting", `◇ ${STATUS_FACE[d.urgency] || "Needs your OK"}`);
+    if (d.handoff?.status === "completed") return state("resolved", "✓ Worker finished", true);
+    if (d.handoff?.status === "pickup_confirmed") return state("working", "↻ Worker picked this up");
+    if (d.response.action === "approve") return state("working", "◷ Approved · awaiting worker");
+    if (d.response.action === "defer") return state("paused", "Ⅱ Deferred · still open");
+    if (d.response.action === "reject" && d.handoff?.status === "not_applicable"
+        && !b && !["queued", "running"].includes(d.handoffCheck?.status)) {
+      return state("paused", "— Rejected · not dispatched", true);
+    }
+    return state("working", d.response.action === "discuss" ? "↔ Discussion requested · not approved" : "◷ Response saved · follow-through open");
+  }
+
   let decisionActionPending = false;
   const feedback = el("p", "dc-feedback");
   feedback.setAttribute("role", "status");
@@ -356,6 +387,8 @@
       if (!refreshed) decisionFeedback("warning", `${message} The list could not refresh. Refresh before taking another action.`);
       feedback.focus({ preventScroll: true });
     } catch (err) {
+      card.dataset.state = "error";
+      card.querySelector(".dc-state-badge").textContent = "! Action not confirmed";
       decisionFeedback("error", `${card.querySelector(".dc-title").textContent}: Could not confirm this action: ${err.message}. Refresh to check its status before retrying.`);
     } finally {
       card.removeAttribute("aria-busy");
@@ -396,16 +429,22 @@
     els.decisionList.innerHTML = "";
     if (data.coordinator) {
       const c = data.coordinator, status = document.createElement("li");
-      status.className = "decision-card";
+      const coordinatorError = c.currentRuntimeFailure || ["failed", "partial", "unavailable"].includes(c.status) || c.failures?.length;
+      status.className = `decision-card dc-operations${coordinatorError ? " dc-error" : ""}`;
       const sm = c.scrumMaster;
       const headline = document.createElement("p");
       headline.textContent = `Scrum Master · ${Array.isArray(sm?.assignments) ? `${sm.assignments.length} assigned efforts` : "Assignment data unavailable"} · ${c.currentRuntimeFailure ? "Runtime failure" : c.status || "Status unavailable"}`;
-      status.appendChild(headline);
+
       const timing = document.createElement("p"); timing.className = "dc-meta";
       timing.textContent = `Last sweep: ${c.checkedAt || "not observed"} · Next check: ${c.nextSweepAt || "not scheduled"}`;
       if (c.currentRuntimeFailure) { const failure = document.createElement("p"); failure.setAttribute("role", "alert"); failure.textContent = `Runtime failure at ${c.currentRuntimeFailure.at || "unknown time"}: ${c.currentRuntimeFailure.detail || "Check unavailable; stored status may be older."}`; status.appendChild(failure); }
+      else if (coordinatorError) {
+        const failure = el("p", "", "! Delivery supervision needs attention — see assignments and receipts.");
+        failure.setAttribute("role", "alert"); status.appendChild(failure);
+      }
       const details = document.createElement("details"), summary = document.createElement("summary");
       summary.textContent = "Delivery assignments and receipts"; details.appendChild(summary);
+      details.appendChild(headline);
       details.appendChild(timing);
       const coverage = document.createElement("p"); coverage.textContent = sm?.coverage || c.coverage || "Coverage unavailable."; details.appendChild(coverage);
       for (const a of sm?.assignments || []) {
@@ -422,42 +461,38 @@
       status.appendChild(details);
       els.decisionList.appendChild(status);
     }
-    if (!data.decisions || !data.decisions.length) {
-      const li = document.createElement("li");
-      li.className = "decision-card dc-empty";
-      li.textContent = "No decisions need your input right now.";
+    const all = [...(data.decisions || []), ...(data.history || [])];
+    const active = all.filter(d => !decisionPresentation(d).archive);
+    const archived = all.filter(d => decisionPresentation(d).archive);
+    // Decisions/errors first; unresolved follow-through remains visible but compact.
+    active.sort((a, b) => {
+      const rank = { error: 0, awaiting: 1, working: 2, paused: 3 };
+      return rank[decisionPresentation(a).tone] - rank[decisionPresentation(b).tone];
+    });
+    if (!active.length) {
+      const li = el("li", "decision-card dc-empty", "✓ Board clear — no open decisions or follow-through. Recorded decisions are kept in History.");
       els.decisionList.appendChild(li);
     }
-    for (const d of data.decisions || []) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
+    for (const d of active) els.decisionList.appendChild(renderDecisionCard(d, data.mode));
     // Keep operational receipts available, below the decisions that need input.
     if (data.coordinator) els.decisionList.appendChild(els.decisionList.firstElementChild);
-    if (data.history?.length) {
-      const li = document.createElement("li");
-      li.className = "decision-card";
-      const history = document.createElement("details");
-      history.appendChild(el("summary", "", `History (${data.history.length})`));
-      for (const d of data.history) {
-        const entry = document.createElement("section");
-        entry.appendChild(el("h3", "", d.title));
-        entry.appendChild(el("p", "", `${d.resolution.status === "resolved" ? "Resolved" : "Replaced"} — ${d.resolution.reason}`));
-        if (d.response) {
-          const choice = d.options.find(o => o.id === d.response.selectedOptionId)?.label ?? d.response.selectedOptionId;
-          entry.appendChild(el("p", "", `Your recorded response: ${d.response.action}${choice ? ` — ${choice}` : ""}.`));
-          if (d.response.note) entry.appendChild(el("p", "", d.response.note));
-        }
-        const ref = d.resolution.evidence.ref;
-        if (/^https?:\/\//.test(ref)) {
-          const link = el("a", "", "Resolution source");
-          link.href = ref; link.target = "_blank"; link.rel = "noopener noreferrer";
-          entry.appendChild(link);
-        } else entry.appendChild(el("p", "", `Evidence: ${ref}`));
-        history.appendChild(entry);
-      }
+    if (archived.length) {
+      const li = el("li", "dc-history");
+      const history = el("details", "dc-history-disclosure");
+      history.appendChild(el("summary", "", `History (${archived.length}) · resolved, replaced & closed decisions`));
+      const list = el("ul", "decisionList");
+      for (const d of archived) list.appendChild(renderDecisionCard(d, data.mode));
+      history.appendChild(list);
       li.appendChild(history);
       els.decisionList.appendChild(li);
     }
     if (location.hash.startsWith("#decision=")) {
-      try { document.getElementById(`decision-${decodeURIComponent(location.hash.slice(10))}`)?.scrollIntoView({block: "start"}); } catch {}
+      try {
+        const target = document.getElementById(`decision-${decodeURIComponent(location.hash.slice(10))}`);
+        const history = target?.closest(".dc-history-disclosure");
+        if (history) history.open = true;
+        target?.scrollIntoView({block: "start"});
+      } catch {}
     }
   }
 
@@ -466,7 +501,9 @@
     // Rationale, source refs, owner labels, blocked lists, and technical
     // follow-through stay collapsed so a CEO can decide in <10s.
     const li = document.createElement("li");
+    const presentation = decisionPresentation(d);
     li.className = `decision-card urgency-${d.urgency}`;
+    li.dataset.state = presentation.tone;
     li.id = `decision-${d.id}`;
     if (d.project) li.appendChild(el("div", "projectTag", d.project));
 
@@ -479,11 +516,9 @@
     const badges = document.createElement("div");
     badges.className = "dc-badges";
     const ub = document.createElement("span");
-    ub.className = `dc-badge dc-badge-${d.urgency}`;
+    ub.className = "dc-badge dc-state-badge";
     const answered = Boolean(d.response) && !d.stale;
-    ub.textContent = answered
-      ? "Answered"
-      : (d.stale ? "Needs a fresh look" : (STATUS_FACE[d.urgency] || "Needs your OK"));
+    ub.textContent = presentation.label;
     badges.appendChild(ub);
     if (d.source && d.source.kind === "synthetic") {
       const tag = document.createElement("span");
@@ -505,7 +540,7 @@
     const recOpt = d.recommendation
       ? (d.options || []).find((o) => o.id === d.recommendation.optionId)
       : null;
-    if (recOpt && !answered) {
+    if (recOpt && !answered && !d.resolution) {
       const rec = document.createElement("p");
       rec.className = "dc-suggested";
       rec.textContent = `Suggested: ${recOpt.label}`;
@@ -516,8 +551,8 @@
     if (d.response) {
       const answer = document.createElement("div");
       answer.className = `dc-answer${d.stale ? " dc-stale" : ""}`;
-      const optLabel = (d.options || []).find((o) => o.id === d.response.selectedOptionId)?.label;
-      answer.textContent = d.stale
+      const optLabel = (d.options || []).find((o) => o.id === d.response.selectedOptionId)?.label ?? d.response.selectedOptionId;
+      answer.textContent = d.stale && !d.resolution
         ? `Earlier choice${optLabel ? `: ${optLabel}` : ""} — the ask changed; pick again.`
         : `${d.response.action.charAt(0).toUpperCase()}${d.response.action.slice(1)}${optLabel ? `: ${optLabel}` : ""} · ${new Date(d.response.decidedAt).toLocaleString()}`;
       li.appendChild(answer);
@@ -529,9 +564,10 @@
       }
       const handoff = document.createElement("div");
       handoff.className = "dc-handoff";
-      handoff.textContent = HANDOFF_LABEL[d.handoff.status] || "Status unavailable";
+      handoff.textContent = HANDOFF_LABEL[d.handoff?.status] || "Status unavailable";
+      if (d.resolution) handoff.textContent = `Recorded handoff before retirement: ${handoff.textContent}`;
       li.appendChild(handoff);
-      if (d.handoff.status === "pickup_confirmed") {
+      if (d.handoff?.status === "pickup_confirmed" && !d.resolution) {
         const refreshBtn = document.createElement("button");
         refreshBtn.type = "button";
         refreshBtn.className = "link";
@@ -544,7 +580,7 @@
     // Response controls — options first, then confirm/reject/defer ----------
     let select = null;
     let note = null;
-    if (!d.response || d.stale || d.ownerBlocker) {
+    if (!d.resolution && !presentation.archive && (!d.response || d.stale || d.ownerBlocker)) {
       const choices = document.createElement("div");
       choices.className = "dc-choices";
       const choiceLabel = document.createElement("div");
@@ -638,6 +674,19 @@
     details.appendChild(el("summary", "", "Details"));
     let hasDetails = false;
 
+    if (d.resolution) {
+      li.appendChild(el("p", "dc-resolution", d.resolution.reason));
+      const ref = d.resolution.evidence?.ref || "Not recorded";
+      if (/^https?:\/\//.test(ref)) {
+        const link = el("a", "dc-meta", "Resolution source");
+        link.href = ref; link.target = "_blank"; link.rel = "noopener noreferrer";
+        details.appendChild(link);
+      } else details.appendChild(el("p", "dc-meta", `Evidence: ${ref}`));
+    }
+    if (presentation.tone === "error") {
+      li.appendChild(el("p", "dc-status-detail", d.handoffCheck?.error || d.discussion?.detail || d.ownerBlocker?.reconciliation?.detail || d.handoff?.reason || "Check delivery and progress details before retrying."));
+    }
+
     if (d.recommendation?.rationale) {
       details.appendChild(el("p", "dc-context", `Why suggested: ${d.recommendation.rationale}`));
       hasDetails = true;
@@ -645,7 +694,7 @@
     if (d.blockedWork && d.blockedWork.length) {
       const blocked = document.createElement("div");
       blocked.className = "dc-blocked";
-      blocked.appendChild(el("span", "dc-blocked-label", "Blocked until you decide"));
+      blocked.appendChild(el("span", "dc-blocked-label", answered || d.resolution ? "Work linked to the original ask" : "Blocked until you decide"));
       const list = document.createElement("ul");
       for (const item of d.blockedWork) list.appendChild(el("li", "", item));
       blocked.appendChild(list);
@@ -713,7 +762,7 @@
 
     if (hasDetails) li.appendChild(details);
 
-    if (mode === "live") {
+    if (mode === "live" && !d.resolution && !presentation.archive) {
       const box = document.createElement("section"); box.className = "dc-discussion";
       const status = document.createElement("p"); status.setAttribute("role", "status");
       status.textContent = d.discussion
@@ -760,6 +809,14 @@
       li.appendChild(box);
     }
 
+    // Old asks, notes and discussion remain available without competing with
+    // current state. Keep owner-action controls and errors on the face.
+    if ((answered && !d.ownerBlocker) || d.resolution) {
+      li.classList.add("dc-compact");
+      for (const node of [...li.children]) {
+        if (node.matches(".dc-ask, .dc-meta, .dc-handoff, .dc-discussion")) details.appendChild(node);
+      }
+    }
     return li;
   }
 

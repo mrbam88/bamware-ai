@@ -80,6 +80,42 @@ body { background: var(--bg); color: var(--ink); -webkit-text-size-adjust: 100%;
 .decision-card.urgency-high { border-left-color: var(--err); }
 .decision-card.dc-empty, .decision-card.dc-loading, .decision-card.dc-error { border-left-color: var(--line); color: var(--muted); font-size: 13px; }
 .decision-card.dc-error { color: var(--danger); border-color: var(--danger); }
+/* Command Center: an amber decision desk, blue follow-through, quiet teal
+   history. Labels + symbols carry every state, not red/green discrimination.
+   Keep the existing system type: strong titles, small utility/status labels. */
+body:has(#decisionsView:not([hidden])) { background: #101923; }
+.decision-card[data-state] {
+  --ink: #edf2fa;
+  --muted: #c0cbd8;
+  --state-surface: #40351e;
+  --state-accent: #ffda85;
+  background: var(--state-surface);
+  border: 1px solid color-mix(in srgb, var(--state-accent) 40%, var(--state-surface));
+  border-left: 5px solid var(--state-accent);
+  color: var(--ink);
+  padding: 18px;
+}
+.decision-card[data-state="working"] { --state-surface: #173752; --state-accent: #92ceff; }
+.decision-card[data-state="resolved"] { --state-surface: #173d42; --state-accent: #9adbdc; }
+.decision-card[data-state="paused"] { --state-surface: #2c3445; --state-accent: #c7cfe2; }
+.decision-card[data-state="error"] { --state-surface: #482a45; --state-accent: #ffc0e9; border-left-style: double; }
+.decision-card[data-state][aria-busy="true"] { --state-surface: #173752; --state-accent: #92ceff; border-style: dashed; }
+.decision-card[data-state] .dc-state-badge { color: var(--state-accent); background: #101923; padding: 5px 9px; }
+.decision-card[data-state] .projectTag { color: var(--muted); background: transparent; border: 0; padding: 0; letter-spacing: .08em; }
+.decision-card[data-state] .dc-suggested { color: var(--state-accent); }
+.decision-card[data-state] .dc-option-chip { background: #19232f; }
+.decision-card[data-state] .dc-option-chip.is-selected { background: #30465c; }
+.decision-card.dc-compact { padding: 14px 18px; }
+.dc-compact .dc-title { font-size: 15px; }
+.dc-compact .dc-answer { border: 0; padding: 0; color: var(--muted); }
+.dc-compact .dc-more { margin-top: 8px; }
+.dc-status-detail, .dc-resolution { font-size: 13px; line-height: 1.5; margin: 8px 0; }
+.dc-history { border-top: 1px solid var(--control-line); padding-top: 8px; }
+.dc-history-disclosure > summary, .dc-operations summary { cursor: pointer; padding: 12px 0; min-height: 44px; font-size: 13px; font-weight: 600; }
+.decision-card.dc-operations { background: transparent; border: 0; padding: 0 4px; }
+.decision-card.dc-operations.dc-error { background: #482a45; padding: 12px; }
+.dc-history .decisionList { margin-top: 8px; }
+.decision-card.dc-empty { border: 1px dashed #688c96; background: #173039; color: #cde8ed; padding: 20px; line-height: 1.6; }
 /* Which project a card or blocker belongs to: the first thing the eye lands on. */
 .projectTag { display: inline-block; max-width: 100%; margin-bottom: 6px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); overflow-wrap: anywhere; }
 .row .projectTag { margin-bottom: 0; }
