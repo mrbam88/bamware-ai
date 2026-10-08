@@ -563,40 +563,49 @@
         select.appendChild(opt);
       }
       choices.appendChild(select);
-      const chips = document.createElement("ul");
+      // Native <button> chips (not a faux listbox): Tab/Enter/Space work for
+      // free, and decisionAction's button-disabling freezes them while a
+      // submit is pending (bamware-ai#154 — chips stayed clickable mid-POST).
+      // pick() also refuses while pending/disabled/busy so programmatic
+      // click/change cannot flip the displayed in-flight selection.
+      const chips = document.createElement("div");
       chips.className = "dc-option-chips";
-      chips.setAttribute("role", "listbox");
+      chips.setAttribute("role", "group");
       chips.setAttribute("aria-label", "Decision options");
+      let committedOptionId = select.value;
+      const selectionLocked = () =>
+        decisionActionPending || select.disabled || li.getAttribute("aria-busy") === "true";
+      const syncChips = () => {
+        for (const c of chips.querySelectorAll(".dc-option-chip")) {
+          const on = c.dataset.optionId === committedOptionId;
+          c.classList.toggle("is-selected", on);
+          c.setAttribute("aria-pressed", String(on));
+        }
+      };
+      const pick = (optionId) => {
+        if (selectionLocked()) return;
+        select.value = optionId;
+        committedOptionId = optionId;
+        syncChips();
+      };
       for (const o of d.options || []) {
-        const row = document.createElement("li");
+        const row = document.createElement("button");
+        row.type = "button";
         row.className = "dc-option-chip" + (d.recommendation && d.recommendation.optionId === o.id ? " is-suggested" : "");
-        row.setAttribute("role", "option");
-        row.tabIndex = 0;
         row.dataset.optionId = o.id;
         row.textContent = o.label;
-        const pick = () => {
-          select.value = o.id;
-          for (const c of chips.querySelectorAll(".dc-option-chip")) {
-            const on = c.dataset.optionId === o.id;
-            c.classList.toggle("is-selected", on);
-            c.setAttribute("aria-selected", String(on));
-          }
-        };
-        row.addEventListener("click", pick);
-        row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(); } });
-        if (select.value === o.id) {
-          row.classList.add("is-selected");
-          row.setAttribute("aria-selected", "true");
-        } else row.setAttribute("aria-selected", "false");
+        row.addEventListener("click", () => pick(o.id));
         chips.appendChild(row);
       }
       select.addEventListener("change", () => {
-        for (const c of chips.querySelectorAll(".dc-option-chip")) {
-          const on = c.dataset.optionId === select.value;
-          c.classList.toggle("is-selected", on);
-          c.setAttribute("aria-selected", String(on));
+        if (selectionLocked()) {
+          select.value = committedOptionId;
+          return;
         }
+        committedOptionId = select.value;
+        syncChips();
       });
+      syncChips();
       choices.appendChild(chips);
       li.appendChild(choices);
 

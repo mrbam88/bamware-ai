@@ -120,11 +120,14 @@ message content.
 ### Command Center action feedback
 
 Approve/Reject/Defer and discussion Send share a browser-side pending lock.
-The active button changes its label; card controls and deck refresh/demo controls
-are disabled until the request and follow-up refresh finish. A sticky, polite
-live region keeps success/error feedback visible after cards are rebuilt. Failed
-submissions retain the choice/note; a saved response with a failed list refresh
-is reported separately. A Discord `repair_required` response is never shown as
+The active button changes its label; card controls (including option chips),
+and deck refresh/demo controls are disabled until the request and follow-up
+refresh finish. Option chips are native buttons: while pending, selection is
+locked and non-selected chips cannot change the displayed choice (mouse,
+keyboard, or programmatic activation). A sticky, polite live region keeps
+success/error feedback visible after cards are rebuilt. Failed submissions
+retain the choice/note; a saved response with a failed list refresh is
+reported separately. A Discord `repair_required` response is never shown as
 successful delivery, even when HTTP is 200. Approval is not worker completion.
 Operational receipts remain below the decisions, with sweep timing collapsed.
 No API, durable store, auth or worker behavior changes.

@@ -65,6 +65,39 @@ async function scenario({ action = 'approve', failure = false, errorStatus = 503
   await page.locator('.dc-feedback[data-state="pending"]').waitFor();
   assert.equal(await card.getAttribute('aria-busy'), 'true');
   assert.equal(await page.locator('#decisionsView button:enabled, #decisionsView select:enabled, #decisionsView textarea:enabled, #decisionsView input:enabled').count(), 0);
+  // Option chips are native buttons: disabled while pending, selection locked
+  // against mouse / keyboard / programmatic activation (bamware-ai#154).
+  const lockCheck = await page.evaluate((cardId) => {
+    const card = document.getElementById(cardId);
+    const locked = card.querySelector('.dc-option-chip.is-selected');
+    const lockedId = locked?.dataset.optionId || null;
+    const other = [...card.querySelectorAll('.dc-option-chip')].find((c) => c.dataset.optionId !== lockedId) || null;
+    const select = card.querySelector('.dc-select-sr');
+    if (other) {
+      other.click();
+      other.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      other.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+      other.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }));
+    }
+    if (select && other) {
+      select.value = other.dataset.optionId;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    return {
+      lockedId,
+      selectedAfter: card.querySelector('.dc-option-chip.is-selected')?.dataset.optionId || null,
+      selectAfter: select?.value || null,
+      otherDisabled: other ? other.disabled === true : false,
+      selectedDisabled: locked ? locked.disabled === true : false,
+      chipCount: card.querySelectorAll('.dc-option-chip').length,
+    };
+  }, `decision-${candidates[0].id}`);
+  assert.ok(lockCheck.chipCount >= 2, 'card needs option chips for lock regression');
+  assert.ok(lockCheck.lockedId);
+  assert.equal(lockCheck.otherDisabled, true);
+  assert.equal(lockCheck.selectedDisabled, true);
+  assert.equal(lockCheck.selectedAfter, lockCheck.lockedId);
+  assert.equal(lockCheck.selectAfter, lockCheck.lockedId);
   // Programmatic duplicate events exercise the guard in addition to disabled UI.
   await button.dispatchEvent('click');
   await page.locator('#decisionsRefresh').dispatchEvent('click');
