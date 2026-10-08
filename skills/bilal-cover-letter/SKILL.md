@@ -5,11 +5,15 @@ description: Bilal Malik's send-ready cover letter, his binding voice rules, and
 
 # Cover letter
 
-**Canonical document, October 2, 2026:** private `mrbam88/interviews`,
-`documents/cover-letter/Bilal_Malik_Cover_Letter.pdf`, with a paired `.txt`
-extraction. Retrieve it using that repo's `README.md` and `library.json`.
-The September 28 local final PDF has been selected for the library; the August
-letter below is historical and must not override the canonical document.
+**Canonical documents, October 8, 2026:** private `mrbam88/interviews`,
+`documents/kits/2026-10-08/<variant>/Bilal_Malik_Cover_Letter.{pdf,docx,txt}`.
+One letter per resume variant (`mobile-ios`, `mobile-rn`, `fullstack`,
+`manager`); the body is shared and only the opening paragraph and one
+FreedomCare clause change. Retrieve the one that matches the resume variant
+being attached, using that repo's `README.md` and `library.json`. No whitespace
+in filenames, underscores only. The September 28 letter is archived at
+`documents/cover-letter/2026-09-28-original/`; the August letter below is
+historical and must not override the canonical documents.
 
 Policy: **always include one, even when optional.** Bilal reviews it at the gate.
 

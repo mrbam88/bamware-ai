@@ -3,19 +3,32 @@ name: bilal-resume
 description: Bilal Malik's current resume content and the rules for attaching it to an application. Use when uploading a resume, pasting resume text, filling work-history fields, or answering questions about his roles, dates, stack, or accomplishments.
 ---
 
-# Resume, current as of 2026-09-30
+# Resume, current as of 2026-10-08
 
-Canonical source: private `mrbam88/interviews`,
-`documents/resume/Resume_BilalMalik_2026.pdf`, with a paired `.txt` extraction.
-Read that repository's `README.md` and `library.json` first. The September 30
-version (company renames + LinkedIn in header) supersedes earlier versions.
-The factual summary below is a public reference, not a competing master copy.
+Canonical source: private `mrbam88/interviews`, `documents/kits/2026-10-08/`.
+Four variants, one folder each: `mobile-ios`, `mobile-rn`, `fullstack`,
+`manager`. Every folder holds `Bilal_Malik_Resume.pdf` (upload this), `.docx`
+(editable) and `.txt` (paste into web forms), plus the matching
+`Bilal_Malik_Cover_Letter.{pdf,docx,txt}`. Read that repository's `README.md`
+and `library.json` first; `library.json.resume_set_current.how_to_pick` says
+which variant fits which job title. The October 8 set supersedes the
+September 30 master and the October 2 `ai-variants` drafts. The factual summary
+below is a public reference, not a competing master copy, and it still reflects
+the September 30 wording until refreshed.
+
+**Filenames (Bilal, 2026-10-08): no whitespace in any filename, ever.
+Underscores only.** The upload name is the same for every variant; the variant
+lives in the folder path and the PDF's Subject metadata, never in the name a
+recruiter sees. Log the variant folder and the `interviews` commit in the Notion
+application entry.
 
 ## Upload rules
 
-1. **PDF first, always the default.** Retrieve the original designed PDF from
-   the private interview library. Bilal approved storing it there on October 2.
-   Do not ask for a runtime attachment when the canonical file is accessible.
+1. **PDF first, always the default.** Retrieve the designed PDF for the right
+   variant from the private interview library. Bilal approved storing it there
+   on October 2. Do not ask for a runtime attachment when the canonical file is
+   accessible. Attach the matching cover letter from the same folder whenever
+   there is a cover letter field.
 2. **Plain text only when forced.** Use the paired text in the private library
    for current content and contact details. The public `resume.txt` is a legacy
    reference, not the canonical document. Never copy private contact details
