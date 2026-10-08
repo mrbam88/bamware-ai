@@ -89,15 +89,20 @@ and served history UI. No chat, model, Discord operation or decision submission.
 
 Decision candidates in `lib/providers/decision-candidates.mjs` are written for
 a CEO scanning the Command Center on a phone, not for an engineer re-deriving
-context:
+context. Card face hierarchy is **title → status → ask → 2–3 options**;
+everything else is collapsed under **Details**.
 
-- `title`: the decision in plain English.
-- `summary`: one plain-English sentence, no jargon, no ids/ticket numbers —
-  this is what renders on the card face under the title.
-- `blockedWork`: short bullets, ~50 words total, plain language.
-- `context`: the full source-grounded paragraph (issue refs, verification
-  detail, etc.) still lives here for audit/trust, but the UI tucks it behind
-  a collapsed "Full details" control instead of showing it by default.
+- `title`: the decision in plain English (≤ ~12 words). No ticket ids.
+- `summary`: one plain-English sentence (≤ ~20 words), no jargon, no
+  `owner_*` codes, no ticket numbers — renders as the ask under the title.
+- Option `label`s: short verbs a CEO can pick in one glance (2–3 options).
+- Status chips are CEO language (`Needs you now` / `Needs your OK` /
+  `When you can`) — never raw urgency enums or escalation reason codes.
+- `blockedWork`: short bullets; shown inside Details, not on the face.
+- `context` + recommendation rationale + source refs + owner: collapsed
+  under Details for audit/trust. Never multi-paragraph default face text.
+- `escalationReason` (`owner_*` etc.) is internal only — never render it on
+  the card face.
 
 `summary` is optional on the candidate shape (`assertValidCandidate` only
 validates it when present) so older dynamically-created ledger candidates
@@ -115,11 +120,14 @@ message content.
 ### Command Center action feedback
 
 Approve/Reject/Defer and discussion Send share a browser-side pending lock.
-The active button changes its label; card controls and deck refresh/demo controls
-are disabled until the request and follow-up refresh finish. A sticky, polite
-live region keeps success/error feedback visible after cards are rebuilt. Failed
-submissions retain the choice/note; a saved response with a failed list refresh
-is reported separately. A Discord `repair_required` response is never shown as
+The active button changes its label; card controls (including option chips),
+and deck refresh/demo controls are disabled until the request and follow-up
+refresh finish. Option chips are native buttons: while pending, selection is
+locked and non-selected chips cannot change the displayed choice (mouse,
+keyboard, or programmatic activation). A sticky, polite live region keeps
+success/error feedback visible after cards are rebuilt. Failed submissions
+retain the choice/note; a saved response with a failed list refresh is
+reported separately. A Discord `repair_required` response is never shown as
 successful delivery, even when HTTP is 200. Approval is not worker completion.
 Operational receipts remain below the decisions, with sweep timing collapsed.
 No API, durable store, auth or worker behavior changes.
