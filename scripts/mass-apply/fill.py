@@ -208,7 +208,7 @@ def fill_ashby(page: Page, kit: str, filled: dict):
         (r"authori[sz]ed to work", "Yes"),
     ]:
         try:
-            box = ashby_entry(page, rx).locator("input[type=text], input[type=email], input[type=tel], textarea").first
+            box = ashby_entry(page, rx).locator("input[type=text], input[type=email], input[type=tel], input[type=url], textarea").first
             if box.count():
                 box.fill(val); filled[rx] = val
         except Exception:
