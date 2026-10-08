@@ -20,7 +20,7 @@ same session.** Record only what's known: "model unknown" beats a guess.
 | `thinkpad` | ThinkPad X1 Carbon Gen 12, Omarchy | Portable daily driver (section below) |
 | `omarchy` | MacBook Pro 16" 2019 (Intel), Omarchy | Always-on Linux build/agent server; stays put |
 | `mac` | MacBook Pro M3 Pro, macOS | All iOS work; sometimes travels |
-| Monitor | Kuycon G32P, 32" 6K | Desk display for the ThinkPad over USB-C |
+| Monitor | **6K monitor** (Kuycon G32P, 32" 6K) | Usually the M3's display; either laptop can use it over USB-C |
 | TV | **Samsung Living Room 65" TV** (Samsung QBQ90, 4K) | Display via a Ugreen USB-C to HDMI cable |
 | TV | **TCL 55" 4K TV** (TCL 55R615) | Display via a Realtek USB-C to HDMI adapter |
 | Phone | iPhone 15 Pro | Physical test device; pairs with the `mac` |
@@ -94,7 +94,7 @@ no particular session/config synchronization mechanism has been chosen yet.
 **Daily workflow (Bilal, 2026-09-24):** Bilal carries the `thinkpad` around NYC
 and works from cafes. Heavy work (builds, agents, iOS) runs over SSH on the
 MacBooks at home: `omarchy` (always on; Tailscale SSH already works) and the
-`mac` when it's home. At home he plugs the Kuycon 6K into the X1. So the
+`mac` when it's home. At home either laptop goes on any of the three displays (see below). So the
 ThinkPad should stay light and portable, work well on battery and cafe Wi-Fi,
 and treat the home machines as remote builders. Run long jobs in `tmux` on the
 remote box so a dropped cafe connection doesn't kill them.
@@ -143,7 +143,7 @@ Good for:
 `sudo` prompts for a password. An agent without a terminal can use `pkexec`
 (Bilal approves a GUI prompt).
 
-**Displays** (used at the desk; both sit above the laptop screen):
+**Displays** (each sits above the laptop screen):
 
 - Kuycon G32P, a 32" 6K monitor (6144x3456@60, scale 2) on either USB-C port.
   Unplugging needs the `drm-unstick-typec` auto-fix, or no monitor is detected
@@ -156,6 +156,14 @@ Good for:
 Bilal's names for his three displays (2026-10-07): **Samsung Living Room 65"
 TV**, **TCL 55" 4K TV** and the **6K monitor** (Kuycon). Use these names, not
 connector names like `DP-1`.
+
+**Who uses which display (Bilal, 2026-10-07):** his daily drivers are the two
+laptops, the X1 and the M3. He tries to use only the X1 but sometimes needs
+the Mac. He plugs either laptop into any of the three displays, but the M3
+usually goes on the 6K monitor. The server stays on all the time and isn't
+one of the laptops he moves between displays. Display setup has been fairly
+consistent so far, though it does change. Any of the three displays may be
+connected to the X1, so its config must handle all three.
 
 Desktop setup (Mac-style keys, dictation, emulator window sizing, displays, and
 how Bilal uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
@@ -185,7 +193,8 @@ Overnight Mode executor (`services/overnight`).
 always on, lid shut or not, sitting at his desk on a **6K display**. The X1 is
 his **daily laptop**, and he reaches the server from it over Tailscale SSH. The
 M3 MacBook is the only machine that can ship Apple work. Assume a session here
-is Bilal at a terminal, not an unattended runner.
+is Bilal at a terminal, not an unattended runner. (As of 2026-10-07 the 6K monitor usually serves
+the M3; see "Who uses which display" above.)
 
 ⚠️ **Sessions here are not crash-proof by default.** Tailscale SSH parents the
 shell (`tailscaled -> login -> bash -> claude`), and the agent runs in the
