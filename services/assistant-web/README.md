@@ -89,15 +89,20 @@ and served history UI. No chat, model, Discord operation or decision submission.
 
 Decision candidates in `lib/providers/decision-candidates.mjs` are written for
 a CEO scanning the Command Center on a phone, not for an engineer re-deriving
-context:
+context. Card face hierarchy is **title → status → ask → 2–3 options**;
+everything else is collapsed under **Details**.
 
-- `title`: the decision in plain English.
-- `summary`: one plain-English sentence, no jargon, no ids/ticket numbers —
-  this is what renders on the card face under the title.
-- `blockedWork`: short bullets, ~50 words total, plain language.
-- `context`: the full source-grounded paragraph (issue refs, verification
-  detail, etc.) still lives here for audit/trust, but the UI tucks it behind
-  a collapsed "Full details" control instead of showing it by default.
+- `title`: the decision in plain English (≤ ~12 words). No ticket ids.
+- `summary`: one plain-English sentence (≤ ~20 words), no jargon, no
+  `owner_*` codes, no ticket numbers — renders as the ask under the title.
+- Option `label`s: short verbs a CEO can pick in one glance (2–3 options).
+- Status chips are CEO language (`Needs you now` / `Needs your OK` /
+  `When you can`) — never raw urgency enums or escalation reason codes.
+- `blockedWork`: short bullets; shown inside Details, not on the face.
+- `context` + recommendation rationale + source refs + owner: collapsed
+  under Details for audit/trust. Never multi-paragraph default face text.
+- `escalationReason` (`owner_*` etc.) is internal only — never render it on
+  the card face.
 
 `summary` is optional on the candidate shape (`assertValidCandidate` only
 validates it when present) so older dynamically-created ledger candidates

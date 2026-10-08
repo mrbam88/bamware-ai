@@ -308,12 +308,17 @@
   let decisionsDemoMode = false;
   let decisionsLoading = false;
 
-  const URGENCY_LABEL = { low: "Low", medium: "Medium", high: "High" };
+  // CEO-facing status chips only — never raw urgency enums or owner_* codes on the card face.
+  const STATUS_FACE = {
+    high: "Needs you now",
+    medium: "Needs your OK",
+    low: "When you can",
+  };
   const HANDOFF_LABEL = {
-    not_applicable: "No handoff (no consequential action taken)",
-    handoff_pending: "Handoff pending — no confirmed live worker interface",
-    pickup_confirmed: "Picked up by worker",
-    completed: "Completed by worker",
+    not_applicable: "No handoff needed",
+    handoff_pending: "Saved — waiting on a worker",
+    pickup_confirmed: "Worker picked this up",
+    completed: "Worker finished",
   };
 
   let decisionActionPending = false;
@@ -457,6 +462,9 @@
   }
 
   function renderDecisionCard(d, mode) {
+    // Face hierarchy (bamware-ai#141): title → status → ask → 2–3 options.
+    // Rationale, source refs, owner labels, blocked lists, and technical
+    // follow-through stay collapsed so a CEO can decide in <10s.
     const li = document.createElement("li");
     li.className = `decision-card urgency-${d.urgency}`;
     li.id = `decision-${d.id}`;
@@ -472,105 +480,238 @@
     badges.className = "dc-badges";
     const ub = document.createElement("span");
     ub.className = `dc-badge dc-badge-${d.urgency}`;
-    ub.textContent = `${URGENCY_LABEL[d.urgency] || d.urgency} urgency`;
+    const answered = Boolean(d.response) && !d.stale;
+    ub.textContent = answered
+      ? "Answered"
+      : (d.stale ? "Needs a fresh look" : (STATUS_FACE[d.urgency] || "Needs your OK"));
     badges.appendChild(ub);
     if (d.source && d.source.kind === "synthetic") {
       const tag = document.createElement("span");
       tag.className = "dc-synthetic";
-      tag.textContent = "SYNTHETIC";
+      tag.textContent = "DEMO";
       badges.appendChild(tag);
     }
     head.appendChild(badges);
     li.appendChild(head);
 
-    // Plain-English one-liner for the card face; full jargon-y context moves
-    // into a collapsed <details> below so a CEO can scan title+summary+
-    // bullets without reading the source-grounding paragraph first.
-    if (d.summary) {
-      const summary = document.createElement("p");
-      summary.className = "dc-summary";
-      summary.textContent = d.summary;
-      li.appendChild(summary);
+    const askText = d.summary || (d.context ? String(d.context).split(/(?<=\.)\s+/)[0] : "");
+    if (askText) {
+      const ask = document.createElement("p");
+      ask.className = "dc-ask";
+      ask.textContent = askText;
+      li.appendChild(ask);
     }
 
-    if (d.recommendation) {
-      const rec = document.createElement("div");
-      rec.className = "dc-recommendation";
-      const opt = (d.options || []).find((o) => o.id === d.recommendation.optionId);
-      rec.textContent = `Recommendation: ${opt ? opt.label : d.recommendation.optionId} — ${d.recommendation.rationale}`;
+    const recOpt = d.recommendation
+      ? (d.options || []).find((o) => o.id === d.recommendation.optionId)
+      : null;
+    if (recOpt && !answered) {
+      const rec = document.createElement("p");
+      rec.className = "dc-suggested";
+      rec.textContent = `Suggested: ${recOpt.label}`;
       li.appendChild(rec);
     }
 
+    // Answer / handoff state for an existing response -----------------------
+    if (d.response) {
+      const answer = document.createElement("div");
+      answer.className = `dc-answer${d.stale ? " dc-stale" : ""}`;
+      const optLabel = (d.options || []).find((o) => o.id === d.response.selectedOptionId)?.label;
+      answer.textContent = d.stale
+        ? `Earlier choice${optLabel ? `: ${optLabel}` : ""} — the ask changed; pick again.`
+        : `${d.response.action.charAt(0).toUpperCase()}${d.response.action.slice(1)}${optLabel ? `: ${optLabel}` : ""} · ${new Date(d.response.decidedAt).toLocaleString()}`;
+      li.appendChild(answer);
+      if (d.response.note) {
+        const noteShown = document.createElement("div");
+        noteShown.className = "dc-meta";
+        noteShown.textContent = `Note: ${d.response.note}`;
+        li.appendChild(noteShown);
+      }
+      const handoff = document.createElement("div");
+      handoff.className = "dc-handoff";
+      handoff.textContent = HANDOFF_LABEL[d.handoff.status] || "Status unavailable";
+      li.appendChild(handoff);
+      if (d.handoff.status === "pickup_confirmed") {
+        const refreshBtn = document.createElement("button");
+        refreshBtn.type = "button";
+        refreshBtn.className = "link";
+        refreshBtn.textContent = "Check progress";
+        refreshBtn.addEventListener("click", () => refreshDecisionHandoff(d.id, mode));
+        li.appendChild(refreshBtn);
+      }
+    }
+
+    // Response controls — options first, then confirm/reject/defer ----------
+    let select = null;
+    let note = null;
+    if (!d.response || d.stale || d.ownerBlocker) {
+      const choices = document.createElement("div");
+      choices.className = "dc-choices";
+      const choiceLabel = document.createElement("div");
+      choiceLabel.className = "dc-choices-label";
+      choiceLabel.textContent = "Your options";
+      choices.appendChild(choiceLabel);
+      // Native select stays for a11y + tests; chips are the CEO-scannable face.
+      select = document.createElement("select");
+      select.className = "dc-select-sr";
+      select.setAttribute("aria-label", "Decision option");
+      for (const o of d.options || []) {
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = o.label;
+        if (d.recommendation && d.recommendation.optionId === o.id) opt.selected = true;
+        select.appendChild(opt);
+      }
+      choices.appendChild(select);
+      const chips = document.createElement("ul");
+      chips.className = "dc-option-chips";
+      chips.setAttribute("role", "listbox");
+      chips.setAttribute("aria-label", "Decision options");
+      for (const o of d.options || []) {
+        const row = document.createElement("li");
+        row.className = "dc-option-chip" + (d.recommendation && d.recommendation.optionId === o.id ? " is-suggested" : "");
+        row.setAttribute("role", "option");
+        row.tabIndex = 0;
+        row.dataset.optionId = o.id;
+        row.textContent = o.label;
+        const pick = () => {
+          select.value = o.id;
+          for (const c of chips.querySelectorAll(".dc-option-chip")) {
+            const on = c.dataset.optionId === o.id;
+            c.classList.toggle("is-selected", on);
+            c.setAttribute("aria-selected", String(on));
+          }
+        };
+        row.addEventListener("click", pick);
+        row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); pick(); } });
+        if (select.value === o.id) {
+          row.classList.add("is-selected");
+          row.setAttribute("aria-selected", "true");
+        } else row.setAttribute("aria-selected", "false");
+        chips.appendChild(row);
+      }
+      select.addEventListener("change", () => {
+        for (const c of chips.querySelectorAll(".dc-option-chip")) {
+          const on = c.dataset.optionId === select.value;
+          c.classList.toggle("is-selected", on);
+          c.setAttribute("aria-selected", String(on));
+        }
+      });
+      choices.appendChild(chips);
+      li.appendChild(choices);
+
+      note = document.createElement("textarea");
+      note.className = "dc-note";
+      note.placeholder = "Optional note…";
+      note.setAttribute("aria-label", "Optional note");
+      li.appendChild(note);
+
+      const actions = document.createElement("div");
+      actions.className = "dc-actions";
+      for (const action of (mode === "live" ? ["selected", "reject", "defer"] : ["selected", "reject", "discuss", "defer"])) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `dc-${action}`;
+        btn.textContent = action === "selected" ? "Confirm" : action.charAt(0).toUpperCase() + action.slice(1);
+        btn.addEventListener("click", () => {
+          const selected = (d.options || []).find(o => o.id === select.value);
+          respondToDecision(d, action === "selected" ? selected?.action || "approve" : action, action === "selected" ? select.value : null, note.value, mode, li, btn);
+        });
+        actions.appendChild(btn);
+      }
+      li.appendChild(actions);
+    }
+
+    // Expandable details: rationale, blocked work, source, owner blocker, handoff check.
+    // Comes before Discuss so the decide path stays primary on the face.
+    const details = document.createElement("details");
+    details.className = "dc-more";
+    details.appendChild(el("summary", "", "Details"));
+    let hasDetails = false;
+
+    if (d.recommendation?.rationale) {
+      details.appendChild(el("p", "dc-context", `Why suggested: ${d.recommendation.rationale}`));
+      hasDetails = true;
+    }
     if (d.blockedWork && d.blockedWork.length) {
       const blocked = document.createElement("div");
       blocked.className = "dc-blocked";
-      const label = document.createElement("span");
-      label.className = "dc-blocked-label";
-      label.textContent = "Blocked work";
-      blocked.appendChild(label);
+      blocked.appendChild(el("span", "dc-blocked-label", "Blocked until you decide"));
       const list = document.createElement("ul");
-      for (const item of d.blockedWork) {
-        const row = document.createElement("li");
-        row.textContent = item;
-        list.appendChild(row);
-      }
+      for (const item of d.blockedWork) list.appendChild(el("li", "", item));
       blocked.appendChild(list);
-      li.appendChild(blocked);
+      details.appendChild(blocked);
+      hasDetails = true;
     }
-
-    const meta = document.createElement("div");
-    meta.className = "dc-meta";
-    const sourceText = d.source && d.source.url
-      ? d.source.ref
-      : (d.source && d.source.ref) || "unknown source";
-    meta.textContent = `${sourceText} · owner: ${d.owner}`;
-    li.appendChild(meta);
-    if (d.source && d.source.url) {
+    if (d.context) {
+      details.appendChild(el("p", "dc-context", d.context));
+      hasDetails = true;
+    }
+    const sourceText = d.source?.ref || "unknown source";
+    const meta = el("p", "dc-meta", sourceText);
+    details.appendChild(meta);
+    if (d.source?.url) {
       const link = document.createElement("a");
       link.href = d.source.url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.className = "dc-meta";
-      link.style.display = "block";
       link.textContent = "Open source →";
-      li.appendChild(link);
+      details.appendChild(link);
     }
-
-    if (d.context) {
-      if (d.summary) {
-        const details = document.createElement("details");
-        details.className = "dc-context-details";
-        const label = document.createElement("summary");
-        label.textContent = "Full details";
-        details.appendChild(label);
-        const context = document.createElement("p");
-        context.className = "dc-context";
-        context.textContent = d.context;
-        details.appendChild(context);
-        li.appendChild(details);
-      } else {
-        // No plain summary on file for this candidate (e.g. an older
-        // dynamically-created ledger entry) — show the context plainly
-        // rather than hiding the only description behind a click.
-        const context = document.createElement("div");
-        context.className = "dc-context";
-        context.textContent = d.context;
-        li.appendChild(context);
-      }
-    }
+    hasDetails = true;
 
     if (d.ownerBlocker) {
-      const b = d.ownerBlocker, box = document.createElement("div");
+      const b = d.ownerBlocker;
       const delivery = b.notifications?.[b.status === "resolved" ? "resolved" : "waiting_for_owner"] ?? b.notification;
-      box.className = "dc-handoff"; box.style.whiteSpace = "pre-wrap";
-      box.textContent = `Server follow-through: ${b.status}\n${b.reconciliation?.detail || "Awaiting scheduled source check."}\nLast sweep: ${b.lastSweepAt || "not yet checked"} · Next: ${b.nextCheckAt || "pending"}\nDiscord: ${delivery?.status || "pending"}${delivery?.detail ? ` — ${delivery.detail}` : ""}\nWork: ${b.resume?.status || "blocked; no worker dispatched"}\nRuntime: ${b.runtime || "server ledger; scheduler pending"}`;
-      li.appendChild(box);
+      // One short line on the face; jargon lives inside Details.
+      if (!answered) {
+        li.appendChild(el("p", "dc-handoff", b.status === "resolved"
+          ? "Follow-through resolved."
+          : (b.reconciliation?.detail || "Waiting on your action — see Details.")));
+      }
+      details.appendChild(el("p", "dc-context", [
+        `Follow-through: ${b.status}`,
+        b.reconciliation?.detail || "Awaiting scheduled source check.",
+        `Last check: ${b.lastSweepAt || "not yet"} · Next: ${b.nextCheckAt || "pending"}`,
+        `Notify: ${delivery?.status || "pending"}${delivery?.detail ? ` — ${delivery.detail}` : ""}`,
+        `Work: ${b.resume?.status || "blocked"}`,
+      ].join("\n")));
+      hasDetails = true;
     }
+
+    if (d.handoffCheck) {
+      const c = d.handoffCheck;
+      details.appendChild(el("p", "dc-context", [
+        `Progress check: ${c.status}`,
+        c.summary || c.error || "Queued for a check.",
+        `Notify: ${c.notification?.status || "not sent yet"}`,
+      ].join("\n")));
+      hasDetails = true;
+    }
+    if (d.handoff?.status === "handoff_pending" && d.handoff.reason) {
+      details.appendChild(el("p", "dc-meta", d.handoff.reason));
+      hasDetails = true;
+    }
+    if (d.handoff?.status === "pickup_confirmed" && d.handoff.receiptId) {
+      details.appendChild(el("p", "dc-meta", `Receipt: ${d.handoff.receiptId}`));
+      hasDetails = true;
+    }
+    if (d.handoff?.status === "completed" && d.handoff.completedAt) {
+      details.appendChild(el("p", "dc-meta", `Finished ${new Date(d.handoff.completedAt).toLocaleString()}`));
+      hasDetails = true;
+    }
+
+    if (hasDetails) li.appendChild(details);
 
     if (mode === "live") {
       const box = document.createElement("section"); box.className = "dc-discussion";
       const status = document.createElement("p"); status.setAttribute("role", "status");
-      status.textContent = d.discussion ? `${d.discussion.stale ? "Proposal changed: resend to update" : d.discussion.status === "ready" ? "Sent to #command-center" : "Send needs attention"}.${d.discussion.status !== "ready" && d.discussion.detail ? ` ${d.discussion.detail}` : ""}` : "Discuss with CoS — not execution approval.";
+      status.textContent = d.discussion
+        ? (d.discussion.stale ? "Proposal changed — resend to update."
+          : d.discussion.status === "ready" ? "Sent to #command-center."
+          : `Send needs attention${d.discussion.detail ? `: ${d.discussion.detail}` : "."}`)
+        : "Discuss with CoS — not approval.";
       box.appendChild(status);
       function source(url, label) {
         if (!/^https:\/\/discord\.com\/channels\/\d+\/\d+(?:\/\d+)?$/.test(url || "")) return;
@@ -589,87 +730,25 @@
       }
       control(d.discussion ? "Resend / repair" : "Send to #command-center", "discussion");
       if (d.discussion?.threadId) control("Refresh discussion", "discussion/sync");
-      if (d.discussion?.pickup) { const p = document.createElement("p"); p.textContent = "Agent reply observed; no worker execution implied."; box.appendChild(p); }
-      const summary = d.discussion?.summary;
-      if (summary) {
-        for (const text of [`Discussion proposal · version ${summary.candidateVersion} · not approved`, summary.summary, summary.proposedRevision ? `Proposed revision: ${summary.proposedRevision}` : "", "This proposal does not change the source decision. Revise the source and its version before approving changed work."]) { const p = document.createElement("p"); p.textContent = text; box.appendChild(p); }
-        source(summary.url, "Source discussion message ↗");
+      // Long discussion payloads stay collapsed so the face stays scannable.
+      if (d.discussion?.pickup || d.discussion?.summary) {
+        const more = document.createElement("details");
+        more.className = "dc-more";
+        more.appendChild(el("summary", "", "Discussion notes"));
+        if (d.discussion?.pickup) more.appendChild(el("p", "", "Agent reply observed; no worker execution implied."));
+        const summary = d.discussion?.summary;
+        if (summary) {
+          for (const text of [
+            `Proposal only · not approved`,
+            summary.summary,
+            summary.proposedRevision ? `Proposed revision: ${summary.proposedRevision}` : "",
+            "Does not change the source decision. Update the source before approving changed work.",
+          ].filter(Boolean)) more.appendChild(el("p", "", text));
+          source(summary.url, "Source discussion message ↗");
+        }
+        box.appendChild(more);
       }
       li.appendChild(box);
-    }
-
-    // Answer / handoff state for an existing response -----------------------
-    if (d.response) {
-      const answer = document.createElement("div");
-      answer.className = `dc-answer${d.stale ? " dc-stale" : ""}`;
-      const optLabel = (d.options || []).find((o) => o.id === d.response.selectedOptionId)?.label;
-      answer.textContent = d.stale
-        ? `Previously ${d.response.action}${optLabel ? ` (${optLabel})` : ""} — the source changed since then; reconsider below.`
-        : `${d.response.action.charAt(0).toUpperCase()}${d.response.action.slice(1)}${optLabel ? `: ${optLabel}` : ""} — ${new Date(d.response.decidedAt).toLocaleString()}`;
-      li.appendChild(answer);
-      if (d.response.note) {
-        const noteShown = document.createElement("div");
-        noteShown.className = "dc-meta";
-        noteShown.textContent = `Note: ${d.response.note}`;
-        li.appendChild(noteShown);
-      }
-      const handoff = document.createElement("div");
-      handoff.className = "dc-handoff";
-      handoff.textContent = HANDOFF_LABEL[d.handoff.status] || d.handoff.status;
-      if (d.handoff.status === "handoff_pending" && d.handoff.reason) handoff.textContent += ` (${d.handoff.reason})`;
-      if (d.handoff.status === "pickup_confirmed" && d.handoff.receiptId) handoff.textContent += ` · receipt ${d.handoff.receiptId}`;
-      if (d.handoff.status === "completed" && d.handoff.completedAt) handoff.textContent += ` · ${new Date(d.handoff.completedAt).toLocaleString()}`;
-      li.appendChild(handoff);
-      if (d.handoffCheck) {
-        const check = document.createElement("div");
-        check.className = "dc-handoff";
-        check.style.whiteSpace = "pre-wrap";
-        const c = d.handoffCheck;
-        check.textContent = `Chief of Staff check: ${c.status}\n${c.summary || c.error || "Queued for a bounded agent check."}\nDiscord: ${c.notification?.status || "not sent yet"}`;
-        li.appendChild(check);
-      }
-      if (d.handoff.status === "pickup_confirmed") {
-        const refreshBtn = document.createElement("button");
-        refreshBtn.type = "button";
-        refreshBtn.className = "link";
-        refreshBtn.textContent = "Check handoff status";
-        refreshBtn.addEventListener("click", () => refreshDecisionHandoff(d.id, mode));
-        li.appendChild(refreshBtn);
-      }
-    }
-
-    // Response controls -------------------------------------------------------
-    if (!d.response || d.stale || d.ownerBlocker) {
-      const select = document.createElement("select");
-      select.setAttribute("aria-label", "Decision option");
-      for (const o of d.options || []) {
-        const opt = document.createElement("option");
-        opt.value = o.id;
-        opt.textContent = o.label;
-        if (d.recommendation && d.recommendation.optionId === o.id) opt.selected = true;
-        select.appendChild(opt);
-      }
-      const note = document.createElement("textarea");
-      note.className = "dc-note";
-      note.placeholder = "Optional note…";
-      note.setAttribute("aria-label", "Optional note");
-      li.appendChild(select);
-      li.appendChild(note);
-
-      const actions = document.createElement("div");
-      actions.className = "dc-actions";
-      for (const action of (mode === "live" ? ["selected", "reject", "defer"] : ["selected", "reject", "discuss", "defer"])) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = `dc-${action}`;
-        btn.textContent = action === "selected" ? "Use selected option" : action.charAt(0).toUpperCase() + action.slice(1);
-        btn.addEventListener("click", () => {
-          const selected = (d.options || []).find(o => o.id === select.value);
-          respondToDecision(d, action === "selected" ? selected?.action || "approve" : action, action === "selected" ? select.value : null, note.value, mode, li, btn);
-        });
-        actions.appendChild(btn);
-      }
-      li.appendChild(actions);
     }
 
     return li;
