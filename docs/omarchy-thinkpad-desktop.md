@@ -181,14 +181,19 @@ the PHY. It is automated:
 - If a kernel update fixes the bug, the script sees nothing stuck and does
   nothing. Remove both files once it is no longer needed.
 
-## TV (Samsung QBQ90 4K over a Ugreen USB-C to HDMI cable)
+## Samsung Living Room 65" TV (Samsung QBQ90 4K over a Ugreen USB-C to HDMI cable)
 
 - The cable sometimes connects before the TV's EDID is readable. The TV then
   shows up nameless with only 640x480-1024x768 modes.
 - `~/.config/hypr/monitors.lua`: a `desc:Samsung Electric Company QBQ90` rule
-  sets 3840x2160@60 at scale 2. A `monitor.added` hook
-  gives any display with no EDID (empty description, not eDP-1) the same 4K60
-  mode instead of 640x480.
+  sets 3840x2160@60 at scale 2. Any display with no EDID (empty description,
+  not eDP-1) gets **3840x2160@30 at scale 2** instead of 640x480. A
+  `monitor.added` hook applies it 3 s after connect, and a loop at config load
+  reapplies it, because a config reload resets a no-EDID display to 640x480
+  without firing `monitor.added`.
+- Changed 2026-10-07: the fallback was 4K60, which gave the TV no picture
+  without EDID. 1080p and 4K30 both showed a picture; Bilal chose 4K30. Verified
+  with `hyprctl reload`; a fresh replug without EDID is not yet verified.
 - Unplugging it can hit the same stuck-output bug as the 6K monitor; the
   `drm-unstick-typec` auto-release covers it too (seen releasing `DP-1`).
 

@@ -21,7 +21,8 @@ same session.** Record only what's known: "model unknown" beats a guess.
 | `omarchy` | MacBook Pro 16" 2019 (Intel), Omarchy | Always-on Linux build/agent server; stays put |
 | `mac` | MacBook Pro M3 Pro, macOS | All iOS work; sometimes travels |
 | Monitor | Kuycon G32P, 32" 6K | Desk display for the ThinkPad over USB-C |
-| TV | Samsung QBQ90, 4K | Second display via a Ugreen USB-C to HDMI cable |
+| TV | **Samsung Living Room 65" TV** (Samsung QBQ90, 4K) | Display via a Ugreen USB-C to HDMI cable |
+| TV | **TCL 55" 4K TV** (TCL 55R615) | Display via a Realtek USB-C to HDMI adapter |
 | Phone | iPhone 15 Pro | Physical test device; pairs with the `mac` |
 | Tablet | iPad Pro (model unknown) | Planned Omarchy second screen (to-do in `docs/omarchy-thinkpad-desktop.md`) |
 | Pointing | Apple Magic Trackpad (USB) | At the desk, via the monitor's USB hub |
@@ -147,8 +148,14 @@ Good for:
 - Kuycon G32P, a 32" 6K monitor (6144x3456@60, scale 2) on either USB-C port.
   Unplugging needs the `drm-unstick-typec` auto-fix, or no monitor is detected
   again until reboot.
-- Samsung QBQ90 4K TV (3840x2160@60, scale 2) on a Ugreen USB-C to HDMI cable,
-  with a fallback for when its EDID isn't readable.
+- Samsung Living Room 65" TV (Samsung QBQ90, 3840x2160@60, scale 2) on a Ugreen
+  USB-C to HDMI cable, with a 4K30 fallback for when its EDID isn't readable.
+- TCL 55" 4K TV (TCL 55R615, pinned to 3840x2160@30, scale 2) on a Realtek
+  USB-C to HDMI adapter.
+
+Bilal's names for his three displays (2026-10-07): **Samsung Living Room 65"
+TV**, **TCL 55" 4K TV** and the **6K monitor** (Kuycon). Use these names, not
+connector names like `DP-1`.
 
 Desktop setup (Mac-style keys, dictation, emulator window sizing, displays, and
 how Bilal uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
