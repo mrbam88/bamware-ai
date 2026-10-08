@@ -46,8 +46,48 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-02 — **Bamware Assistant chief-of-staff role clarified; provider-independent interview knowledge import in progress. Cross-provider retrieval not yet verified.**
+> Last updated: 2026-10-08 — **Mass-apply day: October 8 kits approved, 17 applications submitted, LinkedIn tracker imported into Notion. No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
+
+Chief of staff: read this before touching the job search. Bilal is working
+directly with Claude today ("breaking the chain of command"); this entry is
+the handoff so the CoS and the Interview Tracker agent stay in sync.
+
+- **New application kits approved (2026-10-08)** in private `mrbam88/interviews`
+  under `documents/kits/2026-10-08/{mobile-ios,mobile-rn,fullstack,manager}/`,
+  each with resume + matching cover letter in PDF/DOCX/TXT, built from
+  `documents/build/{make,export,cover}.py`. They supersede the September 30
+  master and the October 2 AI drafts. Filenames carry no whitespace (Bilal's
+  rule). `skills/bilal-resume` and `skills/bilal-cover-letter` point at them.
+- **Submitted today (Bilal clicked submit, Notion = Applied, dated 2026-10-08):**
+  Nourish, Mattermost, Coast, Calendly, EliseAI, Profound, Middesk, Commure,
+  The Athletic, G-P, Understood, Curai Health, CLEAR, Owner.com, Beacon
+  Biosignals, Canopy Works, Flowcode (17). **Ready to submit, waiting on Bilal:**
+  Brigit (needs his own "why Brigit" text; the form rejects AI-written answers).
+  Older unresolved Ready-to-submit rows: N2P Systems, 5V Video, Pinterest.
+- **Operating rule confirmed:** assistant sources roles (high-hit-rate first),
+  fills every field, attaches the right kit, leaves EEO/demographics and any
+  "no AI answers" box to Bilal, logs Ready to submit, Bilal submits. **No
+  auto-submit** (Bilal, 2026-10-08, "too risky"). Proposed next step, not built:
+  cloud-browser (Playwright) parallel filling with screenshots to Notion/Discord
+  and per-application "submit N" approval, so work continues while his laptop
+  lid is closed at a café. Needs his go-ahead before building.
+- **LinkedIn Job Tracker is a second source of truth Bilal has been using.**
+  Snapshot imported to `interviews/imports/linkedin-job-tracker-2026-10-08/`:
+  53 Applied (complete), 157 of 167 Saved (page 2 missing), 59 In Progress not
+  yet captured. 26 LinkedIn-applied companies had no Notion row and were added
+  as Applied with approximate dates and `linkedin.com/jobs/view/<id>` links.
+  Interview Tracker agent: treat LinkedIn as evidence alongside Gmail; the
+  Saved list is the sourcing queue for the next batch.
+- **Blockers seen today:** Notion `query_data_sources` SQL quota exhausted
+  (rows mode and search still work); Claude-in-Chrome drops when the laptop
+  sleeps; ~70% of web-search job URLs are stale, so verify live in a browser
+  before counting a role.
+- Next: capture the remaining LinkedIn pages, work the Saved queue (remote or
+  NYC, senior mobile/full-stack, non-darling companies), and decide on the
+  lid-closed pipeline.
 
 ## 2026-10-04 — CFO check: 34 h Claude blind spot, warned once
 
