@@ -172,6 +172,23 @@ the picture. Every laptop connected to the 6K runs with its lid closed, so the
 consistent so far, though it does change. Any of the three displays may be
 connected to the X1, so its config must handle all three.
 
+**6K monitor ports and the M3 cable (verified 2026-10-08):** the G32P's
+inputs are HDMI 2.1 x1, DP 2.1 x1 and USB-C x1 (80 Gbps, 100 W power
+delivery), plus a USB 2.0 x2 hub and 3.5 mm out (Kuycon US spec page). The
+M3 drives it over USB-C DisplayPort alt mode, 4 lanes HBR3 with DSC, on a
+passive cable; macOS lists no Thunderbolt device and the hub enumerates as
+USB 2.0. With the lid closed the 6K is the Mac's only display, so in practice
+a switch flip does drop the picture: `pmset -g log` shows "Display is turned
+off/on" 2 to 8 times a day the week of 2026-10-01, each taking 1 to 3 min to
+recover. The Mac never sleeps (`sleep 0`, caffeinate running), so this is the
+DisplayPort link failing to re-train, not system wake. A keypress through the
+switch forces macOS to re-probe displays, which is why hitting Enter works.
+Cable for the M3: a certified Thunderbolt 4 passive cable, 1 m or shorter,
+100 W rated (Apple Thunderbolt 4 Pro 1 m, or a Cable Matters or Anker TB4
+0.8 m). Fallback other G32P owners report as plug-and-play: USB-C to
+DisplayPort into the DP 2.1 input, which gives up charging and the hub on
+that cable.
+
 Desktop setup (Mac-style keys, dictation, emulator window sizing, displays, and
 how Bilal uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
 
