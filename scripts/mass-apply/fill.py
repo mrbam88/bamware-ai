@@ -151,6 +151,19 @@ def fill_greenhouse(page: Page, kit: str, filled: dict):
     pick_react_select(page, r"^school", ANSWERS["school"], filled)
     pick_react_select(page, r"^degree", ANSWERS["degree"], filled)
     fill_by_label(page, r"accommodation", ANSWERS["accommodations"], filled)
+
+    # Cover letter: job-boards.greenhouse.io only creates the second file input
+    # after the resume is attached, so the index heuristic in fill_common misses
+    # it. Click the "Attach" button inside the Cover Letter block instead.
+    if "cover letter" not in filled:
+        try:
+            _, cover = kit_paths(kit)
+            block = page.locator("xpath=//*[normalize-space(text())='Cover Letter']/ancestor::*[.//button[contains(.,'Attach')]][1]").first
+            with page.expect_file_chooser(timeout=4000) as fc:
+                block.get_by_role("button", name=re.compile(r"^attach", re.I)).first.click()
+            fc.value.set_files(str(cover)); filled["cover letter"] = cover.name
+        except Exception:
+            pass
     # "How did you hear" as checkboxes (Twilio style)
     try:
         page.get_by_label(re.compile(r"^linkedin$", re.I)).first.check(timeout=1000)
@@ -159,15 +172,86 @@ def fill_greenhouse(page: Page, kit: str, filled: dict):
         pass
 
 
+def ashby_entry(page: Page, label_regex: str):
+    """The field container for an Ashby question. Every Ashby field lives in a
+    `_fieldEntry` div holding a <label> and the control, so scoping to it keeps a
+    Yes/No click on the right question (the old ancestor::*[.//button] trick walked
+    up to the whole form for text questions and clicked another question's Yes)."""
+    return page.locator("[class*='_fieldEntry']").filter(
+        has=page.locator("label", has_text=re.compile(label_regex, re.I))).first
+
+
 def fill_ashby(page: Page, kit: str, filled: dict):
-    page.wait_for_selector("text=Application", timeout=15000)
-    fill_common(page, kit, filled)
-    # Ashby yes/no questions are button pairs; click by question text + answer.
-    for q, ans in [(r"based in the united states", "Yes"), (r"sponsorship", "No"), (r"authori[sz]ed", "Yes")]:
+    page.wait_for_selector("[class*='_fieldEntry']", timeout=15000)
+    a = ANSWERS
+    resume, cover = kit_paths(kit)
+    # 1. Ashby's "Autofill from resume" box is the first file input and has no id.
+    #    Feed it first and wait for it to finish; otherwise its async autofill
+    #    lands after our typing and wipes the fields (seen 2026-10-08 on Propel).
+    try:
+        auto = page.locator("input[type=file]:not([id])").first
+        if auto.count():
+            auto.set_input_files(str(resume))
+            page.get_by_text(re.compile("autofill completed", re.I)).wait_for(timeout=20000)
+            page.wait_for_timeout(1500)
+            filled["autofill"] = resume.name
+    except Exception:
+        pass
+    # 2. Text fields, by label -> container -> control. Values from answers.json win
+    #    over whatever the autofill parsed.
+    for rx, val in [
+        (r"^(full )?name$", f'{a["first_name"]} {a["last_name"]}'),
+        (r"^first name", a["first_name"]), (r"^last name", a["last_name"]),
+        (r"^e-?mail", a["email"]), (r"^phone", a["phone"]),
+        (r"linkedin", a["linkedin"]), (r"github|portfolio|website", a["github"]),
+        (r"most recent company|current (company|employer)", a["current_company"]),
+        (r"authori[sz]ed to work", "Yes"),
+    ]:
         try:
-            block = page.get_by_text(re.compile(q, re.I)).first.locator("xpath=ancestor::*[.//button][1]")
-            block.get_by_role("button", name=re.compile(f"^{ans}$", re.I)).first.click(timeout=1500)
-            filled[q] = ans
+            box = ashby_entry(page, rx).locator("input[type=text], input[type=email], input[type=tel], textarea").first
+            if box.count():
+                box.fill(val); filled[rx] = val
+        except Exception:
+            pass
+    # 3. Files: the real resume input has an id; the cover letter input sits under its label.
+    try:
+        page.locator("input[type=file][id*='resume' i]").first.set_input_files(str(resume))
+        filled["resume"] = resume.name
+    except Exception:
+        pass
+    try:
+        ci = ashby_entry(page, r"cover letter").locator("input[type=file]").first
+        if ci.count():
+            ci.set_input_files(str(cover)); filled["cover letter"] = cover.name
+    except Exception:
+        pass
+    # 4. Yes/No button pairs, scoped to their own question.
+    for q, ans in [
+        (r"based in the united states|live in the u\.?s|located in the u", "Yes"),
+        (r"sponsor", "No"), (r"authori[sz]ed", "Yes"),
+        (r"over 18|18 years", "Yes"), (r"non-?compete|restrictive covenant", "No"),
+    ]:
+        try:
+            btn = ashby_entry(page, q).get_by_role("button", name=re.compile(f"^{ans}$", re.I)).first
+            if btn.count():
+                btn.click(timeout=1500); filled[q] = ans
+        except Exception:
+            pass
+    # 5. Autocompletes (location, how did you hear): type, then click the option.
+    for q, text, opt in [
+        (r"^location$|currently based|where are you (currently )?located", "New York", r"New York"),
+        (r"how did you hear|where did you learn", a["how_heard"], "^" + re.escape(a["how_heard"])),
+    ]:
+        try:
+            inp = ashby_entry(page, q).locator("input").first
+            if not inp.count():
+                continue
+            inp.click(); inp.fill(text); page.wait_for_timeout(1000)
+            o = page.get_by_role("option", name=re.compile(opt, re.I)).first
+            if o.count():
+                o.click(); filled[q] = text
+            else:
+                page.keyboard.press("Escape")
         except Exception:
             pass
 
