@@ -194,6 +194,10 @@ the PHY. It is automated:
 - Changed 2026-10-07: the fallback was 4K60, which gave the TV no picture
   without EDID. 1080p and 4K30 both showed a picture; Bilal chose 4K30. Verified
   with `hyprctl reload`; a fresh replug without EDID is not yet verified.
+- 2026-10-09: the TV connected with EDID at 4K60 and was still switched to
+  4K30 six seconds later, with the screen locked (cause unknown). The fallback
+  now also requires the display to be 1024 wide or less, so it can only rescue
+  a stuck display, never override a good mode. Not yet re-tested with the TV.
 - Unplugging it can hit the same stuck-output bug as the 6K monitor; the
   `drm-unstick-typec` auto-release covers it too (seen releasing `DP-1`).
 
@@ -216,6 +220,18 @@ centers them above eDP-1.
   sets the matching default sink.
 - Verified 2026-10-07: unplug switched to Speaker, replug to Headphones, about
   a second each. Log: `journalctl --user -u headphone-autoswitch`.
+
+## Double top bar (2026-10-09)
+
+- Symptom: two Omarchy bars stacked at the top, still there after unplugging
+  the TV.
+- Cause: a leftover `/usr/bin/quickshell` (parent: systemd --user, started
+  2026-10-08 16:58 while running the lock screen's fingerprint PAM session)
+  kept drawing bars after the real shell (`quickshell -n -p
+  /usr/share/omarchy/shell`, started by `omarchy-launch-shell`) restarted.
+- Fix: `hyprctl layers -j` shows two `omarchy-bar` PIDs per monitor. Kill the
+  one that isn't the child of `omarchy-launch-shell`. The trigger is not
+  proven; trace it live if it recurs.
 
 ## Input and bar tweaks (2026-09-24)
 
