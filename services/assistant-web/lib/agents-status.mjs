@@ -148,10 +148,14 @@ export function deriveNow(runs, now) {
           startedAt: seconds(r.started_at), finishedAt: null, sortAt: seconds(r.started_at), durationMs: null, cost: null, smoke });
       }
     } else if (run.status.phase !== "finished") {
+      // workerAlive must be confirmed true for a positive ("running"/"stalled") state; null/missing
+      // evidence (e.g. no pickup.json yet, or a sandbox denial) can't be told apart from a dead worker,
+      // so it stays "unverified" rather than claiming the factory is building on a guess.
+      const verified = run.workerAlive === true;
       const started = seconds(run.status.started_at);
-      const stalled = started && now - started > STALLED_RUN_MS;
+      const stalled = verified && started && now - started > STALLED_RUN_MS;
       for (const r of records.filter((r) => r.state === "running")) {
-        running.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), title: titleOf(r.id), state: stalled ? "stalled" : "running", startedAt: seconds(r.started_at), smoke });
+        running.push({ runId: run.id, task: r.id, ticket: ticketOf(r.id), title: titleOf(r.id), state: verified ? (stalled ? "stalled" : "running") : "unverified", startedAt: seconds(r.started_at), smoke });
       }
       for (const t of planned.filter((t) => !records.some((r) => r.id === t.id))) {
         running.push({ runId: run.id, task: t.id, ticket: ticketOf(t.id), title: titleOf(t.id), state: "queued", startedAt: null, smoke });
@@ -218,13 +222,20 @@ export function deriveSystem({ estop }, work, needsYou) {
       since: seconds(estop.pausedAt), frozen, recorded: states.length, waiting,
       note: estop.automaticResume === false ? "Resumes only when you lift it." : null };
   }
-  if (work.running.some((t) => t.state === "running" || t.state === "stalled")) {
-    const active = work.running.find((t) => t.state !== "queued");
+  // A genuinely confirmed running/stalled task always wins over merely unverified ones, in either order.
+  const active = work.running.find((t) => t.state === "running" || t.state === "stalled");
+  if (active) {
     const nQ = work.running.filter((t) => t.state === "queued").length;
     if (active.state === "stalled") {
       return { state: "attention", title: "FACTORY STALLED", detail: `Stuck on ${active.ticket ?? active.task}`, since: active.startedAt, waiting };
     }
     return { state: "running", title: "FACTORY BUILDING", detail: `Now: ${active.ticket ?? active.task}${nQ ? ` · ${nQ} queued` : ""}`, since: active.startedAt, waiting };
+  }
+  // No confirmed activity: unverified worker evidence must never be reported as idle, CEO-blocked, or
+  // building — it's its own visible state so the CEO knows to go check, not assume all-clear or all-busy.
+  const unverified = work.running.find((t) => t.state === "unverified");
+  if (unverified) {
+    return { state: "attention", title: "Activity unverified", detail: "Can't confirm whether the worker is running — check the run before trusting idle or queued status.", since: unverified.startedAt, waiting };
   }
   if (waiting) return { state: "awaiting", title: "WAITING ON YOU", detail: `${waiting} decision(s) block the line — nothing building until then.`, since: null, waiting };
   return { state: "idle", title: "Idle", detail: "Nothing running and nothing waiting on you.", since: null, waiting };

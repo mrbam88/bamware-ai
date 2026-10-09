@@ -20,10 +20,19 @@ test("recent tasks show the executor's real state, newest first, with ticket and
 });
 
 test("an unfinished run lists its running and queued tasks; a very old one reads as stalled", () => {
-  const live = run("3", "running", [{ id: "a", state: "running", started_at: 1791009500 }], [{ id: "a", ticket: "#1" }, { id: "b", ticket: "#2" }]);
+  const live = { ...run("3", "running", [{ id: "a", state: "running", started_at: 1791009500 }], [{ id: "a", ticket: "#1" }, { id: "b", ticket: "#2" }]), workerAlive: true };
   assert.deepEqual(deriveNow([live], NOW).running.map((t) => [t.ticket, t.state]), [["#1", "running"], ["#2", "queued"]]);
   const old = { ...live, status: { ...live.status, started_at: 1791009000 - 13 * 3600 } };
   assert.equal(deriveNow([old], NOW).running[0].state, "stalled");
+});
+
+test("worker liveness null or missing never reads as running or stalled, even on an old run", () => {
+  const live = run("3", "running", [{ id: "a", state: "running", started_at: 1791009500 }], [{ id: "a", ticket: "#1" }, { id: "b", ticket: "#2" }]);
+  assert.deepEqual(deriveNow([live], NOW).running.map((t) => [t.ticket, t.state]), [["#1", "unverified"], ["#2", "queued"]], "no workerAlive field at all");
+  const unknown = { ...live, workerAlive: null };
+  assert.deepEqual(deriveNow([unknown], NOW).running.map((t) => [t.ticket, t.state]), [["#1", "unverified"], ["#2", "queued"]]);
+  const old = { ...unknown, status: { ...unknown.status, started_at: 1791009000 - 13 * 3600 } };
+  assert.equal(deriveNow([old], NOW).running[0].state, "unverified", "age alone never promotes unverified evidence to stalled");
 });
 
 test("needs-you lists waiting blockers by urgency and an unplanned batch checkpoint", () => {
@@ -61,6 +70,21 @@ test("system state: paused beats running beats waiting beats idle", () => {
   assert.equal(deriveSystem({ estop: { reason: "r", resumedAt: 2 } }, work, []).state, "running");
   assert.equal(deriveSystem({}, idleWork, [{ title: "x" }]).state, "awaiting");
   assert.equal(deriveSystem({}, idleWork, []).state, "idle");
+});
+
+test("system state: unverified worker activity is its own 'attention' state, never idle, waiting, or building", () => {
+  const unverifiedWork = { running: [{ state: "unverified", task: "a", ticket: "#1", startedAt: NOW }], recent: [] };
+  const unverifiedOnly = deriveSystem({}, unverifiedWork, []);
+  assert.equal(unverifiedOnly.state, "attention");
+  assert.equal(unverifiedOnly.title, "Activity unverified");
+  const unverifiedWithWaiting = deriveSystem({}, unverifiedWork, [{ title: "x" }]);
+  assert.equal(unverifiedWithWaiting.state, "attention", "unverified activity must not be masked by a pending owner decision");
+  const paused = deriveSystem({ estop: { reason: "r", pausedAt: 1 } }, unverifiedWork, []);
+  assert.equal(paused.state, "paused", "emergency stop still wins over unverified activity");
+  const confirmedThenUnverified = { running: [{ state: "running", task: "a", ticket: "#1", startedAt: NOW }, { state: "unverified", task: "b", ticket: "#2", startedAt: NOW }], recent: [] };
+  assert.equal(deriveSystem({}, confirmedThenUnverified, []).state, "running", "confirmed running wins when listed before an unverified task");
+  const unverifiedThenConfirmed = { running: [{ state: "unverified", task: "b", ticket: "#2", startedAt: NOW }, { state: "running", task: "a", ticket: "#1", startedAt: NOW }], recent: [] };
+  assert.equal(deriveSystem({}, unverifiedThenConfirmed, []).state, "running", "confirmed running wins when listed after an unverified task");
 });
 
 test("snapshot tolerates entirely missing state", () => {
@@ -106,8 +130,14 @@ test("a run whose worker died shows interrupted work, never 'running' or inflate
   assert.deepEqual(dead.recent.map((t) => [t.ticket, t.state]), [["#1", "interrupted"]]);
   assert.equal(dead.recent[0].finishedAt, null, "interrupted work never finished");
   assert.equal(deriveSystem({}, dead, []).state, "idle", "a dead run must not keep the banner on Working");
-  assert.equal(deriveNow([{ ...live, workerAlive: true }], NOW).running.length, 2, "a live worker is still running");
-  assert.equal(deriveNow([{ ...live, workerAlive: null }], NOW).running.length, 2, "unknown liveness keeps the old behaviour");
+  const alive = deriveNow([{ ...live, workerAlive: true }], NOW);
+  assert.deepEqual(alive.running.map((t) => [t.ticket, t.state]), [["#1", "running"], ["#2", "queued"]], "a live worker is genuinely running");
+  assert.equal(deriveSystem({}, alive, []).state, "running");
+  const unknown = deriveNow([{ ...live, workerAlive: null }], NOW);
+  assert.deepEqual(unknown.running.map((t) => [t.ticket, t.state]), [["#1", "unverified"], ["#2", "queued"]], "unknown liveness is unverified, not running");
+  assert.equal(deriveSystem({}, unknown, []).state, "attention");
+  const missing = deriveNow([{ ...live, workerAlive: undefined }], NOW);
+  assert.deepEqual(missing.running.map((t) => [t.ticket, t.state]), [["#1", "unverified"], ["#2", "queued"]], "missing workerAlive is unverified, not running");
 });
 
 test("worker liveness requires this run's runner.py worker, not any process with that pid", async () => {
