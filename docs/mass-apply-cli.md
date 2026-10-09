@@ -48,6 +48,15 @@ Allowlist the few commands once so Claude Code stops asking, in
 4. Claude Code logs each row in the Notion Job Tracker (Ready to submit →
    Applied) with the run folder + kit + commit, exactly as before.
 
+## Real Chrome mode (Bilal, 2026-10-09)
+
+Bigger ATSes score automation signals and application bursts. Preferred flow now:
+`scripts/mass-apply/real-chrome.sh` opens a normal Chrome (no automation flags,
+dedicated profile `~/.bamware/chrome-bilal`, debug port 9222, does not take
+focus); Bilal logs into LinkedIn/Google once. Then
+`fill.py run queue.txt --eeo --attach` fills inside that Chrome and he submits
+there. Pace 10-15 a day, rephrase every essay, answer "did you use AI" honestly.
+
 ## Lessons from 2026-10-08/09
 
 - Ashby's submit runs a bot check: a Chrome launched with Playwright's default

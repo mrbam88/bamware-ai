@@ -36,6 +36,7 @@ values you add to answers.json under "eeo" (not committed by default).
 Usage:
   python3 fill.py run queue.txt            # fill everything, no submit
   python3 fill.py run queue.txt --eeo      # also self-identification (answers.json "eeo", private)
+  python3 fill.py run queue.txt --eeo --attach   # fill inside the real Chrome from real-chrome.sh (port 9222)
   python3 fill.py submit 3                 # submit the 3rd job from the last run
   python3 fill.py status                   # what is filled / submitted
 
@@ -272,7 +273,8 @@ def fill_lever(page: Page, kit: str, filled: dict):
             pass
 
 
-EEO = "--eeo" in sys.argv   # fill self-identification from answers.json["eeo"] (private repo)
+EEO = "--eeo" in sys.argv
+ATTACH = "--attach" in sys.argv   # fill inside the real Chrome from real-chrome.sh (connect_over_cdp), no launch, no hide   # fill self-identification from answers.json["eeo"] (private repo)
 
 
 def pick_eeo_select(page: Page, label_regex: str, options, filled: dict) -> bool:
@@ -430,9 +432,14 @@ def run(queue_file: str):
     out = STATE_DIR / run_id; out.mkdir()
     records = []
     with sync_playwright() as p:
-        # headless=False so you can look at (and submit from) the real tabs.
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
-        page0 = ctx.pages[0] if ctx.pages else ctx.new_page(); page0.wait_for_timeout(800); hide_browser()
+        if ATTACH:
+            # Bilal's own (non-automated) Chrome, started by scripts/mass-apply/real-chrome.sh.
+            browser = p.chromium.connect_over_cdp(f"http://localhost:{CDP_PORT}")
+            ctx = browser.contexts[0]
+        else:
+            # headless=False so you can look at (and submit from) the real tabs.
+            ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
+            page0 = ctx.pages[0] if ctx.pages else ctx.new_page(); page0.wait_for_timeout(800); hide_browser()
         for i, (url, kit) in enumerate(jobs, 1):
             page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
             page.wait_for_timeout(2500)
@@ -450,6 +457,9 @@ def run(queue_file: str):
             print(f"[{i:02d}] {ats:10} {kit:10} {len(filled):2d} fields  {url}")
         (out / "run.json").write_text(json.dumps(records, indent=1))
         print(f"\nDone. Review screenshots in {out}. Tabs are still open.")
+        if ATTACH:
+            print("Attached mode: tabs stay in your Chrome; submit there. Nothing to close.")
+            return
         print("Submit with:  python3 fill.py submit <n>   (one at a time, after you looked)")
         input("Press Enter to close the browser (tabs will close; re-run to refill)...")
         ctx.close()
