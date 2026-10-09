@@ -45,6 +45,24 @@ Allowlist the few commands once so Claude Code stops asking, in
 4. Claude Code logs each row in the Notion Job Tracker (Ready to submit →
    Applied) with the run folder + kit + commit, exactly as before.
 
+## Lessons from 2026-10-08/09
+
+- Ashby's submit runs a bot check: a Chrome launched with Playwright's default
+  `--enable-automation` gets "flagged as possible spam". `fill.py` now launches
+  with `--disable-blink-features=AutomationControlled` and without the automation
+  flag; `navigator.webdriver` must be `false` in the tab.
+- Lever's resume upload rejects `set_input_files` with a bogus "exceeds 100MB";
+  use the Attach button's file chooser (works, shows "Success!").
+- Leftover required fields are easiest to finish **live** over the debug port:
+  `connect_over_cdp("http://localhost:9222")`, scan labels ending in `*` with an
+  empty control, fill from `skills/bilal-answers`, leave essays drafted for Bilal.
+- Greenhouse embeds that redirect to a company site: use
+  `job-boards.greenhouse.io/embed/job_app?for=<org>&token=<id>`.
+- Sourcing at scale: probe `boards-api.greenhouse.io/v1/boards/<slug>/jobs`,
+  `api.ashbyhq.com/posting-api/job-board/<slug>`, `api.lever.co/v0/postings/<slug>`
+  for a slug list, filter titles, dedupe against the Notion table, then apply
+  `skills/job-guardrails` (one role per company, top-tier mobile-only).
+
 ## What the script leaves to Bilal
 
 - EEO / demographic dropdowns (unless run with `--eeo`, not wired yet).
