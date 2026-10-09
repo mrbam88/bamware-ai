@@ -197,7 +197,9 @@ the PHY. It is automated:
 - 2026-10-09: the TV connected with EDID at 4K60 and was still switched to
   4K30 six seconds later, with the screen locked (cause unknown). The fallback
   now also requires the display to be 1024 wide or less, so it can only rescue
-  a stuck display, never override a good mode. Not yet re-tested with the TV.
+  a stuck display, never override a good mode. Verified 2026-10-09 17:40: the
+  TV replugged with EDID and stayed at 4K60, with one bar on each screen. The
+  no-EDID path (fallback to 4K30) has not been re-tested since the change.
 - Unplugging it can hit the same stuck-output bug as the 6K monitor; the
   `drm-unstick-typec` auto-release covers it too (seen releasing `DP-1`).
 
@@ -232,6 +234,15 @@ centers them above eDP-1.
 - Fix: `hyprctl layers -j` shows two `omarchy-bar` PIDs per monitor. Kill the
   one that isn't the child of `omarchy-launch-shell`. The trigger is not
   proven; trace it live if it recurs.
+
+## Dictation silent: mic at 0% (2026-10-09)
+
+- Symptom: Voxtype recorded but transcribed `""`.
+- Cause: the Digital Microphone (`HiFi__Mic1__source`) volume was 0%, not
+  muted. Fix: `pactl set-source-volume <Mic1 source> 100%`.
+- The headphone auto-switch did not cause it: switching profiles both ways
+  kept the mic at 100%. What turned it down is unknown; check the volume
+  first if dictation goes silent again.
 
 ## Input and bar tweaks (2026-09-24)
 
