@@ -17,6 +17,17 @@ Big-name employers still get the extra-care treatment that the earlier per-compa
 unblocks used: tailored letter, every optional field filled, Bilal reviews the live
 form before submit.
 
+## One role per company (Bilal, 2026-10-09)
+
+Apply to **one** open role per company, not several. Pick the mobile role when
+there is one (iOS, React Native, mobile EM): it is the role he is most likely to
+get. Otherwise pick the single best fit. Two roles at the same company only in a
+special case he names. When a batch already holds two rows for one company, keep
+the mobile one, mark the other Withdrawn with the reason, and close its tab.
+Applied 2026-10-09 to Stripe (kept EM Mobile), WW (Staff iOS), Thrive Market
+(Senior iOS), Propel (Healthcare full stack, which also respects its one
+application per 30 days limit).
+
 ## Still out of scope (these are procedure limits, not company blocks)
 
 - Postings that fail on facts: a location he cannot work from (he is not
