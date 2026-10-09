@@ -354,29 +354,80 @@ def fill_knockouts_greenhouse(page: Page, filled: dict):
         pass
 
 
+CDP_PORT = 9222   # Chrome DevTools port of the filler's Chrome; connect_over_cdp("http://localhost:9222") to edit open tabs
+CUSTOM = {}       # url-substring -> {label_regex: value}; loaded from custom.json next to the queue file
+
+
+def load_custom(path):
+    global CUSTOM
+    if path and pathlib.Path(path).exists():
+        CUSTOM = json.loads(pathlib.Path(path).read_text())
+
+
+def fill_custom(page: Page, ats: str, url: str, filled: dict):
+    """Per-job answers (company essays, one-off dropdowns) from custom.json,
+    `{"<url substring>": {"<label regex>": "text" | ["^option regex", ...]}}`.
+    A string goes into the text box under that label; if there is none it is
+    tried as an anchored select option. A list is a list of option regexes."""
+    for key, answers in CUSTOM.items():
+        if key not in url: continue
+        for rx, val in answers.items():
+            try:
+                if isinstance(val, str):
+                    if ats == "ashby":
+                        box = ashby_entry(page, rx).locator("input[type=text], input[type=url], textarea").first
+                        if box.count():
+                            box.fill(val); filled["custom:" + rx] = val[:40]; continue
+                    elif fill_by_label(page, rx, val, filled):
+                        continue
+                    val = ["^" + re.escape(val)]
+                if ats == "ashby":
+                    ent = ashby_entry(page, rx)
+                    hit = False
+                    for orx in val:
+                        b = ent.get_by_role("button", name=re.compile(orx, re.I)).first
+                        if b.count():
+                            b.click(timeout=1500); filled["custom:" + rx] = orx; hit = True; break
+                    if not hit:
+                        inp = ent.locator("input").first
+                        if inp.count():
+                            inp.click(); page.wait_for_timeout(500)
+                            for orx in val:
+                                o = page.get_by_role("option", name=re.compile(orx, re.I)).first
+                                if o.count():
+                                    o.click(); filled["custom:" + rx] = orx; break
+                else:
+                    pick_eeo_select(page, rx, val, filled)
+            except Exception as e:
+                filled["custom-error:" + rx] = repr(e)[:80]
+
+
 FILLERS = {"greenhouse": fill_greenhouse, "ashby": fill_ashby, "lever": fill_lever}
 
 
 # ---------- commands ----------
 def run(queue_file: str):
     jobs = [l.split() for l in pathlib.Path(queue_file).read_text().splitlines() if l.strip() and not l.startswith("#")]
+    load_custom(pathlib.Path(queue_file).with_name("custom.json"))
     run_id = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     out = STATE_DIR / run_id; out.mkdir()
     records = []
     with sync_playwright() as p:
         # headless=False so you can look at (and submit from) the real tabs.
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome")
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}"])
         for i, (url, kit) in enumerate(jobs, 1):
             page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
             page.wait_for_timeout(2500)
             ats = ats_of(url); filled = {}
             try:
                 FILLERS.get(ats, lambda *_: None)(page, kit, filled)
+                fill_custom(page, ats, url, filled)
             except Exception as e:
                 filled["_error"] = repr(e)
             shot = out / f"{i:02d}.png"
             page.screenshot(path=str(shot), full_page=True)
-            rec = {"n": i, "url": url, "kit": kit, "ats": ats, "filled": filled, "screenshot": str(shot), "submitted": False}
+            rec = {"n": i, "url": url, "kit": kit, "ats": ats, "filled": filled, "screenshot": str(shot), "submitted": False,
+                   "queue": str(pathlib.Path(queue_file).resolve())}
             records.append(rec)
             print(f"[{i:02d}] {ats:10} {kit:10} {len(filled):2d} fields  {url}")
         (out / "run.json").write_text(json.dumps(records, indent=1))
@@ -407,9 +458,11 @@ def submit(n: int):
     if input("Type yes to submit this one: ").strip().lower() != "yes":
         print("not submitted"); return
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome")
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}"])
         page = ctx.new_page(); page.goto(rec["url"], wait_until="domcontentloaded"); page.wait_for_timeout(2500)
+        load_custom(pathlib.Path(rec.get("queue", "")).with_name("custom.json") if rec.get("queue") else None)
         filled = {}; FILLERS.get(rec["ats"], lambda *_: None)(page, rec["kit"], filled)
+        fill_custom(page, rec["ats"], rec["url"], filled)
         page.get_by_role("button", name=re.compile(r"submit", re.I)).first.click()
         page.wait_for_timeout(4000)
         ok = bool(re.search(r"thank|received|submitted", page.content(), re.I))
