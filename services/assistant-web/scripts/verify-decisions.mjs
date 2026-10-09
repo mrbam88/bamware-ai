@@ -4,8 +4,13 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { loadConfig } from '../server.mjs';
 import { DECISION_RESOLUTIONS } from '../lib/providers/decision-resolutions.mjs';
+import { checkAssetIdentity } from './lib/asset-identity.mjs';
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const PUBLIC_DIR = path.join(HERE, '..', 'public');
 const { cfg, problems } = loadConfig();
 assert.equal(problems.length, 0);
 const base = process.env.ASSISTANT_VERIFY_URL || `http://${cfg.host}:${cfg.port}`;
@@ -37,9 +42,19 @@ try {
   assert.ok(active.includes('auth-atomic-docker-access-85') || snapshot.history.some(d => d.id === 'auth-atomic-docker-access-85' && d.resolution?.evidence?.ref), 'Docker blocker preserved or retired with evidence');
   assert.ok(active.includes('backlog-triage-view-77'), 'backlog follow-through preserved');
   assert.equal(digest(), before, 'decision responses must not be rewritten');
-  const ui = await (await request('/app.js')).text();
-  assert.ok(ui.includes('History (${data.history.length})'), 'deployed history UI');
-  console.log(JSON.stringify({ checkedAt: new Date().toISOString(), base, unauthorized: 401, authorized: 200, generatedAt: snapshot.generatedAt, active, history, responsesUnchanged: true, responseStoreSha256: before, historyUiServed: true }, null, 2));
+  // Byte-identity against this checkout proves the deployed source matches;
+  // it does not prove a browser fetched, parsed or rendered it correctly.
+  const assets = await Promise.all([
+    ['/app.js', 'app.js'],
+    ['/app.css', 'app.css'],
+  ].map(async ([route, file]) => {
+    const response = await request(route);
+    const body = Buffer.from(await response.arrayBuffer());
+    const expected = readFileSync(path.join(PUBLIC_DIR, file));
+    return checkAssetIdentity({ label: file, status: response.status, body, expected });
+  }));
+  for (const asset of assets) assert.ok(asset.ok, `deployed ${asset.label} does not match checkout: ${asset.reason}`);
+  console.log(JSON.stringify({ checkedAt: new Date().toISOString(), base, unauthorized: 401, authorized: 200, generatedAt: snapshot.generatedAt, active, history, responsesUnchanged: true, responseStoreSha256: before, assets: assets.map(({ label, ok, status, sha256, bytes }) => ({ label, ok, status, sha256, bytes })) }, null, 2));
 } finally {
   if (cookie) await request('/api/logout', { method: 'POST', headers: { cookie } });
 }
