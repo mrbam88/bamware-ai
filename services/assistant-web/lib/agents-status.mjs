@@ -238,8 +238,13 @@ export function deriveSystem({ estop }, work, needsYou) {
   if (unverified) {
     return { state: "attention", title: "Activity unverified", detail: "Can't confirm whether the worker is running — check the run before trusting idle or queued status.", since: unverified.startedAt, waiting };
   }
-  if (waiting) return { state: "awaiting", title: "WAITING ON YOU", detail: `${waiting} decision(s) block the line — nothing building until then.`, since: null, waiting };
-  return { state: "idle", title: "Idle", detail: "Nothing running and nothing waiting on you.", since: null, waiting };
+  if (waiting) {
+    const detail = waiting === 1
+      ? "1 decision needs your input. No active executor work is confirmed."
+      : `${waiting} decisions need your input. No active executor work is confirmed.`;
+    return { state: "awaiting", title: "Decisions need you", detail, since: null, waiting };
+  }
+  return { state: "idle", title: "Idle", detail: "No active executor work is confirmed and no decisions are waiting on you.", since: null, waiting };
 }
 
 export function buildAgentsSnapshot(raw, nowMs, { catalog = [] } = {}) {
