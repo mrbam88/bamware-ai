@@ -35,6 +35,7 @@ values you add to answers.json under "eeo" (not committed by default).
 
 Usage:
   python3 fill.py run queue.txt            # fill everything, no submit
+  python3 fill.py run queue.txt --eeo      # also self-identification (answers.json "eeo", private)
   python3 fill.py submit 3                 # submit the 3rd job from the last run
   python3 fill.py status                   # what is filled / submitted
 
@@ -151,25 +152,113 @@ def fill_greenhouse(page: Page, kit: str, filled: dict):
     pick_react_select(page, r"^school", ANSWERS["school"], filled)
     pick_react_select(page, r"^degree", ANSWERS["degree"], filled)
     fill_by_label(page, r"accommodation", ANSWERS["accommodations"], filled)
+
+    # Cover letter: job-boards.greenhouse.io only creates the second file input
+    # after the resume is attached, so the index heuristic in fill_common misses
+    # it. Click the "Attach" button inside the Cover Letter block instead.
+    if "cover letter" not in filled:
+        try:
+            _, cover = kit_paths(kit)
+            block = page.locator("xpath=//*[normalize-space(text())='Cover Letter']/ancestor::*[.//button[contains(.,'Attach')]][1]").first
+            with page.expect_file_chooser(timeout=4000) as fc:
+                block.get_by_role("button", name=re.compile(r"^attach", re.I)).first.click()
+            fc.value.set_files(str(cover)); filled["cover letter"] = cover.name
+        except Exception:
+            pass
     # "How did you hear" as checkboxes (Twilio style)
     try:
         page.get_by_label(re.compile(r"^linkedin$", re.I)).first.check(timeout=1000)
         filled["heard-checkbox"] = "LinkedIn"
     except Exception:
         pass
+    fill_knockouts_greenhouse(page, filled)
+    fill_eeo_greenhouse(page, filled)
+
+
+def ashby_entry(page: Page, label_regex: str):
+    """The field container for an Ashby question. Every Ashby field lives in a
+    `_fieldEntry` div holding a <label> and the control, so scoping to it keeps a
+    Yes/No click on the right question (the old ancestor::*[.//button] trick walked
+    up to the whole form for text questions and clicked another question's Yes)."""
+    return page.locator("[class*='_fieldEntry']").filter(
+        has=page.locator("label", has_text=re.compile(label_regex, re.I))).first
 
 
 def fill_ashby(page: Page, kit: str, filled: dict):
-    page.wait_for_selector("text=Application", timeout=15000)
-    fill_common(page, kit, filled)
-    # Ashby yes/no questions are button pairs; click by question text + answer.
-    for q, ans in [(r"based in the united states", "Yes"), (r"sponsorship", "No"), (r"authori[sz]ed", "Yes")]:
+    page.wait_for_selector("[class*='_fieldEntry']", timeout=15000)
+    a = ANSWERS
+    resume, cover = kit_paths(kit)
+    # 1. Ashby's "Autofill from resume" box is the first file input and has no id.
+    #    Feed it first and wait for it to finish; otherwise its async autofill
+    #    lands after our typing and wipes the fields (seen 2026-10-08 on Propel).
+    try:
+        auto = page.locator("input[type=file]:not([id])").first
+        if auto.count():
+            auto.set_input_files(str(resume))
+            page.get_by_text(re.compile("autofill completed", re.I)).wait_for(timeout=20000)
+            page.wait_for_timeout(1500)
+            filled["autofill"] = resume.name
+    except Exception:
+        pass
+    # 2. Text fields, by label -> container -> control. Values from answers.json win
+    #    over whatever the autofill parsed.
+    for rx, val in [
+        (r"^(full )?name$", f'{a["first_name"]} {a["last_name"]}'),
+        (r"^first name", a["first_name"]), (r"^last name", a["last_name"]),
+        (r"^e-?mail", a["email"]), (r"^phone", a["phone"]),
+        (r"linkedin", a["linkedin"]), (r"github|portfolio|website", a["github"]),
+        (r"most recent company|current (company|employer)", a["current_company"]),
+        (r"authori[sz]ed to work", "Yes"),
+    ]:
         try:
-            block = page.get_by_text(re.compile(q, re.I)).first.locator("xpath=ancestor::*[.//button][1]")
-            block.get_by_role("button", name=re.compile(f"^{ans}$", re.I)).first.click(timeout=1500)
-            filled[q] = ans
+            box = ashby_entry(page, rx).locator("input[type=text], input[type=email], input[type=tel], input[type=url], textarea").first
+            if box.count():
+                box.fill(val); filled[rx] = val
         except Exception:
             pass
+    # 3. Files: the real resume input has an id; the cover letter input sits under its label.
+    try:
+        page.locator("input[type=file][id*='resume' i]").first.set_input_files(str(resume))
+        filled["resume"] = resume.name
+    except Exception:
+        pass
+    try:
+        ci = ashby_entry(page, r"cover letter").locator("input[type=file]").first
+        if ci.count():
+            ci.set_input_files(str(cover)); filled["cover letter"] = cover.name
+    except Exception:
+        pass
+    # 4. Yes/No button pairs, scoped to their own question.
+    for q, ans in [
+        (r"based in the united states|live in the u\.?s|located in the u", "Yes"),
+        (r"sponsor", "No"), (r"authori[sz]ed", "Yes"),
+        (r"over 18|18 years", "Yes"), (r"non-?compete|restrictive covenant", "No"),
+    ]:
+        try:
+            btn = ashby_entry(page, q).get_by_role("button", name=re.compile(f"^{ans}$", re.I)).first
+            if btn.count():
+                btn.click(timeout=1500); filled[q] = ans
+        except Exception:
+            pass
+    # 5. Autocompletes (location, how did you hear): type, then click the option.
+    for q, text, opt in [
+        (r"^location$|currently based|where are you (currently )?located", "New York", r"New York"),
+        (r"how did you hear|where did you learn", a["how_heard"], "^" + re.escape(a["how_heard"])),
+    ]:
+        try:
+            inp = ashby_entry(page, q).locator("input").first
+            if not inp.count():
+                continue
+            inp.click(); inp.fill(text); page.wait_for_timeout(1000)
+            o = page.get_by_role("option", name=re.compile(opt, re.I)).first
+            if o.count():
+                o.click(); filled[q] = text
+            else:
+                page.keyboard.press("Escape")
+        except Exception:
+            pass
+
+    fill_eeo_ashby(page, filled)
 
 
 def fill_lever(page: Page, kit: str, filled: dict):
@@ -183,29 +272,162 @@ def fill_lever(page: Page, kit: str, filled: dict):
             pass
 
 
+EEO = "--eeo" in sys.argv   # fill self-identification from answers.json["eeo"] (private repo)
+
+
+def pick_eeo_select(page: Page, label_regex: str, options, filled: dict) -> bool:
+    """Open the react-select under `label_regex` and click the first option whose
+    text matches one of `options` (regexes, tried in order, anchored by the
+    caller). We scan the open menu instead of typing because EEO wording differs
+    per company ("No, I am not a veteran" vs "I am not a protected veteran",
+    "South Asian (...)" vs "Asian")."""
+    if isinstance(options, str): options = [options]
+    try:
+        box = page.get_by_label(re.compile(label_regex, re.I)).first
+        if box.count() == 0: return False
+        box.click(); page.wait_for_timeout(400)
+        for rx in options:
+            opt = page.get_by_role("option", name=re.compile(rx, re.I)).first
+            if opt.count():
+                opt.click(); page.wait_for_timeout(200)
+                filled["eeo:" + label_regex] = rx; return True
+        page.keyboard.press("Escape"); return False
+    except Exception:
+        try: page.keyboard.press("Escape")
+        except Exception: pass
+        return False
+
+
+# Option wordings seen so far per answer key; first match wins. Values come from
+# answers.json["eeo"] only to decide WHICH list applies (so a different answer
+# in the private file disables the list rather than silently picking ours).
+EEO_OPTIONS = {
+    "gender":      {"Male": [r"^Male$", r"^Male\b", r"^Man\b"]},
+    "hispanic":    {"No":   [r"^No$", r"^No\b"]},
+    "race":        {"Asian": [r"^Asian$", r"^Asian\b", r"^South Asian", r"^Asian \("]},
+    "veteran":     {"I am not a protected veteran": [r"^I am not a protected veteran", r"^No, I am not a veteran", r"^I am not", r"^No\b"]},
+    "disability":  {"No, I do": [r"^No, I do", r"^No$", r"^No\b"]},
+    "orientation": {"Heterosexual": [r"^Heterosexual", r"^Straight"]},
+}
+
+
+def fill_eeo_greenhouse(page: Page, filled: dict):
+    e = ANSWERS.get("eeo", {})
+    if not EEO or not e: return
+    for rx, key in [(r"gender", "gender"), (r"hispanic", "hispanic"), (r"race|ethnicity", "race"),
+                    (r"veteran", "veteran"), (r"disab", "disability"), (r"sexual orientation", "orientation")]:
+        opts = EEO_OPTIONS.get(key, {}).get(e.get(key, ""))
+        if opts:
+            pick_eeo_select(page, rx, opts, filled)
+
+
+def fill_eeo_ashby(page: Page, filled: dict):
+    e = ANSWERS.get("eeo", {})
+    if not EEO or not e: return
+    for rx, key in [(r"^gender", "gender"), (r"^race", "race"), (r"veteran", "veteran"), (r"disab", "disability")]:
+        if key not in e: continue
+        try:
+            lab = ashby_entry(page, rx).locator("label", has_text=re.compile("^" + re.escape(e[key]), re.I)).first
+            if lab.count():
+                lab.click(timeout=1500); filled["eeo:" + rx] = e[key]
+        except Exception:
+            pass
+
+
+def fill_knockouts_greenhouse(page: Page, filled: dict):
+    """Standard yes/no and consent questions from skills/bilal-answers: answered,
+    never left blank (a blank auto-rejects). Company essays stay with Bilal."""
+    for rx, ans in [(r"employed by|worked (at|for)|currently work(ing)? (at|for)|previously worked", r"^No\b"),
+                    (r"highest level of (completed )?education", r"^Bachelor"),
+                    (r"european union|eu resident", r"^No\b"),
+                    (r"live or (want to )?relocate", r"^Yes\b"),   # Bilal is in NYC already
+                    (r"non-?compete|restrictive covenant", r"^No\b"),
+                    (r"18 years|over 18|at least 18", r"^Yes\b"),
+                    (r"background check|drug (screen|test)", r"^Yes\b")]:
+        pick_eeo_select(page, rx, ans, filled)
+    # consent / acknowledgement checkboxes
+    try:
+        boxes = page.get_by_role("checkbox", name=re.compile(r"consent|acknowledge|agree|privacy|by clicking", re.I))
+        for i in range(min(boxes.count(), 4)):
+            boxes.nth(i).check(timeout=1000); filled[f"consent-{i}"] = True
+    except Exception:
+        pass
+
+
+CDP_PORT = 9222   # Chrome DevTools port of the filler's Chrome; connect_over_cdp("http://localhost:9222") to edit open tabs
+CUSTOM = {}       # url-substring -> {label_regex: value}; loaded from custom.json next to the queue file
+
+
+def load_custom(path):
+    global CUSTOM
+    if path and pathlib.Path(path).exists():
+        CUSTOM = json.loads(pathlib.Path(path).read_text())
+
+
+def fill_custom(page: Page, ats: str, url: str, filled: dict):
+    """Per-job answers (company essays, one-off dropdowns) from custom.json,
+    `{"<url substring>": {"<label regex>": "text" | ["^option regex", ...]}}`.
+    A string goes into the text box under that label; if there is none it is
+    tried as an anchored select option. A list is a list of option regexes."""
+    for key, answers in CUSTOM.items():
+        if key not in url: continue
+        for rx, val in answers.items():
+            try:
+                if isinstance(val, str):
+                    if ats == "ashby":
+                        box = ashby_entry(page, rx).locator("input[type=text], input[type=url], textarea").first
+                        if box.count():
+                            box.fill(val); filled["custom:" + rx] = val[:40]; continue
+                    elif fill_by_label(page, rx, val, filled):
+                        continue
+                    val = ["^" + re.escape(val)]
+                if ats == "ashby":
+                    ent = ashby_entry(page, rx)
+                    hit = False
+                    for orx in val:
+                        b = ent.get_by_role("button", name=re.compile(orx, re.I)).first
+                        if b.count():
+                            b.click(timeout=1500); filled["custom:" + rx] = orx; hit = True; break
+                    if not hit:
+                        inp = ent.locator("input").first
+                        if inp.count():
+                            inp.click(); page.wait_for_timeout(500)
+                            for orx in val:
+                                o = page.get_by_role("option", name=re.compile(orx, re.I)).first
+                                if o.count():
+                                    o.click(); filled["custom:" + rx] = orx; break
+                else:
+                    pick_eeo_select(page, rx, val, filled)
+            except Exception as e:
+                filled["custom-error:" + rx] = repr(e)[:80]
+
+
 FILLERS = {"greenhouse": fill_greenhouse, "ashby": fill_ashby, "lever": fill_lever}
 
 
 # ---------- commands ----------
 def run(queue_file: str):
     jobs = [l.split() for l in pathlib.Path(queue_file).read_text().splitlines() if l.strip() and not l.startswith("#")]
+    load_custom(pathlib.Path(queue_file).with_name("custom.json"))
     run_id = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     out = STATE_DIR / run_id; out.mkdir()
     records = []
     with sync_playwright() as p:
         # headless=False so you can look at (and submit from) the real tabs.
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome")
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}"])
         for i, (url, kit) in enumerate(jobs, 1):
             page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
             page.wait_for_timeout(2500)
             ats = ats_of(url); filled = {}
             try:
                 FILLERS.get(ats, lambda *_: None)(page, kit, filled)
+                fill_custom(page, ats, url, filled)
             except Exception as e:
                 filled["_error"] = repr(e)
             shot = out / f"{i:02d}.png"
             page.screenshot(path=str(shot), full_page=True)
-            rec = {"n": i, "url": url, "kit": kit, "ats": ats, "filled": filled, "screenshot": str(shot), "submitted": False}
+            rec = {"n": i, "url": url, "kit": kit, "ats": ats, "filled": filled, "screenshot": str(shot), "submitted": False,
+                   "queue": str(pathlib.Path(queue_file).resolve())}
             records.append(rec)
             print(f"[{i:02d}] {ats:10} {kit:10} {len(filled):2d} fields  {url}")
         (out / "run.json").write_text(json.dumps(records, indent=1))
@@ -236,9 +458,11 @@ def submit(n: int):
     if input("Type yes to submit this one: ").strip().lower() != "yes":
         print("not submitted"); return
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome")
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}"])
         page = ctx.new_page(); page.goto(rec["url"], wait_until="domcontentloaded"); page.wait_for_timeout(2500)
+        load_custom(pathlib.Path(rec.get("queue", "")).with_name("custom.json") if rec.get("queue") else None)
         filled = {}; FILLERS.get(rec["ats"], lambda *_: None)(page, rec["kit"], filled)
+        fill_custom(page, rec["ats"], rec["url"], filled)
         page.get_by_role("button", name=re.compile(r"submit", re.I)).first.click()
         page.wait_for_timeout(4000)
         ok = bool(re.search(r"thank|received|submitted", page.content(), re.I))

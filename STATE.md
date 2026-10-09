@@ -46,7 +46,7 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-08 — **Mass-apply day: October 8 kits approved, 17 applications submitted, LinkedIn tracker imported into Notion. No auto-submit.**
+> Last updated: 2026-10-08 — **Mass-apply day: 17 submitted by afternoon, batch 5 (8 forms) filled by the CLI filler in the evening, LinkedIn tracker imported into Notion. No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
 ## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
@@ -85,9 +85,25 @@ the handoff so the CoS and the Interview Tracker agent stay in sync.
   (rows mode and search still work); Claude-in-Chrome drops when the laptop
   sleeps; ~70% of web-search job URLs are stale, so verify live in a browser
   before counting a role.
-- Next: capture the remaining LinkedIn pages, work the Saved queue (remote or
-  NYC, senior mobile/full-stack, non-darling companies), and decide on the
-  lid-closed pipeline.
+- **Evening, batch 5 via the CLI filler (`docs/mass-apply-cli.md`):** 8 forms
+  filled in `interviews/imports/mass-apply-runs/20261008-1758` and logged Ready
+  to submit: PrizePicks (RN), Propel x2 (full stack; **one Propel application
+  per 30 days**, Bilal picks), SentiLink, Nectar Social (RN), Gusto, Gemini,
+  Butterfly Staff iOS. Bilal typed the essays into the open tabs himself and
+  submits in-tab; he reports "submitted N" and the row flips to Applied.
+  Dropped as already Applied: Nanit, Titan. Hand-off only (ATS unsupported):
+  Fetch (Gem), Trinity, BCBST, Resideo (Workday). Skipped: Radar (no mobile
+  role), Rezilient (Workable, native Android), Top Prospect (agency), Quizlet
+  (careers page blocks bots), Scribd (SF only).
+- **Filler fixes shipped (PR #159):** Ashby autofill-first + label-scoped fields
+  (the old locator set sponsorship=Yes on Propel and put the cover letter in the
+  resume slot), Greenhouse cover letter via file chooser, `--eeo` from the
+  private `answers.json` block (Bilal: "fill out the demo part too", 2026-10-08),
+  standard knockouts, Chrome debug port 9222, per-job `custom.json` essays.
+  Rule learned: `submit N` refills from scratch, so hand-typed answers must go
+  in `custom.json` or Bilal submits in the tab.
+- Next: Tier 2/3 of `queue-batch5.md` (Scribd, dYdX, US Mobile, manager track),
+  capture the remaining LinkedIn pages, and decide on the lid-closed pipeline.
 
 ## 2026-10-04 — CFO check: 34 h Claude blind spot, warned once
 
