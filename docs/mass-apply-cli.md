@@ -24,6 +24,9 @@ Allowlist the few commands once so Claude Code stops asking, in
 
 ## Daily loop
 
+0. **Preview first (Bilal, 2026-10-09):** dedupe candidates against the Notion
+   table and the LinkedIn import, post `Company · Role · location · kit` in chat,
+   fill only after he confirms. See `skills/job-guardrails`.
 1. Queue: `~/interviews/imports/<date>/queue.txt`, one line per job,
    `<apply-url> <kit>` (kit = mobile-ios | mobile-rn | fullstack | manager).
    Source candidates from `imports/linkedin-job-tracker-2026-10-08/queue-batch5.md`

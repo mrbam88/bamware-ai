@@ -39,6 +39,15 @@ fintech-adjacent, NYC-local. Applied 2026-10-09: withdrew full-stack rows at
 Brex, Plaid, Affirm, Scale AI, Linear, Ramp, Phantom, Hopper; kept Stripe EM
 Mobile and Coinbase Senior Native Mobile.
 
+## Batch procedure: tracker check, then preview, then fill (Bilal, 2026-10-09)
+
+Before filling a batch: (1) check the Notion Applications table **and** the
+LinkedIn tracker import for every candidate (Applied, Rejected, Ready to submit,
+Withdrawn); companies that rejected him recently and the elite AI labs (OpenAI,
+Anthropic) are out even for mobile roles; (2) post the shortlist in chat as
+`Company · Role · location · kit`; (3) fill only after he confirms, dropping
+what he strikes. Batch 8 wasted four fills that a preview would have caught.
+
 ## Still out of scope (these are procedure limits, not company blocks)
 
 - Postings that fail on facts: a location he cannot work from (he is not
