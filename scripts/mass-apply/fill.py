@@ -414,7 +414,7 @@ def run(queue_file: str):
     records = []
     with sync_playwright() as p:
         # headless=False so you can look at (and submit from) the real tabs.
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}"])
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
         for i, (url, kit) in enumerate(jobs, 1):
             page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
             page.wait_for_timeout(2500)
@@ -458,7 +458,7 @@ def submit(n: int):
     if input("Type yes to submit this one: ").strip().lower() != "yes":
         print("not submitted"); return
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}"])
+        ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
         page = ctx.new_page(); page.goto(rec["url"], wait_until="domcontentloaded"); page.wait_for_timeout(2500)
         load_custom(pathlib.Path(rec.get("queue", "")).with_name("custom.json") if rec.get("queue") else None)
         filled = {}; FILLERS.get(rec["ats"], lambda *_: None)(page, rec["kit"], filled)
