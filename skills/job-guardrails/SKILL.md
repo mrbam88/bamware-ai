@@ -28,6 +28,17 @@ Applied 2026-10-09 to Stripe (kept EM Mobile), WW (Staff iOS), Thrive Market
 (Senior iOS), Propel (Healthcare full stack, which also respects its one
 application per 30 days limit).
 
+## Top-tier companies: mobile roles only (Bilal, 2026-10-09)
+
+At big-name, high-bar companies (Stripe, Brex, Plaid, Ramp, Affirm, Scale AI,
+Linear, Coinbase, Phantom, Notion, Figma and the like) apply only to mobile
+roles: iOS, React Native, mobile EM. A full-stack application there is a huge
+stretch for a career mobile engineer and burns a slot. Full-stack applications
+go to companies where the bar is reachable: smaller, unglamorous, healthcare,
+fintech-adjacent, NYC-local. Applied 2026-10-09: withdrew full-stack rows at
+Brex, Plaid, Affirm, Scale AI, Linear, Ramp, Phantom, Hopper; kept Stripe EM
+Mobile and Coinbase Senior Native Mobile.
+
 ## Still out of scope (these are procedure limits, not company blocks)
 
 - Postings that fail on facts: a location he cannot work from (he is not
