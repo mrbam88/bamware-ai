@@ -63,6 +63,17 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
+**Audio: volume resets to 0 on every output switch (Bilal, 2026-10-09).**
+macOS remembers a per-device volume, so when Bluetooth drops the speakers come
+back loud in a cafe. Fix is Hammerspoon (free, `brew install --cask hammerspoon`)
+with `config/macos/hammerspoon/init.lua` copied to `~/.hammerspoon/init.lua`.
+It watches `hs.audiodevice` for default-output changes and sets the new device
+to 0 (not muted). Lost once in the macOS 27 upgrade; this copy is canonical.
+Reinstall after any macOS upgrade; verify with `hs -c
+'print(hs.audiodevice.watcher.isRunning())'` → `true`. Not Karabiner, not
+AutoMute (both checked 2026-10-09). Note: `hs -c 'hs.reload()'` hangs the CLI;
+use the menu bar Reload Config instead.
+
 **Local-model benchmark (Bilal, 2026-09-25):** Qwen3 running locally, asked to
 load the Bamware context, took about **1 minute on the M3** and about **20
 minutes on the Intel `omarchy` server** (CPU only). Treat the M3 as the only
