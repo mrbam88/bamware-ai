@@ -87,6 +87,69 @@ test("system state: unverified worker activity is its own 'attention' state, nev
   assert.equal(deriveSystem({}, unverifiedThenConfirmed, []).state, "running", "confirmed running wins when listed after an unverified task");
 });
 
+test("system state: pending owner decisions never claim a block with no dependency evidence", () => {
+  const idleWork = { running: [], recent: [] };
+  const one = deriveSystem({}, idleWork, [{ title: "x" }]);
+  assert.equal(one.title, "Decisions need you");
+  assert.equal(one.detail, "1 decision needs your input. No active executor work is confirmed.");
+  assert.equal(one.waiting, 1);
+  const two = deriveSystem({}, idleWork, [{ title: "x" }, { title: "y" }]);
+  assert.equal(two.title, "Decisions need you");
+  assert.equal(two.detail, "2 decisions need your input. No active executor work is confirmed.");
+  assert.equal(two.waiting, 2);
+});
+
+test("system state: idle detail scopes to the observed executor, not a global claim", () => {
+  const idleWork = { running: [], recent: [] };
+  const idle = deriveSystem({}, idleWork, []);
+  assert.equal(idle.title, "Idle");
+  assert.equal(idle.detail, "No active executor work is confirmed and no decisions are waiting on you.");
+  assert.equal(idle.waiting, 0);
+});
+
+test("system state: queued-only work plus pending decisions still reports awaiting, not a false block claim", () => {
+  const queuedWork = { running: [{ state: "queued", task: "a", ticket: "#1", startedAt: null }], recent: [] };
+  const result = deriveSystem({}, queuedWork, [{ title: "x" }]);
+  assert.equal(result.state, "awaiting");
+  assert.equal(result.title, "Decisions need you");
+  assert.equal(result.detail, "1 decision needs your input. No active executor work is confirmed.");
+});
+
+test("system state: confirmed active work beats pending decisions in precedence and copy", () => {
+  const work = { running: [{ state: "running", task: "a", ticket: "#1", startedAt: NOW }], recent: [] };
+  const result = deriveSystem({}, work, [{ title: "x" }, { title: "y" }]);
+  assert.equal(result.state, "running");
+  assert.equal(result.title, "FACTORY BUILDING");
+  assert.equal(result.waiting, 2, "waiting count still carried even when another state wins");
+});
+
+test("system state: unverified activity beats pending decisions in precedence and copy", () => {
+  const unverifiedWork = { running: [{ state: "unverified", task: "a", ticket: "#1", startedAt: NOW }], recent: [] };
+  const result = deriveSystem({}, unverifiedWork, [{ title: "x" }]);
+  assert.equal(result.state, "attention");
+  assert.equal(result.title, "Activity unverified");
+  assert.equal(result.waiting, 1);
+});
+
+test("system state: paused beats pending decisions in precedence and copy", () => {
+  const idleWork = { running: [], recent: [] };
+  const result = deriveSystem({ estop: { reason: "r", pausedAt: 1 } }, idleWork, [{ title: "x" }]);
+  assert.equal(result.state, "paused");
+  assert.equal(result.title, "Paused by emergency stop");
+  assert.equal(result.waiting, 1);
+});
+
+test("buildAgentsSnapshot carries the new pending copy and unchanged items/count end to end", () => {
+  const blockers = [{ id: "x", status: "waiting_for_owner", candidate: { title: "Docker access", urgency: "medium" } },
+    { id: "z", status: "waiting_for_owner", candidate: { title: "AWS creds", urgency: "high" } }];
+  const snap = buildAgentsSnapshot({ estop: null, batch: null, runs: [], blockers, capacity: null }, NOW);
+  assert.equal(snap.system.state, "awaiting");
+  assert.equal(snap.system.title, "Decisions need you");
+  assert.equal(snap.system.detail, "2 decisions need your input. No active executor work is confirmed.");
+  assert.equal(snap.system.waiting, 2);
+  assert.deepEqual(snap.needsYou.map((i) => i.title), ["AWS creds", "Docker access"]);
+});
+
 test("snapshot tolerates entirely missing state", () => {
   const snap = buildAgentsSnapshot({ estop: null, batch: null, runs: [], blockers: [], capacity: null }, NOW);
   assert.equal(snap.system.state, "idle");
