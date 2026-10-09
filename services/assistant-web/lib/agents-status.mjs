@@ -37,7 +37,8 @@ export async function workerAlive(pid, runId, readFile = fs.readFile) {
   if (!Number.isInteger(pid)) return null;
   try {
     const cmdline = (await readFile(`/proc/${pid}/cmdline`, "utf8")).split("\0");
-    return cmdline.some((a) => a.endsWith("runner.py")) && cmdline.includes("worker") && cmdline.some((a) => a.endsWith(runId));
+    const i = cmdline.findIndex((a) => path.basename(a) === "runner.py");
+    return i >= 0 && cmdline[i + 1] === "worker" && path.basename(cmdline[i + 2] ?? "") === runId;
   } catch (err) {
     // Only "no such process" means dead; anything else (e.g. a future ProtectProc sandbox) is unknown.
     return err?.code === "ENOENT" ? false : null;

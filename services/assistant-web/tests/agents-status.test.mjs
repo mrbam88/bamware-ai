@@ -150,6 +150,15 @@ test("worker liveness requires this run's runner.py worker, not any process with
   assert.equal(await workerAlive(undefined, "179"), null);
 });
 
+test("worker identity requires the exact runner.py script, an adjacent worker subcommand, and the exact run directory", async () => {
+  const cmd = (args) => async () => args.join("\0");
+  assert.equal(await workerAlive(42, "179", cmd(["python3", "/x/runner.py", "worker", "/runs/9179"])), false, "run id must match exactly, not just a suffix");
+  assert.equal(await workerAlive(42, "179", cmd(["python3", "/x/notrunner.py", "worker", "/runs/179"])), false, "script must be runner.py exactly, not merely end with it");
+  assert.equal(await workerAlive(42, "179", cmd(["python3", "/x/runner.py", "/runs/179", "worker"])), false, "worker must immediately follow the script, not appear after the run dir");
+  assert.equal(await workerAlive(42, "179", cmd(["python3", "/x/runner.py", "worker", "--extra", "179"])), false, "the run dir must immediately follow worker, not an unrelated later argument");
+  assert.equal(await workerAlive(42, "179", cmd(["python3", "/x/runner.py", "worker", "/runs/179/"])), true, "a trailing slash on the run dir is still an exact match");
+});
+
 test("a capacity file without a readable timestamp is stale, not fresh", () => {
   assert.equal(deriveCapacity({ pools: [], sources: {} }, NOW).state, "stale");
   assert.equal(deriveCapacity({ generated_at: "garbage", pools: [], sources: {} }, NOW).state, "stale");
