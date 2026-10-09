@@ -82,8 +82,11 @@ The carousel approval and remaining unverified work stay visible.
 
 Read-only deployed verification (existing credentials stay in process):
 `ASSISTANT_VERIFY_URL=https://omarchy.tailb7fa1e.ts.net node scripts/verify-decisions.mjs`.
-Checks authenticated active/history IDs, 401 protection, unchanged response store
-and served history UI. No chat, model, Discord operation or decision submission.
+Checks authenticated active/history IDs, 401 protection, unchanged response store,
+and that `/app.js` and `/app.css` are served with HTTP 200 and byte-identical
+(SHA256) to this checkout via `scripts/lib/asset-identity.mjs`. That proves the
+deployed source matches, not that a browser fetched or rendered it. No chat,
+model, Discord operation or decision submission.
 
 ### Decision card copy rules (bamware-ai#141)
 
