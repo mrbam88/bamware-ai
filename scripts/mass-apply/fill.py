@@ -50,7 +50,7 @@ from playwright.sync_api import sync_playwright, Page, TimeoutError as PWTimeout
 import os
 INTERVIEWS = pathlib.Path(os.environ.get("INTERVIEWS_REPO", pathlib.Path.home() / "interviews"))
 ANSWERS = json.loads((INTERVIEWS / "profile" / "answers.json").read_text())
-PROFILE_DIR = pathlib.Path.home() / ".bamware" / "mass-apply-profile"   # persistent Chrome profile
+PROFILE_DIR = pathlib.Path(os.environ.get("MASS_APPLY_PROFILE", pathlib.Path.home() / ".bamware" / "mass-apply-profile"))   # persistent Chrome profile; override to run two batches side by side
 STATE_DIR = INTERVIEWS / "imports" / "mass-apply-runs"                   # screenshots + JSON, private repo
 STATE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -354,7 +354,7 @@ def fill_knockouts_greenhouse(page: Page, filled: dict):
         pass
 
 
-CDP_PORT = 9222   # Chrome DevTools port of the filler's Chrome; connect_over_cdp("http://localhost:9222") to edit open tabs
+CDP_PORT = int(os.environ.get("MASS_APPLY_CDP_PORT", "9222"))   # Chrome DevTools port of the filler's Chrome; connect_over_cdp("http://localhost:9222") to edit open tabs
 CUSTOM = {}       # url-substring -> {label_regex: value}; loaded from custom.json next to the queue file
 
 

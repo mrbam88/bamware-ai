@@ -102,6 +102,16 @@ the handoff so the CoS and the Interview Tracker agent stay in sync.
   standard knockouts, Chrome debug port 9222, per-job `custom.json` essays.
   Rule learned: `submit N` refills from scratch, so hand-typed answers must go
   in `custom.json` or Bilal submits in the tab.
+- **Batch 6 (same evening, 20 roles):** sourced by probing 268 Greenhouse/Ashby/Lever
+  boards through their public APIs (`imports/2026-10-08-batch6/queue.txt`), deduped
+  against the full Notion table. Filled in a second Chrome profile
+  (`MASS_APPLY_PROFILE`, PR #160) so batch 5's tabs stayed open; run
+  `mass-apply-runs/20261008-2108`. Leftover required fields were found and filled
+  **live over the Chrome debug port** (connect_over_cdp on 9223), including drafted
+  essays for NerdWallet, Found, SeatGeek, Underdog and Dave that Bilal rephrases
+  in the tab. 20 Notion rows Ready to submit: Chime, Underdog, Citizen, Coinbase,
+  Notion x2, Mercury x2, NerdWallet, Human Interest, Canary, Headway, Charlie
+  Health, Dave, Alloy, SeatGeek, EarnIn, Rocket Money, Thumbtack, Found.
 - Next: Tier 2/3 of `queue-batch5.md` (Scribd, dYdX, US Mobile, manager track),
   capture the remaining LinkedIn pages, and decide on the lid-closed pipeline.
 
