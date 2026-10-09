@@ -46,7 +46,7 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-09 — **Goal hit: 50 applications confirmed Applied across batches 5-9. Real Chrome attach mode is the flow from here. No auto-submit.**
+> Last updated: 2026-10-09 (late) — **53 applications confirmed Applied across batches 5-9 (goal was 50). Real Chrome attach mode is the flow from here. No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
 ## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
@@ -136,9 +136,11 @@ the handoff so the CoS and the Interview Tracker agent stay in sync.
 - **2026-10-09 evening: 50 confirmed.** Batch 7 added Andela, Stripe EM Mobile, Rula,
   Hazel, Toast, Kustomer, Melio, Elastic, Thrive Market iOS, Substack; batch 9
   (reachable-tier mobile, previewed in chat first) added Partiful, Moonshot, Geo
-  Browser, Jetty, GFiber, Scout Motors, Life360, NinjaTrader, Mode Mobile. Still
-  open: Cassi Home, Eleos, Injective, Mozilla, Eight Sleep, WW iOS, Fubo, Coinbase
-  (email code), Alloy, Canary, Found, and the unconfirmed batch-5 six.
+  Browser, Jetty, GFiber, Scout Motors, Life360, NinjaTrader, Mode Mobile, Cassi
+  Home; Alloy and Fubo (the first form submitted from the attached real Chrome)
+  followed. Still open: Eleos, Injective, Mozilla, Eight Sleep, WW iOS, Coinbase
+  (email code), Canary, Found, and the unconfirmed batch-5 six (PrizePicks,
+  Propel Healthcare, SentiLink, Nectar, Gusto, Gemini, Butterfly).
 - **Process rules added today (`skills/job-guardrails`):** check the tracker and
   preview `Company · Role · location · kit` in chat before filling; one role per
   company, mobile preferred; top-tier companies mobile-only; skip recent
