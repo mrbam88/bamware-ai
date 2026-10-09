@@ -222,6 +222,12 @@ centers them above eDP-1.
   sets the matching default sink.
 - Verified 2026-10-07: unplug switched to Speaker, replug to Headphones, about
   a second each. Log: `journalctl --user -u headphone-autoswitch`.
+- Fixed 2026-10-09: it used to set Speaker as the default output on every
+  switch back, which overrode the TV's HDMI audio. It now sets the default only
+  for Headphones; on unplug WirePlumber falls back to the previous default.
+- If the TV shows a picture but has no HDMI audio (all `HDMI/DP,pcm=* Jack`
+  controls `off`), re-applying the mode doesn't help. Replugging the adapter
+  does.
 
 ## Double top bar (2026-10-09)
 
@@ -243,6 +249,20 @@ centers them above eDP-1.
 - The headphone auto-switch did not cause it: switching profiles both ways
   kept the mic at 100%. What turned it down is unknown; check the volume
   first if dictation goes silent again.
+
+## Idle: no lock at the desk (2026-10-09)
+
+- The custom idle plugin `~/.config/omarchy/plugins/bilalx1.idle/Service.qml`
+  (settings in `~/.config/omarchy/shell.json`) starts the screensaver at 150 s
+  and locks at 300 s. The lock turns the displays off, which Bilal saw as the
+  laptop "going to sleep too fast" at the desk.
+- Now when the lock timer fires it first checks `/sys/class/power_supply/AC/online`
+  and `hyprctl monitors`. On the charger with any non-eDP display connected, it
+  logs `lock-skipped` and leaves the screensaver running. Away from the desk it
+  locks as before. Restart the shell after editing: `omarchy-restart-shell`.
+- Closing the lid with a display connected doesn't suspend: logind reports
+  `Docked=yes` and `HandleLidSwitchDocked=ignore`.
+- Not yet verified with a full idle cycle.
 
 ## Input and bar tweaks (2026-09-24)
 
