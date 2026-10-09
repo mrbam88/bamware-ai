@@ -405,6 +405,23 @@ def fill_custom(page: Page, ats: str, url: str, filled: dict):
 FILLERS = {"greenhouse": fill_greenhouse, "ashby": fill_ashby, "lever": fill_lever}
 
 
+def hide_browser():
+    """Hide the filler's Chrome right after launch so it never steals focus from
+    Bilal's own windows (Bilal, 2026-10-09: "the browser takes my focus, very
+    distracting"). He unhides it from the Dock or Cmd-Tab when he wants to submit.
+    macOS only; no-op elsewhere or when MASS_APPLY_HIDE=0."""
+    if sys.platform != "darwin" or os.environ.get("MASS_APPLY_HIDE", "1") == "0":
+        return
+    import subprocess
+    try:
+        pids = subprocess.run(["pgrep", "-f", f"--user-data-dir={PROFILE_DIR}"], capture_output=True, text=True).stdout.split()
+        for pid in pids:
+            subprocess.run(["osascript", "-e", f'tell application "System Events" to set visible of (first process whose unix id is {pid}) to false'],
+                           capture_output=True, timeout=5)
+    except Exception:
+        pass
+
+
 # ---------- commands ----------
 def run(queue_file: str):
     jobs = [l.split() for l in pathlib.Path(queue_file).read_text().splitlines() if l.strip() and not l.startswith("#")]
@@ -415,6 +432,7 @@ def run(queue_file: str):
     with sync_playwright() as p:
         # headless=False so you can look at (and submit from) the real tabs.
         ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
+        page0 = ctx.pages[0] if ctx.pages else ctx.new_page(); page0.wait_for_timeout(800); hide_browser()
         for i, (url, kit) in enumerate(jobs, 1):
             page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
             page.wait_for_timeout(2500)
@@ -459,6 +477,7 @@ def submit(n: int):
         print("not submitted"); return
     with sync_playwright() as p:
         ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
+        page0 = ctx.pages[0] if ctx.pages else ctx.new_page(); page0.wait_for_timeout(800); hide_browser()
         page = ctx.new_page(); page.goto(rec["url"], wait_until="domcontentloaded"); page.wait_for_timeout(2500)
         load_custom(pathlib.Path(rec.get("queue", "")).with_name("custom.json") if rec.get("queue") else None)
         filled = {}; FILLERS.get(rec["ats"], lambda *_: None)(page, rec["kit"], filled)
