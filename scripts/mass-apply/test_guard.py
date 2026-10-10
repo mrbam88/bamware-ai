@@ -67,8 +67,22 @@ class Check(unittest.TestCase):
     def test_withdrawn_sibling_role_does_not_block_the_kept_one(self):
         ledger = [row("WW", "Withdrawn", "https://job-boards.greenhouse.io/ww/jobs/5226133008"),
                   row("WW", "Ready to submit", "https://job-boards.greenhouse.io/ww/jobs/5124361008")]
-        self.assertTrue(verdict("https://job-boards.greenhouse.io/ww/jobs/5124361008", ledger)["ok"])
+        kept = "https://job-boards.greenhouse.io/ww/jobs/5124361008"
+        self.assertIn("FILLED BEFORE", verdict(kept, ledger)["reason"])        # Ready to submit = already filled
+        self.assertTrue(verdict(kept, ledger, refill=["ww/jobs/5124361008"])["ok"])
         self.assertFalse(verdict("https://job-boards.greenhouse.io/ww/jobs/5226133008", ledger)["ok"])
+
+    def test_ready_to_submit_row_counts_as_filled_even_without_run_history(self):
+        # Twilio, ServiceTrade, Flowcode, Brigit: filled 2026-10-08 through the Chrome
+        # extension, so no run.json; the tracker row is the only trace.
+        twilio = "https://job-boards.greenhouse.io/twilio/jobs/8067027"
+        ledger = [row("Twilio (Stytch)", "Ready to submit", twilio)]
+        self.assertIn("FILLED BEFORE", verdict(twilio, ledger)["reason"])
+        self.assertTrue(verdict(twilio, ledger, refill=["twilio"])["ok"])
+        # another posting at a company with a filled, unsubmitted form (Brigit remote vs NYC)
+        ledger = [row("Brigit", "Ready to submit", "https://jobs.ashbyhq.com/brigit/70b71c70/application")]
+        v = verdict("https://jobs.ashbyhq.com/brigit/dadfe50a/application", ledger)
+        self.assertIn("COMPANY ALREADY IN TRACKER", v["reason"])
 
     def test_company_match_survives_slug_differences(self):
         ledger = [row("Gametime", "Applied", "https://job-boards.greenhouse.io/gametimeunited/jobs/1", "2026-10-10")]

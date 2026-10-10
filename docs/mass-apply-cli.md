@@ -33,13 +33,18 @@ Bilal caught it. `scripts/mass-apply/guard.py` now runs before any form opens:
   of Notion Job Tracker 2026 → Applications to
   `~/interviews/imports/tracker-ledger.json` as
   `{"exported_at": "<ISO time>", "rows": [{"company", "role", "status", "job_link", "applied"}]}`
-  (one SQL query through the Notion connector returns all rows). Missing or older
+  (one SQL query through the Notion connector returns all rows). Append the
+  LinkedIn "Applied" export (`imports/linkedin-job-tracker-*/applied.json`) as
+  Applied rows: Sandbar Staff iOS was applied through LinkedIn and is in no
+  Notion row. Missing or older
   than 2 hours: `run` and `check` exit without opening anything.
 - **Finished postings are never opened**: same job (Greenhouse id, Ashby/Lever
   uuid, LinkedIn id) with status Applied, Screen, Interviewing, Offer, Rejected
   or Withdrawn. No flag overrides this.
-- **Filled before = maybe submitted.** A form filled in any earlier run is not
-  refilled. Ask Bilal; only when he says it is not submitted, pass
+- **Filled before = maybe submitted.** A form filled in any earlier run, or
+  whose tracker row is "Ready to submit" (filled by any route: fill.py, the
+  Chrome extension, a live fill), is not refilled. A Ready-to-submit row also
+  blocks other postings at that company. Ask Bilal; only when he says it is not submitted, pass
   `--refill=<url part>`. Never pass it on your own judgment: the tracker status
   is exactly what was wrong on 2026-10-10.
 - **One role per company / recent rejection**: a different posting at a company
