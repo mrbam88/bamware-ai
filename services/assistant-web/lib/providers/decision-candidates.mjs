@@ -146,13 +146,42 @@ export const DECISION_CANDIDATES = Object.freeze([
       rationale: "Use Agents and Decisions for a few days first so the triage view matches real needs instead of guessing ahead.",
     },
     options: [
-      { id: "select_next_batch", label: "Build it next" },
-      { id: "defer", label: "Wait — use current tools first" },
-      { id: "reject", label: "Skip it" },
+      { id: "select_next_batch", action: "approve", label: "Build it next" },
+      { id: "defer", action: "defer", label: "Wait — use current tools first" },
+      { id: "reject", action: "reject", label: "Skip it" },
     ],
     urgency: "low",
     owner: "Bilal Malik",
     blockedWork: ["Backlog planning view"],
     escalationReason: "explicit_ceo_gate",
+  },
+  // Owner-blocker catalog face (ledger version 2). Without a summary the UI
+  // falls back to the first context sentence — technical Docker jargon on the face.
+  {
+    id: "auth-atomic-docker-access-85",
+    version: "2",
+    title: "Pick where recovery tests run",
+    summary: "Choose Docker on this laptop or another approved machine. Unit tests keep going either way.",
+    project: "Bamware shared account recovery",
+    context:
+      "Status: waiting for owner. On X1, docker ps was denied access to /var/run/docker.sock by host Docker permissions. This blocks local DynamoDB transaction integration verification only; implementation and unit tests continue. Choose either approved Docker access on X1 using your intended host policy, or explicitly reassign the integration tests to an existing Docker-capable runtime. No sudo, group change, or alternate access bypass has been attempted. Completion means the approved runtime can execute the DynamoDB integration suite and its atomicity/concurrency checks pass; unit mocks are not integration proof. CoS note: omarchy Docker is active — reassign here is a valid choice.",
+    source: {
+      kind: "github-issue",
+      ref: "mrbam88/bamware-ai#85",
+      url: "https://github.com/mrbam88/bamware-ai/issues/85",
+    },
+    recommendation: {
+      optionId: "runtime",
+      rationale: "Use an already approved Docker-capable runtime if available; do not silently grant root-equivalent daemon access.",
+    },
+    options: [
+      { id: "runtime", action: "approve", label: "Use approved test machine" },
+      { id: "access", action: "approve", label: "I fixed laptop Docker — recheck" },
+      { id: "defer", action: "defer", label: "Defer integration tests" },
+    ],
+    urgency: "medium",
+    owner: "Bilal Malik",
+    blockedWork: ["DynamoDB atomic-reset integration verification for #85"],
+    escalationReason: "owner_runtime_access_required",
   },
 ]);
