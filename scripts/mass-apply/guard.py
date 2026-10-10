@@ -26,6 +26,11 @@ DONE = {"Applied", "Screen", "Interviewing", "Offer", "Rejected", "Withdrawn"}
 # Statuses meaning "there is a live application at this company" (one role per
 # company) or "they turned him down" (no re-apply after a recent rejection).
 ACTIVE = {"Applied", "Screen", "Interviewing", "Offer"}
+# "Ready to submit" means a form was already filled and handed to Bilal, by
+# fill.py or by any other route (Chrome extension, live fill). Four such forms
+# from 2026-10-08 (Twilio, ServiceTrade, Flowcode, Brigit) passed the first
+# version of this guard because only fill.py's own run history counted.
+HELD = {"Ready to submit"}
 COMPANY_WINDOW_DAYS = 180   # older applications/rejections no longer block the company
 LEDGER_MAX_AGE_MIN = 120    # preview + Bilal's confirmation fit in this; older = re-export
 
@@ -106,7 +111,7 @@ def _recent(row, today):
     date counts as recent for a live application and as old for a rejection
     (undated rejections are historical email reconstructions)."""
     d = row.get("applied")
-    if not d: return row.get("status") in ACTIVE
+    if not d: return row.get("status") in ACTIVE | HELD
     return (today - datetime.date.fromisoformat(d[:10])).days <= COMPANY_WINDOW_DAYS
 
 
@@ -121,15 +126,18 @@ def check(jobs, ledger, history, refill=(), allow_company=(), today=None):
         reason = None
         same_job = [r for r in ledger if r.get("job_link") and job_key(r["job_link"])[0] == key]
         done = [r for r in same_job if r.get("status") in DONE]
+        held = [r for r in same_job if r.get("status") in HELD]
+        refill_ok = any(s and s.lower() in url.lower() for s in refill)
         company = [r for r in ledger if r not in same_job and same_company(org, r)
-                   and (r.get("status") in ACTIVE or r.get("status") == "Rejected") and _recent(r, today)]
+                   and (r.get("status") in ACTIVE | HELD or r.get("status") == "Rejected") and _recent(r, today)]
         if done:
             r = done[0]
             reason = f"ALREADY {r['status'].upper()}: {r.get('company')} · {r.get('role')} ({r.get('applied') or 'no date'}). Do not fill."
         elif key in in_queue:
             reason = f"DUPLICATE IN QUEUE: same posting as line {in_queue[key]}."
-        elif key in history and not any(s and s.lower() in url.lower() for s in refill):
-            reason = (f"FILLED BEFORE in {history[key]}: Bilal may have submitted it from the tab. "
+        elif (key in history or held) and not refill_ok:
+            where = history.get(key) or f"the tracker ({held[0].get('company')} is Ready to submit)"
+            reason = (f"FILLED BEFORE per {where}: Bilal may have submitted it from the tab. "
                       f"Ask him; only if he says it is not submitted, rerun with --refill=<url part>.")
         elif company and not any(s and s.lower() in url.lower() for s in allow_company):
             r = company[0]
