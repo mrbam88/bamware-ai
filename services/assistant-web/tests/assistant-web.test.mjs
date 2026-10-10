@@ -244,7 +244,10 @@ test("respond -> reload: a durable response survives a fresh GET (restart simula
 test("duplicate respond calls are idempotent over HTTP; real mode never claims a worker picked it up", async () => {
   await withServer(async (base) => {
     const { cookie } = await login(base);
-    const candidate = DECISION_CANDIDATES.find((c) => c.options.some((o) => o.action === "approve"));
+    const candidate = DECISION_CANDIDATES.find(
+      (c) => c.id === "brewdesk-first-carousel-72" && c.options.some((o) => o.action === "approve"),
+    );
+    assert.ok(candidate, "carousel approve candidate required");
     const approveOption = candidate.options.find((o) => o.action === "approve").id;
     const payload = JSON.stringify({ action: "approve", selectedOptionId: approveOption, candidateVersion: candidate.version });
     const first = await fetch(`${base}/api/decisions/${candidate.id}/respond`, { method: "POST", headers: { "content-type": "application/json", cookie }, body: payload });

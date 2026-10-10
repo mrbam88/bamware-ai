@@ -8,6 +8,6 @@
   "scripts": {
     "start": "node server.mjs",
     "setup:admin": "npm ci --prefix lib/admin --ignore-scripts --no-audit --no-fund",
-    "test": "node --test tests/"
+    "test": "node --test tests/**/*.test.mjs"
   }
 }

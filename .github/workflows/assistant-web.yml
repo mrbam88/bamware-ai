@@ -1,7 +1,7 @@
 name: assistant-web
 
-# Command Center is CEO-facing. Unit tests always run; browser fixtures when
-# Chromium is available. A green main without these is how Confirm-stuck shipped.
+# Command Center is CEO-facing. Unit tests always run; browser fixtures with Chromium.
+# A green main without these is how Confirm-stuck shipped.
 
 on:
   push:
@@ -39,17 +39,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install Playwright Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
       - name: Action feedback fixtures
         env:
           PLAYWRIGHT_MODULE: playwright
         run: |
-          CHROME=$(node -e "console.log(require('playwright').chromium.executablePath())")
-          CHROMIUM_BIN="$CHROME" node scripts/verify-action-feedback.mjs
+          CHROMIUM_BIN="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export CHROMIUM_BIN
+          node scripts/verify-action-feedback.mjs
       - name: Status / history fixtures
         env:
           PLAYWRIGHT_MODULE: playwright
         run: |
-          CHROME=$(node -e "console.log(require('playwright').chromium.executablePath())")
-          CHROMIUM_BIN="$CHROME" node scripts/verify-cc-status.mjs
+          CHROMIUM_BIN="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export CHROMIUM_BIN
+          node scripts/verify-cc-status.mjs
