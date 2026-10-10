@@ -22,11 +22,55 @@ Allowlist the few commands once so Claude Code stops asking, in
 ] } }
 ```
 
+## Duplicate guard (2026-10-10) — fill.py refuses to fill blind
+
+Incident: run `20261010-1224` refilled Gusto, Nectar Social and Found, all
+submitted days earlier. Their tracker rows still said "Ready to submit" (Bilal
+had submitted from the open tabs) and `fill.py` filled whatever the queue said.
+Bilal caught it. `scripts/mass-apply/guard.py` now runs before any form opens:
+
+- **Tracker ledger, required and fresh.** Right before a run, export every row
+  of Notion Job Tracker 2026 → Applications to
+  `~/interviews/imports/tracker-ledger.json` as
+  `{"exported_at": "<ISO time>", "rows": [{"company", "role", "status", "job_link", "applied"}]}`
+  (one SQL query through the Notion connector returns all rows). Missing or older
+  than 2 hours: `run` and `check` exit without opening anything.
+- **Finished postings are never opened**: same job (Greenhouse id, Ashby/Lever
+  uuid, LinkedIn id) with status Applied, Screen, Interviewing, Offer, Rejected
+  or Withdrawn. No flag overrides this.
+- **Filled before = maybe submitted.** A form filled in any earlier run is not
+  refilled. Ask Bilal; only when he says it is not submitted, pass
+  `--refill=<url part>`. Never pass it on your own judgment: the tracker status
+  is exactly what was wrong on 2026-10-10.
+- **One role per company / recent rejection**: a different posting at a company
+  with a live application or a rejection in the last 180 days is blocked unless
+  Bilal names it, then `--allow-company=<url part>`.
+- `fill.py check queue.txt` prints the verdicts without a browser; paste them
+  into the preview. Blocked lines stay in `run.json` as `skipped` so numbering
+  still matches the queue. `python3 scripts/mass-apply/test_guard.py` tests it.
+
+## Ashby: shown is not registered (2026-10-10)
+
+Ashby saves each field to its server separately. A field can show a value the
+server never got; Ashby then answers Submit with "Missing entry for required
+field", and an optional field in that state goes out blank. Seen on Nectar
+(LinkedIn), Propel (work authorization) and Suno (three fields), most likely
+from ad-hoc fills over the debug port. `fill.py` now reads the registered value
+of every field (`fieldEntry.fieldValue` on the React fiber), re-enters
+unregistered ones with real keystrokes/clicks, and prints what is still wrong.
+
+- `fill.py verify` — read-only report for every Ashby tab open on port 9222.
+  Run it after **any** manual or scripted edit to an Ashby tab and before
+  telling Bilal a form is ready. "All required fields set" may only be written
+  in the tracker when `verify` says `ok`.
+- Finishing leftover Ashby fields: use Playwright `click` + `press_sequentially`
+  + `Tab`, never a JS value setter or `element.click()` in `evaluate`.
+
 ## Daily loop
 
-0. **Preview first (Bilal, 2026-10-09):** dedupe candidates against the Notion
-   table and the LinkedIn import, post `Company · Role · location · kit` in chat,
-   fill only after he confirms. See `skills/job-guardrails`.
+0. **Preview first (Bilal, 2026-10-09):** export the tracker ledger, run
+   `fill.py check queue.txt`, post `Company · Role · location · kit` plus every
+   blocked line in chat, fill only after he confirms. See `skills/job-guardrails`.
 1. Queue: `~/interviews/imports/<date>/queue.txt`, one line per job,
    `<apply-url> <kit>` (kit = mobile-ios | mobile-rn | fullstack | manager).
    Source candidates from `imports/linkedin-job-tracker-2026-10-08/queue-batch5.md`

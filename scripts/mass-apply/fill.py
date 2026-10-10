@@ -34,17 +34,30 @@ EEO / demographic dropdowns are filled ONLY with --eeo, from private-answers.md
 values you add to answers.json under "eeo" (not committed by default).
 
 Usage:
-  python3 fill.py run queue.txt            # fill everything, no submit
+  python3 fill.py check queue.txt          # duplicate guard only: what would be filled / blocked, no browser
+  python3 fill.py run queue.txt            # fill everything the guard allows, no submit
   python3 fill.py run queue.txt --eeo      # also self-identification (answers.json "eeo", private)
   python3 fill.py run queue.txt --eeo --attach   # fill inside the real Chrome from real-chrome.sh (port 9222)
   python3 fill.py submit 3                 # submit the 3rd job from the last run
   python3 fill.py status                   # what is filled / submitted
+  python3 fill.py verify                   # read-only: which open Ashby tabs (port 9222) have fields that look filled but are not registered
+  --refill=<url part>[,..]         # refill a form filled in an earlier run; only after Bilal says it is NOT submitted
+  --allow-company=<url part>[,..]  # second role at a company already in the tracker; only when Bilal names it
+
+Duplicate guard (guard.py, added 2026-10-10 after three already-submitted forms
+were refilled): `run` and `check` need a fresh export of the Notion Applications
+table at ~/interviews/imports/tracker-ledger.json and refuse to work without
+it. Postings already Applied/Rejected/Withdrawn are never opened; forms filled
+in an earlier run are not refilled without --refill. See docs/mass-apply-cli.md.
 
 Requires: pip install playwright && playwright install chromium
 """
 import json, re, sys, time, pathlib, datetime
 
 from playwright.sync_api import sync_playwright, Page, TimeoutError as PWTimeout
+
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+import guard
 
 # ---------- paths ----------
 # INTERVIEWS = private repo checkout. Override with $INTERVIEWS_REPO.
@@ -54,6 +67,22 @@ ANSWERS = json.loads((INTERVIEWS / "profile" / "answers.json").read_text())
 PROFILE_DIR = pathlib.Path(os.environ.get("MASS_APPLY_PROFILE", pathlib.Path.home() / ".bamware" / "mass-apply-profile"))   # persistent Chrome profile; override to run two batches side by side
 STATE_DIR = INTERVIEWS / "imports" / "mass-apply-runs"                   # screenshots + JSON, private repo
 STATE_DIR.mkdir(parents=True, exist_ok=True)
+LEDGER = INTERVIEWS / "imports" / "tracker-ledger.json"                  # Notion Applications export, written by the agent before each run
+
+
+def flag_list(name: str):
+    """Values of `--name=a,b` on the command line, [] when absent."""
+    return [v for a in sys.argv if a.startswith(f"--{name}=") for v in a.split("=", 1)[1].split(",") if v]
+
+
+def guard_queue(queue_file: str):
+    """(jobs, verdicts) for a queue file. Exits when the tracker ledger is
+    missing or stale, so nothing is ever filled without the duplicate check."""
+    jobs = [l.split() for l in pathlib.Path(queue_file).read_text().splitlines() if l.strip() and not l.startswith("#")]
+    verdicts = guard.check(jobs, guard.load_ledger(LEDGER), guard.load_history(STATE_DIR),
+                           refill=flag_list("refill"), allow_company=flag_list("allow-company"))
+    print(guard.report(verdicts) + "\n")
+    return jobs, verdicts
 
 
 # ---------- small helpers ----------
@@ -214,7 +243,7 @@ def fill_ashby(page: Page, kit: str, filled: dict):
         try:
             box = ashby_entry(page, rx).locator("input[type=text], input[type=email], input[type=tel], input[type=url], textarea").first
             if box.count():
-                box.fill(val); filled[rx] = val
+                box.fill(val); box.press("Tab"); page.wait_for_timeout(300); filled[rx] = val
         except Exception:
             pass
     # 3. Files: the real resume input has an id; the cover letter input sits under its label.
@@ -260,6 +289,82 @@ def fill_ashby(page: Page, kit: str, filled: dict):
             pass
 
     fill_eeo_ashby(page, filled)
+
+
+# Ashby keeps the form server-side: every field change is its own save, and the
+# value the server holds is on the field's React `fieldEntry.fieldValue` prop.
+# A field can SHOW a value that never registered (2026-10-10: Nectar LinkedIn,
+# Propel work authorization, three Suno fields), and Ashby then refuses the
+# submit with "Missing entry for required field" - or, for an optional field,
+# sends it blank. This reads both sides for every field.
+ASHBY_STATE_JS = r"""
+() => Array.from(document.querySelectorAll("[class*='_fieldEntry']")).map((ent, i) => {
+  const k = Object.keys(ent).find(k => k.startsWith('__reactFiber$'));
+  let f = k ? ent[k] : null, fe = null, hops = 0;
+  while (f && hops++ < 6) { if (f.memoizedProps && f.memoizedProps.fieldEntry) { fe = f.memoizedProps.fieldEntry; break; } f = f.return; }
+  const ctl = ent.querySelector("input:not([type=file]):not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea");
+  const buttons = Array.from(ent.querySelectorAll('button'));
+  const pressed = buttons.findIndex(b => /_active|selected/i.test(b.className) || b.getAttribute('aria-pressed') === 'true');
+  const radios = Array.from(ent.querySelectorAll('input[type=radio]'));
+  const radio = radios.findIndex(r => r.checked);
+  const box = !!ent.querySelector('input[type=checkbox]:checked') && !buttons.length;
+  const v = fe && fe.fieldValue, val = v && v.__typename === 'JSONBox' ? v.value : v;
+  return {i, label: (ent.querySelector('label')?.innerText || '').trim().slice(0, 80),
+    known: !!fe, hidden: !!(fe && fe.isHidden), required: !!(fe && fe.isRequired),
+    registered: !(val === null || val === undefined || val === '' || (Array.isArray(val) && !val.length)),
+    text: ctl ? ctl.value : null, pressed, buttons: buttons.length, radio, radios: radios.length, box};
+})
+"""
+
+
+def ashby_state(page: Page):
+    """Per visible field: what the page shows and whether Ashby registered it."""
+    fields = [f for f in page.evaluate(ASHBY_STATE_JS) if not f["hidden"]]
+    for f in fields:
+        f["shows"] = bool((f["text"] or "").strip()) or f["pressed"] >= 0 or f["radio"] >= 0 or f["box"]
+    return fields
+
+
+def ashby_problems(fields):
+    """(unregistered, missing): labels that show a value Ashby does not hold, and
+    required fields that are simply empty. Unknown internals count as unverified
+    rather than fine, so a silent Ashby change cannot pass as success."""
+    if fields and not any(f["known"] for f in fields):
+        return ["(cannot read Ashby form state: nothing verified)"], []
+    return ([f["label"] for f in fields if f["shows"] and not f["registered"]],
+            [f["label"] for f in fields if f["required"] and not f["shows"] and not f["registered"]])
+
+
+def ashby_verify(page: Page, filled: dict):
+    """Re-enter every field that shows a value Ashby did not register, with real
+    keystrokes and clicks, then record what is still wrong in `filled`. The last
+    step is always a fresh read (skills/form-verify)."""
+    entries = page.locator("[class*='_fieldEntry']")
+    for _ in range(2):
+        page.wait_for_timeout(1500)                      # let in-flight saves land first
+        bad = [f for f in ashby_state(page) if f["known"] and f["shows"] and not f["registered"]]
+        if not bad: break
+        for f in bad:
+            ent = entries.nth(f["i"])
+            try:
+                if (f["text"] or "").strip():
+                    box = ent.locator("input:not([type=file]):not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea").first
+                    box.click(); box.press("ControlOrMeta+a"); box.press("Backspace")
+                    box.press_sequentially(f["text"]); box.press("Tab")
+                elif f["pressed"] >= 0 and f["buttons"] > 1:   # Yes/No pair: move off and back on
+                    ent.locator("button").nth((f["pressed"] + 1) % f["buttons"]).click(); page.wait_for_timeout(700)
+                    ent.locator("button").nth(f["pressed"]).click()
+                elif f["radio"] >= 0 and f["radios"] > 1:
+                    ent.locator("input[type=radio]").nth((f["radio"] + 1) % f["radios"]).click(force=True); page.wait_for_timeout(700)
+                    ent.locator("input[type=radio]").nth(f["radio"]).click(force=True)
+                page.wait_for_timeout(900)
+            except Exception as e:
+                filled["verify-error:" + f["label"][:40]] = repr(e)[:80]
+    page.wait_for_timeout(1500)
+    unregistered, missing = ashby_problems(ashby_state(page))
+    if unregistered: filled["_unregistered"] = unregistered
+    if missing: filled["_missing_required"] = missing
+    return unregistered, missing
 
 
 def fill_lever(page: Page, kit: str, filled: dict):
@@ -430,7 +535,9 @@ def hide_browser():
 
 # ---------- commands ----------
 def run(queue_file: str):
-    jobs = [l.split() for l in pathlib.Path(queue_file).read_text().splitlines() if l.strip() and not l.startswith("#")]
+    jobs, verdicts = guard_queue(queue_file)
+    if not any(v["ok"] for v in verdicts):
+        print("Every job in the queue is blocked. Nothing opened."); return
     load_custom(pathlib.Path(queue_file).with_name("custom.json"))
     run_id = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     out = STATE_DIR / run_id; out.mkdir()
@@ -445,12 +552,19 @@ def run(queue_file: str):
             ctx = p.chromium.launch_persistent_context(str(PROFILE_DIR), headless=False, channel="chrome", args=[f"--remote-debugging-port={CDP_PORT}", "--disable-blink-features=AutomationControlled"], ignore_default_args=["--enable-automation"], viewport=None)
             page0 = ctx.pages[0] if ctx.pages else ctx.new_page(); page0.wait_for_timeout(800); hide_browser()
         for i, (url, kit) in enumerate(jobs, 1):
+            if not verdicts[i - 1]["ok"]:
+                # Blocked by the duplicate guard: keep the queue numbering, open nothing.
+                records.append({"n": i, "url": url, "kit": kit, "ats": ats_of(url), "submitted": False,
+                                "skipped": verdicts[i - 1]["reason"], "queue": str(pathlib.Path(queue_file).resolve())})
+                print(f"[{i:02d}] BLOCKED    {url}")
+                continue
             page = ctx.new_page(); page.goto(url, wait_until="domcontentloaded")
             page.wait_for_timeout(2500)
             ats = ats_of(url); filled = {}
             try:
                 FILLERS.get(ats, lambda *_: None)(page, kit, filled)
                 fill_custom(page, ats, url, filled)
+                if ats == "ashby": ashby_verify(page, filled)
             except Exception as e:
                 filled["_error"] = repr(e)
             shot = out / f"{i:02d}.png"
@@ -459,6 +573,8 @@ def run(queue_file: str):
                    "queue": str(pathlib.Path(queue_file).resolve())}
             records.append(rec)
             print(f"[{i:02d}] {ats:10} {kit:10} {len(filled):2d} fields  {url}")
+            for key, what in [("_unregistered", "SHOWN BUT NOT REGISTERED (would be rejected or sent blank)"), ("_missing_required", "required, still empty")]:
+                if filled.get(key): print(f"       {what}: " + "; ".join(filled[key]))
         (out / "run.json").write_text(json.dumps(records, indent=1))
         print(f"\nDone. Review screenshots in {out}. Tabs are still open.")
         if ATTACH:
@@ -478,7 +594,8 @@ def status():
     r = latest_run()
     if not r: print("no runs"); return
     for rec in json.loads(r.read_text()):
-        print(f"[{rec['n']:02d}] {'SUBMITTED' if rec['submitted'] else 'filled   '} {rec['url']}")
+        state = "BLOCKED  " if rec.get("skipped") else "SUBMITTED" if rec["submitted"] else "filled   "
+        print(f"[{rec['n']:02d}] {state} {rec['url']}")
 
 
 def submit(n: int):
@@ -486,6 +603,12 @@ def submit(n: int):
     not persist across sessions) and then clicks Submit — but only after printing
     the screenshot path and asking for a typed 'yes' in the terminal."""
     r = latest_run(); recs = json.loads(r.read_text()); rec = recs[n - 1]
+    if rec.get("skipped"):
+        print("not submitted, the duplicate guard blocked this job:", rec["skipped"]); return
+    # The tracker may have moved since the fill (Bilal submits from the tab): check again.
+    done = [v for v in guard.check([(rec["url"], rec["kit"])], guard.load_ledger(LEDGER), {}) if not v["ok"] and v["reason"].startswith("ALREADY")]
+    if done:
+        print("not submitted:", done[0]["reason"]); return
     print("Screenshot:", rec["screenshot"]); print("URL:", rec["url"])
     if input("Type yes to submit this one: ").strip().lower() != "yes":
         print("not submitted"); return
@@ -496,6 +619,10 @@ def submit(n: int):
         load_custom(pathlib.Path(rec.get("queue", "")).with_name("custom.json") if rec.get("queue") else None)
         filled = {}; FILLERS.get(rec["ats"], lambda *_: None)(page, rec["kit"], filled)
         fill_custom(page, rec["ats"], rec["url"], filled)
+        if rec["ats"] == "ashby":
+            unregistered, missing = ashby_verify(page, filled)
+            if unregistered or missing:
+                print("not submitted, Ashby has not registered:", "; ".join(unregistered + missing)); input("Enter to close..."); ctx.close(); return
         page.get_by_role("button", name=re.compile(r"submit", re.I)).first.click()
         page.wait_for_timeout(4000)
         ok = bool(re.search(r"thank|received|submitted", page.content(), re.I))
@@ -507,8 +634,29 @@ def submit(n: int):
         ctx.close()
 
 
+def verify():
+    """Read-only check of every Ashby tab open in the Chrome on the debug port:
+    no clicks, no typing, no tab switch. Exit code 1 when any tab has a problem."""
+    bad = 0
+    with sync_playwright() as p:
+        browser = p.chromium.connect_over_cdp(f"http://localhost:{CDP_PORT}")
+        for page in browser.contexts[0].pages:
+            if ats_of(page.url) != "ashby": continue
+            fields = ashby_state(page)
+            unregistered, missing = ashby_problems(fields)
+            if not fields:
+                print(f"no form  {page.url}\n         (submitted, closed posting, or not loaded)"); continue
+            print(f"{'PROBLEM' if unregistered or missing else 'ok     '}  {page.url}")
+            for label in unregistered: print(f"         shown but NOT registered: {label}")
+            for label in missing:      print(f"         required, empty: {label}")
+            bad += bool(unregistered or missing)
+    return bad
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "status"
     if cmd == "run":    run(sys.argv[2])
+    elif cmd == "check":  sys.exit(any(not v["ok"] for v in guard_queue(sys.argv[2])[1]))
     elif cmd == "submit": submit(int(sys.argv[2]))
+    elif cmd == "verify": sys.exit(1 if verify() else 0)
     else:               status()
