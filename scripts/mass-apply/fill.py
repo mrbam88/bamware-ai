@@ -310,13 +310,17 @@ EEO_OPTIONS = {
     "veteran":     {"I am not a protected veteran": [r"^I am not a protected veteran", r"^No, I am not a veteran", r"^I am not", r"^No\b"]},
     "disability":  {"No, I do": [r"^No, I do", r"^No$", r"^No\b"]},
     "orientation": {"Heterosexual": [r"^Heterosexual", r"^Straight"]},
+    "transgender": {"No": [r"^No$", r"^No\b"]},
+    "cisgender":   {"No": [r"^Cisgender man", r"^Cisgender$", r"^Cisgender\b"]},   # "I identify as:" style; answer derives from transgender=No
 }
 
 
 def fill_eeo_greenhouse(page: Page, filled: dict):
     e = ANSWERS.get("eeo", {})
     if not EEO or not e: return
-    for rx, key in [(r"gender", "gender"), (r"hispanic", "hispanic"), (r"race|ethnicity", "race"),
+    if "transgender" in e: e = {**e, "cisgender": e["transgender"]}
+    for rx, key in [(r"identify as transgender|transgender", "transgender"), (r"^I identify as:|gender identity", "cisgender"),
+                    (r"gender", "gender"), (r"hispanic", "hispanic"), (r"race|ethnicity", "race"),
                     (r"veteran", "veteran"), (r"disab", "disability"), (r"sexual orientation", "orientation")]:
         opts = EEO_OPTIONS.get(key, {}).get(e.get(key, ""))
         if opts:
