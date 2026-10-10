@@ -133,14 +133,21 @@ retain the choice/note; a saved response with a failed list refresh is
 reported separately. A Discord `repair_required` response is never shown as
 successful delivery, even when HTTP is 200. Approval is not worker completion.
 Operational receipts remain below the decisions, with sweep timing collapsed.
-No API, durable store, auth or worker behavior changes.
+
+**CEO interaction contract (Confirm-stuck 2026-10-10):** Confirm/Reject/Defer
+must **remove the card from Needs-you** (History). Choice options must not use
+`action: "discuss"` (that made Confirm a silent no-op). Discuss is Send-to-chat
+only. Regression: `tests/ceo-interaction-contract.test.mjs` + CI workflow
+`assistant-web.yml`.
 
 Browser regression smoke (Node >=22.18, existing Chromium and an external
 `playwright-core` installation; no added production dependency):
 
 ```sh
+npm test
 PLAYWRIGHT_MODULE=/absolute/path/to/playwright-core/index.mjs \
 CHROMIUM_BIN=/usr/bin/chromium node scripts/verify-action-feedback.mjs
+PLAYWRIGHT_MODULE=... CHROMIUM_BIN=... node scripts/verify-cc-status.mjs
 ```
 
 All requests are intercepted test fixtures using public candidate copy: no live

@@ -1,0 +1,61 @@
+name: assistant-web
+
+# Command Center is CEO-facing. Unit tests always run; browser fixtures with Chromium.
+# A green main without these is how Confirm-stuck shipped.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/assistant-web/**'
+      - '.github/workflows/assistant-web.yml'
+  pull_request:
+    paths:
+      - 'services/assistant-web/**'
+      - '.github/workflows/assistant-web.yml'
+  workflow_dispatch:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/assistant-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install admin test deps
+        run: npm run setup:admin
+      - name: Unit tests
+        run: npm test
+
+  browser-fixtures:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/assistant-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Action feedback fixtures
+        env:
+          PLAYWRIGHT_MODULE: playwright
+        run: |
+          CHROMIUM_BIN="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export CHROMIUM_BIN
+          node scripts/verify-action-feedback.mjs
+      - name: Status / history fixtures
+        env:
+          PLAYWRIGHT_MODULE: playwright
+        run: |
+          CHROMIUM_BIN="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export CHROMIUM_BIN
+          node scripts/verify-cc-status.mjs
