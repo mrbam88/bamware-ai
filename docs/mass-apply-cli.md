@@ -106,6 +106,22 @@ focus); Bilal logs into LinkedIn/Google once. Then
 `fill.py run queue.txt --eeo --attach` fills inside that Chrome and he submits
 there. Pace 10-15 a day, rephrase every essay, answer "did you use AI" honestly.
 
+## Lessons from 2026-10-10
+
+- Scan **every** labeled field, not only starred ones, and fill the optional
+  ones (location, portfolio, pronouns He/him, EEO, availability, referral No,
+  compensation box, why-us). Bilal reads any blank as unfinished.
+- A demographic answer that follows from facts on file is filled, not asked
+  (transgender = No given Male/heterosexual). Ask only for the genuinely unknown
+  (first-generation professional).
+- Never refill a form filled in an earlier run unless Bilal says it was not
+  submitted; the tracker can lag behind his in-tab submits.
+- The submit watcher must only inspect ATS domains (greenhouse, ashby, lever,
+  workable, gem, rippling...). Matching "thank you for your application" in
+  Gmail closed his inbox tab once.
+- Lever "Current location" is an autocomplete: type, then ArrowDown + Enter.
+- Keep all open forms in the one real Chrome window; close filler windows.
+
 ## Lessons from 2026-10-08/09
 
 - Ashby's submit runs a bot check: a Chrome launched with Playwright's default
