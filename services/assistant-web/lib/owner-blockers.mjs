@@ -143,9 +143,12 @@ export function createOwnerBlockers({ directory, candidates, checks = {}, resume
     if (!b || b.status === 'source_error') return;
     if (response.action === 'defer') b.status = 'paused';
     else if (response.action === 'reject') b.status = 'cancelled';
-    else if (response.action === 'discuss' && b.status !== 'resolved') b.status = 'waiting_for_owner';
+    else if (response.action === 'approve' && b.status !== 'resolved') {
+      // CEO confirmed a choice. Probe continues for SM; CC archives Needs-you on approve.
+      b.status = 'waiting_for_owner';
+    } else if (response.action === 'discuss' && b.status !== 'resolved') b.status = 'waiting_for_owner';
     b.nextCheckAt = iso(now());
-    b.ownerResponse = { action: response.action, at: iso(now()), note: response.note ?? null };
+    b.ownerResponse = { action: response.action, at: iso(now()), note: response.note ?? null, selectedOptionId: response.selectedOptionId ?? null };
     save(path.join(directory, `${id}.json`), b);
   }
   function start() { if (timer) return; timer = setInterval(() => { sweep().catch(() => {}); }, intervalMs); timer.unref(); return sweep(); }
