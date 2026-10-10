@@ -48,6 +48,16 @@ Anthropic) are out even for mobile roles; (2) post the shortlist in chat as
 `Company · Role · location · kit`; (3) fill only after he confirms, dropping
 what he strikes. Batch 8 wasted four fills that a preview would have caught.
 
+**Enforced by the filler since 2026-10-10.** Batch 10 refilled three forms Bilal
+had already submitted (Gusto, Nectar Social, Found): their rows still said
+"Ready to submit" and nothing checked. `scripts/mass-apply/fill.py` now refuses
+to run without a fresh tracker export, never opens a finished posting, and will
+not refill a form it filled before. A form that was filled once counts as
+possibly submitted until Bilal says otherwise in chat; `--refill` and
+`--allow-company` are his calls, never the agent's. Run
+`fill.py check queue.txt` for step (1) and paste its blocked lines into the
+preview. Details: `docs/mass-apply-cli.md`.
+
 ## Still out of scope (these are procedure limits, not company blocks)
 
 - Postings that fail on facts: a location he cannot work from (he is not

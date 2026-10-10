@@ -167,6 +167,12 @@ four forms; every field read back through `__reactProps` matched.
   "New York City, New York, United States" option. Ashby only validates on
   submit, so after filling, Bilal clicks Submit and reads the red "Your form
   needs corrections" banner; each listed field is one that was script-set.
+- **Check registration, do not trust the screen (2026-10-10).** The value Ashby
+  holds for a field is `fieldEntry.fieldValue` on the field's React fiber.
+  `python3 scripts/mass-apply/fill.py verify` reads it for every open Ashby tab
+  (read-only) and lists fields that show a value but are not registered. Run it
+  after any edit and before handing a form to Bilal. Three open forms had such
+  fields that day; each matched Ashby's own "Missing entry" banner.
 - Resume is required; a Cover Letter field, when present, is file-only. An
   optional Diversity Survey (age bracket, transgender, communities) sits above
   the EEO block; leave what `bilal-answers` does not cover blank and flag it.

@@ -1,5 +1,33 @@
 # State of the Union — Bamware
 
+## 2026-10-10 — Mass-apply: duplicate guard + Ashby registration check
+
+- **Incident:** run `20261010-1224` refilled Gusto and Nectar Social, run
+  `20261010-1305` refilled Found; all three had been submitted on 2026-10-08/09.
+  Rows still said "Ready to submit", `fill.py` had no check, Bilal caught it.
+  Gusto and Nectar tabs still show the unsubmitted form (Ashby rejected a Nectar
+  submit on an unregistered field). **Found's refilled tab shows "Success, thanks
+  for applying"**, so Found very likely received a second application on
+  2026-10-10 on top of the one the tracker records as received 2026-10-09.
+- **Fix (this PR):** `scripts/mass-apply/guard.py` + `fill.py check|run|submit`.
+  Needs a fresh Notion export at `interviews/imports/tracker-ledger.json`; never
+  opens a finished posting; a form filled in an earlier run is not refilled
+  without `--refill`, which only Bilal can clear. Replayed on both 2026-10-10
+  queues: 23 of 23 lines blocked, the three duplicates as ALREADY APPLIED.
+- **Ashby:** fields can show a value the server never registered. `fill.py`
+  verifies and repairs after filling; `fill.py verify` is a read-only report
+  for open tabs. Open tabs at the time: Suno (3 fields), Propel (1), Nectar (1)
+  unregistered. Not repaired in his tabs; he was working in them.
+- **Tracker cleanup done:** Gusto, Nectar, and the stale Ready-to-submit rows
+  for Pinterest and Playlist (both already applied in September) now say do not
+  submit. **Open for Bilal:** Canopy Works was applied 2026-09-17, they asked
+  for interview availability 2026-09-18, and the same role was filled again
+  2026-10-08; confirm whether that request was answered.
+- **Still genuinely open, need Bilal's word before any refill:** Cloaked,
+  Mozilla, Propel Healthcare, Suno, WISEcode, WW Staff iOS.
+- Pre-existing: `scripts/check-context.py` fails on main (5 kit-name references
+  in bilal-cover-letter / bilal-resume); not touched here.
+
 ## 2026-10-07 — Venue evidence repair review-only slice deployed
 
 - [ve#153](https://github.com/mrbam88/bamware-venue-engine/issues/153) closed/Done;
