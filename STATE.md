@@ -5,9 +5,10 @@
 - **Incident:** run `20261010-1224` refilled Gusto and Nectar Social, run
   `20261010-1305` refilled Found; all three had been submitted on 2026-10-08/09.
   Rows still said "Ready to submit", `fill.py` had no check, Bilal caught it.
-  No duplicate went out through those tabs (Ashby rejected the Nectar resubmit on
-  an unregistered field; Gusto was not resubmitted). Unconfirmed: whether Found
-  was submitted twice.
+  Gusto and Nectar tabs still show the unsubmitted form (Ashby rejected a Nectar
+  submit on an unregistered field). **Found's refilled tab shows "Success, thanks
+  for applying"**, so Found very likely received a second application on
+  2026-10-10 on top of the one the tracker records as received 2026-10-09.
 - **Fix (this PR):** `scripts/mass-apply/guard.py` + `fill.py check|run|submit`.
   Needs a fresh Notion export at `interviews/imports/tracker-ledger.json`; never
   opens a finished posting; a form filled in an earlier run is not refilled
