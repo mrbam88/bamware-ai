@@ -308,6 +308,20 @@
   let decisionsDemoMode = false;
   let decisionsLoading = false;
 
+  /** One-line CEO ask for the card face. Summary wins; context is last-resort and truncated. */
+  function decisionFaceAsk(d) {
+    const summary = typeof d?.summary === "string" ? d.summary.trim() : "";
+    if (summary) return summary;
+    let raw = typeof d?.context === "string" ? d.context.trim() : "";
+    if (!raw) return "";
+    // Drop ledger openers including the trailing period so the next sentence is the face.
+    raw = raw.replace(/^(status|blocker|checked|issue)\s*[:#][^.]*\.\s*/i, "").trim();
+    const sentence = (raw.split(/(?<=\.)\s+/)[0] || raw).trim();
+    const words = sentence.split(/\s+/).filter(Boolean);
+    if (words.length <= 22) return sentence;
+    return `${words.slice(0, 22).join(" ")}…`;
+  }
+
   // CEO-facing status chips only — never raw urgency enums or owner_* codes on the card face.
   const STATUS_FACE = {
     high: "Needs you now",
@@ -545,7 +559,10 @@
     head.appendChild(badges);
     li.appendChild(head);
 
-    const askText = d.summary || (d.context ? String(d.context).split(/(?<=\.)\s+/)[0] : "");
+    // Face ask: curated summary first. Context fallback is one plain sentence,
+    // stripped of status/ledger openers and capped so Docker/ops walls never
+    // become the card body (bamware-ai#141).
+    const askText = decisionFaceAsk(d);
     if (askText) {
       const ask = document.createElement("p");
       ask.className = "dc-ask";
