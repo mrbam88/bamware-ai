@@ -74,7 +74,7 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-09 (late) — **53 applications confirmed Applied across batches 5-9 (goal was 50). Real Chrome attach mode is the flow from here. No auto-submit.**
+> Last updated: 2026-10-10 — **74 applications confirmed Applied across batches 5-10. Everything now fills inside Bilal's real Chrome (one window), optional fields included. No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
 ## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
@@ -179,6 +179,21 @@ the handoff so the CoS and the Interview Tracker agent stay in sync.
   are hidden so they never steal focus; a CDP watcher closes each tab on its
   confirmation page and the row flips to Applied. Pace from here: 10-15 a day,
   essays in Bilal's words, answer "did you use AI" honestly.
+- **2026-10-10: 74 confirmed.** Batch 10 (previewed in chat, filled with
+  `fill.py --attach` in the real Chrome): Gametime, Cantina, Bevel, Cloaked
+  (unconfirmed), Topstep, Wealthfront, WISEcode (open), Suno, plus the batch-5
+  refills PrizePicks, Propel Healthcare, SentiLink, Gemini, Butterfly. Mozilla,
+  Eight Sleep, WW iOS, Coinbase, Canary, Eleos, Injective also went out.
+- **Mistakes to not repeat:** (1) refilled Gusto, Nectar Social and Found that
+  Bilal had already submitted from an earlier window (tracker rows still said
+  Ready to submit); the other session's duplicate guard is PR #176, use
+  `fill.py check` once it is on main, and never refill a previously filled form
+  without Bilal saying it was not submitted. (2) Left optional fields and the
+  transgender question blank; Bilal reads any blank as unfinished and the answer
+  followed from facts on file (now `eeo.transgender = No` in the private
+  answers, `--eeo` fills it). (3) Multiple filler windows; everything now lives
+  in the single real Chrome. (4) The CDP submit watcher matched confirmation
+  wording in Gmail and closed his inbox tab; it is restricted to ATS domains now.
 - Next: Tier 2/3 of `queue-batch5.md` (Scribd, dYdX, US Mobile, manager track),
   capture the remaining LinkedIn pages, and decide on the lid-closed pipeline.
 
