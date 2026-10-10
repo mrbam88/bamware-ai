@@ -53,22 +53,36 @@ try {
     const page = await open(mixed, width);
     if (process.env.BASELINE_ONLY) { await shot(page, `mixed-before-${size}`); await page.close(); continue; }
     for (const [id, state, label] of [
-      ['awaiting', 'awaiting', /When you can/], ['approved', 'working', /awaiting worker/],
-      ['working', 'working', /Worker picked/], ['error', 'error', /needs attention/], ['deferred', 'paused', /still open/],
+      ['awaiting', 'awaiting', /When you can/],
+      ['error', 'error', /needs attention/],
     ]) {
       const c = page.locator(`#decision-${id}`);
       assert.equal(await c.isVisible(), true);
       assert.equal(await c.getAttribute('data-state'), state);
       assert.match(await c.locator('.dc-state-badge').innerText(), label);
     }
+    // Confirm/Reject/Defer/approved follow-through leave Needs-you (archive → History).
+    for (const id of ['approved', 'working', 'deferred', 'rejected', 'completed', 'resolved']) {
+      assert.equal(await page.locator(`#decisionList > li#decision-${id}`).count(), 0, `${id} must leave Needs-you`);
+    }
     assert.equal(await page.locator('#decisionList > li').first().getAttribute('id'), 'decision-error');
-    assert.equal(await page.locator('#decision-approved .dc-ask').isVisible(), false);
     assert.equal(await page.locator('#decision-error .dc-status-detail').isVisible(), true);
-    assert.equal(await page.locator('#decision-completed').isVisible(), false);
-    assert.equal(await page.locator('#decision-resolved').isVisible(), false);
-    assert.equal(await page.locator('#decision-rejected').isVisible(), false);
-    const surfaces = await page.locator('#decision-awaiting, #decision-approved, #decision-error, #decision-deferred').evaluateAll(nodes => nodes.map(n => getComputedStyle(n).backgroundColor));
-    assert.equal(new Set(surfaces).size, 4, 'full card surfaces must differ, not just borders');
+    // History holds confirmed/closed cards (open it once).
+    const history = page.locator('li.dc-history > details.dc-history-disclosure');
+    assert.equal(await history.count(), 1);
+    await history.evaluate((el) => { el.open = true; });
+    for (const [id, re] of [
+      ['approved', /awaiting worker|Confirmed/],
+      ['working', /Worker picked/],
+      ['deferred', /Deferred/],
+      ['rejected', /Rejected/],
+      ['resolved', /Resolved/],
+    ]) {
+      assert.equal(await page.locator(`#decision-${id}`).isVisible(), true, id);
+      assert.match(await page.locator(`#decision-${id} .dc-state-badge`).innerText(), re);
+    }
+    const surfaces = await page.locator('#decision-awaiting, #decision-error').evaluateAll(nodes => nodes.map(n => getComputedStyle(n).backgroundColor));
+    assert.equal(new Set(surfaces).size, 2, 'awaiting vs error surfaces must differ');
     const overflow = () => page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
     assert.equal(await overflow(), false);
     await shot(page, `mixed-after-${size}`);
@@ -79,11 +93,8 @@ try {
       await cdp.send('Emulation.setEmulatedVisionDeficiency', { type: 'none' });
       await cdp.detach();
     }
-    const summary = page.locator('.dc-history-disclosure > summary');
-    assert.match(await summary.innerText(), /History \(3\)/);
-    await summary.focus();
-    await page.keyboard.press('Enter');
-    assert.equal(await page.locator('#decision-resolved').isVisible(), true);
+    const summary = page.locator('li.dc-history > details.dc-history-disclosure > summary');
+    assert.match(await summary.innerText(), /History \(6\)/);
     assert.equal(await page.locator('#decision-resolved').getAttribute('data-state'), 'resolved');
     const contrast = await page.locator('.dc-state-badge').evaluateAll(nodes => {
       const luminance = color => {

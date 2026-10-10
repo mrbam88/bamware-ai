@@ -20,7 +20,7 @@ export const REPO_URL = "https://github.com/mrbam88/bamware-ai";
 export const DECISION_CANDIDATES = Object.freeze([
 {
   "id": "auth-email-aws-access-85",
-  "version": "2",
+  "version": "3",
   "title": "Sign in so we can check live email setup",
   "summary": "Sign back into AWS on the laptop so agents can verify email is configured — no send, no spend.",
   "project": "Bamware shared account recovery",
@@ -37,7 +37,7 @@ export const DECISION_CANDIDATES = Object.freeze([
   "options": [
     {
       "id": "access_ready",
-      "action": "discuss",
+      "action": "approve",
       "label": "I signed in — recheck"
     },
     {

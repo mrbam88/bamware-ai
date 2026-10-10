@@ -323,6 +323,9 @@
 
   // Presentation only: never infer completion from approval, a checker finishing,
   // or an agent replying in Discord. Uncertain/error follow-through stays visible.
+  // Confirm/Reject/Defer leave the Needs-you deck (archive). Discuss stays open.
+  // Open owner-blocker probes continue for workers after Confirm — they must not
+  // pin the card in the CEO queue (bamware-ai#141 Confirm-clears-card).
   function decisionPresentation(d) {
     const state = (tone, label, archive = false) => ({ tone, label, archive });
     const b = d.ownerBlocker;
@@ -336,20 +339,33 @@
     }
     if (d.resolution) return state("resolved", d.resolution.status === "resolved" ? "✓ Resolved" : "↪ Replaced", true);
     if (d.stale) return state("awaiting", "! Needs a fresh look");
-    // A still-open blocker takes precedence over an old worker completion.
+    // Terminal CEO answers clear Needs-you even while background probe continues.
+    if (d.response && !d.stale) {
+      if (d.response.action === "approve") {
+        if (d.handoff?.status === "completed") return state("resolved", "✓ Worker finished", true);
+        if (d.handoff?.status === "pickup_confirmed") return state("working", "↻ Worker picked this up", true);
+        if (b && b.status !== "resolved" && !["paused", "cancelled"].includes(b.status)) {
+          return state("working", "✓ Confirmed · team following up", true);
+        }
+        return state("working", "◷ Approved · awaiting worker", true);
+      }
+      if (d.response.action === "defer") return state("paused", "Ⅱ Deferred", true);
+      if (d.response.action === "reject") {
+        if (["queued", "running"].includes(d.handoffCheck?.status)) {
+          return state("working", "◷ Response saved · follow-through open");
+        }
+        return state("paused", "— Rejected", true);
+      }
+      if (d.response.action === "discuss") {
+        return state("working", "↔ Discussion requested · not approved");
+      }
+    }
+    // Unanswered owner blockers still need the CEO.
     if (b && b.status !== "resolved" && !["paused", "cancelled"].includes(b.status)) {
       return state("awaiting", "! Waiting on your action");
     }
     if (!d.response) return state("awaiting", `◇ ${STATUS_FACE[d.urgency] || "Needs your OK"}`);
-    if (d.handoff?.status === "completed") return state("resolved", "✓ Worker finished", true);
-    if (d.handoff?.status === "pickup_confirmed") return state("working", "↻ Worker picked this up");
-    if (d.response.action === "approve") return state("working", "◷ Approved · awaiting worker");
-    if (d.response.action === "defer") return state("paused", "Ⅱ Deferred · still open");
-    if (d.response.action === "reject" && d.handoff?.status === "not_applicable"
-        && !b && !["queued", "running"].includes(d.handoffCheck?.status)) {
-      return state("paused", "— Rejected · not dispatched", true);
-    }
-    return state("working", d.response.action === "discuss" ? "↔ Discussion requested · not approved" : "◷ Response saved · follow-through open");
+    return state("working", "◷ Response saved · follow-through open");
   }
 
   let decisionActionPending = false;
@@ -567,7 +583,7 @@
       handoff.textContent = HANDOFF_LABEL[d.handoff?.status] || "Status unavailable";
       if (d.resolution) handoff.textContent = `Recorded handoff before retirement: ${handoff.textContent}`;
       li.appendChild(handoff);
-      if (d.handoff?.status === "pickup_confirmed" && !d.resolution) {
+      if (d.handoff?.status === "pickup_confirmed" && !d.resolution && !presentation.archive) {
         const refreshBtn = document.createElement("button");
         refreshBtn.type = "button";
         refreshBtn.className = "link";
@@ -580,7 +596,8 @@
     // Response controls — options first, then confirm/reject/defer ----------
     let select = null;
     let note = null;
-    if (!d.resolution && !presentation.archive && (!d.response || d.stale || d.ownerBlocker)) {
+    // After Confirm/Reject/Defer the card archives; do not keep controls for open blockers.
+    if (!d.resolution && !presentation.archive && (!d.response || d.stale)) {
       const choices = document.createElement("div");
       choices.className = "dc-choices";
       const choiceLabel = document.createElement("div");
@@ -653,6 +670,20 @@
 
       const actions = document.createElement("div");
       actions.className = "dc-actions";
+      // Confirm = commit selected option. Choice options must be approve|reject|defer
+      // so the card leaves Needs-you. discuss is chat-only (label becomes Send to chat).
+      const commitActionFor = (selected) => {
+        const a = selected?.action;
+        if (a === "reject" || a === "defer" || a === "approve" || a === "discuss") return a;
+        return "approve";
+      };
+      const syncConfirmLabel = () => {
+        if (decisionActionPending || li.getAttribute("aria-busy") === "true") return;
+        const selected = (d.options || []).find(o => o.id === select.value);
+        const conf = actions.querySelector(".dc-selected");
+        if (!conf) return;
+        conf.textContent = commitActionFor(selected) === "discuss" ? "Send to chat" : "Confirm";
+      };
       for (const action of (mode === "live" ? ["selected", "reject", "defer"] : ["selected", "reject", "discuss", "defer"])) {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -660,10 +691,14 @@
         btn.textContent = action === "selected" ? "Confirm" : action.charAt(0).toUpperCase() + action.slice(1);
         btn.addEventListener("click", () => {
           const selected = (d.options || []).find(o => o.id === select.value);
-          respondToDecision(d, action === "selected" ? selected?.action || "approve" : action, action === "selected" ? select.value : null, note.value, mode, li, btn);
+          const commit = action === "selected" ? commitActionFor(selected) : action;
+          respondToDecision(d, commit, action === "selected" ? select.value : null, note.value, mode, li, btn);
         });
         actions.appendChild(btn);
       }
+      select.addEventListener("change", syncConfirmLabel);
+      chips.addEventListener("click", () => queueMicrotask(syncConfirmLabel));
+      syncConfirmLabel();
       li.appendChild(actions);
     }
 
@@ -822,7 +857,7 @@
 
   async function respondToDecision(d, action, selectedOptionId, note, mode, card, button) {
     const pending = { approve: "Approving…", reject: "Rejecting…", defer: "Deferring…", discuss: "Saving…" };
-    const saved = { approve: "Approval saved. Worker completion is separate.", reject: "Rejected.", defer: "Deferred.", discuss: "Discussion request saved." };
+    const saved = { approve: "Confirmed — card left Needs you. Team follows up.", reject: "Rejected — removed from Needs you.", defer: "Deferred — removed from Needs you.", discuss: "Discussion request saved. Card stays open until you Confirm a choice." };
     return decisionAction(card, button, pending[action] || "Saving…",
       async () => {
         await api("POST", `/api/decisions/${encodeURIComponent(d.id)}/respond${mode === "demo" ? "?mode=demo" : ""}`, {

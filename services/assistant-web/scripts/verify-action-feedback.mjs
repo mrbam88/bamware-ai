@@ -114,7 +114,7 @@ async function scenario({ action = 'approve', failure = false, errorStatus = 503
     assert.equal(await button.isEnabled(), true);
     assert.match(text, /Refresh/);
   } else if (refreshFailure) {
-    assert.match(text, /saved.*could not refresh/);
+    assert.match(text, /could not refresh/i);
   } else if (action === 'send') {
     assert.match(text, /Sent to #command-center. Not execution approval/);
     assert.equal(await card.getByRole('button', { name: 'Resend / repair' }).isVisible(), true);
