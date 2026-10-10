@@ -74,7 +74,7 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-10 (evening) — **81 applications confirmed Applied across batches 5-11; nothing left open except Cloaked (unconfirmed). Everything fills inside Bilal's real Chrome, optional fields included. No auto-submit.**
+> Last updated: 2026-10-10 (late) — **88 applications confirmed Applied across batches 5-12; queue empty. Supported-ATS supply is drained; batch 12 was filled live on Gem, Workable, SmartRecruiters, Rippling and BambooHR inside Bilal's real Chrome. No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
 ## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
@@ -179,6 +179,19 @@ the handoff so the CoS and the Interview Tracker agent stay in sync.
   are hidden so they never steal focus; a CDP watcher closes each tab on its
   confirmation page and the row flips to Applied. Pace from here: 10-15 a day,
   essays in Bilal's words, answer "did you use AI" honestly.
+- **2026-10-10 late: 88 confirmed.** Batch 12 (Ondo Finance, Fetch, Forage, Raydar,
+  MyTime, Utility, MartianCraft) all submitted. Six of the seven were on ATSes
+  `fill.py` does not support; they were filled live over CDP in the real Chrome
+  with a generic label-based pass (`interviews/imports/2026-10-10-batch12/
+  livegeneric.py`, `qdump.py`) plus targeted fixes: Gem uses unlabeled inputs
+  and custom "Please select" dropdowns (type the option, Enter); SmartRecruiters
+  is shadow DOM (use Playwright locators, not querySelector) and its first file
+  input is the avatar; BambooHR's State dropdown reload wipes the form (set
+  dropdowns first, text last); Workable's radios need label clicks; Lever
+  "Current location" is an autocomplete. Sourcing for 13+: LinkedIn public
+  search (`jobs-guest/jobs/api/seeMoreJobPostings/search`) works without login
+  and surfaced ~210 postings; most reachable mobile roles left are on-site
+  outside NYC or at companies already applied to.
 - **2026-10-10 evening: 81 confirmed.** Batch 11 (Judi Health, Fullstack, RevenueCat,
   Roo, Doctronic, Ayble Health) all submitted the same evening; WISEcode too.
   Reachable-tier mobile supply on Built In is thin now; next sweep needs new
