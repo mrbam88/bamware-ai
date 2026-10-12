@@ -8,7 +8,7 @@ description: Bilal Malik's send-ready cover letter, his binding voice rules, and
 **Canonical documents, October 8, 2026:** private `mrbam88/interviews`,
 `documents/kits/2026-10-08/<variant>/Bilal_Malik_Cover_Letter_<Variant>.{pdf,docx,txt}`
 (suffix `iOS`, `Mobile`, `Full_Stack` or `Engineering_Manager`, matching the resume).
-One letter per resume variant (`mobile-ios`, `mobile-rn`, `fullstack`,
+One letter per resume variant (mobile-ios, mobile-rn, `fullstack`,
 `manager`); the body is shared and only the opening paragraph and one
 FreedomCare clause change. Retrieve the one that matches the resume variant
 being attached, using that repo's `README.md` and `library.json`. No whitespace
