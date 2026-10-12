@@ -63,16 +63,19 @@ still cannot run (STATE.md, Blocked on Bilal).
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
 
-**Audio: volume resets to 0 on every output switch (Bilal, 2026-10-09).**
-macOS remembers a per-device volume, so when Bluetooth drops the speakers come
-back loud in a cafe. Fix is Hammerspoon (free, `brew install --cask hammerspoon`)
+**Audio: built-in speakers are forced to 0 whenever they become the output
+(Bilal, 2026-10-09, redesigned 2026-10-12).** AirPods Max auto-switch to the
+iPhone, so the Mac falls back to its speakers at their remembered level and
+blasts in a cafe. Fix is Hammerspoon (free, `brew install --cask hammerspoon`)
 with `config/macos/hammerspoon/init.lua` copied to `~/.hammerspoon/init.lua`.
-It watches `hs.audiodevice` for default-output changes and sets the new device
-to 0 (not muted). Lost once in the macOS 27 upgrade; this copy is canonical.
-Reinstall after any macOS upgrade; verify with `hs -c
+Policy: the speakers (transport `Built-in`) stay parked at 0 while anything
+else is the output, get zeroed again on every switch/wake, and a 2 s poll
+backstops missed events. Headphones and other outputs are never touched (the
+first version zeroed them too, which read as "AirPods not working"). Log:
+`~/Library/Logs/volume-guard.log`. Verify with `hs -c
 'print(hs.audiodevice.watcher.isRunning())'` → `true`. Not Karabiner, not
-AutoMute (both checked 2026-10-09). Note: `hs -c 'hs.reload()'` hangs the CLI;
-use the menu bar Reload Config instead.
+AutoMute (both checked 2026-10-09). `hs -c 'hs.reload()'` hangs the CLI;
+use `killall Hammerspoon; open -a Hammerspoon`.
 
 **Local-model benchmark (Bilal, 2026-09-25):** Qwen3 running locally, asked to
 load the Bamware context, took about **1 minute on the M3** and about **20
