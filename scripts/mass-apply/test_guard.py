@@ -58,11 +58,23 @@ class Check(unittest.TestCase):
         self.assertFalse(v["ok"]); self.assertIn("COMPANY ALREADY IN TRACKER", v["reason"])
         self.assertTrue(verdict(other, ledger, allow_company=["gusto"])["ok"])
 
-    def test_recent_rejection_blocks_company_old_or_undated_does_not(self):
+    def test_any_past_application_or_rejection_blocks_the_company(self):
+        # Bilal, 2026-10-12: never the same company twice, however old the row.
         other = "https://job-boards.greenhouse.io/gusto/jobs/999"
         self.assertFalse(verdict(other, [row("Gusto", "Rejected", None, "2026-09-20")])["ok"])
-        self.assertTrue(verdict(other, [row("Gusto", "Rejected", None, "2023-12-08")])["ok"])
-        self.assertTrue(verdict(other, [row("Gusto", "Rejected", None, None)])["ok"])
+        self.assertFalse(verdict(other, [row("Gusto", "Rejected", None, "2023-12-08")])["ok"])
+        self.assertFalse(verdict(other, [row("Gusto", "Rejected", None, None)])["ok"])
+        self.assertFalse(verdict(other, [row("Gusto", "Applied", None, "2021-02-11")])["ok"])
+
+    def test_window_mode_still_works_when_configured(self):
+        import guard
+        other = "https://job-boards.greenhouse.io/gusto/jobs/999"
+        old = guard.COMPANY_WINDOW_DAYS
+        try:
+            guard.COMPANY_WINDOW_DAYS = 180
+            self.assertTrue(verdict(other, [row("Gusto", "Rejected", None, "2023-12-08")])["ok"])
+        finally:
+            guard.COMPANY_WINDOW_DAYS = old
 
     def test_withdrawn_sibling_role_does_not_block_the_kept_one(self):
         ledger = [row("WW", "Withdrawn", "https://job-boards.greenhouse.io/ww/jobs/5226133008"),

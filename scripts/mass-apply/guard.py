@@ -31,7 +31,8 @@ ACTIVE = {"Applied", "Screen", "Interviewing", "Offer"}
 # from 2026-10-08 (Twilio, ServiceTrade, Flowcode, Brigit) passed the first
 # version of this guard because only fill.py's own run history counted.
 HELD = {"Ready to submit"}
-COMPANY_WINDOW_DAYS = 180   # older applications/rejections no longer block the company
+COMPANY_WINDOW_DAYS = None  # None = never re-apply to a company (Bilal, 2026-10-12: "I don't want to apply
+                            # for the same company ever"); batch 14 preview surfaced 2023-2025 repeats
 LEDGER_MAX_AGE_MIN = 120    # preview + Bilal's confirmation fit in this; older = re-export
 
 
@@ -110,6 +111,7 @@ def _recent(row, today):
     """True when the row's Date applied is inside the company window. Unknown
     date counts as recent for a live application and as old for a rejection
     (undated rejections are historical email reconstructions)."""
+    if COMPANY_WINDOW_DAYS is None: return True
     d = row.get("applied")
     if not d: return row.get("status") in ACTIVE | HELD
     return (today - datetime.date.fromisoformat(d[:10])).days <= COMPANY_WINDOW_DAYS
