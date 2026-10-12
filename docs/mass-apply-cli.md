@@ -47,9 +47,12 @@ Bilal caught it. `scripts/mass-apply/guard.py` now runs before any form opens:
   blocks other postings at that company. Ask Bilal; only when he says it is not submitted, pass
   `--refill=<url part>`. Never pass it on your own judgment: the tracker status
   is exactly what was wrong on 2026-10-10.
-- **One role per company / recent rejection**: a different posting at a company
-  with a live application or a rejection in the last 180 days is blocked unless
-  Bilal names it, then `--allow-company=<url part>`.
+- **One role per company / never the same company twice**: a different posting
+  at any company that appears in the ledger with Applied, Screen, Interviewing,
+  Offer, Ready to submit or Rejected, at ANY date, is blocked unless Bilal names
+  it, then `--allow-company=<url part>` (`COMPANY_WINDOW_DAYS = None`; Bilal,
+  2026-10-12). So the ledger export must carry the full history: every row, no
+  date filter, every status except Saved.
 - `fill.py check queue.txt` prints the verdicts without a browser; paste them
   into the preview. Blocked lines stay in `run.json` as `skipped` so numbering
   still matches the queue. `python3 scripts/mass-apply/test_guard.py` tests it.

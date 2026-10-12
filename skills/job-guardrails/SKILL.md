@@ -43,8 +43,9 @@ Mobile and Coinbase Senior Native Mobile.
 
 Before filling a batch: (1) check the Notion Applications table **and** the
 LinkedIn tracker import for every candidate (Applied, Rejected, Ready to submit,
-Withdrawn); companies that rejected him recently and the elite AI labs (OpenAI,
-Anthropic) are out even for mobile roles; (2) post the shortlist in chat as
+Withdrawn), at any date: a company he has ever applied to or been rejected by
+is out for good (Bilal, 2026-10-12), as are the elite AI labs (OpenAI,
+Anthropic) even for mobile roles; (2) post the shortlist in chat as
 `Company · Role · location · kit`; (3) fill only after he confirms, dropping
 what he strikes. Batch 8 wasted four fills that a preview would have caught.
 
