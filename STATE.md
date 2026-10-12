@@ -74,8 +74,30 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-10 (late) — **88 applications confirmed Applied across batches 5-12; queue empty. Supported-ATS supply is drained; batch 12 was filled live on Gem, Workable, SmartRecruiters, Rippling and BambooHR inside Bilal's real Chrome. No auto-submit.**
+> Last updated: 2026-10-12 — **105 applications confirmed Applied across batches 5-13 (batch 13: 17/17 submitted 2026-10-12, mobile EM + reachable full-stack sourced from LinkedIn public search). Kit files now carry the variant in the filename (Resume_iOS / _Mobile / _Full_Stack / _Engineering_Manager). No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-12 — Batch 13: 17 confirmed (105 total); kit filenames carry the variant
+
+- Batch 13 (Mudflap, Scribd, GameChanger, VTS, Confido, Duet, Gigs, Merge,
+  Secureframe, The Farmer's Dog, Courier Health, Consumer Reports, AngelList,
+  Ripple, Clear Street, CentralReach, Ashby) all submitted by Bilal and confirmed
+  by the ATS-domain watcher; Notion rows Applied 2026-10-12. Runs
+  `interviews/imports/mass-apply-runs/20261012-1246` and `-1547`.
+- The Mac rebooted mid-review (15:43); Chrome lost the 17 filled tabs. Refilled
+  with `--refill=<all 17>` after Bilal said "try again" and the ledger/watcher
+  log showed zero submits. Lesson: a reboot wipes unsubmitted forms; nothing is
+  lost as long as the ledger + run folder are committed.
+- Guard false positive: Clear Street was blocked as "CLEAR"; `--allow-company=
+  clearstreet`. Company-name match should require a whole-word/slug match.
+- Tracker ledger export: 297 Notion rows (active/held/rejected/withdrawn since
+  2026-04-10) + 53 LinkedIn-tracker rows; refreshed in place after the reboot
+  once a query confirmed no new Applied rows.
+- Kit filenames: Bilal could not tell which resume variant was on a form, so
+  the private kits are now `Bilal_Malik_Resume_<Variant>.pdf` (#184, #185).
+- Still open: Cloaked, Brigit, Flowcode, Twilio, Playlist, Pinterest, 5V, N2P
+  rows remain Ready to submit from earlier batches (unconfirmed). Age bracket
+  and "communities" demographic questions stay Bilal's. Batch 14 sourcing next.
 
 ## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
 
