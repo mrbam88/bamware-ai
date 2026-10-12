@@ -74,8 +74,32 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-12 — **105 applications confirmed Applied across batches 5-13 (batch 13: 17/17 submitted 2026-10-12, mobile EM + reachable full-stack sourced from LinkedIn public search). Kit files now carry the variant in the filename (Resume_iOS / _Mobile / _Full_Stack / _Engineering_Manager). No auto-submit.**
+> Last updated: 2026-10-12 (evening) — **117 applications confirmed Applied across batches 5-14; batch 14 is 12/21 submitted, 9 tabs open in Bilal's Chrome (Harvey, Goodie AI, Legora, Foodsmart, Traversal, Arlo, 1Password, Kraken, Bankjoy). Guard now blocks any company in his history at any date (PR #188). No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-12 (evening) — Batch 14: 12/21 confirmed; never-the-same-company rule
+
+- Sourcing agent probed ~1,130 ATS slugs, LinkedIn guest search and Bilal's
+  LinkedIn saved tracker (fresh export `interviews/imports/linkedin-job-tracker-
+  2026-10-12/saved.json`, 158 items). Mobile supply on Greenhouse/Ashby/Lever
+  is thin (4 roles); the rest are his saved full-stack / forward-deployed picks.
+- First preview held Airbnb, DoorDash, Maven Clinic, Omada Health, Oscar, all
+  applied 2023-2025. Bilal: "I don't want to apply for the same company ever."
+  Ledger re-exported with no date window (379 rows), `guard.py`
+  `COMPANY_WINDOW_DAYS = None` (#188), guardrails skill + docs updated.
+- Agent mislabeled three roles as EM (Bubble, Kin, Runway/cfo.ai are engineer
+  roles); kits swapped to full-stack on the form before handoff. Lesson: read
+  the tab title, not the agent's label, before choosing a kit.
+- Submitted + confirmed: Radar, Bubble, Fora, Kin, Runway, Neko, Ease Health,
+  Roboflow, Concurrence, Blacksmith, Copilot Money, Campus. Runs
+  `mass-apply-runs/20261012-1708` and `-1717` (Harvey refill after its tab
+  was lost). Bilal-only leftovers: Kraken product-usage boxes, Legora
+  "show us how you use AI" upload, Bubble "used Bubble?".
+- 26 verified extras on file (`b14_candidates.json` in the job tmp dir; copy to
+  the next batch queue): Justworks, Rho, Talkspace, Lithic, Hex, Alchemy,
+  Scribe, Sardine, Chalk, Brilliant, Vise, Wheel, Axios, Happy Money, Bestow,
+  Assured, Pelago, Genius AI, Spur, Turbo AI, Airgoods, Assort Health, Obvious,
+  Twin Health, Starbridge, PointOne.
 
 ## 2026-10-12 — Batch 13: 17 confirmed (105 total); kit filenames carry the variant
 
