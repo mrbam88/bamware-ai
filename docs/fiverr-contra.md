@@ -18,7 +18,7 @@ at first. Same prices on both sites.
 |---|---|---|
 | Fiverr `fiverr.com/mrbam8` | Profile + Gig A DONE, verified by reload. Gig A repriced to $100 / $750 / $1,800 and still PAUSED. Portfolio "BrewDesk" project published (1–3 months, Aug 2026, cost field $6,000 with a note). Gig C and Gig B created as DRAFTS (all steps filled, stopped before Publish). An older draft "build full stack mobile apps" also exists, untouched. | Bilal: review and publish Gigs C and B; unpause Gig A; make the mockup the primary image; reply to the 3 buyer messages. |
 | Contra `contra.com/bilal_malik_g87cbt2p` | DONE except Bilal-only steps. Headline, bio, rate $50–75/hr, featured hero video, 4 work items, 3 services live. | Bilal: verify identity and set up wallet (last item on the completion checklist). Later: apply to the expert network. |
-| Upwork | Not started. Recommended as the main platform (fee 0–15%, clients post real projects). | Same copy, one profile, bid 3–5 posts/week. |
+| Upwork | No account yet (checked 2026-10-12). Profile copy, proposal template and a first lead list are ready below. | Bilal: create the account and log in inside the port-9222 Chrome. Agent: enter the profile, then draft one proposal per lead for his review. Connects are spend, quote first. |
 | Toptal | Not started. Apply once. | — |
 
 Fiverr blocks automation with a "Press & Hold" check on every edit page;
@@ -154,3 +154,66 @@ Services (live):
 - Social app starter: your own matching and chat app: from $150, 5 days. Lists $150 / $500 / $1,200 and the honest App Review note.
 
 After it's live: apply to Contra's expert network, reply within 24h, post weekly in the community.
+
+## Upwork (drafted 2026-10-12, not entered)
+
+Checked 2026-10-12: the dedicated Chrome (`~/.bamware/chrome-bilal`, port 9222)
+is logged out of Fiverr, Contra and Upwork. The September work ran in Cowork.
+Upwork job search is readable logged out, so leads can be scanned without an
+account: `https://www.upwork.com/nx/search/jobs/?sort=recency&q=<query>`.
+Field limits below are from memory; confirm them on the form.
+
+**Title (68 chars):** `Senior iOS and React Native engineer who ships apps to the App Store`
+
+**Rate:** $55/hr to start (inside the Contra $50-75 band; expert posts in the
+scan paid $45-90). Bilal decides.
+
+**Overview:**
+
+> I build iOS and React Native apps and take them all the way to the App Store. My own app, BrewDesk, is live there now. I designed it, built it, wrote the backend and got it through App Review. Search BrewDesk on the App Store to see the quality you will get.
+>
+> I have 15+ years in mobile. I led mobile teams at FreedomCare and Photobucket and helped ship a health records app used by over a million patients. Today I run Bamware, a small studio that pairs senior engineering with AI agents, so work moves fast without cutting corners.
+>
+> I am a good fit if you have a web app or an AI-built prototype that needs to become a real App Store app. I am also a good fit if your React Native or SwiftUI app is stalled and needs someone to finish it, or if you want a new app built from a clear idea.
+>
+> You get a written scope before any code. You get TestFlight builds on your phone as we go. You get clean, tested code in your own repo, and help with the App Store submission and review notes.
+>
+> Send me a short description of your app. I will reply with a plan and a price.
+
+**Skills:** iOS Development, SwiftUI, Swift, React Native, Expo, TypeScript,
+Node.js, App Store, TestFlight, Mobile App Development, API Integration, AWS.
+
+**Portfolio:** reuse the four Contra work items and the media pack
+(`docs/marketing-media.md`). **Employment:** the roles in `skills/bilal-resume`.
+
+**Proposal template** (rewrite every bracket per job, never send it as is):
+
+> Hi [name]. [One sentence that shows I read the post, naming their app and the hard part.] I shipped my own SwiftUI app, BrewDesk, through App Review and it is live on the App Store now. [One sentence on the closest thing I have done to their problem.] My first step would be [concrete first step], and you would have [first deliverable] within [days]. Happy to do a short call first. [One specific question about their project.]
+
+### What clients are asking for (scan of ~60 recent posts, 2026-10-12)
+
+Queries: swiftui, react native app store, ios app testflight, expo react
+native, ios bug fix. Observation, not market size.
+
+- **Web or AI-built app to the App Store.** Base44 (3 posts), Capacitor, "convert web app to App Store code" ($1,500), packaging and submission help. Honest note for these: Apple rejects thin web wrappers under guideline 4.2, so scope real native value.
+- **Finish or rescue a stalled React Native app.** Messaging app ($30-50/hr), "80% finished" coaching app, golf MVP to production, audit and maintain ($45-90/hr).
+- **App Review help.** A guideline 2.1 walkthrough post at $50-55/hr.
+
+Proposed, not built: a fourth service on all three sites, "Get your web or
+AI-built app onto the App Store". It matches the strongest demand and his proof.
+
+### First leads (age as of 2026-10-12; re-check before bidding)
+
+| Post | Budget | Age | Why it fits |
+|---|---|---|---|
+| [Web platform to iOS and Android](https://www.upwork.com/jobs/Mobile-developer-needed-take-our-finished-web-platform-iOS-and-Android_~022107994222037734237/) | $50-90/hr, 3-6 months | 5 days | Backend done, wants store submission and a reasoned stack choice. |
+| [Audit and maintain existing iOS/Android app](https://www.upwork.com/jobs/Senior-Mobile-App-Developer-Needed-Audit-amp-Maintain-Existing-span-class-highlight-iOS-span-Android-App_~022104670709557842408/) | $45-90/hr | 2 weeks | Same shape as the review, fix or finish service. |
+| [Review, polish and finish an Expo iOS app (US only)](https://www.upwork.com/jobs/Experienced-React-Native-Expo-Developer-Review-Polish-amp-Finish-span-class-highlight-iOS-span-Equine-Care-span-class-highlight-App-span-only_~022102926178208121393/) | hourly, expert | 3 weeks | US only cuts the competition. |
+| [Golf MVP to production](https://www.upwork.com/jobs/Senior-Full-Stack-Developer-Mobile-App-Team-Take-Existing-Golf-MVP-Production_~022106055706765299533/) | hourly, expert | 2 weeks | Mobile plus backend ownership. |
+| [Convert web app to App Store code](https://www.upwork.com/jobs/Convert-Web-App-App-Store-Code_~022105249529598387232/) | $1,500 fixed | 2 weeks | Matches the MVP package price. |
+| [Finish and launch a React Native messaging app](https://www.upwork.com/jobs/Senior-React-Native-Developer-Needed-Complete-Test-amp-Launch-Messaging-App-span-class-highlight-iOS-span-and-Android_~022105308976373727293/) | $30-50/hr | 2 weeks | Chat is in the social starter. |
+| [Fix roommate search (React Native + Python)](https://www.upwork.com/jobs/span-class-highlight-React-span-span-class-highlight-Native-span-amp-Python-Developer-Fix-Roommate-Search-and-Improve-Questionnaire_~022109613364574944368/) | $300 fixed | 8 hours | Small and fresh, a first-review builder. |
+
+Skipped on purpose: "need an active developer account" posts (publishing a
+client app under someone else's Apple account risks that account), QA tester
+gigs, and posts under $30/hr.
