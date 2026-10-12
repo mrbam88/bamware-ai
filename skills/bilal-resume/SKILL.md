@@ -7,9 +7,13 @@ description: Bilal Malik's current resume content and the rules for attaching it
 
 Canonical source: private `mrbam88/interviews`, `documents/kits/2026-10-08/`.
 Four variants, one folder each: `mobile-ios`, `mobile-rn`, `fullstack`,
-`manager`. Every folder holds `Bilal_Malik_Resume.pdf` (upload this), `.docx`
-(editable) and `.txt` (paste into web forms), plus the matching
-`Bilal_Malik_Cover_Letter.{pdf,docx,txt}`. Read that repository's `README.md`
+`manager`. Every folder holds `Bilal_Malik_Resume_<Variant>.pdf` (upload this),
+`.docx` (editable) and `.txt` (paste into web forms), plus the matching
+`Bilal_Malik_Cover_Letter_<Variant>.{pdf,docx,txt}`. Variant suffixes: `iOS`
+(mobile-ios), `Mobile` (mobile-rn), `Full_Stack`, `Engineering_Manager`. The
+suffix is deliberate (2026-10-12): Bilal reads it on the form to confirm the
+right kit was attached, and it still reads as a normal filename to a recruiter.
+Never rename the upload back to a bare `Bilal_Malik_Resume.pdf`. Read that repository's `README.md`
 and `library.json` first; `library.json.resume_set_current.how_to_pick` says
 which variant fits which job title. The October 8 set supersedes the
 September 30 master and the October 2 `ai-variants` drafts. The factual summary
