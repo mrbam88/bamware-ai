@@ -1,5 +1,31 @@
 # State of the Union — Bamware
 
+## 2026-10-13 — Scheduled backend pickup: independent QA, no new release
+
+- Existing 30-minute job `b49d7172e336` executed the 05:37 UTC scheduled pickup;
+  reviewed existing [later-page evidence conflicts](https://github.com/mrbam88/bamware-venue-engine/pull/203#issuecomment-6139128581)
+  instead of duplicating implementation. Exact head `5d72364`: independent
+  **1,208 passed / 12 DB skipped**, typecheck and ten-record offline replay pass;
+  11 additional adversarial cases prove source-6/10 conflict detection and
+  explicit ten-document coverage limits. No measured ranking lift claimed.
+- PR203 remains **open, not merged/deployed**. Fresh alias-verifier invocation
+  is pending Hermes terminal approval (`tirith:interpreter_suspicious_inline_exec`),
+  not retried through another tool. Narrow [Engineering Lead handoff](https://github.com/mrbam88/bamware-ai/issues/150#issuecomment-6139089436)
+  published/read back; pickup not acknowledged. Not a blanket HTTP/filesystem ban.
+  PR202 Production status was rechecked success; its prior live proof remains
+  the last verified release. This scheduled pickup proves review execution,
+  not an end-to-end scheduled release.
+- [Ranking diagnosis](https://github.com/mrbam88/bamware-venue-engine/issues/151#issuecomment-6139137606):
+  current-main-equivalent local query at 40.7278,-74.0004 / 600m gives Qahwah
+  **13 Carmine Street** rank 96 (cafe-only 88), null displayed score, evidence
+  weight 0.15: only OSM Wi-Fi is known. Missing laptop/seating facts, not a reason
+  to inflate weights or borrow 162 Bedford Avenue's claims. Next: permitted
+  branch-specific evidence and rejection/ranking regressions; keep truth pending.
+- Independent test process finished; no active implementation worker claimed.
+  Private evidence `~/.local/state/bamware/continuous-delivery/review203-*`;
+  current checkpoint and last verified release remain separate. No new schedule,
+  paid services, research inference, dataset changes or deploy-config changes.
+
 ## 2026-10-13 — BrewDesk unrated ranking fallback live
 
 - [Venue ranking fix](https://github.com/mrbam88/bamware-venue-engine/pull/202)

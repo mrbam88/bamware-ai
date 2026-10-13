@@ -20,6 +20,19 @@ Venue Engine uses local validation → `main` → Vercel Git integration.
 Verify merge state with `gh pr list --state merged` before reporting failure;
 silent command output is not evidence of failure.
 
+## Unattended verifier command shape (all runtimes)
+
+Use an ordinary inspectable script file and invoke it by path from the outset.
+Do not dynamically execute a read-back script with inline `exec(compile(...))`
+merely to change an output filename. Hermes terminal may hold that invocation
+under `tirith:interpreter_suspicious_inline_exec` before the verifier runs.
+Preserve `pending_approval` separately from denial. Record the exact invocation,
+actual component and offered approval path; stop the affected action pending
+legitimate disposition, continue independent authorized review, and do not infer
+a blanket Python, HTTP or filesystem prohibition. A tool's suggested alternative
+is not retrospective permission to reroute a held action. Keep last verified
+release evidence separate from the current unverified attempt.
+
 ## The rule
 
 **A permission denial is CLAUDE'S restriction, not Bilal's setup.** Bilal has
