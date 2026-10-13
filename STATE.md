@@ -1,5 +1,32 @@
 # State of the Union — Bamware
 
+## 2026-10-13 — Work-mode recommendation safety reviewed; source published, not live
+
+- [Work-mode evidence repair](https://github.com/mrbam88/bamware-venue-engine/pull/204)
+  (`ba8669a`) rejects future/invalid/expired positive claims that Work Fit already
+  rejects. Red HTTP tests reproduced laptop/seating/noise leaks; shared existing
+  eligibility rule repairs them. No venue attributes, score weights, API shape,
+  primitive filter policy, library exception or deployment config changed.
+- Node 20 local full suite **1,221 passed / 12 DB skipped**, typecheck and two
+  enforced truth anchors pass. Qahwah Carmine remains pending rank 96. Independent
+  detached-head review passed 49 adversarial filter/HTTP cases plus scoring/display
+  regressions; reviewer did not edit author source. Nine real-seed NYC query
+  replays retained all orders/counts: safety improvement, **no measured ranking lift**.
+- PR204 is open, not merged/deployed. PR203 stays separately reviewed/open.
+  Existing [narrow terminal approval hold](https://github.com/mrbam88/bamware-ai/issues/150#issuecomment-6139089436)
+  has no published disposition; affected live check not rerouted. Engineering Lead
+  owns legitimate disposition, fresh approved verification and release. No global
+  pause inferred: independent implementation/review proceeded.
+- PR202 remains last verified release; Production deployment `7030521245` status
+  rechecked success. No fresh alias claim. Current attempt and previous release
+  remain separate in `~/.local/state/bamware/continuous-delivery/current.json`.
+- Existing scheduled job `b49d7172e336` executed 06:18 UTC pickup; no duplicate
+  schedule. Fresh Codex weekly observation 5% used, 85% reserve; no paid fallback.
+  Test/review workers finished; none claimed active at handoff. Evidence published
+  on existing quality/growth tickets; final notification uses automatic #general
+  delivery, not a manual Discord send. Next independent work: branch-specific
+  Qahwah evidence, not fabricated claims. [Reusable regression proof](docs/venue-work-mode-regression-proof.md).
+
 ## 2026-10-13 — Scheduled backend pickup: independent QA, no new release
 
 - Existing 30-minute job `b49d7172e336` executed the 05:37 UTC scheduled pickup;
