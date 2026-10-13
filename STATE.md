@@ -1,5 +1,34 @@
 # State of the Union — Bamware
 
+## 2026-10-13 — BrewDesk unrated ranking fallback live
+
+- [Venue ranking fix](https://github.com/mrbam88/bamware-venue-engine/pull/202)
+  merged `dc5d696`; GitHub Production deployment `7030521245` succeeded,
+  Vercel `7AR2axzSTyuMEPNQ6bY5JV9NfUE9`. Production alias verified at
+  `2026-10-13T05:03:59Z`: NYC unrated cafes use proximity instead of hidden
+  legacy scores. Greenwich Village / Midtown / Williamsburg adjacent unrated
+  distance inversions fell **45→0 / 47→0 / 20→0** in 200-result queries.
+- Full/compact live ordering matched; cafe membership and numeric `workScore`
+  compatibility passed. Rated-order and attribute parity passed captured-query
+  replay. This is an **unrated fallback** improvement, not a claim that rated
+  quality or factual evidence is solved. Outside-NYC and mixed-region queries
+  retain their previous policy; no schema, data, scoring-weight or deploy-config edits.
+- Independent review caught a mixed-region comparator cycle; repaired, retested
+  and independently passed at exact final head `7d122d5`. Local **1,217 passed /
+  12 DB skipped**, typecheck passed; CI run `38348533535` passed. Truth-check:
+  Reggio rank 6 / Capital One rank 9 pass; Qahwah remains pending at rank 96.
+- PR200's previously failed production backlog is now live through this release:
+  four affected noise claims read back as `agent`; Soft Bar control unchanged.
+  Original failure's root cause remains unknown. Native Vercel is logged out;
+  Mac SSH stopped at host-key verification (no bypass). Existing Git integration
+  succeeded without credential/config changes or new paid services.
+- Existing 30-minute job `b49d7172e336` reused, no duplicate schedule. This cycle
+  was a direct invocation; subsequent scheduled pickup is not yet proven.
+  Private current/release receipts: `~/.local/state/bamware/continuous-delivery/`.
+  Next bounded slice: investigate Qahwah's branch-specific evidence/ranking miss
+  and expand representative rated-ranking truth cases; do not fabricate claims
+  or convert sparse coverage into quality. Parents ve#85/#147/#151 remain open.
+
 ## 2026-10-10 — Mass-apply: duplicate guard + Ashby registration check
 
 - **Incident:** run `20261010-1224` refilled Gusto and Nectar Social, run
