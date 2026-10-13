@@ -4,6 +4,42 @@ Decision and evidence: 2026-09-30. Canonical continuation point for this effort.
 Supersedes the marketing channel suggestions in `brewdesk-gameplan-2026-09.md`;
 that older document's release assumptions are historical, not current gates.
 
+## Creative direction — October 13 owner feedback
+
+Bilal endorsed the polished, photo-led editorial direction of **“Your desk has
+options”** as the direction he envisioned, while describing it as a good start,
+not a finished brand. He rejected crude vector illustrations, generic typography
+and placeholder website layouts. The preference is about professional visual
+quality, not a proven marketing result.
+
+Carry forward atmospheric photography, confident editorial typography, restrained
+evergreen/ivory colors, spacious composition and authentic product screenshots.
+Avoid clip-art laptop/cup drawings, invented UI and generic template treatments.
+Make a cohesive collection with varied compositions, not five copies of a layout.
+
+Requested next deliverable: **five separate single-image Instagram drafts with
+captions**, reviewed together to judge the brand feeling. A carousel is multiple
+slides within one post; this request is five independently understandable posts.
+Do not interpret the request as publishing all five at once. Suggested cadence
+may be staged over roughly two weeks after approval; it is not a reach guarantee.
+
+The review set extends the liked opening concept with four new compositions:
+“Great coffee. Laptop-friendly?”, “Pick the place. Then unpack.”,
+“Some days, quiet wins”, and “Take your workday elsewhere”. Local working assets
+and source/caption notes are under
+`~/.local/state/bamware/marketing-concepts/five-posts-v1/`; the original concept is
+under the adjacent `editorial/` directory. These paths are machine-local, not a
+claim of Drive sync. Generated creative stays out of this repository; delivery
+is through the marketing conversation as review images and caption notes.
+
+**No publishing approval:** enthusiasm approves a direction, not a post, campaign,
+profile change or spend. Stock interiors are illustrative, not verified NYC venues.
+Resolve photographer/license and applicable third-party rights before publication.
+Screenshots taken from the public website are not proof of current public-build
+behavior or individual venue facts. Verify them before promotion and retain the
+existing photo-serving-cost gate before an acquisition push. The rejected older
+carousel is not reauthorized by this feedback.
+
 ## October 2 research continuation
 
 The [NYC audience and competitor brief](brewdesk-marketing-research-2026-10-02.md)
