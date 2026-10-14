@@ -156,8 +156,39 @@ migration does not itself fix venue coverage or recommendation quality.
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-10-12 (evening) — **117 applications confirmed Applied across batches 5-14; batch 14 is 12/21 submitted, 9 tabs open in Bilal's Chrome (Harvey, Goodie AI, Legora, Foodsmart, Traversal, Arlo, 1Password, Kraken, Bankjoy). Guard now blocks any company in his history at any date (PR #188). No auto-submit.**
+> Last updated: 2026-10-14 — **130 applications confirmed Applied across batches 5-15. Batch 14 closed except Legora; batch 15 (25 forms) is 8/25 confirmed with 17 tabs open in Bilal's Chrome. New hard rule: pick the role he is most likely to get an interview for (Senior over Staff/Principal). No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-14 — Batch 15 (25), level swaps, most-likely-role rule
+
+- Bilal: "let's generally go for the role I'm most likely to get, I'm getting
+  desperate, not enough interviews." Rule: at any company, queue Senior over
+  Staff/Principal, mobile over full-stack, hands-on over EM. A re-rank agent
+  checked every board: Harvey Staff Product Eng → Senior SWE Agents (NY),
+  Arlo Principal → Senior SWE, Traversal Staff → AI Product Engineer,
+  Foodsmart Staff → Senior SWE, Genius AI Staff Frontend → SWE All Levels,
+  Talkspace Tech Lead → Senior SWE. Staff-only boards dropped (Assured, Twin
+  Health, Wheel, Axios). Stretch tabs closed unsubmitted, rows updated in place.
+- Batch 14 refilled after the 2026-10-13 reboot (9 forms, Bilal confirmed none
+  submitted). Confirmed today: Goodie AI, Harvey, Kraken, 1Password, Bankjoy.
+  Legora still open (needs his "how you use AI" file). Arlo, Foodsmart,
+  Traversal tabs vanished without a confirmation; awaiting Bilal's word.
+- Batch 15 sourced from the LinkedIn saved tracker (28 new saves, 12 dupes) +
+  the verified extras: Tapcart, Raya, Keeper (mobile) + 22 full-stack. Confirmed
+  so far: Airgoods, Turbo AI, Keeper, Starbridge, Obvious, PointOne, Chalk,
+  Hex. Runs `mass-apply-runs/20261014-1616`, `-1618`. Other-ATS mobile roles
+  (Optum, Marriott, Cerence, Lenovo) resolved but not filled (live-fill).
+- Watcher bugs fixed: (1) it closed the Harvey form twice as a false
+  "confirmation" (page text matched); now ignores any page that still has a
+  file input or Submit button; (2) it closed a Greenhouse interview
+  self-schedule tab; now only touches application URLs on ATS apply hosts.
+  (3) The old watcher's persistent CDP attach held Chrome display-sleep
+  assertions; v2 polls /json and attaches once per 5 min.
+- Lithic hides a base64 Python XOR puzzle in the posting ("crack the code");
+  answer 42. Keeper hires only in a fixed state list without NY (answered No).
+- Mac sleep: `SleepDisabled 1` was set system-wide on 2026-10-01 (not by this
+  work); Bilal was given `sudo pmset -a disablesleep 0`. Claude Code's bg-job
+  daemon runs `caffeinate -i` while a job is alive (feedback filed).
 
 ## 2026-10-12 (evening) — Batch 14: 12/21 confirmed; never-the-same-company rule
 
