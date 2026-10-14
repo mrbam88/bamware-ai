@@ -53,15 +53,19 @@ local function parkInactive()
   end
 end
 
--- Layer 2: on any output change, zero the new default now and again over the
--- next second, because macOS re-applies the device's remembered level late.
+-- Layer 2: when the default output actually changes, zero the new default now
+-- and again over the next second, because macOS re-applies the device's
+-- remembered level late. Device-list churn (a monitor or nearby AirPods
+-- appearing) with the default unchanged must not touch the volume.
 local lastDef = "none"
 local function onSwitch(reason)
   local def = hs.audiodevice.defaultOutputDevice()
+  local prev = lastDef
   lastDef = def and def:uid() or "none"   -- so the poll does not fire again for this switch
   log("event " .. reason .. " [" .. snapshot() .. "]")
-  zeroDefault(reason)
   parkInactive()
+  if lastDef == prev then return end
+  zeroDefault(reason)
   for _, t in ipairs({0.3, 1.0}) do
     hs.timer.doAfter(t, function() zeroDefault(reason .. "+" .. t); parkInactive() end)
   end
