@@ -55,9 +55,9 @@ test("card-face copy contract: active sample cards stay under a 10s glance budge
   // Rough word budget for what the UI shows before opening Details:
   // title + status chip + summary + suggested label + option labels.
   const active = DECISION_CANDIDATES.filter((c) =>
-    ["brewdesk-first-carousel-72", "backlog-triage-view-77"].includes(c.id),
+    ["brewdesk-first-carousel-72", "backlog-triage-view-77", "auth-atomic-docker-access-85"].includes(c.id),
   );
-  assert.equal(active.length, 2);
+  assert.equal(active.length, 3);
   for (const c of active) {
     const suggested = c.options.find((o) => o.id === c.recommendation?.optionId)?.label || "";
     const faceWords = [c.title, c.summary, suggested, ...c.options.map((o) => o.label)]

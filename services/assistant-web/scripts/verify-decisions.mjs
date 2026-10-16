@@ -15,7 +15,13 @@ const { cfg, problems } = loadConfig();
 assert.equal(problems.length, 0);
 const base = process.env.ASSISTANT_VERIFY_URL || `http://${cfg.host}:${cfg.port}`;
 const baseUrl = new URL(base);
-assert.ok(baseUrl.protocol === 'https:' || (baseUrl.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(baseUrl.hostname)), 'Verification requires HTTPS except on loopback');
+// HTTPS preferred. HTTP allowed on loopback or the process-configured bind host
+// (private Tailscale IP on omarchy) so deploy proof can hit the live service.
+const httpAllowed = baseUrl.protocol === 'http:' && (
+  ['localhost', '127.0.0.1', '[::1]'].includes(baseUrl.hostname)
+  || baseUrl.hostname === cfg.host
+);
+assert.ok(baseUrl.protocol === 'https:' || httpAllowed, 'Verification requires HTTPS except on loopback or the configured bind host');
 assert.ok(!baseUrl.username && !baseUrl.password && !baseUrl.search && !baseUrl.hash && baseUrl.pathname === '/', 'Verification URL must be a bare origin');
 const digest = () => {
   try { return createHash('sha256').update(readFileSync(cfg.decisionsFile)).digest('hex'); }
