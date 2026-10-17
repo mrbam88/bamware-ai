@@ -1,0 +1,11 @@
+[Unit]
+Description=Bamware CFO daily status post in #cfo (#132)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
+# Reads the capacity.json the burn alert publishes; no model calls.
+ExecStart=/usr/bin/python3 %h/code/worktrees/bamware-ai-main/services/cfo/burn_alert.py --digest
+TimeoutStartSec=2min

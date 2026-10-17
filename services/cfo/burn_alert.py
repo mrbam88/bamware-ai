@@ -25,6 +25,11 @@ POLICY = {
     'rate_min_span_min': 15.0,   # ...from samples spanning at least this long
     'stale_after_min': 30.0,     # newest sample older than this = monitoring stale
     'stale_critical_after_h': 6.0,  # blind this long = critical: a dark collector must not hide for a day
+    'stale_repeat_h': 6.0,       # keep reminding every this long while a source stays dark (#132)
+    # Window-to-date pace: pools of a day or longer warn when the average burn since
+    # the window opened runs them out before reset. Needs this much window elapsed.
+    'pace_min_window_min': 1440.0,
+    'pace_min_elapsed_h': 24.0,
     'history_h': 48.0,
     'max_delivery_attempts': 5,
     # Self-verification: every forecast is graded against the API's later reading.
@@ -90,13 +95,30 @@ def openai_source(path=OPENAI_SNAPSHOT):
     return observations, None
 
 
-def claude_source(path=None, now=None, policy=POLICY, tail=12):
+def sampler_last_error(run=subprocess.run):
+    """Why the Claude sampler last skipped, from its journal (e.g. login expired, 429)."""
+    try:
+        out = run(['journalctl', '--user', '-u', 'ai-quota-sample.service', '-n', '40', '-o', 'cat', '--no-pager'],
+                  capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    skipped = [line for line in out.stdout.splitlines() if 'quota sample skipped:' in line]
+    return skipped[-1].split('quota sample skipped:', 1)[1].strip() if skipped else None
+
+
+def _claude_reason(hint, fallback):
+    reason = hint() if hint else None
+    return f"sampler says: {reason}" if reason else fallback
+
+
+def claude_source(path=None, now=None, policy=POLICY, tail=12, hint=sampler_last_error):
     """Claude Max meters from the samples file, as Anthropic reports them in /usage."""
     path = Path(path or CLAUDE_SAMPLES)
     try:
         lines = path.read_text().splitlines()[-tail:]
     except OSError as error:
-        return [], f'claude samples unreadable: {error.__class__.__name__}'
+        detail = _claude_reason(hint, error.__class__.__name__)
+        return [], f'claude samples unreadable ({detail})'
     observations, newest = [], None
     for line in lines:
         try:
@@ -115,7 +137,8 @@ def claude_source(path=None, now=None, policy=POLICY, tail=12):
     now = now if now is not None else datetime.now(timezone.utc).timestamp()
     if newest is None or now - newest > policy['stale_after_min'] * 60:
         # Old data is not fresh data: a stopped sampler must surface as stale.
-        return observations, 'claude samples stale (sampler stopped or login expired?)'
+        detail = _claude_reason(hint, 'sampler stopped or login expired?')
+        return observations, f'claude samples stale ({detail})'
     return observations, None
 
 
@@ -306,8 +329,19 @@ def assess(window, now, policy=POLICY, factor=1.0):
     def before_reset(eta, horizon):
         return eta is not None and eta <= horizon and (to_reset_h is None or eta < to_reset_h)
 
+    # Window-to-date pace catches a slow, steady burn that the one-hour rate
+    # and its 24 h horizon only see a day before the pool runs dry (#132).
+    pace = eta_pace = None
+    if (window.get('reset_at') and (window.get('window_min') or 0) >= policy['pace_min_window_min']
+            and to_reset_h is not None and to_reset_h > 0):
+        elapsed_h = (t_last - (window['reset_at'] - window['window_min'] * 60)) / 3600
+        if elapsed_h >= policy['pace_min_elapsed_h'] and used > 0:
+            pace = used / elapsed_h
+            eta_pace = (100 - used) / pace
+    runout = eta_pace is not None and eta_pace < to_reset_h
+
     level = 'ok'
-    if used >= policy['warn_used_pct'] or before_reset(eta_reserve, policy['warn_horizon_h']):
+    if used >= policy['warn_used_pct'] or before_reset(eta_reserve, policy['warn_horizon_h']) or runout:
         level = 'warn'
     if used >= policy['critical_used_pct'] or before_reset(eta_exhaust, policy['critical_horizon_h']):
         level = 'critical'
@@ -315,6 +349,7 @@ def assess(window, now, policy=POLICY, factor=1.0):
             'reserve_before_reset': before_reset(eta_reserve, float('inf')),
             'exhaust_before_reset': before_reset(eta_exhaust, float('inf')),
             'eta_reserve_h': eta_reserve, 'eta_exhaust_h': eta_exhaust, 'to_reset_h': to_reset_h,
+            'pace_pct_h': pace, 'eta_exhaust_pace_h': eta_pace, 'runout_before_reset': runout,
             'stale': now - t_last > policy['stale_after_min'] * 60}
 
 
@@ -333,6 +368,10 @@ def message(window, a, policy=POLICY, accuracy=None):
     if a['rate_pct_h'] is not None:
         lines.append(f"- Burning {a['rate_pct_h']:+.1f}%/h over the last hour")
         lines.append(f"- At this rate: reserve ({policy['reserve_used_pct']:.0f}%) in {hours(a['eta_reserve_h'])}, exhausted in {hours(a['eta_exhaust_h'])}")
+    if a.get('runout_before_reset'):
+        lines.append(f"- Pace since the window opened: {a['pace_pct_h'] * 24:.1f}%/day. At that pace it runs out "
+                     f"{clock(a['observed_at'] + a['eta_exhaust_pace_h'] * 3600)}, "
+                     f"{hours(a['to_reset_h'] - a['eta_exhaust_pace_h'])} before reset")
     if window.get('reset_at'):
         lines.append(f"- Resets {clock(window['reset_at'])} (in {hours(a['to_reset_h'])})")
     if accuracy:
@@ -370,9 +409,9 @@ def restored_message(name, blind_h, pools):
     return f"✅ **CFO monitoring restored**: {name} is reporting again after {hours(blind_h)} blind. Now: {last_known(pools)}."
 
 
-def deliver(text, sender):
+def deliver(text, sender, mention=False):
     try:
-        return sender(text), None
+        return sender(text, mention=mention), None
     except Exception as error:  # delivery must never crash the detector
         return False, f'{error.__class__.__name__}: {error}'
 
@@ -382,33 +421,39 @@ def discord_post_path():
     return Path(repo) / 'scripts/discord-post.sh'
 
 
-def discord_sender(text):
-    env = {**os.environ, 'BAMWARE_POST_TO': 'assistant'}
+def discord_sender(text, mention=False):
+    # #cfo when DISCORD_CFO_CHANNEL is set on the server, else #bamware-bot / CoS (#132).
+    env = {**os.environ, 'BAMWARE_POST_TO': 'cfo', 'BAMWARE_MENTION': '1' if mention else ''}
     out = subprocess.run([str(discord_post_path()), text], env=env, capture_output=True, text=True, timeout=30)
     if out.returncode != 0:
         raise RuntimeError(f'discord-post exit {out.returncode}')
     return True
 
 
-def notify(state, state_dir, key, level, reset_at, text, sender, now, policy=POLICY):
-    """Send once per escalation; retry failed sends; never resend a delivered level."""
+def notify(state, state_dir, key, level, reset_at, text, sender, now, policy=POLICY, repeat_h=None):
+    """Send once per escalation; retry failed sends; never resend a delivered level,
+    except as a reminder every repeat_h hours when given. Escalations @mention
+    Bilal so they push to his phone; reminders do not."""
     alert = state['alerts'].setdefault(key, {'sent_level': 'ok', 'reset_at': reset_at, 'pending': None})
     if LEVELS[level] > LEVELS[alert['sent_level']]:
         pending = alert.get('pending') or {}
         if pending.get('level') != level:
             alert['pending'] = {'level': level, 'attempts': 0}
+    elif repeat_h and level == alert['sent_level'] != 'ok' and not alert.get('pending'):
+        if now - alert.setdefault('sent_at', now) >= repeat_h * 3600:
+            alert['pending'] = {'level': level, 'attempts': 0, 'repeat': True}
     pending = alert.get('pending')
     if not pending:
         return None
     if pending['attempts'] >= policy['max_delivery_attempts']:
         return 'exhausted'
     pending['attempts'] += 1
-    ok, error = deliver(text, sender)
+    ok, error = deliver(text, sender, mention=not pending.get('repeat'))
     log_event(state_dir, {'at': now, 'key': key, 'level': pending['level'], 'attempt': pending['attempts'],
                           'delivered': bool(ok), 'error': error})
     if ok:
-        alert['sent_level'], alert['pending'] = pending['level'], None
-        return 'delivered'
+        alert['sent_level'], alert['pending'], alert['sent_at'] = pending['level'], None, now
+        return 'reminded' if pending.get('repeat') else 'delivered'
     if pending['attempts'] >= policy['max_delivery_attempts']:
         print(f'cfo-burn-alert: delivery retries exhausted for {key}', file=sys.stderr)
         return 'exhausted'
@@ -429,13 +474,15 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
         status.setdefault('last_ok', now)  # first sighting starts the stale clock
         for obs in observations:
             record(state, obs, policy)
-        # Monitoring itself going dark is an alert, not a calm day. It escalates: a warning nobody
-        # acts on must become a critical, and the end of the blind spot must be announced.
+        # Monitoring itself going dark is an alert, not a calm day. It escalates to critical
+        # after stale_critical_after_h, keeps reminding every stale_repeat_h while dark, and
+        # announces recovery (2026-10-03: one warn hid a 34 h Claude outage; #132 + #133).
         monitor_key, blind_h = f'monitor:{name}', (now - status['last_ok']) / 3600
         if error and blind_h * 60 > policy['stale_after_min']:
             level = 'critical' if blind_h >= policy['stale_critical_after_h'] else 'warn'
             text = monitor_message(name, error, blind_h, level, source_pools(state, name), status['last_ok'], policy)
-            results.append((monitor_key, notify(state, state_dir, monitor_key, level, None, text, sender, now, policy)))
+            results.append((monitor_key, notify(state, state_dir, monitor_key, level, None, text, sender, now, policy,
+                                                repeat_h=policy['stale_repeat_h'])))
         elif not error:
             if state['alerts'].pop(monitor_key, {}).get('sent_level', 'ok') != 'ok':
                 # One attempt, logged either way: the alert said "blind", so say when sight returns.
@@ -467,7 +514,8 @@ def run(state_dir=STATE_DIR, sources=None, sender=discord_sender, now=None, poli
                          'reset_at': window.get('reset_at'),
                          **{k: a[k] for k in ('level', 'used_pct', 'observed_at', 'rate_pct_h', 'eta_reserve_h',
                                               'eta_exhaust_h', 'to_reset_h', 'stale', 'factor',
-                                              'reserve_before_reset', 'exhaust_before_reset')}})
+                                              'reserve_before_reset', 'exhaust_before_reset',
+                                              'pace_pct_h', 'eta_exhaust_pace_h', 'runout_before_reset')}})
         if a['stale']:
             continue  # covered by the source's monitoring alert
         if a['level'] != 'ok':
@@ -514,6 +562,43 @@ def print_status(state_dir, now=None, out=print):
             + (', STALE' if p.get('stale') else '') + f", sent {p.get('sent_level', 'ok')}")
 
 
+def digest(state_dir, now=None, policy=POLICY):
+    """Daily status for #cfo, read from the published capacity.json (never recomputed)."""
+    now = now if now is not None else datetime.now(timezone.utc).timestamp()
+    try:
+        doc = json.loads((state_dir / 'capacity.json').read_text())
+    except (OSError, ValueError) as error:
+        return f"⚠️ **CFO daily status**: no capacity.json ({error.__class__.__name__}). The burn alert is not running."
+    lines = [f"📊 **CFO daily status**: {datetime.fromtimestamp(now).astimezone().strftime('%a %b %d')}"]
+    age_h = (now - doc['generated_at']) / 3600
+    if age_h * 60 > policy['stale_after_min']:
+        lines.append(f"⚠️ The burn alert last ran {hours(age_h)} ago. Everything below is that old.")
+    for p in doc['pools']:
+        icon = {'critical': '🚨', 'warn': '⚠️'}.get(p['level'], '✅')
+        line = f"{icon} {p['label']}: {p['used_pct']:.0f}% used"
+        if p.get('runout_before_reset') and p.get('eta_exhaust_pace_h') is not None and p.get('pace_pct_h') is not None:
+            line += (f", runs out {clock(p['observed_at'] + p['eta_exhaust_pace_h'] * 3600)} at "
+                     f"{p['pace_pct_h'] * 24:.1f}%/day, {hours(p['to_reset_h'] - p['eta_exhaust_pace_h'])} before reset")
+        elif p.get('exhaust_before_reset'):
+            line += f", runs out in {hours(p['eta_exhaust_h'])} at the last hour's rate"
+        if p.get('stale'):
+            line += f", no data for {hours((now - p['observed_at']) / 3600)}"
+        if p.get('reset_at') and p['reset_at'] > now:
+            line += f". Resets {clock(p['reset_at'])}"
+        lines.append(line)
+    # Only call a source dark when it is past the freshness threshold (not a transient error).
+    dark = []
+    for name, s in sorted(doc.get('sources', {}).items()):
+        last_ok = s.get('last_ok')
+        if not last_ok:
+            continue
+        if now - last_ok > policy['stale_after_min'] * 60:
+            err = s.get('last_error') or 'no fresh data'
+            dark.append(f"{name} since {clock(last_ok)} ({err})")
+    lines.append('Monitoring: ' + ('⚠️ no fresh data from ' + '; '.join(dark) if dark else 'all sources fresh'))
+    return '\n'.join(lines)
+
+
 def replay(fixture_path, policy=POLICY):
     """Feed a synthetic fixture sample by sample and print when alerts fire."""
     fixture = json.loads(Path(fixture_path).read_text())
@@ -524,7 +609,7 @@ def replay(fixture_path, policy=POLICY):
             obs = {'key': 'replay', 'label': fixture.get('label', 'replay pool'), 'used_pct': sample['used_pct'],
                    'window_min': fixture['window_min'], 'reset_at': fixture['reset_at'], 'observed_at': sample['t']}
             for key, outcome in run(Path(tmp), {'replay': lambda o=obs: ([o], None)},
-                                    lambda text: sent.append(text) or True, sample['t'], policy, verifier=None):
+                                    lambda text, mention=False: sent.append(text) or True, sample['t'], policy, verifier=None):
                 if outcome == 'delivered':
                     print(f"t+{(sample['t'] - fixture['samples'][0]['t']) / 60:.0f} min at {sample['used_pct']:.0f}%:\n{sent[-1]}\n")
         if not sent:
@@ -538,11 +623,19 @@ def main():
     parser.add_argument('--replay', type=Path, help='replay a synthetic fixture; never posts')
     parser.add_argument('--calibration', action='store_true', help='print forecast accuracy and cross-checks')
     parser.add_argument('--status', action='store_true', help='every source and pool from capacity.json; the CFO check')
+    parser.add_argument('--digest', action='store_true', help='post the daily status (with --dry-run: print it)')
     args = parser.parse_args()
     if args.replay:
         return replay(args.replay)
     if args.status:
         return print_status(args.state_dir)
+    if args.digest:
+        text = digest(args.state_dir)
+        if args.dry_run:
+            return print(text)
+        ok, error = deliver(text, discord_sender)
+        print('cfo-digest: posted' if ok else f'cfo-digest: post failed ({error})')
+        return 0 if ok else 1
     if args.calibration:
         state = load_state(args.state_dir)
         for key, calibration in state.get('calibration', {}).items():
@@ -558,7 +651,8 @@ def main():
         with tempfile.TemporaryDirectory() as tmp:
             if (args.state_dir / 'state.json').exists():
                 shutil.copy(args.state_dir / 'state.json', tmp)
-            for key, outcome in run(Path(tmp), sender=lambda text: print(text + '\n') or True):
+            sender = lambda text, mention=False: print(('[@mention] ' if mention else '') + text + '\n') or True
+            for key, outcome in run(Path(tmp), sender=sender):
                 print(f'{key}: {outcome}')
         return
     for key, outcome in run(args.state_dir):
@@ -566,4 +660,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main() or 0)
