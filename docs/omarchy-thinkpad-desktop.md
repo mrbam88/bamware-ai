@@ -200,6 +200,16 @@ the PHY. It is automated:
   a stuck display, never override a good mode. Verified 2026-10-09 17:40: the
   TV replugged with EDID and stayed at 4K60, with one bar on each screen. The
   no-EDID path (fallback to 4K30) has not been re-tested since the change.
+- 2026-10-18/19: a new failure. The TV connects with EDID at 4K60, then loses
+  it within a minute (`edid` 0 bytes, description empty, no HDMI audio) and
+  shows no picture while still driven at 4K60. It happened on both USB-C ports
+  and on many replugs. `echo detect` on the connector also read nothing, so
+  DDC isn't answering: the Ugreen cable or the TV's HDMI port is the suspect.
+- The fallback now also applies to a nameless display above 30 Hz, and a Lua
+  timer checks every 5 s, because losing EDID fires no `monitor.added`.
+  Verified 2026-10-19: forced 4K60 on the nameless TV went back to 4K30 within
+  5 s, with a picture. No TV sound until EDID returns; sound stays on the
+  speakers.
 - Unplugging it can hit the same stuck-output bug as the 6K monitor; the
   `drm-unstick-typec` auto-release covers it too (seen releasing `DP-1`).
 
