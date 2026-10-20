@@ -1,0 +1,17 @@
+{
+  "name": "bamware-discord-router",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Bamware Discord seat: routes messages to whichever agent CLI has quota. Never runs a model itself.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/bot.mjs",
+    "board-cache": "node src/board-cache.mjs",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "discord.js": "14.16.3",
+    "yaml": "2.6.1"
+  }
+}

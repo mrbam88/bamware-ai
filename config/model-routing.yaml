@@ -43,6 +43,21 @@ tiers:
 # "Google AI Plus (2 TB)"; some service emails say "AI Pro" -> tier to confirm
 # from the receipt (Accountant, #102). Gemini CLI installed, not logged in.
 
+# Discord seat (services/discord-router, ADR 0002). The CFO owns this order and
+# the floor; the seat only reads it. A runner is skipped under floor_pct of
+# headroom in its tightest window, or for cooldown_min after a rate-limit error.
+# Pools with no usage API (cursor, grok, gemini, qwen, kimi) are "unknown
+# headroom": always last, used until they rate-limit. `pools` are prefixes
+# matched against capacity.json pool keys and labels.
+runners:
+  floor_pct: 10
+  cooldown_min: 60
+  order:
+    - {name: claude, pools: ["claude"], note: "Claude Max 20x; official Claude Code only"}
+    - {name: codex, pools: ["openai-codex"], note: "OpenAI Pro Lite weekly pool"}
+    - {name: opencode, pools: ["copilot"], note: "Copilot via gh token; base models unlimited"}
+    # next, one per PR once logged in on omarchy: cursor-agent, grok, qwen, kimi, gemini
+
 workers:
   primary: {harness: claude-code, plan: claude-max-20x, model: sonnet}
   fallback: {harness: cursor-agent, plan: cursor-pro, model: claude-sonnet-5-thinking-high}
