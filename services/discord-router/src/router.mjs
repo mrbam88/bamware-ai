@@ -9,7 +9,8 @@
 //   4. Nothing left → queued, with the earliest reset among known pools.
 import { headroom } from './headroom.mjs';
 
-export const FORCE_RE = /^!([a-z0-9-]+)\s*/i;
+// Force prefix: !claude, >codex, ❯ opencode, @claude … (Discord clients rewrite some symbols).
+export const FORCE_RE = /^[!>❯@]\s*([a-z0-9-]+)\s*/i;
 
 /** Split "!codex status?" into { forced: "codex", text: "status?" }. */
 export function parseForce(text, runners) {
