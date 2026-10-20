@@ -2,6 +2,7 @@
 
 **Status:** Active (CEO doctrine 2026-10-04)  
 **Tickets:** bamware-ai#137 (cadence), bamware-ai#136 (capacity analytics)  
+**Day-to-day driving:** `docs/factory-manual.md` (Discord seat, 2026-10-20).  
 **Supersedes ceremony:** not two-week Scrum theater. Extends the on-demand
 checkpoints in `docs/operating-cadence.md` with a **default churn rhythm**.
 
