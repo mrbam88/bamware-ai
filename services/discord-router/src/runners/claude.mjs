@@ -15,4 +15,4 @@ export function command({ prompt, meta }) {
 /** Pull a session id out of the output (not needed: we assign it). */
 export function sessionFrom() { return null; }
 
-export const authCheck = { argv: ['claude', 'auth', 'status'], deadPattern: /not (?:logged in|authenticated)|please (?:log|sign) in/i };
+export const authCheck = { argv: ['claude', 'auth', 'status'], deadPattern: /"loggedIn":\s*false|not (?:logged in|authenticated)|please (?:log|sign) in/i };

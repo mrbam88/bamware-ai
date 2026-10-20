@@ -149,14 +149,14 @@ test('dispatch parsing and manifest shape', () => {
 test('login sweep marks dead runners from each CLI auth check', async () => {
   const { paths } = fixture();
   const run = fakeRun((argv) => {
-    if (argv[0] === 'claude') return { code: 0, output: 'Logged in as bilal' };
+    if (argv[0] === 'claude') return { code: 0, output: '{\n  "loggedIn": false,\n  "authMethod": "none"\n}' };
     if (argv[0] === 'codex') return { code: 1, output: 'Not logged in' };
     if (argv[0] === 'opencode') return { code: 127, output: 'spawn opencode ENOENT' };
     return { code: 0, output: '' };
   });
   const seat = new Seat({ paths, runFn: run, now: () => NOW, log: () => {} });
   const { dead, changed } = await seat.checkLogins();
-  assert.deepEqual(dead, { codex: 'logged out', opencode: 'not installed' });
+  assert.deepEqual(dead, { claude: 'logged out', codex: 'logged out', opencode: 'not installed' });
   assert.equal(changed, true);
   const r = await seat.handle({ text: '!codex hi', channelId: 'C', threadId: null, authorId: 'U', epochMs: NOW * 1000 });
   assert.match(r.text, /codex is logged out/);
