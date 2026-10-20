@@ -1,8 +1,9 @@
 // Runner adapter: OpenAI Codex CLI. `codex exec` first turn, `codex exec resume <id>` after.
 export const name = 'codex';
 
-export function command({ prompt, meta, cwd }) {
-  const common = ['--dangerously-bypass-approvals-and-sandbox', '--skip-git-repo-check', '--json', '-C', cwd];
+// cwd comes from spawn(); `codex exec resume` rejects -C, so no -C anywhere.
+export function command({ prompt, meta }) {
+  const common = ['--dangerously-bypass-approvals-and-sandbox', '--skip-git-repo-check', '--json'];
   const argv = meta.sessionId
     ? ['codex', 'exec', 'resume', ...common, meta.sessionId, prompt]
     : ['codex', 'exec', ...common, prompt];

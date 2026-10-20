@@ -88,6 +88,7 @@ test('codex turn, then a forced claude turn sees the codex answer via the thread
   const resumeArgv = run.calls[run.calls.length - 1];
   assert.deepEqual(resumeArgv.slice(0, 3), ['codex', 'exec', 'resume']);
   assert.ok(resumeArgv.includes('abc-123'));
+  assert.ok(!resumeArgv.includes('-C'), 'codex exec resume rejects -C');
 });
 
 test('a rate-limited runner is cooled down and the next one answers', async () => {

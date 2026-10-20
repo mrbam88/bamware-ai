@@ -20,7 +20,7 @@ Discord ──msg──▶ seat ──reads──▶ ~/.local/state/bamware/cfo/
 - **CFO halt** (`halt.json` with `{"halted": true, "reason": "…"}`) → nothing is spawned, nothing dispatched. Company Rule #1.
 - Runner order, `floor_pct` and `cooldown_min` come from `config/model-routing.yaml` → `runners:`. The CFO owns that file.
 - A runner under the floor is skipped. A runner that returns a rate-limit error is cooled down for `cooldown_min` and the next one answers. Pools with no usage API (unknown headroom) always go last.
-- `!claude`, `!codex`, `!opencode` force a runner (still subject to halt and dead-login).
+- Name a runner first to force it: `claude status?`, `codex: status?` (a leading `!` still works). Still subject to halt and dead-login.
 - `do #196` / `run ticket owner/repo#N` → claim comment + board Status → In Progress, one-ticket manifest, `services/overnight/runner.py start`. The seat does no engineering itself.
 - Every turn is appended to the **thread note** (`~/.local/state/bamware/discord-router/threads/<key>.md`) and prepended to the next prompt, so a different vendor can continue the conversation. A Discord thread is one session; top-level channel messages share one session per ET day (reset 04:00).
 - Login sweep at start and every 30 min; a dead runner is skipped and `#cron` gets one line.
