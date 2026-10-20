@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, readFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { Seat } from '../src/seat.mjs';
-import { sessionKey, etDay, buildPrompt, roleIn, Notes } from '../src/handoff.mjs';
+import { sessionKey, etDay, buildPrompt, roleIn, Notes, lastEntry } from '../src/handoff.mjs';
 import { parseDispatch, manifestFor, boardItemFor, claimCommands } from '../src/dispatch.mjs';
 import { chunks } from '../src/reply.mjs';
 import * as codex from '../src/runners/codex.mjs';
@@ -52,6 +52,12 @@ test('session key: thread is its own session, channel rolls per ET day at 04:00'
   assert.equal(sessionKey({ channelId: 'C', threadId: null, epochMs: fiveAm }), 'channel-C-2026-10-21');
 });
 
+test('lastEntry reads the newest note block', () => {
+  const note = '## 2026-10-20T23:00:00.000Z · claude\nask: status?\nanswer: all good\n\n## 2026-10-20T23:05:00.000Z · codex\nask: newest PR?\nanswer: #181 fix(cc)\n\n';
+  assert.deepEqual(lastEntry(note), { runner: 'codex', answer: '#181 fix(cc)' });
+  assert.equal(lastEntry(''), null);
+});
+
 test('roles are named in the message, not configured', () => {
   assert.equal(roleIn('Scrum Master, what is stuck?'), 'Scrum Master');
   assert.equal(roleIn('cfo: status'), 'CFO');
@@ -78,6 +84,8 @@ test('codex turn, then a forced claude turn sees the codex answer via the thread
   const prompt = claudeArgv[claudeArgv.length - 1];
   assert.match(prompt, /Thread note/);
   assert.match(prompt, /Two PRs open, one stale\./);
+  assert.match(prompt, /LAST TURN of the seat \(by codex\): Two PRs open, one stale\./);
+  assert.match(prompt, /ONE voice/);
   assert.ok(claudeArgv.includes('--dangerously-skip-permissions'));
   assert.ok(claudeArgv.includes('--session-id'));
   // codex session id persisted for the next codex turn
