@@ -52,6 +52,9 @@ test('force prefix tolerates Discord symbol rewrites', () => {
   assert.equal(parseForce('❯ claude status?', runners).forced, 'claude');
   assert.equal(parseForce('> codex hi', runners).forced, 'codex');
   assert.equal(parseForce('@opencode hi', runners).text, 'hi');
+  assert.deepEqual(parseForce('claude status?', runners), { forced: 'claude', text: 'status?' });
+  assert.deepEqual(parseForce('codex: status?', runners), { forced: 'codex', text: 'status?' });
+  assert.equal(parseForce('status? claude is slow', runners).forced, null);
 });
 
 test('unknown prefix is left in the text', () => {

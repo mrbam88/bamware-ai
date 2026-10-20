@@ -9,10 +9,11 @@
 //   4. Nothing left → queued, with the earliest reset among known pools.
 import { headroom } from './headroom.mjs';
 
-// Force prefix: !claude, >codex, ❯ opencode, @claude … (Discord clients rewrite some symbols).
-export const FORCE_RE = /^[!>❯@]\s*([a-z0-9-]+)\s*/i;
+// Force a runner by naming it first: "claude status?", "codex: status?", "!claude …" all work.
+// Only a configured runner name counts, so ordinary messages are untouched.
+export const FORCE_RE = /^[!>❯@]?\s*([a-z0-9-]+)\b[:,]?\s*/i;
 
-/** Split "!codex status?" into { forced: "codex", text: "status?" }. */
+/** Split "codex status?" (or "!codex status?") into { forced: "codex", text: "status?" }. */
 export function parseForce(text, runners) {
   const m = FORCE_RE.exec(text || '');
   if (!m) return { forced: null, text: (text || '').trim() };
