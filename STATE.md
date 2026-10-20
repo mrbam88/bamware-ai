@@ -1,5 +1,28 @@
 # State of the Union — Bamware
 
+## 2026-10-20 — Discord seat rebuilt as a quota-aware router (ADR 0002); Rule #1 is "no surprise bills"
+
+- **Decision (Bilal, "Go. ASAP, highest priority, deploy"):** the Discord seat
+  is a router over agent CLIs, not a Hermes agent. `services/discord-router`
+  (Node, 22 unit tests green) reads the CFO's `capacity.json`, picks Claude Code
+  → Codex → opencode by headroom (order and 10% floor in
+  `config/model-routing.yaml` → `runners:`), execs it in bypass mode inside
+  `~/code/worktrees/bamware-ai-main`, posts the answer with a vendor footer.
+  It routes only: `do #N` claims the ticket and starts the Overnight executor.
+  A vendor-neutral thread note carries conversations across vendors. Runners
+  are one-file plugins; cursor-agent, grok, qwen, kimi, gemini follow.
+- **Company Rule #1 reaffirmed: never a surprise bill.** The CFO owns money and
+  a halt file (`~/.local/state/bamware/cfo/halt.json`) that every seat, runner
+  and batch honours. Runners run with permission prompts off; the $20 rule,
+  App Store rule and no-secrets rule bind by text (AGENTS.md rewritten).
+- Records: ADR 0002, `CONTEXT.md` glossary (Seat, Runner, Pool, Headroom,
+  Halt, Thread note, Role, Executor), tickets #196 (build, decisions appended)
+  and #197 (retire Hermes 48 h after go-live). #42 closed as superseded.
+  Design page: https://claude.ai/artifact/XDqEyLndAJuavvi6sD69fA
+- **Deployed: no.** Blocked on Tailscale SSH check-mode re-auth to omarchy
+  (Bilal: `ssh omarchy true`, open the link) and confirming `codex` and
+  `opencode` are logged in there. Install steps: `services/discord-router/README.md`.
+
 ## 2026-10-13 — Work-mode recommendation safety reviewed; source published, not live
 
 - [Work-mode evidence repair](https://github.com/mrbam88/bamware-venue-engine/pull/204)

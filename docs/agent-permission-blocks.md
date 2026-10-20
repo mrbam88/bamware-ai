@@ -1,5 +1,10 @@
 # When Claude's own permissions block the work
 
+> **Scope since 2026-10-20:** runners spawned by the Discord seat and the
+> Overnight executor run in bypass mode (ADR 0002), so this document applies
+> to interactive sessions only. Company Rule #1 is now "never a surprise
+> bill" (AGENTS.md); it is enforced by the CFO halt, not by prompts.
+
 Written 2026-09-24 after a full session was lost to this. Read it before any
 merge, and before telling Bilal that something is blocked.
 

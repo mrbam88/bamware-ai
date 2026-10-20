@@ -4,6 +4,14 @@ Set up 2026-09-24 so Bilal can see Bamware status at a glance.
 **Channel split (CEO, 2026-10-04):** more channels, less noise in CoS chat.
 Factory cadence: `docs/factory-cadence.md`.
 
+## The seat is a router (2026-10-20, ADR 0002)
+
+`#chief-of-staff` is answered by `services/discord-router`, a Node service on
+omarchy that reads the CFO's headroom and execs the first agent CLI with quota
+(Claude Code → Codex → opencode, order in `config/model-routing.yaml`). It
+routes only: engineering is dispatched to the Overnight executor. Hermes
+remains installed until #197 retires it. Terms: `CONTEXT.md`.
+
 ## Channels (CEO layout 2026-10-04)
 
 | Channel | Purpose |

@@ -1,0 +1,17 @@
+[Unit]
+Description=Bamware Discord seat (router over agent CLIs, ADR 0002)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/code/worktrees/bamware-ai-main/services/discord-router
+Environment=BAMWARE_REPO=%h/code/worktrees/bamware-ai-main
+Environment=PATH=%h/.local/bin:%h/.opencode/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env node src/bot.mjs
+Restart=always
+RestartSec=10
+# The bot token is read from ~/.config/bamware/discord.env (0600), never from this unit.
+
+[Install]
+WantedBy=default.target

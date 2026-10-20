@@ -1,3 +1,8 @@
+> **Being retired (2026-10-20).** The Discord seat is now `services/discord-router`
+> (ADR 0002). Hermes stays installed only until #197 moves the Scrum Master
+> sweep to systemd and turns the gateway off. Nothing below is the current
+> design for Discord.
+
 # Hermes integration — Bamware remains canonical
 
 ## Decision and boundary

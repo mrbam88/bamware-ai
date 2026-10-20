@@ -1,0 +1,8 @@
+[Unit]
+Description=Bamware board cache: GitHub Project 2 → ~/.local/state/bamware/board/latest.json
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/code/worktrees/bamware-ai-main/services/discord-router
+Environment=PATH=%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env node src/board-cache.mjs

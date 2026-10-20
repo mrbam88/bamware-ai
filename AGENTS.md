@@ -3,14 +3,18 @@
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
 Entry map; details in `docs/` and `skills/`.
 
-## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
+## RULE #1 — COMPANY POLICY: never a surprise bill
 
-Set by Bilal 2026-09-24. Before a merge, unattended run, or blocked-work
-report, read [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
-Never bypass a denial. Identify the actual denying component immediately,
-give Bilal the command to run, and stop that action; continue independent,
-authorized work. Preflight gated commands before unattended work. Verify merge
-state before reporting failure. Claude-specific diagnoses apply only to Claude.
+Bilal, 2026-10-20: an unexpected bill "will kill this company overnight."
+The **CFO owns money** and a **halt** (`~/.local/state/bamware/cfo/halt.json`)
+every seat, runner, timer and batch honours. New spend over **$20** = STOP and
+ask, even mid-task; under $20 = quote-and-confirm, cheapest option. Prefer
+free. Agent usage is spend (`docs/token-diet.md`). No idle polling loops.
+
+**Permissions (2026-10-20):** runners spawned by the Discord seat and the
+executor run with prompts off (ADR 0002). Written policy still binds: Rule #1,
+App Store rules, no secrets in this public repo. Interactive sessions that hit
+a wall: [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
 
 ## First-class principle: continuity across agents
 
@@ -29,7 +33,9 @@ every switch.** Never rely on model memory.
 Public operating map: github.com/mrbam88/bamware-ai.
 
 - Notion is the organizational source of truth and shared working canvas.
-  Discord is the primary channel for alerts, reminders and direct communication.
+  Discord is the primary channel for alerts, reminders and direct communication;
+  the seat behind it is a router over agent CLIs (`services/discord-router`,
+  ADR 0002, glossary in `CONTEXT.md`).
   Git owns code and versioned operating instructions; Drive owns shared files.
   Vendor memories are caches, not substitutes for these authoritative stores.
   Read `skills/bamware-assistant/SKILL.md` for drafting and email boundaries.
@@ -93,12 +99,9 @@ and rollout: `docs/shared-storage.md`. Gmail stays read-only: no sends or drafts
 - App Store: never resubmit the rejected dating concept; show differentiation
   in binary + listing. docs/app-review-field-notes.md.
 - git/Xcode from Cowork? Check docs/runtimes.md first.
-- Agent PRs: QA merges after CI green + evidenced pass. Bilal-only gates:
-  store submission, spend, CI/signing/deploy config, cross-repo contracts.
-- **HARD SPEND RULE:** over **$20** = STOP and ask, even mid-task. Under $20
-  needs quote-and-confirm with a cheapest option. Prefer free. Mobile builds
-  use the Mac rail; Actions is BACKUP only. Agent usage is spend too
-  (`docs/token-diet.md`). No idle polling loops.
+- Agent PRs: QA merges after CI green + evidenced pass. Policy gates (by
+  text, not prompts): store submission, spend over $20, secrets. Mobile builds
+  use the Mac rail; Actions is BACKUP only.
 - Machine capabilities are not interchangeable: only the M3 Mac does Xcode,
   simulators, signing. Read `docs/machines.md`; reassign, never improvise.
 
