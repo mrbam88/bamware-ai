@@ -19,9 +19,14 @@
   Halt, Thread note, Role, Executor), tickets #196 (build, decisions appended)
   and #197 (retire Hermes 48 h after go-live). #42 closed as superseded.
   Design page: https://claude.ai/artifact/XDqEyLndAJuavvi6sD69fA
-- **Deployed: no.** Blocked on Tailscale SSH check-mode re-auth to omarchy
-  (Bilal: `ssh omarchy true`, open the link) and confirming `codex` and
-  `opencode` are logged in there. Install steps: `services/discord-router/README.md`.
+- **Deployed 2026-10-20 23:09 UTC** on omarchy: `discord-router.service`
+  active as Bamware Bot#5303, `bamware-board-cache.timer` on (443 KB
+  `latest.json`), main worktree at origin/main. `hermes-gateway.service`
+  (Chief of Staff Discord) stopped so one bot answers; the scrum-master
+  gateway still runs until #197. Codex logged in; opencode has OpenAI OAuth;
+  **Claude Code is logged out on the server** (Bilal: `ssh omarchy` then
+  `claude` to log in), so the seat runs Codex-first until then. Smoke test
+  (`status?` in `#chief-of-staff`) pending Bilal.
 
 ## 2026-10-13 — Work-mode recommendation safety reviewed; source published, not live
 
