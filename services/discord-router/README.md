@@ -81,3 +81,16 @@ in `router-state.json` for replies that carry none.
 `status update` / `status?` / `standup` is a standup, not a one-liner: one
 runner turn, one section per role in `STANDUP_ROLES` (`src/handoff.mjs`) with
 Yesterday / Today / Blockers and a closing `Needs you:` line.
+
+## Deploying a seat change from inside the seat
+
+The service runs from the `bamware-ai-main` worktree, and every runner it spawns
+lives in its cgroup. A runner that calls `systemctl --user restart discord-router`
+kills its own turn before the reply reaches Discord. Instead: merge, `git pull`
+main in the worktree, then schedule the restart outside the cgroup:
+
+```
+systemd-run --user --on-active=90s systemctl --user restart discord-router.service
+```
+
+and say in the reply that the restart lands after it.
