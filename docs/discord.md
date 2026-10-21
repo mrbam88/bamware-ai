@@ -12,6 +12,9 @@ omarchy that reads the CFO's headroom and execs the first agent CLI with quota
 routes only: engineering is dispatched to the Overnight executor. Hermes
 remains installed until #197 retires it. Terms: `CONTEXT.md`.
 How to drive it day to day: [docs/factory-manual.md](factory-manual.md).
+**Flow rule (Bilal, 2026-10-21):** Discord is the notice board and dispatch
+surface; chatting happens in a long-lived agent CLI session wearing the Chief
+of Staff skill, on whichever vendor has quota.
 
 ## Channels (CEO layout 2026-10-04)
 

@@ -5,8 +5,12 @@ How Bilal gives orders to the software factory and how agents answer. Decided 20
 ## Language
 
 **Seat**:
-The always-on process that receives Bilal's messages on a channel and routes them. It never runs a model itself.
+The always-on process that receives short asks on the Discord notice board and routes them. It never runs a model itself and is not where Bilal chats.
 _Avoid_: bot, gateway, assistant, Hermes
+
+**Chat session**:
+A long-lived agent CLI session (Claude Code, Codex, Grok, …) that Bilal talks to directly, wearing the Chief of Staff role. Vendor-agnostic by rule.
+_Avoid_: the bot, the seat
 
 **Runner**:
 One installed agent CLI (Claude Code, Codex, opencode, cursor-agent, …) that a Seat hands a message to. Each Runner brings its own tools, approvals and sessions.
