@@ -77,7 +77,7 @@ test('codex turn, then a forced claude turn sees the codex answer via the thread
   const r1 = await seat.handle(msg);
   assert.equal(r1.runner, 'codex');
   assert.equal(r1.text, 'Two PRs open, one stale.');
-  assert.match(r1.footer, /claude 4% · \*\*codex\*\* 70% · opencode \?%/);
+  assert.match(r1.footer, /Quota left: claude 4% · \*\*codex\*\* 70% · opencode \?%/);
   const r2 = await seat.handle({ ...msg, text: '!claude what did you just say?' });
   assert.equal(r2.runner, 'claude');
   const claudeArgv = run.calls.find((a) => a[0] === 'claude');

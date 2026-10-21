@@ -27,7 +27,7 @@ Runner: Claude  Model: Fable 5.1  Agent: Scrum Master
 
 Runner is the CLI that answered (Claude, Codex, opencode, or Seat when the router replied itself). Model is what that CLI reported using. Agent is the role the message named, the standup roster, or `NA`.
 
-Reply footer, always: `claude 85% · **codex** 100% · opencode 82%`. Bold is who answered. `?%` means the CFO has no reading for that pool yet.
+Reply footer, always: `Quota left: claude 85% · **codex** 100% · opencode 82%`. Each number is how much of that vendor's plan allowance is still unused this cycle; when one gets low the seat switches to another. Bold is who answered. `?%` means no reading yet.
 
 ## How the seat talks (Bilal, 2026-10-20)
 
