@@ -35,3 +35,15 @@ venue-engine, web, brewdesk, brewdesk-flutter). Number and link come
 from the board cache (`~/.local/state/bamware/board/latest.json`: `repository`,
 `content.number`, `content.url`); never from memory. Same format for sprint
 proposals, grooming, standups and sweep reports.
+
+## Session rule: check claims before planning or launching (#117)
+
+Before you plan, groom or launch anything, run `python3 services/scrum-master/claims.py status`
+(on the server, or over SSH from another machine; same ledger, same answer). If another
+session holds the open batch or a ticket you want, do not plan in parallel: hand your
+findings to the holder named in `status` and stop. Otherwise `claim TICKET --by <your role>
+--purpose plan|implement|review`, and `release` when done. Only one batch per night:
+`batch begin --owner <role> --tickets A,B`, then `batch approve <id> --by <role>`; the overnight
+runner refuses any manifest whose `batch_id` is not approved or whose tasks the batch does not
+claim. A paused or revoked mandate blocks new claims and batches. Expired claims are receipted,
+never overwritten silently. Details: `services/scrum-master/README.md`.
