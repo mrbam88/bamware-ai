@@ -44,6 +44,14 @@ week's allowance used". Bare numbers were misread as spend tonight.
 Why: the 2026-10-20 status reply ("All green", "CFO halt: absent") was
 unreadable to him. Replies he cannot parse hide signals and cause bad approvals.
 
+## While it works (Bilal, 2026-10-20: never wait blind)
+
+- 👀 on your message = received, a runner is on it.
+- No answer after 15 seconds → a short notice under your message, updated every 30 seconds with elapsed time. It is deleted when the answer lands.
+- ✅ = answered. ❌ = the seat failed; the error is posted.
+- Keep typing. Each message is answered on its own; you never have to wait for the last one.
+- Anything that is real work (a ticket, a build) is `do #N`: it runs in the background and the finish line is posted here.
+
 ## What the seat will tell you instead of doing
 
 - **`CFO halt: <reason>`** — the CFO stopped all spend. Nothing runs until the halt file is removed. This is Rule #1 working, not a bug.

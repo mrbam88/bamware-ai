@@ -96,3 +96,27 @@ test('seat.handle returns the header with the real runner and its reported model
   const r2 = await seat.handle({ text: 'CFO, how much is left?', channelId: 'C', threadId: 'T', authorId: 'U' });
   assert.equal(r2.header, 'Runner: Claude  Model: Fable 5.1  Agent: CFO');
 });
+
+test('waitNotice: nothing before the first delay, then a notice that updates and is removed on stop', async () => {
+  const { waitNotice } = await import('../src/reply.mjs');
+  const events = [];
+  const w = waitNotice({
+    post: async (t) => events.push(['post', t]),
+    edit: async (t) => events.push(['edit', t]),
+    remove: async () => events.push(['remove']),
+    firstAfterMs: 20, everyMs: 15,
+  });
+  w.setWhat('Claude is working on it');
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(events.length, 0);
+  await new Promise((r) => setTimeout(r, 50));
+  assert.equal(events[0][0], 'post');
+  assert.match(events[0][1], /^Claude is working on it \(\d+s so far\)\. Keep going/);
+  assert.ok(events.some((e) => e[0] === 'edit'));
+  await w.stop();
+  assert.equal(events[events.length - 1][0], 'remove');
+  const quick = waitNotice({ post: async () => events.push(['late']), edit: async () => {}, remove: async () => events.push(['remove2']), firstAfterMs: 20 });
+  await quick.stop();
+  await new Promise((r) => setTimeout(r, 40));
+  assert.ok(!events.some((e) => e[0] === 'late' || e[0] === 'remove2'));
+});
