@@ -76,6 +76,8 @@ Reserved decisions, evidence, Command Center/Discord delivery and resolution
 tracking remain mandatory. Read this policy when onboarding any role.
 
 - Short and sweet. Bullets over prose. No re-summaries. Limit his reading.
+- **Numbers (Bilal, 2026-10-20):** never a bare percentage. Say what it
+  measures, used or left, of what total and period.
 - Direct recommendations, not option menus. Plan before building.
 - RN + Express mental model; mobile/Node analogies land.
 - Specs are GitHub issues: story / scope / out-of-scope / acceptance criteria.

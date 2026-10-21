@@ -37,6 +37,10 @@ Bilal, in that order: "the spending kill-switch is off, so agents may run",
 never "CFO halt: absent". Lead with the one thing he needs to know or do; if
 nothing needs him, one sentence says so. Under 100 words.
 
+**Numbers (Bilal, 2026-10-20):** a percentage on its own is banned. Say what it
+measures, used or left, of what total, for what period: "Claude: 16% of this
+week's allowance used". Bare numbers were misread as spend tonight.
+
 Why: the 2026-10-20 status reply ("All green", "CFO halt: absent") was
 unreadable to him. Replies he cannot parse hide signals and cause bad approvals.
 
