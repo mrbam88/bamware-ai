@@ -1,0 +1,50 @@
+{
+  "source": "https://github.com/coreyhaines31/marketingskills",
+  "commit": "0baf720ab0c3793aa46beb4b7a7d331d51bf7a00",
+  "license": "MIT",
+  "installed": "2026-10-02",
+  "skills": {
+    "customer-research": {
+      "upstreamPath": "skills/customer-research",
+      "upstreamFilesSHA256": {
+        "SKILL.md": "ae4769147f63dd5aea1308a0fddd85473601164893f58111dce738738226317e",
+        "evals/evals.json": "fc8a15d12e582b55fa52ad27925594ab796ebd6a8ea13fed13722f97e4c51f01",
+        "references/interviews-and-surveys.md": "56adecdc40af1242464937100349fc1a161627394909551720494bc5ee537076",
+        "references/source-guides.md": "56682ea98d781060396fd4009739d071671b3489a0d4c81f0a0ef3078cb5c9ee"
+      }
+    },
+    "competitor-profiling": {
+      "upstreamPath": "skills/competitor-profiling",
+      "upstreamFilesSHA256": {
+        "SKILL.md": "58b75c9be5406e4f111a2a4aef6ce317b738db02bbee8b3bcea99f89851bdb43",
+        "evals/evals.json": "89e7a8dee7c688adde18f2885ee4b52011faab29255f182c401b19fe78caf264",
+        "references/templates.md": "710d78cb519012eb7e39f63643e22d7b9026c91c569262b44c45535c10717a91",
+        "references/tool-reference.md": "37defe4f29d15a74b10e9b0c17d798f62effaa025e2ff8fece377171adbb658a"
+      }
+    },
+    "content-strategy": {
+      "upstreamPath": "skills/content-strategy",
+      "upstreamFilesSHA256": {
+        "SKILL.md": "0ad572d607884c561668810f77cd21bbe3e0508c64090f2997661a728360f946",
+        "evals/evals.json": "10167e7125ee77cbabe4f03953750dd99ea147f7461027fdbb0cf8e089e5506d",
+        "references/content-distribution.md": "1861a1aab0627ab29c279000879a9889242da1ba85e677acdc759c66a6241778",
+        "references/headless-cms.md": "c0a7b87f47c8f7af907ce73facf1ed4721ade811e53f86ddf22f4bc0d7ca324e"
+      }
+    },
+    "social": {
+      "upstreamPath": "skills/social",
+      "upstreamFilesSHA256": {
+        "SKILL.md": "66a63df89780421dd484d2243814d08217f25f465c1125c61475daadda5f6021",
+        "evals/evals.json": "654460021a777f6c36c1340fe2a8074ded15fa860f80741924f95413e3d48c03",
+        "references/carousel-frameworks.md": "e703aa530ec9f68cdf5b58e8e0d4d1a5cc3f22b9e2d3e3222f16a9763d423247",
+        "references/listening-sources-template.md": "c68bc6f57b0a48c432b1ce72c9324d41a04d0e7784d0bab91afb4a6065a43e38",
+        "references/listening.md": "a1049663d7ed37864bcd58e15ae5e8f03c8edcaca37d8de4f7e38896d94fbf93",
+        "references/platform-limits.md": "6ecc6b40ff82b95c48906341f7d3c58337671d4d94f624c858764f1ed5a77c3c",
+        "references/platforms.md": "3c4e1b15717a3bcd4ed0cf29dc167dac28aa88bbf01723fde53815122396090f",
+        "references/post-templates.md": "9cca4680c95801daedfd8acadf9089d0083784c2567784888807569896f71d9b",
+        "references/reverse-engineering.md": "c27bef59d463b3b11331c1770f4a23e9e6bbce7d7c8db1e7f7f4f14ba206243f",
+        "references/short-form-video.md": "5e782aa064fe0916b9c432d3317628de961678f1503103a4450ad0d20e94bf46"
+      }
+    }
+  }
+}

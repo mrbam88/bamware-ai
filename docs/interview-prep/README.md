@@ -1,6 +1,6 @@
 # Interview prep — index
 
-20 docs, ~63,000 words. This file is the map: what each one is for, which are
+21 docs, ~69,000 words. This file is the map: what each one is for, which are
 evergreen, which are dead, and what to actually run before an interview.
 
 **Filenames lie about value.** Seven docs are named after Betterment and Medal.
@@ -40,6 +40,7 @@ Company-neutral. This is what you study for *any* role.
 | [`medal-code-reasoning-drills-vol2.md`](medal-code-reasoning-drills-vol2.md) | **Vol. 2 — boss level.** Where cancellation stops propagating, where value semantics end. Nothing repeats Vol. 1. ★ track = 10 drills / ~2 hrs. Appendix B is a self-test protocol. | 7.1k words |
 | [`swiftui-combine-refresher.md`](swiftui-combine-refresher.md) | **Fingers, not theory.** 2-day live-coding refresher; type every drill cold in a Playground. Modern `@Observable` as default, legacy flagged. §10 is a live-coding checklist. | 3.6k words |
 | [`swift-concurrency-api-cheatsheet.md`](swift-concurrency-api-cheatsheet.md) | **The syntax layer** for the drills. ☑ items are type-from-memory tier. Keep open while practicing. Ends in a 12-line cold pop quiz. | 1.2k words |
+| [`system-design-course-notes.md`](system-design-course-notes.md) | **Backend system design, lesson by lesson.** Follows the syllabus of LeetCode's *System Design for Interviews and Beyond* (81 lessons) in agent-written plain words: requirements, queues, storage internals, delivery guarantees, partitioning, overload protection, 4 practice problems. Has a tutor guide, drill seeds per chapter, and a progress checklist. Trusted syllabus for generated drills. Added 2026-10-21 at Bilal's explicit request (exception to "the bank is closed"). | 6.6k words |
 | [`mobile-system-design-cheatsheet.md`](mobile-system-design-cheatsheet.md) | **45-min design script + answer bank.** Standard sub-problem → correct default answer, trade-off phrases that score, auto-deduct anti-patterns, plus one fully worked prompt. | 1.7k words |
 | [`ts-react-crash-course.md`](ts-react-crash-course.md) | **TS + React senior basics.** ★ = highest probability. Discriminated unions, narrowing, utility types; the React identity trilogy, keys, derived state. | 1.7k words |
 | [`ts-react-senior-challenges.md`](ts-react-senior-challenges.md) | **Level 2: predict → check → narrate.** Implement `Partial`, `satisfies` vs `as`, batching, stale interval, StrictMode double-run, the race. CoderPad-legal, no packages. | 1.8k words |
@@ -78,7 +79,7 @@ ships a run-prompt template for Claude Code). The **study material** is here.
 | Doc | What it's for | Size |
 |---|---|---|
 | [`ai-basics-for-mobile-devs.md`](ai-basics-for-mobile-devs.md) | **Evergreen.** The modern AI-app stack in plain words — model, prompts, tool calling and agents, RAG vs tools, guardrails, evals, model routing — with an RN/Node analogy per piece and a table of what a 4-hour build actually needs. The one exception to "the bank is closed": no existing doc covered the topic, and the AI-native pivot depends on it. | 2.3k words |
-| [`instalily-case-study-playbook.md`](instalily-case-study-playbook.md) | Company archive, ~80% reusable. Plain-English guide to a 4-hour agent take-home: the assessment as candidates received it, the four grading criteria, what a great answer looks like, the traps (the trick question), an hour-by-hour reconstruction of a real timed build, verified seed data, the 4-hour plan, the mobile twist, the presentation round. | 5.5k words |
+| [`instalily-case-study-playbook.md`](instalily-case-study-playbook.md) | Company archive, ~80% reusable. Plain-English guide to a 4-hour agent take-home: the assessment as candidates received it, the four grading criteria, what a great answer looks like, the traps (the trick question), an hour-by-hour reconstruction of a real timed build, verified seed data, the 4-hour plan, the mobile twist, the presentation round. | 6.6k words |
 | [`instalily-case-study-research.md`](instalily-case-study-research.md) | The raw research behind the playbook: 14 public solutions mined, Glassdoor accounts, Instalily's own vocabulary (contracts, capabilities, eval gate), reviewer profiles, take-home craft sources. Read when you need a citation, not to study. | 6k words |
 | [`instalily-mock-a-partselect.md`](instalily-mock-a-partselect.md) | Practice assessment A (PartSelect chat agent — the most likely real shape) + grader packet + a full Claude Code prompt with real seed data. | 5k words |
 | [`instalily-mock-b-field-tech.md`](instalily-mock-b-field-tech.md) | Practice assessment B (Expo field-technician assistant, offline-first, confirm-gated action) + grader packet + Claude Code prompt. | 5k words |
@@ -99,7 +100,7 @@ clean mechanisms and you're ready.
 **React Native / TS role, ~3 days** → crash course ★ items → senior challenges,
 predicting out loud before reading → system design script → one mock.
 
-**System design round** → the cheatsheet's Part 1 script, then run Part 2's
+**System design round** → `system-design-course-notes.md` for the concepts (★ lessons first), then the cheatsheet's Part 1 script, then run Part 2's
 worked prompt, then do an unseen prompt cold.
 
 **Timed take-home, any company** → playbook "Your 4 hours" and "The traps" →

@@ -181,14 +181,35 @@ the PHY. It is automated:
 - If a kernel update fixes the bug, the script sees nothing stuck and does
   nothing. Remove both files once it is no longer needed.
 
-## TV (Samsung QBQ90 4K over a Ugreen USB-C to HDMI cable)
+## Samsung Living Room 65" TV (Samsung QBQ90 4K over a Ugreen USB-C to HDMI cable)
 
 - The cable sometimes connects before the TV's EDID is readable. The TV then
   shows up nameless with only 640x480-1024x768 modes.
 - `~/.config/hypr/monitors.lua`: a `desc:Samsung Electric Company QBQ90` rule
-  sets 3840x2160@60 at scale 2. A `monitor.added` hook
-  gives any display with no EDID (empty description, not eDP-1) the same 4K60
-  mode instead of 640x480.
+  sets 3840x2160@60 at scale 2. Any display with no EDID (empty description,
+  not eDP-1) gets **3840x2160@30 at scale 2** instead of 640x480. A
+  `monitor.added` hook applies it 3 s after connect, and a loop at config load
+  reapplies it, because a config reload resets a no-EDID display to 640x480
+  without firing `monitor.added`.
+- Changed 2026-10-07: the fallback was 4K60, which gave the TV no picture
+  without EDID. 1080p and 4K30 both showed a picture; Bilal chose 4K30. Verified
+  with `hyprctl reload`; a fresh replug without EDID is not yet verified.
+- 2026-10-09: the TV connected with EDID at 4K60 and was still switched to
+  4K30 six seconds later, with the screen locked (cause unknown). The fallback
+  now also requires the display to be 1024 wide or less, so it can only rescue
+  a stuck display, never override a good mode. Verified 2026-10-09 17:40: the
+  TV replugged with EDID and stayed at 4K60, with one bar on each screen. The
+  no-EDID path (fallback to 4K30) has not been re-tested since the change.
+- 2026-10-18/19: a new failure. The TV connects with EDID at 4K60, then loses
+  it within a minute (`edid` 0 bytes, description empty, no HDMI audio) and
+  shows no picture while still driven at 4K60. It happened on both USB-C ports
+  and on many replugs. `echo detect` on the connector also read nothing, so
+  DDC isn't answering: the Ugreen cable or the TV's HDMI port is the suspect.
+- The fallback now also applies to a nameless display above 30 Hz, and a Lua
+  timer checks every 5 s, because losing EDID fires no `monitor.added`.
+  Verified 2026-10-19: forced 4K60 on the nameless TV went back to 4K30 within
+  5 s, with a picture. No TV sound until EDID returns; sound stays on the
+  speakers.
 - Unplugging it can hit the same stuck-output bug as the 6K monitor; the
   `drm-unstick-typec` auto-release covers it too (seen releasing `DP-1`).
 
@@ -198,6 +219,60 @@ Bilal types on the X1's own keyboard, so external screens sit physically behind
 and above the laptop. `monitors.lua` places the 6K (`desc:GKT Kuycon G32P`),
 the TV, and any display with no EDID at `position = "auto-center-up"`, which
 centers them above eDP-1.
+
+## Headphone jack auto-switch (2026-10-07)
+
+- The sound card's UCM config puts Speaker and Headphones in separate HiFi
+  profiles. WirePlumber stayed on the Speaker profile even after the jack
+  detected a plug, so the 3.5 mm port played nothing.
+- `~/.local/bin/headphone-autoswitch` (user service
+  `headphone-autoswitch.service`, started with the graphical session) watches
+  `pactl subscribe` card events. When the Headphones port is available it
+  switches to the Headphones profile, otherwise back to the Speaker profile, and
+  sets the matching default sink.
+- Verified 2026-10-07: unplug switched to Speaker, replug to Headphones, about
+  a second each. Log: `journalctl --user -u headphone-autoswitch`.
+- Fixed 2026-10-09: it used to set Speaker as the default output on every
+  switch back, which overrode the TV's HDMI audio. It now sets the default only
+  for Headphones; on unplug WirePlumber falls back to the previous default.
+- If the TV shows a picture but has no HDMI audio (all `HDMI/DP,pcm=* Jack`
+  controls `off`), re-applying the mode doesn't help. Replugging the adapter
+  does.
+
+## Double top bar (2026-10-09)
+
+- Symptom: two Omarchy bars stacked at the top, still there after unplugging
+  the TV.
+- Cause: a leftover `/usr/bin/quickshell` (parent: systemd --user, started
+  2026-10-08 16:58 while running the lock screen's fingerprint PAM session)
+  kept drawing bars after the real shell (`quickshell -n -p
+  /usr/share/omarchy/shell`, started by `omarchy-launch-shell`) restarted.
+- Fix: `hyprctl layers -j` shows two `omarchy-bar` PIDs per monitor. Kill the
+  one that isn't the child of `omarchy-launch-shell`. The trigger is not
+  proven; trace it live if it recurs.
+
+## Dictation silent: mic at 0% (2026-10-09)
+
+- Symptom: Voxtype recorded but transcribed `""`.
+- Cause: the Digital Microphone (`HiFi__Mic1__source`) volume was 0%, not
+  muted. Fix: `pactl set-source-volume <Mic1 source> 100%`.
+- The headphone auto-switch did not cause it: switching profiles both ways
+  kept the mic at 100%. What turned it down is unknown; check the volume
+  first if dictation goes silent again.
+
+## Idle: no lock at the desk (2026-10-09)
+
+- The custom idle plugin `~/.config/omarchy/plugins/bilalx1.idle/Service.qml`
+  (settings in `~/.config/omarchy/shell.json`) starts the screensaver at 150 s
+  and locks at 300 s. The lock turns the displays off, which Bilal saw as the
+  laptop "going to sleep too fast" at the desk.
+- Now when the lock timer fires it first checks `/sys/class/power_supply/AC/online`
+  and `hyprctl monitors`. On the charger with any non-eDP display connected, it
+  logs `lock-skipped` and leaves the screensaver running. Away from the desk it
+  locks as before. Restart the shell after editing: `omarchy-restart-shell`.
+- Closing the lid with a display connected doesn't suspend: logind reports
+  `Docked=yes` and `HandleLidSwitchDocked=ignore`.
+- Not yet verified with a full idle cycle.
 
 ## Input and bar tweaks (2026-09-24)
 

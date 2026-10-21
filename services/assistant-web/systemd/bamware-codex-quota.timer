@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh Bamware Codex quota snapshot every two minutes
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=2min
+Persistent=true
+[Install]
+WantedBy=timers.target

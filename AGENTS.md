@@ -1,27 +1,20 @@
-# Bamware — read me first (as of 2026-08-18)
+# Bamware — read me first
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
-Entry map for every session; details in `docs/` and `skills/`.
+Entry map; details in `docs/` and `skills/`.
 
-## RULE #1 — COMPANY POLICY: never lose Bilal's time to a permission block
+## RULE #1 — COMPANY POLICY: never a surprise bill
 
-Set by Bilal 2026-09-24. Claude-specific diagnoses below apply only to Claude;
-other runtimes identify the actual denying component. Never bypass a denial. Detail:
-[docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
+Bilal, 2026-10-20: an unexpected bill "will kill this company overnight."
+The **CFO owns money** and a **halt** (`~/.local/state/bamware/cfo/halt.json`)
+every seat, runner, timer and batch honours. New spend over **$20** = STOP and
+ask, even mid-task; under $20 = quote-and-confirm, cheapest option. Prefer
+free. Agent usage is spend (`docs/token-diet.md`). No idle polling loops.
 
-1. **A denial is CLAUDE'S restriction, never Bilal's setup** — he has no
-   permission rules. Say that in one sentence on the FIRST denial.
-2. **Hand him the line to paste, then STOP.** No retries, no other routes, no
-   `/permissions` UI (he finds it confusing).
-3. **A denial NEVER stalls a batch.** Park that action; continue independent,
-   authorized work on the other tickets.
-4. **Before any unattended run, dry-run every gated command** (`gh pr create`,
-   `gh pr merge`, `git push`, deploy). `bypassPermissions` does NOT beat the
-   classifier. If one fails, tell him *while he is awake* and do not start.
-5. **Verify merge state with `gh pr list --state merged`.** Silent output
-   is not failure; ve#149 had merged when reported blocked.
-6. **Prefer routes with no gated step** — Venue Engine deploys by pushing
-   `main` (Vercel Git integration), no merge needed.
+**Permissions (2026-10-20):** runners spawned by the Discord seat and the
+executor run with prompts off (ADR 0002). Written policy still binds: Rule #1,
+App Store rules, no secrets in this public repo. Interactive sessions that hit
+a wall: [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
 
 ## First-class principle: continuity across agents
 
@@ -33,19 +26,21 @@ every switch.** Never rely on model memory.
 - Durable procedures go in canonical docs linked from here — never bury a rule
   in an incident log only. Route work by capability, not model name.
 - Distinguish **edited locally / published / deployed** — unpublished context
-  does not exist for the next machine. Procedure: `skills/session-handoff`;
-  contract: `docs/portability.md`.
+  does not exist for the next machine.
 
 ## 1. Where is the truth?
 
-This repo: github.com/mrbam88/bamware-ai (public). Everything durable about
-Bilal and Bamware lives here or is linked from here.
+Public operating map: github.com/mrbam88/bamware-ai.
 
-- Any copy outside git (Claude Project, vendor account, chat) is a CACHE.
-  If a cache and the repo disagree, the repo wins. Never edit the cache.
+- Notion is the organizational source of truth and shared working canvas.
+  Discord is the primary channel for alerts, reminders and direct communication;
+  the seat behind it is a router over agent CLIs (`services/discord-router`,
+  ADR 0002, glossary in `CONTEXT.md`).
+  Git owns code and versioned operating instructions; Drive owns shared files.
+  Vendor memories are caches, not substitutes for these authoritative stores.
+  Read `skills/bamware-assistant/SKILL.md` for drafting and email boundaries.
 - Staleness check: fetch CONTEXT_VERSION and state its contents in your
-  first reply as `context: <marker>`. An answer without a version is an
-  unverifiable claim.
+  first reply as `context: <marker>`.
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION
 - Can't reach the repo? Say so and STOP. Never work from memory or a cache.
 
@@ -63,18 +58,38 @@ Resolve this BEFORE starting work, and state it next to the context marker:
   Check the connector first.
 - No write path at all? STOP and hand Bilal the patch. Never write durable
   context into a vendor cache instead.
-- New facts go to this repo, never to chat. Ending a session that made
-  decisions? Run the session-handoff skill.
+- Save facts in their authoritative store, not only chat. Publish operating
+  rules here; organization and working drafts belong in Notion. Run the
+  session-handoff skill after durable decisions.
 
 ## 3. How does Bilal work?
 
+**100-word rule (Bilal, 2026-10-03):** every reply is 100 words max by default.
+Answer or decision first; name tickets by title; anything to approve in one line.
+He asks when he wants more. Long replies hide signals and cause bad approvals.
+
+**Organization-wide role:** Bilal is the **Stakeholder / CEO**, not a routine task
+chaser. All agents follow the approved [role and escalation policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy):
+workers → Scrum Master → Chief of Staff → CEO. Read the policy at onboarding and when resuming a handoff; do not rely on an older conversation’s role definitions. Chief of Staff is the primary
+executive interface; critical owner alerts need not wait for ceremonial routing.
+Reserved decisions, evidence, Command Center/Discord delivery and resolution
+tracking remain mandatory. Read this policy when onboarding any role.
+
 - Short and sweet. Bullets over prose. No re-summaries. Limit his reading.
+- **Numbers (Bilal, 2026-10-20):** never a bare percentage. Say what it
+  measures, used or left, of what total and period.
 - Direct recommendations, not option menus. Plan before building.
 - RN + Express mental model; mobile/Node analogies land.
 - Specs are GitHub issues: story / scope / out-of-scope / acceptance criteria.
 - Tool use proportional to the ask. Fan-outs need an explicit ask.
 - Never mention Baat in responses or career materials (Bilal, 2026-09-16).
   Project wording: skills/bilal-answers.
+
+## Shared storage — confirmed 2026-10-02
+
+Drive is shared agent file storage; ordinary task storage is authorized.
+Prefer local filesystem access and deterministic transfers. Archive boundaries
+and rollout: `docs/shared-storage.md`. Gmail stays read-only: no sends or drafts.
 
 ## Before you touch these, read the linked doc first
 
@@ -86,34 +101,13 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 - App Store: never resubmit the rejected dating concept; show differentiation
   in binary + listing. docs/app-review-field-notes.md.
 - git/Xcode from Cowork? Check docs/runtimes.md first.
-- Agent PRs: QA merges after CI green + evidenced pass. Bilal-only gates:
-  store submission, spend, CI/signing/deploy config, cross-repo contracts.
-- **HARD SPEND RULE:** over **$20** = STOP and ask, even mid-task. Under $20
-  needs quote-and-confirm with a cheapest option. Prefer free. Mobile builds
-  use the Mac rail; Actions is BACKUP only. Agent usage is spend too
-  (`docs/token-diet.md`). No idle polling loops.
+- Agent PRs: QA merges after CI green + evidenced pass. Policy gates (by
+  text, not prompts): store submission, spend over $20, secrets. Mobile builds
+  use the Mac rail; Actions is BACKUP only.
 - Machine capabilities are not interchangeable: only the M3 Mac does Xcode,
   simulators, signing. Read `docs/machines.md`; reassign, never improvise.
 
-## Table of contents
+## Reference map
 
-| Need | Where |
-|---|---|
-| **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
-| All repos: purpose, deploy targets, endpoints | docs/repos.md |
-| Venue Engine release route | docs/venue-engine-deployment.md |
-| Which runtime can do what (capability matrix) | docs/runtimes.md |
-| Machines, displays, gear | docs/machines.md |
-| Security: credentials, PII, accounts | docs/security.md |
-| Cross-repo API contracts | docs/contracts.md |
-| App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
-| Current state | STATE.md |
-| CRM | docs/bamware-crm.md |
-| All skills (procedures) | skills/INDEX.md |
-| Interview prep | docs/interview-prep/README.md |
-| Definition of done | docs/definition-of-done.md |
-| Brand, design tokens | docs/brand.md |
-| Incident history | docs/incidents.md |
-| Session-end ritual | skills/session-handoff |
-| Other-vendor portability | docs/portability.md |
-| Hermes runtime | docs/hermes-integration.md |
+See [agent context index](docs/agent-context-index.md) for repositories, runtime
+capabilities, procedures, current state and technical documentation.

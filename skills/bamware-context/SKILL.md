@@ -1,15 +1,17 @@
 ---
 name: bamware-context
-description: Entry point for all of Bilal Malik's context. Loads the bamware-ai repo, which is the single source of truth for his profile, resume, job applications, job-search guardrails, and every Bamware engineering convention. Use at the START of EVERY session in the bamware project or that mentions Bilal, Bamware, or any mrbam88 repo — regardless of topic (a GitHub, security, or general question is still a Bamware session). Invoke it before answering from memory or from any other skill.
+description: Entry point for all of Bilal Malik's context. Loads the bamware-ai operating map and routes to authoritative Notion organization, private career assets, and engineering conventions. Use at the START of EVERY session in the bamware project or that mentions Bilal, Bamware, or any mrbam88 repo — regardless of topic (a GitHub, security, or general question is still a Bamware session). Invoke it before answering from memory or from any other skill.
 ---
 
 # Bamware context — read the repo first
 
 This skill contains **no facts**. It tells you where the facts live.
 
-Everything about Bilal and Bamware lives in **`github.com/mrbam88/bamware-ai`**
-on `main`. That repo is the single source of truth across every vendor and
-runtime he uses. This skill exists only so a vendor-hosted assistant can find it.
+Start at **`github.com/mrbam88/bamware-ai`** on `main` for operating rules and
+source routing across providers. Notion is the organizational source of truth
+and shared drafting canvas; Discord is the primary communication/alert channel.
+Git owns code and versioned instructions, Drive shared files, and the private
+interviews repo existing career assets. See `skills/bamware-assistant/SKILL.md`.
 
 ## Hermes runtime
 
@@ -23,7 +25,7 @@ Read `docs/hermes-integration.md` for install, verification, role routing,
 automation ownership and rollback. If the hook is absent, run the ordinary
 bootstrap below. A failed fetch is a stop, not permission to use cached facts.
 Use the native git/gh path. Hermes session history is useful evidence, not the
-canonical store. New facts and procedural improvements belong in this repo.
+canonical store. Operating procedures belong here; save other facts in their authoritative stores.
 
 ## Step 0 — resolve your WRITE path first, before reading anything
 
@@ -97,9 +99,10 @@ and blocked or proxied in some agent sandboxes. Raw always works.
 
 ## Writing back
 
-You resolved the path in Step 0. Use it. Every durable fact goes to this repo:
-a decision, a rejection, a new standard answer, an ATS quirk, a changed
-preference, a plan. **Never to a vendor Project, account skill, or chat.**
+Use the resolved write path for versioned operating rules. Put organizational
+decisions, plans and drafts in Notion; private application records in its Job
+Tracker; career assets in the private library. Publish only non-private routing
+and procedures here. Never rely on vendor memory or chat as the durable record.
 
 Incident 2026-08-18: a Cowork session checked for a `gh` binary, found none,
 declared "no push access," and wrote an App Store rejection record into the
@@ -115,12 +118,14 @@ advice. That is why Step 0 exists and why it comes before reading.
   skill replaced. A vendor copy goes stale silently and cannot be written back
   to from a session.
 - **Write updates back to the repo.** A new standard answer, a new ATS quirk, a
-  changed preference — commit it to `bamware-ai`, or hand Bilal the change if
-  the runtime cannot push. Context that lives only in a chat is lost.
+  changed preference belongs in its authoritative store. Commit non-private
+  operating rules here; keep private records private. Chat alone is not durable.
 - **If you cannot reach the repo, say so and stop.** Do not proceed from a
   stale copy or from guesswork.
 
 ## Private companion
 
-Application history lives in `mrbam88/interviews` at `tracker/INDEX.md` (generated from `tracker/applications/*.md`; never hand-edit it)
-(private, needs a connector). That repo holds the tracker and nothing else.
+Notion Job Tracker owns current application state; email is source evidence.
+`mrbam88/interviews` holds private resumes, cover letters, prep, provenance and
+historical tracker records. Read its README and `library.json` before using assets.
+Never put private career or mailbox content in this public repository.

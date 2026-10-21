@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>Bamware Assistant</title>
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <main class="app" id="app" data-view="loading">
+    <header class="top">
+      <div class="brand">
+        <span class="dot" id="statusDot" aria-hidden="true"></span>
+        <h1>Bamware Assistant</h1>
+      </div>
+      <div class="status" id="statusText" role="status" aria-live="polite">Checking…</div>
+    </header>
+
+    <nav class="tabs" id="tabs" hidden>
+      <button type="button" class="tab" id="tabAgents" data-tab="agents">Agents</button>
+      <button type="button" class="tab" id="tabDecisions" data-tab="decisions">Decisions</button>
+      <a class="tab" href="/admin">Admin</a>
+      <button type="button" class="tab" id="logoutBtn">Sign out</button>
+    </nav>
+
+    <!-- Login -->
+    <section class="view login" id="loginView" hidden>
+      <form id="loginForm" autocomplete="off">
+        <label for="password">Owner password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required minlength="12" />
+        <button type="submit" class="primary">Sign in</button>
+        <p class="hint" id="loginHint" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- Chat -->
+    <section class="view chat" id="chatView" hidden>
+      <ol class="transcript" id="transcript" aria-label="Conversation"></ol>
+
+      <div class="voiceBar" id="voiceBar" hidden>
+        <span class="voiceState" id="voiceState">Listening…</span>
+        <span class="interim" id="interim"></span>
+      </div>
+
+      <form class="composer" id="composer">
+        <button type="button" class="icon" id="micBtn" aria-pressed="false" title="Hold a conversation by voice">🎙️</button>
+        <textarea id="text" rows="1" placeholder="Ask the assistant…" maxlength="4000" required></textarea>
+        <button type="submit" class="primary" id="sendBtn">Send</button>
+        <button type="button" class="icon" id="stopBtn" hidden title="Stop speaking">⏹</button>
+      </form>
+
+      <footer class="meta">
+        <span id="sessionLabel">New conversation</span>
+        <span class="sep">·</span>
+        <button type="button" class="link" id="newBtn">New</button>
+        <button type="button" class="link" id="exportBtn" disabled>Export</button>
+        <button type="button" class="link danger" id="deleteBtn" disabled>Delete</button>
+        <span class="sep">·</span>
+        <span id="traceLabel" title="Langfuse groups traces by this Hermes session id"></span>
+        <span class="grow"></span>
+        <label class="toggle"><input type="checkbox" id="speakToggle" /> Speak replies</label>
+      </footer>
+    </section>
+
+    <!-- Agents (V3): is the machine working, on what, what blocks it, can I afford it? -->
+    <section class="view agents" id="agentsView" hidden>
+      <div class="banner" id="systemBanner" data-state="loading" role="status" aria-live="polite">
+        <span class="bannerDot" aria-hidden="true"></span>
+        <div class="bannerText">
+          <div class="bannerTitle" id="systemTitle">Loading…</div>
+          <div class="bannerDetail" id="systemDetail"></div>
+        </div>
+        <div class="bannerMeta">
+          <span class="hint" id="agentsUpdated"></span>
+          <button type="button" class="link" id="agentsRefresh">Refresh</button>
+        </div>
+      </div>
+
+      <div class="widget" id="needsWidget">
+        <div class="widgetHead"><h2>Needs you <span class="count" id="needsCount"></span></h2>
+          <button type="button" class="link" id="openDecisions">Open Decisions</button></div>
+        <ul class="rows" id="needsList"></ul>
+      </div>
+
+      <div class="widget" id="nowWidget">
+        <div class="widgetHead"><h2>Now</h2><span class="hint" id="nowHint"></span></div>
+        <ul class="rows" id="nowRunning"></ul>
+        <h3 class="sub">Recent work</h3>
+        <ul class="rows" id="nowRecent"></ul>
+      </div>
+
+      <div class="widget" id="capacityWidget">
+        <div class="widgetHead"><h2>Capacity</h2><span class="hint" id="capacityHint"></span></div>
+        <ul class="rows" id="capacityList"></ul>
+        <p class="hint" id="capacityProblems"></p>
+      </div>
+
+      <div class="widget" id="boardWidget">
+        <div class="widgetHead"><h2>Board</h2>
+          <a class="link" id="boardLink" target="_blank" rel="noopener" hidden>Open board ↗</a></div>
+        <div class="chips" id="boardCounts"></div>
+        <ul class="rows" id="boardList"></ul>
+        <p class="hint" id="boardHint"></p>
+      </div>
+    </section>
+
+    <!-- Decisions -->
+    <section class="view decisions" id="decisionsView" hidden>
+      <div class="widget" id="decisionsControls">
+        <div class="widgetHead">
+          <h2>Decisions</h2>
+          <div class="widgetActions">
+            <span class="hint" id="decisionsGenerated"></span>
+            <label class="toggle" title="Load a synthetic fixture deck to preview the response/handoff lifecycle; never a real decision">
+              <input type="checkbox" id="decisionsDemoToggle" /> Preview demo data
+            </label>
+            <button type="button" class="link" id="decisionsRefresh">Refresh</button>
+          </div>
+        </div>
+        <p class="demoBanner" id="decisionsDemoBanner" hidden>
+          ⚠ Synthetic demo deck for preview only — not a real decision or handoff.
+        </p>
+      </div>
+      <ol class="decisionList" id="decisionList" aria-live="polite"></ol>
+    </section>
+  </main>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

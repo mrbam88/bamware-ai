@@ -20,8 +20,9 @@ same session.** Record only what's known: "model unknown" beats a guess.
 | `thinkpad` | ThinkPad X1 Carbon Gen 12, Omarchy | Portable daily driver (section below) |
 | `omarchy` | MacBook Pro 16" 2019 (Intel), Omarchy | Always-on Linux build/agent server; stays put |
 | `mac` | MacBook Pro M3 Pro, macOS | All iOS work; sometimes travels |
-| Monitor | Kuycon G32P, 32" 6K | Desk display for the ThinkPad over USB-C |
-| TV | Samsung QBQ90, 4K | Second display via a Ugreen USB-C to HDMI cable |
+| Monitor | **6K monitor** (Kuycon G32P, 32" 6K) | Built-in 3-way USB switch: M3, X1 and server. Usually the M3's display |
+| TV | **Samsung Living Room 65" TV** (Samsung QBQ90, 4K) | Display via a Ugreen USB-C to HDMI cable |
+| TV | **TCL 55" 4K TV** (TCL 55R615) | Display via a Realtek USB-C to HDMI adapter |
 | Phone | iPhone 15 Pro | Physical test device; pairs with the `mac` |
 | Tablet | iPad Pro (model unknown) | Planned Omarchy second screen (to-do in `docs/omarchy-thinkpad-desktop.md`) |
 | Pointing | Apple Magic Trackpad (USB) | At the desk, via the monitor's USB hub |
@@ -46,8 +47,9 @@ been verified. Do not reinstall merely because the earlier audit lacked access.
 - fastlane, App Store Connect upload, signing — the **free local rail** that
   replaces GitHub Actions macOS runners (Actions is BACKUP only, 2026-08-21;
   see the HARD SPEND RULE in AGENTS.md)
-- The headless DEV/QA runners: `skills/standing-engineer`,
-  `skills/night-supervisor`
+- Xcode tickets the Engineering Lead routes here (the server executor cannot
+  build Apple targets); the old standing-engineer/night-supervisor runners were
+  retired 2026-10-03
 - Android local rail: JDK 21 (Android Studio's JBR — newer system JDKs break
   AGP), `ANDROID_HOME=~/Library/Android/sdk`
 - Physical iPhone 15 Pro pairs here (device smokes, App Review screen recordings)
@@ -60,6 +62,20 @@ still cannot run (STATE.md, Blocked on Bilal).
 
 Run one simulator-using agent at a time — sequential, not parallel
 (`docs/token-diet.md`).
+
+**Audio: built-in speakers are forced to 0 whenever they become the output
+(Bilal, 2026-10-09, redesigned 2026-10-12).** AirPods Max auto-switch to the
+iPhone, so the Mac falls back to its speakers at their remembered level and
+blasts in a cafe. Fix is Hammerspoon (free, `brew install --cask hammerspoon`)
+with `config/macos/hammerspoon/init.lua` copied to `~/.hammerspoon/init.lua`.
+Policy: the speakers (transport `Built-in`) stay parked at 0 while anything
+else is the output, get zeroed again on every switch/wake, and a 2 s poll
+backstops missed events. Headphones and other outputs are never touched (the
+first version zeroed them too, which read as "AirPods not working"). Log:
+`~/Library/Logs/volume-guard.log`. Verify with `hs -c
+'print(hs.audiodevice.watcher.isRunning())'` → `true`. Not Karabiner, not
+AutoMute (both checked 2026-10-09). `hs -c 'hs.reload()'` hangs the CLI;
+use `killall Hammerspoon; open -a Hammerspoon`.
 
 **Local-model benchmark (Bilal, 2026-09-25):** Qwen3 running locally, asked to
 load the Bamware context, took about **1 minute on the M3** and about **20
@@ -92,7 +108,7 @@ no particular session/config synchronization mechanism has been chosen yet.
 **Daily workflow (Bilal, 2026-09-24):** Bilal carries the `thinkpad` around NYC
 and works from cafes. Heavy work (builds, agents, iOS) runs over SSH on the
 MacBooks at home: `omarchy` (always on; Tailscale SSH already works) and the
-`mac` when it's home. At home he plugs the Kuycon 6K into the X1. So the
+`mac` when it's home. At home either laptop goes on any of the three displays (see below). So the
 ThinkPad should stay light and portable, work well on battery and cafe Wi-Fi,
 and treat the home machines as remote builders. Run long jobs in `tmux` on the
 remote box so a dropped cafe connection doesn't kill them.
@@ -141,13 +157,63 @@ Good for:
 `sudo` prompts for a password. An agent without a terminal can use `pkexec`
 (Bilal approves a GUI prompt).
 
-**Displays** (used at the desk; both sit above the laptop screen):
+**Displays** (each sits above the laptop screen):
 
 - Kuycon G32P, a 32" 6K monitor (6144x3456@60, scale 2) on either USB-C port.
   Unplugging needs the `drm-unstick-typec` auto-fix, or no monitor is detected
   again until reboot.
-- Samsung QBQ90 4K TV (3840x2160@60, scale 2) on a Ugreen USB-C to HDMI cable,
-  with a fallback for when its EDID isn't readable.
+- Samsung Living Room 65" TV (Samsung QBQ90, 3840x2160@60, scale 2) on a Ugreen
+  USB-C to HDMI cable, with a 4K30 fallback for when its EDID isn't readable.
+- TCL 55" 4K TV (TCL 55R615, pinned to 3840x2160@30, scale 2) on a Realtek
+  USB-C to HDMI adapter.
+
+Bilal's names for his three displays (2026-10-07): **Samsung Living Room 65"
+TV**, **TCL 55" 4K TV** and the **6K monitor** (Kuycon). Use these names, not
+connector names like `DP-1`.
+
+**Who uses which display (Bilal, 2026-10-07):** his daily drivers are the two
+laptops, the X1 and the M3. He tries to use only the X1 but sometimes needs
+the Mac. He plugs either laptop into any of the three displays, but the M3
+usually goes on the 6K monitor. The server stays on all the time and isn't
+one of the laptops he moves between displays.
+
+**The 6K monitor is the desk hub.** It has a built-in 3-way USB switch with the
+M3, the X1 and the server all connected. One button moves the USB devices
+(keyboard, trackpad and the rest) between the three machines. Bilal uses it as
+a hub because it's quick and works well. The switch moves USB devices only, not
+the picture. Every laptop connected to the 6K runs with its lid closed, so the
+6K is its only screen. Display setup has been fairly
+consistent so far, though it does change. Any of the three displays may be
+connected to the X1, so its config must handle all three.
+
+**6K monitor ports and the M3 cable (verified 2026-10-08):** the G32P's
+inputs are HDMI 2.1 x1, DP 2.1 x1 and USB-C x1 (80 Gbps, 100 W power
+delivery), plus a USB 2.0 x2 hub and 3.5 mm out (Kuycon US spec page). The
+M3 drives it over USB-C DisplayPort alt mode, 4 lanes HBR3 with DSC, on a
+passive cable; macOS lists no Thunderbolt device and the hub enumerates as
+USB 2.0. With the lid closed the 6K is the Mac's only display, so in practice
+a switch flip does drop the picture: `pmset -g log` shows "Display is turned
+off/on" 2 to 8 times a day the week of 2026-10-01, each taking 1 to 3 min to
+recover. The Mac never sleeps (`sleep 0`, caffeinate running), so this is the
+DisplayPort link failing to re-train, not system wake. A keypress through the
+switch forces macOS to re-probe displays, which is why hitting Enter works.
+Cable for the M3: any full-featured USB-C or Thunderbolt 4 cable, 1 m or
+shorter, 100 W rated. **A Thunderbolt cable does not change the link
+(verified 2026-10-08 after Bilal swapped one in):** the Mac's USB-C port
+offers CC, USB2, USB3, CIO (Thunderbolt) and DisplayPort, but the G32P only
+ever negotiates CC, USB2 and DisplayPort, with all four high-speed pairs in
+DisplayPort pin assignment C and `Tunneled = No`. Its PD partner chip is
+WCH (vendor 0x1A86) and its hub is a Terminus USB 2.0 hub, and Kuycon's own
+buying guide describes the port as DisplayPort Alt Mode. So the USB-C input
+is DP alt mode only, whatever the "80 Gbps" marketing says, and no cable
+makes it Thunderbolt. macOS exposes no cable e-marker (no SOP' identity), so
+a cable's real spec can only be checked by plugging it into a known
+Thunderbolt device. The port logged 24 plug events in 39 h after the
+2026-10-07 boot: the monitor's switch does a real USB-C detach and re-attach
+on every flip, so each flip is a full PD, alt-mode and 6K DSC renegotiation.
+That is the monitor's design, not the cable. Fallback other G32P owners
+report as plug-and-play: USB-C to DisplayPort into the DP 2.1 input, which
+gives up charging and the hub on that cable.
 
 Desktop setup (Mac-style keys, dictation, emulator window sizing, displays, and
 how Bilal uses Hyprland): `docs/omarchy-thinkpad-desktop.md`.
@@ -170,14 +236,16 @@ Good for the same work as the ThinkPad, with more headroom (RAM, disk, no
 glibc ceiling — rolling release, glibc 2.44).
 
 Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
-despite its "any Mac" header; only `install-agent-runner.sh` is Mac-only
-(`launchd`), so the headless runners are not installed here.
+despite its "any Mac" header. Unattended engineering runs here through the
+Overnight Mode executor (`services/overnight`).
 
 **Roles, in Bilal's words (2026-09-23):** this Intel MacBook is **the server** —
 always on, lid shut or not, sitting at his desk on a **6K display**. The X1 is
 his **daily laptop**, and he reaches the server from it over Tailscale SSH. The
 M3 MacBook is the only machine that can ship Apple work. Assume a session here
-is Bilal at a terminal, not an unattended runner.
+is Bilal at a terminal, not an unattended runner. (2026-10-07: the server is
+one of three machines on the 6K monitor's USB switch, with the M3 and the X1;
+see "Who uses which display" above.)
 
 ⚠️ **Sessions here are not crash-proof by default.** Tailscale SSH parents the
 shell (`tailscaled -> login -> bash -> claude`), and the agent runs in the
@@ -266,3 +334,18 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   (red-green colorblind) and wants dark themes; a light theme was rejected as
   unreadable. Use the blue/orange axis, keep contrast high, always add a label,
   and screenshot-check before shipping.
+
+## Server-native provider access — October 2 correction
+
+Bilal explicitly wants the always-on server to have installed, authenticated
+provider CLIs as the preferred execution path. Missing native access is a setup
+task, not a reason to default to connector or Git-triggered detours. Preserve
+existing integrations as fallbacks; this preference does not itself authorize a
+release, account expansion, credential copying, or paid service. Bilal performs
+interactive account authorization; agents verify identity/project access without
+printing credentials.
+
+Vercel CLI 62.2.0 is now installed under `~/.local/share/vercel-cli`, with
+`~/.local/bin/vercel` launching it under existing Node 24.21.0. Version check
+passed on omarchy. Device login initiated; account authorization and project
+access verification remain pending. No production deployment was performed.

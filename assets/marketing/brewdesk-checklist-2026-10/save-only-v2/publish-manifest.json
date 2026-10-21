@@ -1,0 +1,33 @@
+{
+  "account": "_brew.desk",
+  "status": "awaiting-explicit-publishing-approval",
+  "scope": "one organic five-slide carousel, no ads, profile edits, outbound messages or app-download CTA",
+  "caption": "Before you choose a caf\u00e9 for work, check laptop rules, your setup, noise, and how current the information is. Respect the caf\u00e9\u2019s space and policies.\n\nSave this checklist for your next NYC work session.",
+  "files": [
+    {
+      "name": "slide-01.jpg",
+      "sha256": "a9f208c96b5176618441df56ff0f6222217d73847fd09f9d0dd1f9ed0f37bc3b",
+      "bytes": 99711
+    },
+    {
+      "name": "slide-02.jpg",
+      "sha256": "c00d863c7ea6b40b16b8875176f35cb2fb53bb874c33e3e17952a6febe3d2ead",
+      "bytes": 89881
+    },
+    {
+      "name": "slide-03.jpg",
+      "sha256": "02c611a5452d670ef211424228f2e9f51a03c6a5f30e2c4d0a5bef47bc9559d0",
+      "bytes": 85009
+    },
+    {
+      "name": "slide-04.jpg",
+      "sha256": "f715f2f4b4b0dcad7b71df2ed4a2728ede3a4e9054bdae7aa19f83b6faa00742",
+      "bytes": 104333
+    },
+    {
+      "name": "slide-05.jpg",
+      "sha256": "f7f42004d81b23b8ca570e7ebbaab962dccad81a5892704d3be591d1665e549b",
+      "bytes": 106241
+    }
+  ]
+}

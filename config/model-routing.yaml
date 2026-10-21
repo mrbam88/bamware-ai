@@ -1,0 +1,100 @@
+# CFO routing policy — the one place that says which model a task runs on.
+# Owner: CFO (docs/bamware-agent-operating-system-prd.md, #100).
+# Dispatchers read this file; they do not choose models themselves.
+# Tasks carry a tier from their scope. Candidates are tried in order; the CFO
+# reorders them from live quota (server-quota.json / codex-quota.json),
+# reset times, cost and observed quality. New spend or accounts need the CEO.
+version: 1
+updated: 2026-10-05
+
+tiers:
+  top:
+    use_for: complicated engineering, ambiguous design, QA verdicts
+    candidates:
+      - {provider: openai-codex, model: gpt-6-astra}
+      - {provider: anthropic, model: opus}
+      - {provider: xai-oauth, model: grok-4.5}   # SuperGrok/Premium+ login, verified 2026-10-03
+  mid:
+    use_for: well-specified tickets, routine code, matching/reconciliation work
+    candidates:
+      - {provider: copilot, model: claude-sonnet-5.5}   # Hermes path to Claude (subscription OAuth not allowed in Hermes)
+      - {provider: anthropic, model: sonnet}
+      - {provider: openai-codex, model: gpt-6-sol}
+  small:
+    use_for: briefings, status, summaries, docs, triage, chat replies, monitoring
+    candidates:
+      - {provider: copilot, model: gpt-5-mini}   # Copilot base model, no premium requests
+      - {provider: openai-codex, model: gpt-6-luna}
+      - {provider: anthropic, model: haiku}
+
+# Pools (2026-10-03): OpenAI Pro Lite = one weekly pool for every OpenAI model;
+# Copilot Pro+ = 1,500 premium requests/month, base models unlimited;
+# Claude Max 20x = official Claude Code only (Overnight Mode workers);
+# Grok subscription (SuperGrok/Premium+ tier) = Hermes provider xai-oauth,
+# verified 2026-10-03; xAI publishes no exact limits, so the CFO measures them.
+# Cursor Pro (active) = official cursor-agent CLI, a second headless worker
+# harness beside Claude Code; logged in on omarchy 2026-10-03.
+# Models via cursor-agent: claude-opus-5-thinking-high, claude-sonnet-5-thinking-high,
+# gpt-5.3-codex(-low/-high), cursor-grok-4.5-high, grok-4.7-*, gemini-3.7-flash-high,
+# composer-2.5 (Cursor's own). "NO ZDR" models (claude-fable-5-*) are not
+# zero-data-retention: never route private or personal data to them.
+
+# Google AI plan via Google One (Chief of Staff from Gmail, 2026-10-03):
+# "Google AI Plus (2 TB)"; some service emails say "AI Pro" -> tier to confirm
+# from the receipt (Accountant, #102). Gemini CLI installed, not logged in.
+
+# Discord seat (services/discord-router, ADR 0002). The CFO owns this order and
+# the floor; the seat only reads it. A runner is skipped under floor_pct of
+# headroom in its tightest window, or for cooldown_min after a rate-limit error.
+# Pools with no usage API (cursor, grok, gemini, qwen, kimi) are "unknown
+# headroom": always last, used until they rate-limit. `pools` are prefixes
+# matched against capacity.json pool keys and labels.
+runners:
+  floor_pct: 10
+  cooldown_min: 60
+  order:
+    - {name: claude, pools: ["claude"], note: "Claude Max 20x; official Claude Code only"}
+    - {name: codex, pools: ["openai-codex"], note: "OpenAI Pro Lite weekly pool"}
+    - {name: opencode, pools: ["copilot"], note: "Copilot via gh token; base models unlimited"}
+    # next, one per PR once logged in on omarchy: cursor-agent, grok, qwen, kimi, gemini
+
+workers:
+  primary: {harness: claude-code, plan: claude-max-20x, model: sonnet}
+  fallback: {harness: cursor-agent, plan: cursor-pro, model: claude-sonnet-5-thinking-high}
+  when: Claude Max window exhausted or near limit (CFO decides)
+
+# Escalate one tier only on evidence (failed attempt, rework), never by default.
+pacing:
+  weekly_budget_pct_per_day: 14   # ~1/7 of a weekly allowance
+  warn_at_pct: [50, 80, 95]       # of a weekly window; 95 = small tier only
+  near_limit: shift to the next provider in the tier, else drop a tier, else pause non-urgent work
+
+
+# Burst mode (docs/cfo-burst-policy.md) — temporary top-tier on a lane.
+burst:
+  max_concurrent: 2
+  max_minutes: 60
+  max_burst_hours_per_day: 3
+  state_file: "~/.local/state/bamware/cfo/bursts.json"
+  # Provider preference under current headroom (CFO updates when pools move)
+  top_prefer_now:
+    - {provider: openai-codex, model: gpt-6-astra, note: "Hermes CoS primary; OpenAI pool headroom OK 2026-10-07"}
+    - {provider: anthropic, model: fable, harness: claude-code, note: "Claude Max Fable — engineering/Claude Code path only"}
+    - {provider: anthropic, model: opus, harness: claude-code}
+    - {provider: xai-oauth, model: grok-4.5, note: "Hermes CoS fallback on rate-limit"}
+  commands:
+    - burst marketing
+    - burst eng
+    - burst cos
+    - burst off
+    - burst status
+
+# Current assignments. Unpinned Hermes cron jobs fall back to the profile
+# default and are skipped if that default changes, so always pin.
+assignments:
+  - {who: "Hermes cron: Interview Tracker - application monitoring", tier: small, provider: xai-oauth, model: grok-4.5, schedule: "every 2 h, 8-20", since: 2026-10-04, note: "moved off Copilot (52 runs, 12.9M tokens in 2 days); founder prefers not to spend Copilot"}
+  - {who: "Hermes cron: Interview Tracker - historical audit batches", tier: small, provider: xai-oauth, model: grok-4.5, since: 2026-10-04}
+  - {who: "Overnight Mode workers (run-engineer.py)", tier: mid, model: sonnet}
+  - {who: "Hermes cron: Scrum Master - board sweep (85076cec9bb9), scrum-master profile", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-03, note: "#98; summarizes deterministic collector output only, no tool calls"}
+  - {who: "Hermes default profile (Chief of Staff: Discord bot + Assistant web)", tier: top, provider: openai-codex, model: gpt-6-astra, since: 2026-10-07, note: "CEO: CoS always top (Astra). Fallback Grok on rate-limit. CFO demotes workers before CoS. Fable stays Claude Code path (not Hermes)."}
+  - {who: "Hermes profile marketing", tier: small, provider: copilot, model: gpt-5-mini, since: 2026-10-05, note: "steady; burst marketing → top for game plans"}

@@ -1,19 +1,36 @@
 # Discord: Bamware status channel and assistant
 
-Set up 2026-09-24 so Bilal can see Bamware status at a glance. For now there is
-**one channel for everything** (Bilal's choice); split into #github /
-#ci-deploys / #agents later by adding webhooks.
+Set up 2026-09-24 so Bilal can see Bamware status at a glance.
+**Channel split (CEO, 2026-10-04):** more channels, less noise in CoS chat.
+Factory cadence: `docs/factory-cadence.md`.
 
-## Channels
+## The seat is a router (2026-10-20, ADR 0002)
 
-- **Status channel** (the first one, webhook): GitHub events and agent
-  milestone posts.
-- **`#bamware-bot`**: the Bamware personal assistant (`skills/bamware-assistant`).
-  Chat with it, and the morning briefing, evening recap and deadline
-  reminders post here as the bot, so Bilal can reply to them. Scripts choose
-  it with `BAMWARE_POST_TO=assistant` (the default in the digest and deadline
-  scripts) and fall back to the status webhook when the bot token or
-  `DISCORD_ASSISTANT_CHANNEL` is missing.
+`#chief-of-staff` is answered by `services/discord-router`, a Node service on
+omarchy that reads the CFO's headroom and execs the first agent CLI with quota
+(Claude Code → Codex → opencode, order in `config/model-routing.yaml`). It
+routes only: engineering is dispatched to the Overnight executor. Hermes
+remains installed until #197 retires it. Terms: `CONTEXT.md`.
+How to drive it day to day: [docs/factory-manual.md](factory-manual.md).
+**Flow rule (Bilal, 2026-10-21):** Discord is the notice board and dispatch
+surface; chatting happens in a long-lived agent CLI session wearing the Chief
+of Staff skill, on whichever vendor has quota.
+
+## Channels (CEO layout 2026-10-04)
+
+| Channel | Purpose |
+|---|---|
+| **`#general`** / status webhook | GitHub events, high-level milestones |
+| **`#chief-of-staff`** | CEO ↔ CoS: status, adhoc, unblock (was `#bamware-bot`) |
+| **`#command-center`** | Command Center decision-card discussion (web CC → here) |
+| **`#cron`** | Scheduled job / CFO snapshot noise; optional read |
+| **`#scrum-master`** | SM delivery / board / overnight (agent home) |
+| **`#engineering-lead`** | EL PR/quality (agent home) |
+
+Env (private machines): `DISCORD_HOME_CHANNEL` + `DISCORD_ASSISTANT_CHANNEL` = CoS;
+`DISCORD_COMMAND_CENTER_CHANNEL` / `DISCORD_DISCUSSION_CHANNEL` = CC cards;
+`DISCORD_CRON_CHANNEL`; `DISCORD_SCRUM_MASTER_CHANNEL`; `DISCORD_ENGINEERING_LEAD_CHANNEL`.
+
 
 ## What posts there
 
@@ -32,6 +49,36 @@ Set up 2026-09-24 so Bilal can see Bamware status at a glance. For now there is
   `--dry-run` to preview. Timers are in `scripts/systemd/` and are meant for
   `omarchy`: copy them to `~/.config/systemd/user/`, then
   `systemctl --user enable --now bamware-digest-{morning,evening}.timer`.
+  **On omarchy the units run from the deploy clone `~/srv/bamware-ai`**
+  (drop-in `ExecStart` override, decided 2026-10-02) so the development
+  checkout's branch never changes what gets posted; pull that clone to
+  deploy. The full briefing goes to `#bamware-bot` and a **one-line pointer
+  with a link to it goes to `#general`** (Bilal, 2026-10-02; the Sep 29–Oct 1
+  "missed" briefings had all posted to `#bamware-bot`, #37).
+  Every post logs `discord-post: posted … id=<message id> channel=<id>` to
+  the journal (`journalctl --user -u bamware-digest-morning`); a failed post
+  fails the unit; GitHub outages show as `(unavailable: …)` rather than
+  "none". `BAMWARE_DIGEST_LABEL="…"` marks a manual run in both messages and
+  `BAMWARE_SKIP_DEADLINES=1` keeps it from consuming deadline reminders.
+- **Daily Notion newspaper (8 AM ET, Bilal's personal brief):** a Hermes cron
+  job (Grok, xAI subscription) writes a dated page under his Personal Diary;
+  private runbook in `~/.local/state/bamware/daily-newspaper/RUNBOOK.md`.
+  Since the Chief of Staff gateway was stopped (2026-10-20, ADR 0002) nothing
+  ticked the Hermes scheduler, so `bamware-daily-brief.timer` runs
+  `scripts/daily-brief.sh`: `hermes cron tick` at 08:00 (retry 08:30, every
+  2 h for the Interview Tracker job), then posts to `#chief-of-staff` only
+  what the publisher's verified receipt (`<date>.json`) proves, or one
+  missed-brief alert. The job's own text is never delivered unverified
+  (2026-10-21 it reported yesterday's page as today's). Install like the
+  digest timers. Retirement of the Hermes install: #197.
+- **Interview-mail safety net (every daily-brief run, so 08:00, 08:30 and
+  every 2 h):** `scripts/interview-mail-alert.py`, no model. Searches Gmail
+  through the read-only broker for interview-related mail from the last two
+  days and posts sender, time and subject of anything not shown before to
+  `#chief-of-staff`; shown ids in
+  `~/.local/state/bamware/interview-mail/alert-seen.json`. Added 2026-10-21
+  after the model-driven Interview Tracker reported "Gmail healthy" on runs
+  that never reached Gmail. Failures are loud in the journal.
 - **Deadlines:** `docs/deadlines.md` with `scripts/discord-deadlines.sh` (#38).
   Runs with the morning briefing and reminds once per window (7-4 days, 3-2,
   1, the day, overdue). Set `DISCORD_USER_ID` in `discord.env` for @mentions.
@@ -136,3 +183,48 @@ invokes the configured Claude summarizer; it is not a no-model test.
 - ~~Board data needs a `read:project` gh scope on the posting machine.~~
   Done 2026-09-26: the server's gh has `project`, so the assistant can file
   delegated tickets onto board 2 and the digests can read it.
+
+
+## Completion handoffs — October 2, 2026
+
+Discord is Bilal's requested push-alert system. Chief-of-staff completion reports
+must also appear on the corresponding private Command Center card. The handoff
+procedure is in `skills/session-handoff/SKILL.md`; recurring implementation is #79.
+
+First verified case: #72 research completion (`ddb3009`). The Assistant deployment
+branch `worktree-assistant-web-slice` carries card commit `45dcb9a`; 103 tests passed
+on omarchy. Authenticated `/api/decisions` returned `brewdesk-marketing-research-72`
+version 1 after restart. The assistant bot sent a user-mentioned completion message
+and read it back (message ID `1555669487167209534`). Durable server receipt:
+`~/.local/state/bamware/handoffs/72-research-ddb3009.json`.
+
+The receipt records card verification and Discord read-back separately. Phone push
+receipt and rendered-browser verification were not observed. No whole-ticket
+closure, new-stage worker pickup or automatic future monitoring is claimed.
+The existing card explains that creative and measurement preparation remain.
+
+
+### Card-action trigger deployed — October 2
+
+Founder clarified that every Command Center action must trigger an agent handoff
+check. Implemented on Assistant deployment branch in `0d1b525`, with test-isolation
+fix `5ba78cc`. Production explicitly enables `ASSISTANT_WEB_HANDOFF_CHECKS=1`.
+All actions queue one durable coordination check, independently of downstream worker
+handoff. The checker uses the existing serialized Hermes runner, supplied card and
+response evidence, no toolset and a one-turn bound. It does not fetch fresh project
+state or dispatch project execution. Queued work recovers; interrupted work is
+visible and not silently retried. Results and Discord delivery receipts appear in
+`handoffCheck` on the authenticated Decisions API and on refreshed cards.
+
+108 tests pass. Real #72 check: `db76500a664fca54f2ba452c657c4dec`, Hermes session
+`20261002_161131_a7085d`, Discord read-back `1555673662663819264`. Authenticated API
+verified check completed and delivery confirmed; downstream worker handoff correctly
+remains pending. Phone push and rendered-browser verification were not observed.
+
+Verification incident: the first test run shared the production check directory
+and Discord notifier; two fixture echo alerts were sent. They were deleted after
+read-back, fixture artifacts quarantined, and the real approval was preserved.
+Checks now default disabled unless explicitly configured; HTTP tests disable them
+and use isolated directories. The real #72 job was requeued only after verifying
+it had no prior agent result or notification. No automatic retry of ambiguous
+Discord sends is allowed.

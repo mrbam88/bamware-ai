@@ -1,0 +1,11 @@
+[Unit]
+Description=Bamware CFO burn alert: deterministic quota burn-rate check (#101)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# systemd user units get a bare PATH; gh lives in these dirs.
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
+# Runs from a clean checkout detached on origin/main, never an interactive one.
+ExecStart=/usr/bin/python3 %h/code/worktrees/bamware-ai-main/services/cfo/burn_alert.py
+TimeoutStartSec=2min

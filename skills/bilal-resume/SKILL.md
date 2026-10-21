@@ -3,21 +3,40 @@ name: bilal-resume
 description: Bilal Malik's current resume content and the rules for attaching it to an application. Use when uploading a resume, pasting resume text, filling work-history fields, or answering questions about his roles, dates, stack, or accomplishments.
 ---
 
-# Resume, current as of 2026-09-30
+# Resume, current as of 2026-10-08
 
-Source: `Resume_BilalMalik_2026.pdf`, updated 2026-09-30 (company renames + LinkedIn in header).
-Supersedes all earlier resume versions.
+Canonical source: private `mrbam88/interviews`, `documents/kits/2026-10-08/`.
+Four variants, one folder each: mobile-ios, mobile-rn, `fullstack`,
+`manager`. Every folder holds `Bilal_Malik_Resume_<Variant>.pdf` (upload this),
+`.docx` (editable) and `.txt` (paste into web forms), plus the matching
+`Bilal_Malik_Cover_Letter_<Variant>.{pdf,docx,txt}`. Variant suffixes: `iOS`
+(mobile-ios), `Mobile` (mobile-rn), `Full_Stack`, `Engineering_Manager`. The
+suffix is deliberate (2026-10-12): Bilal reads it on the form to confirm the
+right kit was attached, and it still reads as a normal filename to a recruiter.
+Never rename the upload back to a bare `Bilal_Malik_Resume.pdf`. Read that repository's `README.md`
+and `library.json` first; `library.json.resume_set_current.how_to_pick` says
+which variant fits which job title. The October 8 set supersedes the
+September 30 master and the October 2 ai-variants drafts. The factual summary
+below is a public reference, not a competing master copy, and it still reflects
+the September 30 wording until refreshed.
+
+**Filenames (Bilal, 2026-10-08): no whitespace in any filename, ever.
+Underscores only.** The upload name is the same for every variant; the variant
+lives in the folder path and the PDF's Subject metadata, never in the name a
+recruiter sees. Log the variant folder and the `interviews` commit in the Notion
+application entry.
 
 ## Upload rules
 
-1. **PDF first, always the default.** Bilal attaches the designed PDF at runtime.
-   It is deliberately not stored in git — it is a binary, it changes, and its
-   layout and QR codes are the point.
-2. **Plain text only when forced.** If the site rejects PDFs or demands pasted
-   text, use `resume.txt` for the current body. Its public contact header omits
-   the phone number; restore that from `mrbam88/interviews` at
-   `profile/private-answers.md` when needed. Never publish private contact
-   details here or trust a site's own PDF-to-text parser.
+1. **PDF first, always the default.** Retrieve the designed PDF for the right
+   variant from the private interview library. Bilal approved storing it there
+   on October 2. Do not ask for a runtime attachment when the canonical file is
+   accessible. Attach the matching cover letter from the same folder whenever
+   there is a cover letter field.
+2. **Plain text only when forced.** Use the paired text in the private library
+   for current content and contact details. The public `resume.txt` is a legacy
+   reference, not the canonical document. Never copy private contact details
+   into this public repository or trust a site's PDF-to-text parser unchecked.
 3. Use the file-upload tool on the file input. Never click "Attach".
 
 ## Headline

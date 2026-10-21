@@ -4,6 +4,16 @@ Decision confirmed by Bilal, 2026-09-19. Applies regardless of model, harness,
 or which agent previously deployed this service. This is the canonical route;
 repo entry instructions link here rather than maintaining separate recipes.
 
+## Server access preference — October 2, 2026
+
+Bilal explicitly prefers a locally installed, authenticated Vercel CLI on the
+always-on server for direct deployments. Historical Git-triggered successes do
+not resolve missing CLI access. Install/login/verify the existing project; keep
+Git integration as a fallback, not the default workaround. The server now has
+Vercel CLI 62.2.0 under Node 24.21.0 (`~/.local/bin/vercel`); device authorization
+and project access verification are pending. No deployment was performed as
+part of this access setup.
+
 ## Default route
 
 **Local validation → direct deployment to the existing Vercel project → live
@@ -97,6 +107,30 @@ Review relevant diffs and retain the tested source revision/candidate identity.
   live. Save verified context in `bamware-ai` through session-handoff.
 
 ## Validated release record
+
+### 2026-10-07 — ve#153 (review-only evidence repair)
+
+- CEO explicitly authorized implementation, ordinary merge and deployment. Isolated
+  worktree, source `1eac1c97d8420420e79d224a5e922f7791e79a6f`, integrated by
+  `git push origin HEAD:main` after local validation and fast-forward preflight.
+- Preferred direct CLI was tried: Vercel 62.2.0 `whoami` reported logged out.
+  Used existing Git integration fallback, not new credentials or paid CI. Push
+  triggers existing Actions independently; Actions was not a deployment prerequisite.
+- Vercel success: `Cp83NdaZnVThfPf1V7NVofMFbuRE`, GitHub Production deployment
+  `6918989475`, matching source SHA. No deployment configuration or workflow edited.
+- Node 20.20.2, lockfile `npm ci`, typecheck passed; full suite 887 passed / 12 DB
+  skipped; 12 new graph/auth/replay safety tests passed. Truth-check two enforced
+  passes, Qahwah remains pending. No model inference or paid retrieval performed.
+- Production `/v1/health` 200, 6,937 venues; `/v1/evidence-repair` 200 advertises
+  `evidence-repair-v1`, `inferenceEnabled:false`, `autoApply:false`. Reggio detail
+  and full/compact Carmine-area search byte-equivalent JSON before/after release.
+- `/v1/admin/evidence-repair` returns 401 to this unauthenticated worker. Authorized
+  ten-venue response tested locally, not live; operator CLI ten-real-venue slice
+  and deterministic replay verified. Do not describe metadata/auth proof as a live
+  model evaluation. All ten reviews abstained without fresh documents.
+- [Release evidence](https://github.com/mrbam88/bamware-venue-engine/issues/153#issuecomment-6045362240)
+  and [owner runbook](https://github.com/mrbam88/bamware-venue-engine/blob/main/docs/evidence-repair/README.md).
+  Production datasets unchanged; rollback is a feature-code revert, no data migration.
 
 ### 2026-09-23 — ve#149 (Work Fit v2 + non-durable write signal)
 

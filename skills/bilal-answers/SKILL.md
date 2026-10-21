@@ -219,6 +219,19 @@ See the private repo. Bilal has explicit answers on file — do **not** default 
 
 ## Operating mode
 
-- On-demand only. Apply when Bilal brings a posting.
-- Every application fully supervised. Bilal verifies the live form and submits.
+- Sourcing is now shared (Bilal, 2026-10-08): on a "mass applying" day the
+  assistant finds live roles itself, prioritizing a decent chance of an interview
+  (exact-match senior mobile / full-stack roles, unglamorous companies, thin
+  applicant pools) over consumer darlings, and verifies each posting is live in
+  a browser before counting it. Check Notion for duplicates first.
+- Every application fully supervised as of 2026-10-08: the assistant fills every
+  field, attaches the right October 8 kit, leaves EEO/demographic sections and any
+  box that says "AI-written answers not accepted" to Bilal, logs the row in Notion
+  as Ready to submit, and Bilal reviews and submits. Flip to Applied only when he
+  confirms.
+- Bilal works from cafés on the X1 or M3 and wants mass applying to continue in
+  parallel and with the laptop lid closed (2026-10-08). That means a cloud browser
+  (Playwright in the assistant's container), not Claude in Chrome, and it only
+  works if he explicitly drops the per-application review step. He has not yet
+  said so; until he does, the supervised flow above stands.
 - Autonomy expands only when he explicitly says so.

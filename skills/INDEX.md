@@ -25,6 +25,18 @@ Interview prep is **docs, not skills** — study material, indexed at
 [`docs/interview-prep/README.md`](../docs/interview-prep/README.md). Read that
 index before writing any new prep doc; the bank is closed by default.
 
+## Marketing
+
+| Skill | Use it for |
+|---|---|
+| `bamware-marketing` | Shared marketing research, strategy and content workflow router. |
+
+Start with [bamware-marketing](bamware-marketing/SKILL.md) for the project brief,
+evidence standards and routing. Installed community workflows: customer-research,
+competitor-profiling, content-strategy and social. Their real files and references
+are under `.agents/skills/<name>/` (use those paths for raw GitHub access).
+Source commit, license and hashes: `docs/marketing-skills-sources.json`.
+
 ## Engineering — organized by team role
 
 Bilal is admin/master. Agents fill roles; the loop is:
@@ -39,15 +51,14 @@ status flow. Roles will grow (Architect, Product) as the team builds up.
 | `definition-of-ready` | The grooming gate a ticket passes BEFORE it becomes Agent-ready. Catch problems in daylight. |
 | `board-ops` | Board statuses, fields, the Dev-QA loop, gh commands. Tickets, never "cards". |
 | `bamware-assistant` | The Discord bot in #bamware-bot: Bilal's Bamware personal assistant. Status, idea intake, "have an agent do X" → a groomed ticket, briefing follow-ups. Intake only; the repo and board are the record. |
+| `bamware-scrum-master` | Shared durable delivery supervision: ownership, pickup, source reconciliation, review routing and completion evidence; no authority expansion. |
 | `idea-capture` | Bilal spitballs an app or business idea → one `idea` ticket, quick or spike depth, no code or spend. Also listing, killing and promoting ideas. |
 
 ### DEV
 
 | Skill | Use it for |
 |---|---|
-| `standing-engineer` | The unattended DEV loop: one ticket, one PR, hand off to QA, never a merge. Runs headless on the Mac. |
 | `agent-fanout` | Running parallel agents across repos (supervised, daytime). |
-| `night-supervisor` | The bedtime loop: run `night`-labelled tickets sequentially overnight, one Sonnet agent per ticket, QA-merge, morning STATE.md report. |
 | `native-ios-workspace` | The Xcode workspace for the shared Swift packages. |
 | `simulator-driving` | Driving the iOS simulator. |
 

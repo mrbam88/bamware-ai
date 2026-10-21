@@ -1,7 +1,42 @@
 # When Claude's own permissions block the work
 
+> **Scope since 2026-10-20:** runners spawned by the Discord seat and the
+> Overnight executor run in bypass mode (ADR 0002), so this document applies
+> to interactive sessions only. Company Rule #1 is now "never a surprise
+> bill" (AGENTS.md); it is enforced by the CFO halt, not by prompts.
+
 Written 2026-09-24 after a full session was lost to this. Read it before any
 merge, and before telling Bilal that something is blocked.
+
+## Runtime scope and batch preflight
+
+Claude-specific diagnoses in this document apply only to Claude. Other runtimes
+identify the actual denying component; never attribute their denials to Claude.
+Never bypass a denial. On the first denial, explain its source, give Bilal the
+appropriate command to run, and stop that action. Do not retry through another
+route or send him into the permissions UI. Continue independent, authorized
+work on other tickets: one denial must not stall the entire batch.
+
+Before any unattended run, dry-run every gated command (`gh pr create`,
+`gh pr merge`, `git push`, deploy). `bypassPermissions` does not beat the
+classifier. If a preflight fails, tell Bilal while he is awake and do not start
+the affected unattended work. Prefer routes with no gated step where available;
+Venue Engine uses local validation → `main` → Vercel Git integration.
+Verify merge state with `gh pr list --state merged` before reporting failure;
+silent command output is not evidence of failure.
+
+## Unattended verifier command shape (all runtimes)
+
+Use an ordinary inspectable script file and invoke it by path from the outset.
+Do not dynamically execute a read-back script with inline `exec(compile(...))`
+merely to change an output filename. Hermes terminal may hold that invocation
+under `tirith:interpreter_suspicious_inline_exec` before the verifier runs.
+Preserve `pending_approval` separately from denial. Record the exact invocation,
+actual component and offered approval path; stop the affected action pending
+legitimate disposition, continue independent authorized review, and do not infer
+a blanket Python, HTTP or filesystem prohibition. A tool's suggested alternative
+is not retrospective permission to reroute a held action. Keep last verified
+release evidence separate from the current unverified attempt.
 
 ## The rule
 

@@ -100,7 +100,7 @@ if [ ! -d "$HOME/.claude/skills" ]; then
 else
   # Pick a bamware skill known to exist in the repo to verify symlinks
   probe_skill=""
-  for candidate in session-handoff qa-engineer standing-engineer; do
+  for candidate in session-handoff qa-engineer board-ops; do
     if [ -d "$AI_DIR/skills/$candidate" ]; then probe_skill="$candidate"; break; fi
   done
   if [ -n "$probe_skill" ] && [ ! -L "$HOME/.claude/skills/$probe_skill" ]; then

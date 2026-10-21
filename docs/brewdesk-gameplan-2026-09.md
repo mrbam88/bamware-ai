@@ -1,5 +1,9 @@
 # BrewDesk game plan — after approval (written 2026-09-16)
 
+> Marketing updated 2026-09-30: [brand-led launch and Instagram handoff](brewdesk-marketing.md)
+> supersedes this document's marketing recommendations. Earlier release gates
+> below are historical; use STATE.md for current release status.
+
 Order of work is Bilal's (2026-09-12): **product polish → marketing → money.**
 Marketing will focus on NYC. Everything here is $0 unless marked. Sources: open
 tickets on all five repos, `bamware-brewdesk/docs/product-critique-2026-09-12.md`,

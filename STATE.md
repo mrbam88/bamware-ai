@@ -1,26 +1,644 @@
 # State of the Union — Bamware
 
+## 2026-10-21 — Interview-mail safety net; Google broker allow-list fixed
+
+- **Found:** the model-driven Interview Tracker (Hermes cron, Grok) said
+  "Gmail healthy" at 12:00, 14:00 and 16:00 ET while every broker call was
+  refused or blocked and no search artifact was written. Last real scan was
+  2026-10-20. Bilal: "this is critically important."
+- **Fixed:** Bilal added `bamware-daily-brief.service` to the broker's
+  allow-list (sudo, 15:56 ET). `scripts/daily-brief.sh` now probes the broker
+  each run (PR #211) and runs `scripts/interview-mail-alert.py` (no model):
+  new interview-related mail from the last 2 days → one post in
+  `#chief-of-staff`. First run 16:02 ET posted 21 messages. The model job
+  stays as classifier only; the alert is the floor.
+
+## 2026-10-21 — Interview Coach back: the seat now answers in #interviews
+
+- **Lost in the cutover:** the Hermes gateway had a `#interviews` channel
+  prompt (career prep, interview kits, drills by stack). The router only
+  listened in `#chief-of-staff`, so the coach vanished. Bilal, 2026-10-21:
+  "I need the Interview agent to help me study for interviews."
+- **Fix:** `services/discord-router/src/scope.mjs` admits
+  `DISCORD_INTERVIEWS_CHANNEL` and its threads; `interviewCoachBlock()` in
+  `handoff.mjs` is the hat: one question at a time in drill mode, kits per
+  application saved under `~/.local/state/bamware/interviews/kits/`, sources in
+  the private `~/code/interviews` library and `docs/interview-prep/`. 37 tests.
+
+## 2026-10-21 — Daily Notion newspaper back on a systemd timer (#197 gap)
+
+- **What broke:** Bilal's 8 AM Notion brief is a Hermes cron job inside the
+  Chief of Staff gateway. The 2026-10-20 cutover stopped that gateway (one bot
+  on Discord), so the brief, its 08:20 watchdog and the Interview Tracker job
+  stopped silently. A manual `hermes cron tick` then failed: the private Notion
+  helper scripts import the Hermes package, and the model posted yesterday's
+  page link to `#chief-of-staff` as today's edition.
+- **Fix (Bilal: "fix this ASAP"):** the helper and publisher in
+  `~/.hermes/scripts/` now re-exec under the Hermes venv; the job's own
+  delivery is set to local and the Hermes watchdog job paused;
+  `bamware-daily-brief.timer` → `scripts/daily-brief.sh` ticks the scheduler
+  at 08:00 (retry 08:30, every 2 h) and posts only the verified receipt or one
+  missed-brief alert. No new spend (Grok on the xAI subscription).
+- **Rule learned:** a scheduled job's "done" text is not evidence; deliver
+  from the receipt. Retiring the Hermes install (#197) must carry these jobs.
+
+## 2026-10-20 — Discord seat rebuilt as a quota-aware router (ADR 0002); Rule #1 is "no surprise bills"
+
+- **Decision (Bilal, "Go. ASAP, highest priority, deploy"):** the Discord seat
+  is a router over agent CLIs, not a Hermes agent. `services/discord-router`
+  (Node, 22 unit tests green) reads the CFO's `capacity.json`, picks Claude Code
+  → Codex → opencode by headroom (order and 10% floor in
+  `config/model-routing.yaml` → `runners:`), execs it in bypass mode inside
+  `~/code/worktrees/bamware-ai-main`, posts the answer with a vendor footer.
+  It routes only: `do #N` claims the ticket and starts the Overnight executor.
+  A vendor-neutral thread note carries conversations across vendors. Runners
+  are one-file plugins; cursor-agent, grok, qwen, kimi, gemini follow.
+- **Company Rule #1 reaffirmed: never a surprise bill.** The CFO owns money and
+  a halt file (`~/.local/state/bamware/cfo/halt.json`) that every seat, runner
+  and batch honours. Runners run with permission prompts off; the $20 rule,
+  App Store rule and no-secrets rule bind by text (AGENTS.md rewritten).
+- Records: ADR 0002, `CONTEXT.md` glossary (Seat, Runner, Pool, Headroom,
+  Halt, Thread note, Role, Executor), tickets #196 (build, decisions appended)
+  and #197 (retire Hermes 48 h after go-live). #42 closed as superseded.
+  Design page: https://claude.ai/artifact/XDqEyLndAJuavvi6sD69fA
+- **Deployed 2026-10-20 23:09 UTC** on omarchy: `discord-router.service`
+  active as Bamware Bot#5303, `bamware-board-cache.timer` on (443 KB
+  `latest.json`), main worktree at origin/main. `hermes-gateway.service`
+  (Chief of Staff Discord) stopped so one bot answers; the scrum-master
+  gateway still runs until #197. Codex logged in; opencode has OpenAI OAuth;
+  **Claude Code is logged out on the server** (Bilal: `ssh omarchy` then
+  `claude` to log in), so the seat runs Codex-first until then. Smoke test
+  (`status?` in `#chief-of-staff`) pending Bilal.
+
+## 2026-10-13 — Work-mode recommendation safety reviewed; source published, not live
+
+- [Work-mode evidence repair](https://github.com/mrbam88/bamware-venue-engine/pull/204)
+  (`ba8669a`) rejects future/invalid/expired positive claims that Work Fit already
+  rejects. Red HTTP tests reproduced laptop/seating/noise leaks; shared existing
+  eligibility rule repairs them. No venue attributes, score weights, API shape,
+  primitive filter policy, library exception or deployment config changed.
+- Node 20 local full suite **1,221 passed / 12 DB skipped**, typecheck and two
+  enforced truth anchors pass. Qahwah Carmine remains pending rank 96. Independent
+  detached-head review passed 49 adversarial filter/HTTP cases plus scoring/display
+  regressions; reviewer did not edit author source. Nine real-seed NYC query
+  replays retained all orders/counts: safety improvement, **no measured ranking lift**.
+- PR204 is open, not merged/deployed. PR203 stays separately reviewed/open.
+  Existing [narrow terminal approval hold](https://github.com/mrbam88/bamware-ai/issues/150#issuecomment-6139089436)
+  has no published disposition; affected live check not rerouted. Engineering Lead
+  owns legitimate disposition, fresh approved verification and release. No global
+  pause inferred: independent implementation/review proceeded.
+- PR202 remains last verified release; Production deployment `7030521245` status
+  rechecked success. No fresh alias claim. Current attempt and previous release
+  remain separate in `~/.local/state/bamware/continuous-delivery/current.json`.
+- Existing scheduled job `b49d7172e336` executed 06:18 UTC pickup; no duplicate
+  schedule. Fresh Codex weekly observation 5% used, 85% reserve; no paid fallback.
+  Test/review workers finished; none claimed active at handoff. Evidence published
+  on existing quality/growth tickets; final notification uses automatic #general
+  delivery, not a manual Discord send. Next independent work: branch-specific
+  Qahwah evidence, not fabricated claims. [Reusable regression proof](docs/venue-work-mode-regression-proof.md).
+
+## 2026-10-13 — Scheduled backend pickup: independent QA, no new release
+
+- Existing 30-minute job `b49d7172e336` executed the 05:37 UTC scheduled pickup;
+  reviewed existing [later-page evidence conflicts](https://github.com/mrbam88/bamware-venue-engine/pull/203#issuecomment-6139128581)
+  instead of duplicating implementation. Exact head `5d72364`: independent
+  **1,208 passed / 12 DB skipped**, typecheck and ten-record offline replay pass;
+  11 additional adversarial cases prove source-6/10 conflict detection and
+  explicit ten-document coverage limits. No measured ranking lift claimed.
+- PR203 remains **open, not merged/deployed**. Fresh alias-verifier invocation
+  is pending Hermes terminal approval (`tirith:interpreter_suspicious_inline_exec`),
+  not retried through another tool. Narrow [Engineering Lead handoff](https://github.com/mrbam88/bamware-ai/issues/150#issuecomment-6139089436)
+  published/read back; pickup not acknowledged. Not a blanket HTTP/filesystem ban.
+  PR202 Production status was rechecked success; its prior live proof remains
+  the last verified release. This scheduled pickup proves review execution,
+  not an end-to-end scheduled release.
+- [Ranking diagnosis](https://github.com/mrbam88/bamware-venue-engine/issues/151#issuecomment-6139137606):
+  current-main-equivalent local query at 40.7278,-74.0004 / 600m gives Qahwah
+  **13 Carmine Street** rank 96 (cafe-only 88), null displayed score, evidence
+  weight 0.15: only OSM Wi-Fi is known. Missing laptop/seating facts, not a reason
+  to inflate weights or borrow 162 Bedford Avenue's claims. Next: permitted
+  branch-specific evidence and rejection/ranking regressions; keep truth pending.
+- Independent test process finished; no active implementation worker claimed.
+  Private evidence `~/.local/state/bamware/continuous-delivery/review203-*`;
+  current checkpoint and last verified release remain separate. No new schedule,
+  paid services, research inference, dataset changes or deploy-config changes.
+
+## 2026-10-13 — BrewDesk unrated ranking fallback live
+
+- [Venue ranking fix](https://github.com/mrbam88/bamware-venue-engine/pull/202)
+  merged `dc5d696`; GitHub Production deployment `7030521245` succeeded,
+  Vercel `7AR2axzSTyuMEPNQ6bY5JV9NfUE9`. Production alias verified at
+  `2026-10-13T05:03:59Z`: NYC unrated cafes use proximity instead of hidden
+  legacy scores. Greenwich Village / Midtown / Williamsburg adjacent unrated
+  distance inversions fell **45→0 / 47→0 / 20→0** in 200-result queries.
+- Full/compact live ordering matched; cafe membership and numeric `workScore`
+  compatibility passed. Rated-order and attribute parity passed captured-query
+  replay. This is an **unrated fallback** improvement, not a claim that rated
+  quality or factual evidence is solved. Outside-NYC and mixed-region queries
+  retain their previous policy; no schema, data, scoring-weight or deploy-config edits.
+- Independent review caught a mixed-region comparator cycle; repaired, retested
+  and independently passed at exact final head `7d122d5`. Local **1,217 passed /
+  12 DB skipped**, typecheck passed; CI run `38348533535` passed. Truth-check:
+  Reggio rank 6 / Capital One rank 9 pass; Qahwah remains pending at rank 96.
+- PR200's previously failed production backlog is now live through this release:
+  four affected noise claims read back as `agent`; Soft Bar control unchanged.
+  Original failure's root cause remains unknown. Native Vercel is logged out;
+  Mac SSH stopped at host-key verification (no bypass). Existing Git integration
+  succeeded without credential/config changes or new paid services.
+- Existing 30-minute job `b49d7172e336` reused, no duplicate schedule. This cycle
+  was a direct invocation; subsequent scheduled pickup is not yet proven.
+  Private current/release receipts: `~/.local/state/bamware/continuous-delivery/`.
+  Next bounded slice: investigate Qahwah's branch-specific evidence/ranking miss
+  and expand representative rated-ranking truth cases; do not fabricate claims
+  or convert sparse coverage into quality. Parents ve#85/#147/#151 remain open.
+
+## 2026-10-10 — Mass-apply: duplicate guard + Ashby registration check
+
+- **Incident:** run `20261010-1224` refilled Gusto and Nectar Social, run
+  `20261010-1305` refilled Found; all three had been submitted on 2026-10-08/09.
+  Rows still said "Ready to submit", `fill.py` had no check, Bilal caught it.
+  Gusto and Nectar tabs still show the unsubmitted form (Ashby rejected a Nectar
+  submit on an unregistered field). **Found's refilled tab shows "Success, thanks
+  for applying"**, so Found very likely received a second application on
+  2026-10-10 on top of the one the tracker records as received 2026-10-09.
+- **Fix (this PR):** `scripts/mass-apply/guard.py` + `fill.py check|run|submit`.
+  Needs a fresh Notion export at `interviews/imports/tracker-ledger.json`; never
+  opens a finished posting; a form filled in an earlier run is not refilled
+  without `--refill`, which only Bilal can clear. Replayed on both 2026-10-10
+  queues: 23 of 23 lines blocked, the three duplicates as ALREADY APPLIED.
+- **Ashby:** fields can show a value the server never registered. `fill.py`
+  verifies and repairs after filling; `fill.py verify` is a read-only report
+  for open tabs. Open tabs at the time: Suno (3 fields), Propel (1), Nectar (1)
+  unregistered. Not repaired in his tabs; he was working in them.
+- **Tracker cleanup done:** Gusto, Nectar, and the stale Ready-to-submit rows
+  for Pinterest and Playlist (both already applied in September) now say do not
+  submit. **Open for Bilal:** Canopy Works was applied 2026-09-17, they asked
+  for interview availability 2026-09-18, and the same role was filled again
+  2026-10-08; confirm whether that request was answered.
+- **Still genuinely open, need Bilal's word before any refill:** Cloaked,
+  Mozilla, Propel Healthcare, Suno, WISEcode, WW Staff iOS.
+- Pre-existing: `scripts/check-context.py` fails on main (5 kit-name references
+  in bilal-cover-letter / bilal-resume); not touched here.
+
+## 2026-10-07 — Venue evidence repair review-only slice deployed
+
+- [ve#153](https://github.com/mrbam88/bamware-venue-engine/issues/153) closed/Done;
+  growth parent ve#151 remains open. Source `1eac1c9`, existing venuekit Production
+  deployment `Cp83NdaZnVThfPf1V7NVofMFbuRE`; native CLI logged out, documented Git
+  integration fallback used without deployment/config changes or paid model calls.
+- Real LangGraph offline retrieval/recorded-candidate validation, conflicts, bounded
+  retry, mandatory human review; no inference, fresh web research or auto-apply.
+  Ten real Greenwich Village gap reviews abstained and replayed byte-identically.
+- Local: typecheck, 887 tests passed / 12 DB skipped, two enforced truth cases pass;
+  Qahwah still pending. Live health 200 / 6,937 venues; new capability 200; existing
+  detail + full/compact search unchanged. Admin report auth 401 without credentials;
+  authenticated report tested locally, not live. CLI needs no admin credential.
+- [Runbook](https://github.com/mrbam88/bamware-venue-engine/blob/main/docs/evidence-repair/README.md)
+  and [verified evidence](https://github.com/mrbam88/bamware-venue-engine/issues/153#issuecomment-6045362240).
+  Remaining: approved project inference provider/priced bounded adapter, permitted
+  sources, real inference/held-out entailment eval and human review. No model-quality
+  or growth gains claimed. No Langfuse export or additional model workers enabled.
+- Completion notification/Command Center delivery belongs to Chief of Staff;
+  implementation worker had no Discord API access and did not claim notification.
+
+## 2026-09-19 — Venue database migration tickets created (planning only)
+
+Bilal requested tickets to migrate the standalone venue engine from mutable
+JSON to a database. Proposed target: PostgreSQL + PostGIS; preserve venue IDs,
+existing REST contracts, scoring semantics and the merged Overture/Foursquare
+provenance. JSON remains a generated public snapshot/export format. Hosting
+provider, monthly budget and production activation are not yet approved.
+
+Epic: [venue-engine#129](https://github.com/mrbam88/bamware-venue-engine/issues/129).
+Ten linked children #130–139 cover architecture/costs, schema, idempotent import,
+compatible reads, durable saves, authenticated community writes, resumable
+ingestion jobs, snapshot exports, approved hosting, and reversible cutover.
+All eleven tickets are on project 2: P1 / Todo / Supervised, with Area, Size
+and Work Type set. Dependencies and file-collision sequencing are in the epic.
+Start with #130; promote individual leaves only after definition-of-ready.
+No agents launched, infrastructure provisioned or production code changed.
+Research targeting #116 and discovery-hints contract #127 remain separate.
+Refresh main and check other agents' claims before implementation. The database
+migration does not itself fix venue coverage or recommendation quality.
+
 > 📋 Board: https://github.com/users/mrbam88/projects/2 — cross-repo, fielded
 > (Priority/Area/Size/Worker; conventions in skills/board-ops)
 
 > The living answer to "what are we building and where are we?"
 > Update on every merge/session that changes the picture. Keep it scannable.
-> Last updated: 2026-09-24 — **ve#146 press fan-out MERGED AND LIVE too. Conwell Coffee Hall 95 with 2 press links; 6,937 venues. Work Fit v2 live since 09-23.**
+> Last updated: 2026-10-14 — **130 applications confirmed Applied across batches 5-15. Batch 14 closed except Legora; batch 15 (25 forms) is 8/25 confirmed with 17 tabs open in Bilal's Chrome. New hard rule: pick the role he is most likely to get an interview for (Senior over Staff/Principal). No auto-submit.**
 > **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
 
-## 2026-09-30 — web#12 AI usage dashboard UNBLOCKED (PRs open, setup pending)
+## 2026-10-14 — Batch 15 (25), level swaps, most-likely-role rule
 
-- Design decided with Bilal: **DynamoDB** (`bamware-dev-ai-usage`, table-scoped
-  IAM user for Vercel) and collection on the **omarchy server** as a systemd
-  timer. Full design + runbook: `docs/ai-usage.md`.
-- Built: collector `scripts/ai-usage-collect.py` (+ tests, installer, timer,
-  `secrets-pull.sh` entry); bamware-web `/admin/ai-usage` + ingest + CSV
-  import; bamware-infra table + IAM user. Verified end to end on the ThinkPad
-  against DynamoDB Local with real transcripts (desktop + mobile checked).
-- **Blocked on Bilal:** merge the three PRs, `terraform apply`, create the
-  access key, put the ingest token in SSM, set 4 Vercel env vars, run
-  `scripts/install-ai-usage.sh omarchy` on the server (Tailscale SSH re-auth
-  stopped the agent). Window limit (1.5M) is still the unverified figure.
+- Bilal: "let's generally go for the role I'm most likely to get, I'm getting
+  desperate, not enough interviews." Rule: at any company, queue Senior over
+  Staff/Principal, mobile over full-stack, hands-on over EM. A re-rank agent
+  checked every board: Harvey Staff Product Eng → Senior SWE Agents (NY),
+  Arlo Principal → Senior SWE, Traversal Staff → AI Product Engineer,
+  Foodsmart Staff → Senior SWE, Genius AI Staff Frontend → SWE All Levels,
+  Talkspace Tech Lead → Senior SWE. Staff-only boards dropped (Assured, Twin
+  Health, Wheel, Axios). Stretch tabs closed unsubmitted, rows updated in place.
+- Batch 14 refilled after the 2026-10-13 reboot (9 forms, Bilal confirmed none
+  submitted). Confirmed today: Goodie AI, Harvey, Kraken, 1Password, Bankjoy.
+  Legora still open (needs his "how you use AI" file). Arlo, Foodsmart,
+  Traversal tabs vanished without a confirmation; awaiting Bilal's word.
+- Batch 15 sourced from the LinkedIn saved tracker (28 new saves, 12 dupes) +
+  the verified extras: Tapcart, Raya, Keeper (mobile) + 22 full-stack. Confirmed
+  so far: Airgoods, Turbo AI, Keeper, Starbridge, Obvious, PointOne, Chalk,
+  Hex. Runs `mass-apply-runs/20261014-1616`, `-1618`. Other-ATS mobile roles
+  (Optum, Marriott, Cerence, Lenovo) resolved but not filled (live-fill).
+- Watcher bugs fixed: (1) it closed the Harvey form twice as a false
+  "confirmation" (page text matched); now ignores any page that still has a
+  file input or Submit button; (2) it closed a Greenhouse interview
+  self-schedule tab; now only touches application URLs on ATS apply hosts.
+  (3) The old watcher's persistent CDP attach held Chrome display-sleep
+  assertions; v2 polls /json and attaches once per 5 min.
+- Lithic hides a base64 Python XOR puzzle in the posting ("crack the code");
+  answer 42. Keeper hires only in a fixed state list without NY (answered No).
+- Mac sleep: `SleepDisabled 1` was set system-wide on 2026-10-01 (not by this
+  work); Bilal was given `sudo pmset -a disablesleep 0`. Claude Code's bg-job
+  daemon runs `caffeinate -i` while a job is alive (feedback filed).
+
+## 2026-10-12 (evening) — Batch 14: 12/21 confirmed; never-the-same-company rule
+
+- Sourcing agent probed ~1,130 ATS slugs, LinkedIn guest search and Bilal's
+  LinkedIn saved tracker (fresh export `interviews/imports/linkedin-job-tracker-
+  2026-10-12/saved.json`, 158 items). Mobile supply on Greenhouse/Ashby/Lever
+  is thin (4 roles); the rest are his saved full-stack / forward-deployed picks.
+- First preview held Airbnb, DoorDash, Maven Clinic, Omada Health, Oscar, all
+  applied 2023-2025. Bilal: "I don't want to apply for the same company ever."
+  Ledger re-exported with no date window (379 rows), `guard.py`
+  `COMPANY_WINDOW_DAYS = None` (#188), guardrails skill + docs updated.
+- Agent mislabeled three roles as EM (Bubble, Kin, Runway/cfo.ai are engineer
+  roles); kits swapped to full-stack on the form before handoff. Lesson: read
+  the tab title, not the agent's label, before choosing a kit.
+- Submitted + confirmed: Radar, Bubble, Fora, Kin, Runway, Neko, Ease Health,
+  Roboflow, Concurrence, Blacksmith, Copilot Money, Campus. Runs
+  `mass-apply-runs/20261012-1708` and `-1717` (Harvey refill after its tab
+  was lost). Bilal-only leftovers: Kraken product-usage boxes, Legora
+  "show us how you use AI" upload, Bubble "used Bubble?".
+- 26 verified extras on file (`b14_candidates.json` in the job tmp dir; copy to
+  the next batch queue): Justworks, Rho, Talkspace, Lithic, Hex, Alchemy,
+  Scribe, Sardine, Chalk, Brilliant, Vise, Wheel, Axios, Happy Money, Bestow,
+  Assured, Pelago, Genius AI, Spur, Turbo AI, Airgoods, Assort Health, Obvious,
+  Twin Health, Starbridge, PointOne.
+
+## 2026-10-12 — Batch 13: 17 confirmed (105 total); kit filenames carry the variant
+
+- Batch 13 (Mudflap, Scribd, GameChanger, VTS, Confido, Duet, Gigs, Merge,
+  Secureframe, The Farmer's Dog, Courier Health, Consumer Reports, AngelList,
+  Ripple, Clear Street, CentralReach, Ashby) all submitted by Bilal and confirmed
+  by the ATS-domain watcher; Notion rows Applied 2026-10-12. Runs
+  `interviews/imports/mass-apply-runs/20261012-1246` and `-1547`.
+- The Mac rebooted mid-review (15:43); Chrome lost the 17 filled tabs. Refilled
+  with `--refill=<all 17>` after Bilal said "try again" and the ledger/watcher
+  log showed zero submits. Lesson: a reboot wipes unsubmitted forms; nothing is
+  lost as long as the ledger + run folder are committed.
+- Guard false positive: Clear Street was blocked as "CLEAR"; `--allow-company=
+  clearstreet`. Company-name match should require a whole-word/slug match.
+- Tracker ledger export: 297 Notion rows (active/held/rejected/withdrawn since
+  2026-04-10) + 53 LinkedIn-tracker rows; refreshed in place after the reboot
+  once a query confirmed no new Applied rows.
+- Kit filenames: Bilal could not tell which resume variant was on a form, so
+  the private kits are now `Bilal_Malik_Resume_<Variant>.pdf` (#184, #185).
+- Still open: Cloaked, Brigit, Flowcode, Twilio, Playlist, Pinterest, 5V, N2P
+  rows remain Ready to submit from earlier batches (unconfirmed). Age bracket
+  and "communities" demographic questions stay Bilal's. Batch 14 sourcing next.
+
+## 2026-10-08 — Mass-apply day: new kits, 17 submitted, LinkedIn tracker imported
+
+Chief of staff: read this before touching the job search. Bilal is working
+directly with Claude today ("breaking the chain of command"); this entry is
+the handoff so the CoS and the Interview Tracker agent stay in sync.
+
+- **New application kits approved (2026-10-08)** in private `mrbam88/interviews`
+  under `documents/kits/2026-10-08/{mobile-ios,mobile-rn,fullstack,manager}/`,
+  each with resume + matching cover letter in PDF/DOCX/TXT, built from
+  `documents/build/{make,export,cover}.py`. They supersede the September 30
+  master and the October 2 AI drafts. Filenames carry no whitespace (Bilal's
+  rule). `skills/bilal-resume` and `skills/bilal-cover-letter` point at them.
+- **Submitted today (Bilal clicked submit, Notion = Applied, dated 2026-10-08):**
+  Nourish, Mattermost, Coast, Calendly, EliseAI, Profound, Middesk, Commure,
+  The Athletic, G-P, Understood, Curai Health, CLEAR, Owner.com, Beacon
+  Biosignals, Canopy Works, Flowcode (17). **Ready to submit, waiting on Bilal:**
+  Brigit (needs his own "why Brigit" text; the form rejects AI-written answers).
+  Older unresolved Ready-to-submit rows: N2P Systems, 5V Video, Pinterest.
+- **Operating rule confirmed:** assistant sources roles (high-hit-rate first),
+  fills every field, attaches the right kit, leaves EEO/demographics and any
+  "no AI answers" box to Bilal, logs Ready to submit, Bilal submits. **No
+  auto-submit** (Bilal, 2026-10-08, "too risky"). Proposed next step, not built:
+  cloud-browser (Playwright) parallel filling with screenshots to Notion/Discord
+  and per-application "submit N" approval, so work continues while his laptop
+  lid is closed at a café. Needs his go-ahead before building.
+- **LinkedIn Job Tracker is a second source of truth Bilal has been using.**
+  Snapshot imported to `interviews/imports/linkedin-job-tracker-2026-10-08/`:
+  53 Applied (complete), 157 of 167 Saved (page 2 missing), 59 In Progress not
+  yet captured. 26 LinkedIn-applied companies had no Notion row and were added
+  as Applied with approximate dates and `linkedin.com/jobs/view/<id>` links.
+  Interview Tracker agent: treat LinkedIn as evidence alongside Gmail; the
+  Saved list is the sourcing queue for the next batch.
+- **Blockers seen today:** Notion `query_data_sources` SQL quota exhausted
+  (rows mode and search still work); Claude-in-Chrome drops when the laptop
+  sleeps; ~70% of web-search job URLs are stale, so verify live in a browser
+  before counting a role.
+- **Evening, batch 5 via the CLI filler (`docs/mass-apply-cli.md`):** 8 forms
+  filled in `interviews/imports/mass-apply-runs/20261008-1758` and logged Ready
+  to submit: PrizePicks (RN), Propel x2 (full stack; **one Propel application
+  per 30 days**, Bilal picks), SentiLink, Nectar Social (RN), Gusto, Gemini,
+  Butterfly Staff iOS. Bilal typed the essays into the open tabs himself and
+  submits in-tab; he reports "submitted N" and the row flips to Applied.
+  Dropped as already Applied: Nanit, Titan. Hand-off only (ATS unsupported):
+  Fetch (Gem), Trinity, BCBST, Resideo (Workday). Skipped: Radar (no mobile
+  role), Rezilient (Workable, native Android), Top Prospect (agency), Quizlet
+  (careers page blocks bots), Scribd (SF only).
+- **Filler fixes shipped (PR #159):** Ashby autofill-first + label-scoped fields
+  (the old locator set sponsorship=Yes on Propel and put the cover letter in the
+  resume slot), Greenhouse cover letter via file chooser, `--eeo` from the
+  private `answers.json` block (Bilal: "fill out the demo part too", 2026-10-08),
+  standard knockouts, Chrome debug port 9222, per-job `custom.json` essays.
+  Rule learned: `submit N` refills from scratch, so hand-typed answers must go
+  in `custom.json` or Bilal submits in the tab.
+- **Batch 6 (same evening, 20 roles):** sourced by probing 268 Greenhouse/Ashby/Lever
+  boards through their public APIs (`imports/2026-10-08-batch6/queue.txt`), deduped
+  against the full Notion table. Filled in a second Chrome profile
+  (`MASS_APPLY_PROFILE`, PR #160) so batch 5's tabs stayed open; run
+  `mass-apply-runs/20261008-2108`. Leftover required fields were found and filled
+  **live over the Chrome debug port** (connect_over_cdp on 9223), including drafted
+  essays for NerdWallet, Found, SeatGeek, Underdog and Dave that Bilal rephrases
+  in the tab. 20 Notion rows Ready to submit: Chime, Underdog, Citizen, Coinbase,
+  Notion x2, Mercury x2, NerdWallet, Human Interest, Canary, Headway, Charlie
+  Health, Dave, Alloy, SeatGeek, EarnIn, Rocket Money, Thumbtack, Found.
+- **2026-10-09 results.** Batch 6: 14 Applied (NerdWallet, Rocket Money, Mercury x2,
+  EarnIn, Underdog, Charlie Health, Citizen, Human Interest, Chime, Headway, Dave,
+  Notion iOS, Thumbtack). **Ashby flags the Playwright-launched Chrome as spam on
+  submit**; relaunching with `--disable-blink-features=AutomationControlled` and
+  `ignore_default_args=["--enable-automation"]` passed (now the default in
+  `fill.py`). Still pending from batch 6: Coinbase (email code), Alloy, Found,
+  Canary (Lever rejected the scripted upload; re-attached live, "Success").
+  Batch 7: 24 filled (`imports/2026-10-08-batch7`, run `20261009-1207-stealth`),
+  leftovers filled live over CDP, then trimmed to 13 by the two new rules below.
+  Batch 5 (PrizePicks, Propel Healthcare, SentiLink, Nectar, Gusto, Gemini,
+  Butterfly) still Ready to submit, unconfirmed.
+- **Two sourcing rules (Bilal, 2026-10-09, in `skills/job-guardrails`):** one role
+  per company, mobile preferred (withdrew Stripe Link, WW fullstack, Thrive
+  fullstack, Propel plain); **top-tier companies mobile-only**, full stack only
+  where the bar is reachable (withdrew Brex, Plaid, Affirm, Scale AI, Linear, Ramp,
+  Phantom, Hopper). Mercury x2 had already gone out.
+- **Count toward 50:** 17 (morning) + 14 (batch 6) = 31 confirmed; 13 batch-7 tabs
+  + 4 batch-6 + 7 batch-5 open. Next batch: mobile-first (senior iOS, RN, mobile
+  EM at any tier) and full stack only at reachable companies; 717 boards probed so
+  far, probe lists in the job tmp folder are not kept, re-probe from
+  `scripts/mass-apply` when needed.
+- **2026-10-09 evening: 50 confirmed.** Batch 7 added Andela, Stripe EM Mobile, Rula,
+  Hazel, Toast, Kustomer, Melio, Elastic, Thrive Market iOS, Substack; batch 9
+  (reachable-tier mobile, previewed in chat first) added Partiful, Moonshot, Geo
+  Browser, Jetty, GFiber, Scout Motors, Life360, NinjaTrader, Mode Mobile, Cassi
+  Home; Alloy and Fubo (the first form submitted from the attached real Chrome)
+  followed. Still open: Eleos, Injective, Mozilla, Eight Sleep, WW iOS, Coinbase
+  (email code), Canary, Found, and the unconfirmed batch-5 six (PrizePicks,
+  Propel Healthcare, SentiLink, Nectar, Gusto, Gemini, Butterfly).
+- **Process rules added today (`skills/job-guardrails`):** check the tracker and
+  preview `Company · Role · location · kit` in chat before filling; one role per
+  company, mobile preferred; top-tier companies mobile-only; skip recent
+  rejections and the elite AI labs. Batch 8 shrank to Mozilla after review.
+- **Tooling:** `fill.py --attach` fills inside Bilal's own application Chrome
+  (`scripts/mass-apply/real-chrome.sh`, dedicated profile, port 9222, no
+  automation flags) because Ashby and others score bot signals; filler windows
+  are hidden so they never steal focus; a CDP watcher closes each tab on its
+  confirmation page and the row flips to Applied. Pace from here: 10-15 a day,
+  essays in Bilal's words, answer "did you use AI" honestly.
+- **2026-10-10 late: 88 confirmed.** Batch 12 (Ondo Finance, Fetch, Forage, Raydar,
+  MyTime, Utility, MartianCraft) all submitted. Six of the seven were on ATSes
+  `fill.py` does not support; they were filled live over CDP in the real Chrome
+  with a generic label-based pass (`interviews/imports/2026-10-10-batch12/
+  livegeneric.py`, `qdump.py`) plus targeted fixes: Gem uses unlabeled inputs
+  and custom "Please select" dropdowns (type the option, Enter); SmartRecruiters
+  is shadow DOM (use Playwright locators, not querySelector) and its first file
+  input is the avatar; BambooHR's State dropdown reload wipes the form (set
+  dropdowns first, text last); Workable's radios need label clicks; Lever
+  "Current location" is an autocomplete. Sourcing for 13+: LinkedIn public
+  search (`jobs-guest/jobs/api/seeMoreJobPostings/search`) works without login
+  and surfaced ~210 postings; most reachable mobile roles left are on-site
+  outside NYC or at companies already applied to.
+- **2026-10-10 evening: 81 confirmed.** Batch 11 (Judi Health, Fullstack, RevenueCat,
+  Roo, Doctronic, Ayble Health) all submitted the same evening; WISEcode too.
+  Reachable-tier mobile supply on Built In is thin now; next sweep needs new
+  sources (wider Greenhouse/Ashby/Lever slug lists, Bilal's LinkedIn saves).
+- **2026-10-10: 74 confirmed.** Batch 10 (previewed in chat, filled with
+  `fill.py --attach` in the real Chrome): Gametime, Cantina, Bevel, Cloaked
+  (unconfirmed), Topstep, Wealthfront, WISEcode (open), Suno, plus the batch-5
+  refills PrizePicks, Propel Healthcare, SentiLink, Gemini, Butterfly. Mozilla,
+  Eight Sleep, WW iOS, Coinbase, Canary, Eleos, Injective also went out.
+- **Mistakes to not repeat:** (1) refilled Gusto, Nectar Social and Found that
+  Bilal had already submitted from an earlier window (tracker rows still said
+  Ready to submit); the other session's duplicate guard is PR #176, use
+  `fill.py check` once it is on main, and never refill a previously filled form
+  without Bilal saying it was not submitted. (2) Left optional fields and the
+  transgender question blank; Bilal reads any blank as unfinished and the answer
+  followed from facts on file (now `eeo.transgender = No` in the private
+  answers, `--eeo` fills it). (3) Multiple filler windows; everything now lives
+  in the single real Chrome. (4) The CDP submit watcher matched confirmation
+  wording in Gmail and closed his inbox tab; it is restricted to ATS domains now.
+- Next: Tier 2/3 of `queue-batch5.md` (Scribd, dYdX, US Mobile, manager track),
+  capture the remaining LinkedIn pages, and decide on the lid-closed pipeline.
+
+## 2026-10-04 — CFO check: 34 h Claude blind spot, warned once
+
+- The Claude Max sampler got HTTP 429 from the usage endpoint on every run from
+  Oct 3 09:40 UTC to Oct 4 19:25 UTC. The burn alert sent one "monitoring
+  stale" warning at 10:43 UTC and nothing more; three Claude pools had no burn
+  detection for 34 h. Ticket #133 (PR open, Engineering Lead review): stale
+  monitoring escalates to critical at 6 h, names the collector to check,
+  announces recovery; `burn_alert.py --status` is the CFO check in one command.
+  Sampler back-off/re-login is a bamware-web follow-up. Deploy after merge:
+  refresh `~/code/worktrees/bamware-ai-main` to origin/main.
+
+## 2026-10-03 (night) — Agents tab V3 live; services run from main
+
+- **Agents tab V3 deployed** (PR #114, Engineering Lead plan, reviewed and
+  approved after one blocking fix). The page answers: is the machine working,
+  on what, what blocks it, can I afford it. Status banner (paused by the
+  emergency stop, with how many recorded sessions are still frozen), Needs you,
+  Now (real executor task states and metered cost), Capacity (from the CFO's
+  `cfo/capacity.json`), Board (GitHub board 2). Net −1,500 lines; dead widgets,
+  the frozen Oct 2 export and the hard-coded issue cache removed. Doc:
+  `docs/agents-tab.md`.
+- **One deployed copy:** assistant-web merged to `main` (PR #112) and deployed
+  from `~/code/worktrees/bamware-ai-main`; the Overnight executor runs from
+  `main` with batch facts in `finalize.json` (PR #111). Rule in the engineering
+  contract; five collisions logged in `docs/incidents.md`; rest in #110.
+- **CFO:** burn alert live for OpenAI, Claude Max and Copilot (#105, #106),
+  self-grading forecasts; per-task cost metering in % of each pool (#109).
+  Drive modes (#108) and Accountant ledger (#102) next.
+- **Open, founder's call:** the emergency stop still freezes 20 of 21 recorded
+  Claude sessions on omarchy (no auto-resume); 4 items wait in Needs you (three
+  #85 blockers, today's batch checkpoint). Orphaned rate-limits stack: #115.
+
+## 2026-10-03 — `scrum-master` Hermes profile created on omarchy (#98)
+
+- Created; isolated from the CoS (no Discord, Notion or Gmail).
+  `copilot / gpt-5-mini`; skills from the `main` worktree.
+  Versioned in `config/hermes/scrum-master/`.
+- First read-only sweep: 195 board items, 32 active, 29 findings (28 stale
+  >72h, 1 no owner), 0 actions. Receipt is private on the server.
+- Bilal approved twice-daily sweeps: cron 09:00 and 17:00 ET on its own gateway
+  service, no Discord, receipt plus `latest.json` for the CoS. The sweep is a
+  deterministic collector (`services/scrum-master/`); the model only summarizes.
+  The live collector run found 5 merged-but-active and 6 closed-but-active items.
+- **Merge needed:** the cron runs the collector from the `main` worktree. Until
+  #113 merges and that worktree is updated, each run reports "collector not deployed".
+- **Not yet:** the CoS reading `latest.json`, and dispatch.
+  Detail: `docs/hermes-integration.md`.
+
+## 2026-10-03 — Engineering Lead added to the org chart
+
+**Decision (Bilal):** an Engineering Lead (architect + manager) owns software
+quality: enforces the engineering constitution, reviews every PR before merge
+(workers never self-certify), shapes tickets and sets their tier, hunts
+redundancy, and routes Xcode work to the Mac. Runs on demand on Claude Code
+(Opus). Replaces the standing-engineer idea: PR #61 closes; all-day pickup
+becomes Scrum Master dispatch of Lead-approved tickets through the executor.
+
+## 2026-10-03 — Accountant added to the org chart
+
+**Decision (Bilal):** a personal Accountant agent holds privileged, read-only
+access to his financial information; other agents ask it and get facts, never
+raw data. First job: a subscriptions ledger from Gmail receipts, so the CFO
+never has to ask Bilal what he pays for. Not created yet.
+
+## 2026-10-03 — CFO added to the org chart
+
+**Decision (Bilal):** a CFO agent owns AI spend, limits and provider/model
+routing, peer of the Scrum Master under the Chief of Staff. Tasks carry a tier;
+the CFO picks the provider and model. Cause: `gpt-6-astra` on everything used
+~90% of the weekly OpenAI limit on 2026-10-02. Setup in progress: #100.
+
+## 2026-10-03 — Scrum Master will be a Hermes agent on the server
+
+**Decision (Bilal):** the Scrum Master runs like the Chief of Staff: Hermes on
+omarchy, as its own profile `scrum-master`. It dispatches; Claude Code workers
+(Overnight Mode executor) do the engineering. Not created yet. Detail:
+`docs/hermes-integration.md` → Server roles. Open: retiring the overlapping
+standing-engineer and night-supervisor loops (proposed, not decided).
+
+## 2026-10-02 — Server-native Vercel access setup
+
+Founder clarified that direct installed/authenticated server CLIs are preferred.
+Vercel CLI 62.2.0 installed and version verified on omarchy under Node 24.21.0.
+Interactive device authorization pending; existing project access unverified.
+No production deployment. Assistant HTTPS separately awaits account-side
+Tailscale Serve enablement; website configuration cutover has not occurred.
+Details: docs/machines.md and docs/venue-engine-deployment.md.
+
+## 2026-10-02 — Notion canvas and Discord communication policy
+
+- Notion owns organization and collaborative drafts across CEO, chief of staff
+  and agents; Discord is the primary channel for urgent and scheduled contact.
+- Gmail stays read-only: no sending and no Gmail drafts. Outgoing correspondence
+  is drafted in Notion; Bilal manually transfers and sends it. Discord may deliver
+  drafts and alerts to Bilal. Full inbox organization is deferred.
+- Application email is evidence for the private Notion Job Tracker. Rules are in
+  `skills/bamware-assistant/SKILL.md`; this update does not deploy email tracking,
+  schedule alerts, migrate existing assets or prove access for every runtime.
+- Next: connect the authorized read service to application reconciliation and
+  verify Notion updates and Discord delivery with source-linked evidence.
+
+## 2026-10-02 — BrewDesk marketing research pass complete (#72)
+
+- Source-linked [NYC research brief](docs/brewdesk-marketing-research-2026-10-02.md):
+  four audience threads, three alternatives and one proposed measurable experiment.
+- Recommendation: policy-first laptop checklist on the existing brand Instagram;
+  no campaign approval or publication. Small sample; no validated personas.
+- Apple public lookup verified 1.1 availability. Next: prepare exact creative,
+  verify measurement/destination/cost constraints, then request batch approval.
+
+## 2026-10-02 — Shared marketing skills added (#72)
+
+- Bilal explicitly requested adding reusable community marketing skills to Bamware context.
+- Added pinned MIT-licensed customer research, competitor profiling, content strategy
+  and social workflows, plus `skills/bamware-marketing` for routing and project rules.
+- Sources and hashes: `docs/marketing-skills-sources.json`. Static validation only;
+  no claim of marketing outcomes, Hermes retrieval, campaign selection or publishing.
+- Next: apply audience research and competitor profiling to a bounded NYC brief.
+
+## 2026-10-02 — Assistant role and interview continuity
+
+- Bilal clarified that Bamware Assistant should be his chief-of-staff point of
+  contact for interview preparation and own continuity across model providers.
+  Canonical role: [skills/bamware-assistant/SKILL.md](skills/bamware-assistant/SKILL.md).
+- Existing Notion chief-of-staff and career records were found; do not describe
+  this setup as existing only in conversation or ask for a fresh briefing.
+  Entry point and private source links: `mrbam88/interviews` README.
+- Both original ChatGPT and Claude interview projects were accessed. Source
+  inventories and partial context were recovered; Claude legacy memory was
+  exported into the private local career workspace. A partial recovery page
+  exists in Notion. Full document/conversation import remains incomplete.
+- Next: finish import and reconciliation, establish one portable knowledge
+  entry point, and verify retrieval from each configured provider. No new
+  Hermes profile, remote rollout, or working cross-provider retrieval is claimed.
+- Personal/career content stays private; this public repo records the role and
+  routing contract only.
+> **1.0.1 release SKIPPED (Bilal, 2026-09-19) — its fixes ship inside 1.1. Do not ask about cutting 1.0.1.** Bilal's checklist: brewdesk#176.
+
+## 2026-10-02 — Private admin migration (#82)
+
+Preceding milestone: **admin migration #82 is partially deployed, not closed**.
+Assistant `2fc7f26` and public web `edc1a3e` are published on their existing
+release rails and production-verified. Independent concurrent Assistant commit
+`45dcb9a` was preserved and admin/auth/quota smoke re-run successfully.
+103 Assistant tests; 15 web tests plus lint/build; private owner 200/unauth 401;
+fresh PR43 snapshot and seven #81 quota windows; public AI-spend page 303/API
+410 and branding/contact/product routes intact. Missing existing capabilities
+block only remaining cutover, so public tools stay accessible behind their
+existing auth. [Inventory, limitations and rollback](docs/admin-migration.md).
+Receipts: `~/.local/state/bamware/chief-of-staff/82/`; exact evidence in #82.
+
+## 2026-10-02 — Quota meters and independent server coverage (#81)
+
+- `538c04b` published on the assistant release branch and deployed to the
+  existing `assistant-web` service, with real authenticated endpoint readback.
+- Hermes/OpenCode share provider-proven account windows, not duplicate meters.
+  Server reads do not depend on the X1; the existing ten-minute collector timer
+  is reused. Missing identity, capacity and spend controls remain explicit gaps.
+- Tests and exact remaining visual-QA/source gaps:
+  [assistant README](services/assistant-web/README.md#verified-release-evidence-2026-10-02-81).
+- Worker pickup/result receipts are private local state; public progress is in
+  [#81](https://github.com/mrbam88/bamware-ai/issues/81). Recurring sweep #79
+  was not implemented, enabled or claimed by this task.
+
+## 2026-10-01 — Assistant website: first vertical slice on real Hermes (#62, #63)
+
+- Canonical findings, gates, evidence: [docs/assistant-website.md](docs/assistant-website.md).
+  Code: `services/assistant-web` (zero-dependency Node, 13 tests, real smoke passed).
+- Verified on `omarchy`: Hermes 0.19.0, gateway live (Discord only), history in
+  `~/.hermes/state.db`, export/delete via `hermes sessions`. Website turn uses
+  `hermes chat -Q -q --resume`, same store/hook/plugins, no gateway restart.
+- Langfuse: nothing existed. Bundled Hermes plugin now enabled + SDK installed;
+  inert until Bilal adds keys (#65). Ingestion **not** verified, by design.
+- **Chief of Staff coordination does not exist** as a running system; it is a
+  PRD concept only. This slice was executed by a Claude Code session, not dispatched.
+- **Blocked on Bilal:** Langfuse keys (#65), `tailscale serve` HTTPS for iPhone
+  mic (#66), enable the systemd unit (#67), gateway restart for API streaming (#64).
+
+## 2026-09-30 — BrewDesk marketing and Instagram API milestone
+
+- Canonical plan, evidence, non-secret IDs and continuation:
+  [docs/brewdesk-marketing.md](docs/brewdesk-marketing.md).
+- Bilal wants anonymous, online-only, agent-executed brand marketing: no personal
+  promotion, friend outreach or in-person work. No ad spend. Approve batches
+  before public posts, messages or profile changes.
+- Existing `_brew.desk` Business account linked to **BrewDesk Marketing** Meta
+  app. Human entered the token locally outside git; real identity GET confirmed
+  the correct account. Publishing-limit GET passed (usage 0, quota 100/24 h).
+- **Not a completed publishing system:** no actual publish test, scheduler,
+  approval queue, token-expiry/renewal verification, webhook or remote rollout.
+  No content posted. Credential/helper exist only on this Linux host.
+- Next: expiry/renewal and minimal approved-post tooling, approval of proposed
+  profile copy, then storefront fixes and the first consumer content pack.
+  Live API profile still named/bioed `Bamware.io`, with zero posts.
+- Preview input repeatedly no-oped; normal-browser token generation worked.
+  Do not repeat clicks or restart the user's app to hide that tool limitation.
 
 ## 2026-09-24 — Hermes integration installed locally; remote rollout gated
 
@@ -1166,19 +1784,14 @@ assets, not because this work is queued.
 - Remaining App Store gates: physical location states, production logging
   confirmation, questionnaires, submission
 
-**Google Play — deadline 2026-09-30 (Human-only, ~5 min):** Android developer
-verification. Register `io.bamware.brewdesk` + its signing key in Play Console
-("Register your apps and signing keys"); Play-distributed apps are pre-filled,
-Bilal reviews + confirms. Unregistered apps are removed from Play globally after
-2026-09-30. Final-reminder mail 2026-08-31.
+**Google Play package/key registration — CLOSED 2026-10-05 (Bilal):** CEO cleared the Android Play Console register-`io.bamware.brewdesk` + signing-key ticket. Removed from deadlines. Production gate / tester clock still separate if Android unparks later.
 **Play production gate confirmed 2026-09-08:** personal account → closed test
 with ≥12 opted-in testers for ≥14 consecutive days, then "Apply for access to
 production" questionnaire. Status: 0 testers opted in. Clock has NOT started.
 Earliest production ≈ 14 days after the 12th tester opts in.
 **Decision 2026-09-08 (Bilal): Android PARKED.** No tester hunt, no org
 account, no self-made tester accounts (ToS violation, account-ban risk).
-Revisit after Apple approves. Only Android to-do before then: the 2026-09-30
-package/key registration above. No Play review-outcome email has
+Revisit after Apple approves. Package/key registration closed 2026-10-05. No Play review-outcome email has
 arrived since the 2026-08-31 submission (checked 2026-09-08).
 
 **Infra / credentials — not blocking BrewDesk:**
@@ -1358,7 +1971,8 @@ QA-merges only.
   secondary**; Bilal types into ASC (Human-only).
 - Submission candidate: **recut TF from current main**, then bd#69 reviewer
   sim, then bd#33 runbook; do not submit an older TF build.
-- web#12 (AI usage dashboard): ~~hold~~ unblocked 2026-09-30, see top.
+- web#12 (AI usage dashboard): **hold** — needs secrets/ingest design;
+  supervised session later.
 
 **Harness note:** background web subagent died mid-run with
 `WritableIterable is closed` (Cursor harness stream closed — **not** Claude
@@ -1603,7 +2217,7 @@ Spend: $0. All supervisor QA'd with visual evidence; worktrees cleaned.
   45s, aliased to bamware.io. Live-verified 200: `/`, `/brewdesk`,
   `/brewdesk/privacy|support|terms`, `/sign-up`, `/baat`, `/admin/login`.
 - **Web queue now:** 0 open PRs; next picks web#7 (Baat case study) then
-  #20 (11a). web#12 unblocked 2026-09-30 (see top). web#3 (waitlist
+  #20 (11a). web#12 still held (secrets/ingest design). web#3 (waitlist
   keep-or-kill) needs a 1-min Bilal call. Spend: $0.
 
 ## 2026-08-28 (night) — Flutter parity wave: 12/12 merged, Play prep done

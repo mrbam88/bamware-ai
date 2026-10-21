@@ -130,7 +130,7 @@ Rules:
 
 - **One session per ticket, then exit.** Never keep a terminal alive as a
   standing QA/board agent — spawn a fresh session per QA pass or wake
-  (`standing-engineer` is one wake, one ticket, one PR for this reason).
+  (the executor runs one worker per ticket, one PR, for this reason).
 - **`/compact` past ~2–3 hours** or after any big evidence dump; a session
   that survived a compaction should grep, not re-read.
 - **Never cat whole files or logs into context.** `grep … | tail`, `sed -n`

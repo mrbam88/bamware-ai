@@ -94,6 +94,17 @@ class ContextTests(unittest.TestCase):
         sibling.mkdir(parents=True)
         self.assertIn("test-context-v1", bridge().handle({"cwd": str(sibling)}, self.repo).get("context", ""))
 
+    def test_discord_turn_gets_compact_answer_first_context(self):
+        payload = {"cwd": str(self.repo), "extra": {"is_first_turn": True, "platform": "discord", "user_message": "status?"}}
+        context = bridge().handle(payload, self.repo)["context"]
+        self.assertIn("answer-first", context)
+        self.assertIn("Canonical AGENTS.md", context)
+        self.assertNotIn("STATE.md excerpt", context)
+        self.assertNotIn("skills index", context)
+        self.assertNotIn("Verified milestone", context, "no STATE excerpt in chat")
+        self.assertNotIn("CHECKOUT_DIFFERS", context)
+        self.assertIn("Keep Git canonical", context)
+
     def test_unrelated_session_is_noop(self):
         self.assertTrue(SCRIPT.exists(), "context adapter has not been implemented")
         result = bridge().handle({"cwd": "/tmp/other", "extra": {

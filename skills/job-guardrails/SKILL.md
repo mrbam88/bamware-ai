@@ -17,6 +17,48 @@ Big-name employers still get the extra-care treatment that the earlier per-compa
 unblocks used: tailored letter, every optional field filled, Bilal reviews the live
 form before submit.
 
+## One role per company (Bilal, 2026-10-09)
+
+Apply to **one** open role per company, not several. Pick the mobile role when
+there is one (iOS, React Native, mobile EM): it is the role he is most likely to
+get. Otherwise pick the single best fit. Two roles at the same company only in a
+special case he names. When a batch already holds two rows for one company, keep
+the mobile one, mark the other Withdrawn with the reason, and close its tab.
+Applied 2026-10-09 to Stripe (kept EM Mobile), WW (Staff iOS), Thrive Market
+(Senior iOS), Propel (Healthcare full stack, which also respects its one
+application per 30 days limit).
+
+## Top-tier companies: mobile roles only (Bilal, 2026-10-09)
+
+At big-name, high-bar companies (Stripe, Brex, Plaid, Ramp, Affirm, Scale AI,
+Linear, Coinbase, Phantom, Notion, Figma and the like) apply only to mobile
+roles: iOS, React Native, mobile EM. A full-stack application there is a huge
+stretch for a career mobile engineer and burns a slot. Full-stack applications
+go to companies where the bar is reachable: smaller, unglamorous, healthcare,
+fintech-adjacent, NYC-local. Applied 2026-10-09: withdrew full-stack rows at
+Brex, Plaid, Affirm, Scale AI, Linear, Ramp, Phantom, Hopper; kept Stripe EM
+Mobile and Coinbase Senior Native Mobile.
+
+## Batch procedure: tracker check, then preview, then fill (Bilal, 2026-10-09)
+
+Before filling a batch: (1) check the Notion Applications table **and** the
+LinkedIn tracker import for every candidate (Applied, Rejected, Ready to submit,
+Withdrawn), at any date: a company he has ever applied to or been rejected by
+is out for good (Bilal, 2026-10-12), as are the elite AI labs (OpenAI,
+Anthropic) even for mobile roles; (2) post the shortlist in chat as
+`Company · Role · location · kit`; (3) fill only after he confirms, dropping
+what he strikes. Batch 8 wasted four fills that a preview would have caught.
+
+**Enforced by the filler since 2026-10-10.** Batch 10 refilled three forms Bilal
+had already submitted (Gusto, Nectar Social, Found): their rows still said
+"Ready to submit" and nothing checked. `scripts/mass-apply/fill.py` now refuses
+to run without a fresh tracker export, never opens a finished posting, and will
+not refill a form it filled before. A form that was filled once counts as
+possibly submitted until Bilal says otherwise in chat; `--refill` and
+`--allow-company` are his calls, never the agent's. Run
+`fill.py check queue.txt` for step (1) and paste its blocked lines into the
+preview. Details: `docs/mass-apply-cli.md`.
+
 ## Still out of scope (these are procedure limits, not company blocks)
 
 - Postings that fail on facts: a location he cannot work from (he is not

@@ -5,6 +5,17 @@ description: Bilal Malik's send-ready cover letter, his binding voice rules, and
 
 # Cover letter
 
+**Canonical documents, October 8, 2026:** private `mrbam88/interviews`,
+`documents/kits/2026-10-08/<variant>/Bilal_Malik_Cover_Letter_<Variant>.{pdf,docx,txt}`
+(suffix `iOS`, `Mobile`, `Full_Stack` or `Engineering_Manager`, matching the resume).
+One letter per resume variant (mobile-ios, mobile-rn, `fullstack`,
+`manager`); the body is shared and only the opening paragraph and one
+FreedomCare clause change. Retrieve the one that matches the resume variant
+being attached, using that repo's `README.md` and `library.json`. No whitespace
+in filenames, underscores only. The September 28 letter is archived at
+`documents/cover-letter/2026-09-28-original/`; the August letter below is
+historical and must not override the canonical documents.
+
 Policy: **always include one, even when optional.** Bilal reviews it at the gate.
 
 ## Voice rules (binding)
@@ -21,8 +32,8 @@ Policy: **always include one, even when optional.** Bilal reviews it at the gate
 ## Letter or short answer? (Bilal, 2026-08-21)
 
 - A **cover letter field**, file upload or text box, gets the letter below.
-  Bilal attaches the PDF at review; where the field is text, paste the letter
-  with the greeting swapped to the company name.
+  Retrieve the canonical PDF for review; where the field is text, use the
+  canonical paired text with the greeting swapped to the company name.
 - A **specific question** ("Why Posh?", "Why do you want to work here?",
   "Why this role?") gets a short answer instead, 3 to 5 sentences, never the
   letter. Shape, in order: open on the company and why its product matters to
@@ -54,7 +65,7 @@ Policy: **always include one, even when optional.** Bilal reviews it at the gate
 - Add one researched, company-specific sentence at the top.
 - Swap one proof point to match the role's domain.
 
-## The letter
+## Historical August letter — superseded by the private library
 
 Current as of 2026-08-21. Source PDF: `Bilal_Malik_Cover_Letter1.pdf`, which
 Bilal attaches at runtime like the resume. Text below is the PDF's body; the

@@ -8,4 +8,3 @@ reviews); delete it when done.
 
 | Date | What | Link |
 |---|---|---|
-| 2026-09-30 | Google Play: register `io.bamware.brewdesk` + signing key in Play Console (~5 min; unregistered apps removed globally) | STATE.md → Blocked on Bilal |
