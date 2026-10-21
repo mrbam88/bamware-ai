@@ -1,5 +1,32 @@
 # State of the Union — Bamware
 
+## 2026-10-21 — First fan-out through the new factory: 4 tickets, 5 PRs merged, Hermes off
+
+- **Flow rule (Bilal):** Discord is the notice board and dispatch surface; chatting
+  happens in a long-lived agent CLI session (Claude Code, Codex, Grok, whichever
+  has quota) wearing the vendor-agnostic Chief of Staff skill. `docs/factory-manual.md`.
+- **Why tonight happened:** the board had 24 Todo tickets and zero Agent-ready,
+  so the executor had pulled nothing since Oct 2. Bilal picked five; four ran as
+  one Sonnet worker each in isolated worktrees, PR-only, supervisor merged after
+  CI. #150 closed as resolved by bypass mode (ADR 0002).
+- **Shipped:** #197 Retire Hermes (PR #218: sweep on `bamware-scrum-sweep.timer`
+  09:00/17:00 ET, both gateways disabled, config archived); #117 batch lock and
+  per-ticket claims (PR #221: `services/scrum-master/claims.py`, executor
+  refuses unapproved/unclaimed batches before preflight); venue-engine #130
+  DB-01 spec (PR 208: `docs/database-migration.md` + ADR; recommends Neon Launch,
+  about $5/month expected, up to about $21/month bound, **not provisioned, CEO
+  approval box in the doc**); web #12 AI usage dashboard (web PR #45 + ai PR #60:
+  headline = CFO vendor readings verbatim with window/as-of/reset and STALE rule,
+  transcript estimates in a separate labelled section, orange cross-check row,
+  accuracy test against a capacity.json fixture, screenshot reviewed before merge).
+- **Not done / needs Bilal:** production data for the dashboard needs
+  bamware-infra#13 (DynamoDB table + IAM user, on-demand, about $0/month at this
+  volume) applied, and the `bamware-ai-usage.timer` enabled on omarchy; until
+  then the page renders empty in production. Neon hosting is a separate yes.
+- **Follow-ups filed:** #219 the seat's `do #N` manifest is rejected by the
+  executor (never exercised live); #220 Hermes leftovers in scripts/tests/docs.
+- omarchy main worktree at `e34a604`; `discord-router` active throughout.
+
 ## 2026-10-21 — Interview-mail safety net; Google broker allow-list fixed
 
 - **Found:** the model-driven Interview Tracker (Hermes cron, Grok) said
