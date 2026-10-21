@@ -120,5 +120,64 @@ class RunnerTests(unittest.TestCase):
             task['ticket'] = 'mrbam88/bamware-ai#115'
             runner.validate({'schema': 1, 'unresolved_decisions': [], 'tasks': [task]})
 
+    def ledger_with_task(self, tmp):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scrum-master'))
+        import claims
+        ledger = Path(tmp) / '.scrum-master.json'
+        ledger.write_text(json.dumps({'version': 1, 'mandate': {'status': 'enabled'}}))
+        task = self.task(Path(tmp), 't1', 'pass')
+        task['ticket'] = 'o/r#1'
+        return claims, ledger, task
+
+    def assert_start_refused(self, tmp, ledger, batch):
+        from unittest import mock
+        manifest = Path(tmp) / 'batch.json'
+        manifest.write_text(json.dumps(batch))
+        with mock.patch('subprocess.Popen') as popen, mock.patch('subprocess.run') as run, \
+                mock.patch('subprocess.check_output') as out, mock.patch.object(runner, 'preflight') as pre:
+            with self.assertRaisesRegex(ValueError, 'claims gate'):
+                runner.launch(str(manifest), str(Path(tmp) / 'state'), str(ledger))
+            for fake in (popen, run, out, pre):
+                fake.assert_not_called()   # no child process and no preflight
+
+    def test_start_refuses_unapproved_batch_before_any_child_process(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            claims, ledger, task = self.ledger_with_task(tmp)
+            bid = claims.batch_begin(ledger, 'lead', ['o/r#1'])['batchId']
+            self.assert_start_refused(tmp, ledger, {'schema': 1, 'unresolved_decisions': [], 'batch_id': bid, 'tasks': [task]})
+
+    def test_start_refuses_missing_batch_id_and_unclaimed_task(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            claims, ledger, task = self.ledger_with_task(tmp)
+            self.assert_start_refused(tmp, ledger, {'schema': 1, 'unresolved_decisions': [], 'tasks': [task]})
+            bid = claims.batch_begin(ledger, 'lead', ['o/r#1'])['batchId']
+            claims.batch_move(ledger, 'approve', bid, 'lead')
+            other = dict(task, id='t2', ticket='o/r#2')
+            self.assert_start_refused(tmp, ledger, {'schema': 1, 'unresolved_decisions': [], 'batch_id': bid, 'tasks': [task, other]})
+
+    def test_gate_passes_when_approved_and_claimed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            claims, ledger, task = self.ledger_with_task(tmp)
+            bid = claims.batch_begin(ledger, 'lead', ['o/r#1'])['batchId']
+            claims.batch_move(ledger, 'approve', bid, 'lead')
+            runner.check_claims({'batch_id': bid, 'tasks': [task]}, str(ledger))   # no raise
+
+    def test_worker_finishes_the_ledger_batch(self):
+        import os
+        with tempfile.TemporaryDirectory() as tmp:
+            claims, ledger, task = self.ledger_with_task(tmp)
+            os.environ['BAMWARE_LEDGER'] = str(ledger)
+            self.addCleanup(os.environ.pop, 'BAMWARE_LEDGER', None)
+            bid = claims.batch_begin(ledger, 'lead', ['o/r#1'])['batchId']
+            for action in ('approve', 'launch'):
+                claims.batch_move(ledger, action, bid, 'lead')
+            root = Path(tmp) / 'run'
+            root.mkdir()
+            runner.write(root / 'batch.json', {'schema': 1, 'unresolved_decisions': [], 'batch_id': bid,
+                                               'tasks': [dict(task, cwd=str(root))]})
+            runner.worker(root)
+            self.assertIsNone(claims.status(ledger)['batch'])
+
+
 if __name__ == '__main__':
     unittest.main()

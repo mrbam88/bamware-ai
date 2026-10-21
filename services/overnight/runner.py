@@ -172,11 +172,44 @@ def worker(root):
         write(root / 'status.json', state)
         (root / 'report.txt').write_text('\n'.join(
             f"{t['id']}: {t['state']} ({t['evidence_log']})" for t in state['tasks']) + '\n')
+        mark_batch('finish', batch)
 
 
-def launch(manifest, state_dir):
+def claims_module():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scrum-master'))
+    import claims
+    return claims
+
+
+def check_claims(batch, ledger=None):
+    """#117 gate: the ledger batch must be approved and every task claimed by it.
+
+    Runs before any preflight, machine check or child process. Raises ValueError.
+    """
+    claims = claims_module()
+    tasks = batch.get('tasks') or []
+    keys = [[k for k in (t.get('ticket'), t.get('id')) if k] for t in tasks]
+    try:
+        claims.gate(claims.ledger_path(ledger), batch.get('batch_id'), keys)
+    except claims.Refusal as error:
+        raise ValueError(f'claims gate: {error}')
+
+
+def mark_batch(action, batch, ledger=None):
+    """Best-effort ledger state move after launch/finish; the gate already held."""
+    if not batch.get('batch_id'):
+        return
+    claims = claims_module()
+    try:
+        claims.batch_move(claims.ledger_path(ledger), action, batch['batch_id'], 'overnight-runner')
+    except (claims.Refusal, OSError, ValueError) as error:
+        print(f'Overnight Mode: could not mark batch {action}: {error}', file=sys.stderr)
+
+
+def launch(manifest, state_dir, ledger=None):
     os.umask(0o077)
     batch = read(manifest)
+    check_claims(batch, ledger)
     model = Path('/sys/class/dmi/id/product_name').read_text().strip()
     if model != 'MacBookPro16,4':
         raise ValueError(f'wrong machine: {model}; launch on the verified server')
@@ -196,6 +229,7 @@ def launch(manifest, state_dir):
     for _ in range(50):
         active = subprocess.run(['systemctl', '--user', 'is-active', '--quiet', unit]).returncode == 0
         if (root / 'pickup.json').exists() and active:
+            mark_batch('launch', batch, ledger)
             print('Smoke test handoff confirmed.' if batch.get('smoke_test') else 'Ready, good night.')
             print(f'Server unit: {unit}\nEvidence: {root}', flush=True)
             return
@@ -209,6 +243,7 @@ def main():
     launch_cmd = sub.add_parser('start')
     launch_cmd.add_argument('manifest')
     launch_cmd.add_argument('--state-dir', default='~/.local/state/bamware/overnight')
+    launch_cmd.add_argument('--ledger', help='Scrum Master ledger (default: BAMWARE_LEDGER or the assistant-web state dir)')
     worker_cmd = sub.add_parser('worker')
     worker_cmd.add_argument('root', type=Path)
     status_cmd = sub.add_parser('status')
@@ -216,7 +251,7 @@ def main():
     args = parser.parse_args()
     os.umask(0o077)
     if args.action == 'start':
-        launch(args.manifest, args.state_dir)
+        launch(args.manifest, args.state_dir, args.ledger)
     elif args.action == 'worker':
         worker(args.root)
     else:

@@ -42,3 +42,9 @@ test('source assessment routes changed review revisions and unassigned work with
  const voice=assessAssignment({...assignment,worker:{kind:'unassigned'}},[{source:assignment.sources[0],status:'available',state:'open'}]);assert.equal(voice.status,'handoff_pending');assert.equal(voice.workerExecutionVerified,false);
  const unavailable=assessAssignment(assignment,[{source,status:'unavailable'}]);assert.equal(unavailable.status,'unknown');assert.equal(unavailable.engineeringCompletionVerified,false);
 });
+test('claims, batches and receipts written by services/scrum-master/claims.py survive assistant-web rewrites (#117)',async t=>{
+ const s=setup(t);const role=s.create();role.beginRun();const file=path.join(s.directory,'.scrum-master.json');
+ const state=JSON.parse(fs.readFileSync(file));state.claims={'o/r#1':{ticket:'o/r#1'}};state.batches=[{batchId:'b1',state:'planning'}];state.claimReceipts=[{kind:'release'}];fs.writeFileSync(file,JSON.stringify(state));
+ const again=s.create();const id=again.beginRun();again.finishRun(id);again.setMandateStatus('paused');
+ const after=JSON.parse(fs.readFileSync(file));assert.deepEqual([after.claims,after.batches,after.claimReceipts],[state.claims,state.batches,state.claimReceipts]);
+});

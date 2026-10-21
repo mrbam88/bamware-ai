@@ -115,3 +115,15 @@ QA timeout, failed diff, failed push and failed report update. Six reporting tes
 passed on the actual server; ten combined local runner/reporting tests passed.
 This fixes the observed reporting/publication bug, not every possible runtime,
 provider or deployment failure.
+
+## Batch lock and claims (#117)
+
+Before planning or launching, run `python3 services/scrum-master/claims.py status`. If another
+session holds the open batch or one of your tickets, hand your findings to that holder and do
+not plan in parallel. The Scrum Master (or whoever owns the night) runs `claims.py batch begin`
+and `batch approve`; then put the `batch_id` in the manifest. `runner.py start` reads the
+ledger first and exits non-zero, before preflight, the machine check or any child process, unless
+that batch is `approved` and every task is claimed by it (a task matches by its `ticket` or
+`id`). After the worker is confirmed it marks the batch `launched`, and `finished` when the
+last task ends, releasing the claims. This is in addition to the host-wide `worker.lock`.
+`--ledger` or `BAMWARE_LEDGER` points at a different ledger.
