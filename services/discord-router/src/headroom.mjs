@@ -33,13 +33,16 @@ export function headroom(runner, doc) {
   return { pct: Math.round(pct * 10) / 10, unknown: false, stale: false, reset_at: reset };
 }
 
-/** One-line footer: "Quota left: claude 4% · codex 68% · opencode ?%" (share of each plan's allowance still unused; bold = who answered). */
+/** One-line footer: "Budget left this cycle: Claude 4% left · Codex 68% left · Copilot (via opencode) ?%" (share of each plan's allowance still unused; bold = who answered). */
+const BUDGET_NAMES = { claude: 'Claude', codex: 'Codex', opencode: 'Copilot (via opencode)' };
+
 export function footer(runners, doc, chosen) {
-  return 'Quota left: ' + runners.order
+  return 'Budget left this cycle: ' + runners.order
     .map((r) => {
       const h = headroom(r, doc);
-      const v = h.unknown ? '?%' : `${Math.round(h.pct)}%`;
-      return r.name === chosen ? `**${r.name}** ${v}` : `${r.name} ${v}`;
+      const v = h.unknown ? '?%' : `${Math.round(h.pct)}% left`;
+      const label = BUDGET_NAMES[r.name] || r.name;
+      return r.name === chosen ? `**${label}** ${v}` : `${label} ${v}`;
     })
     .join(' · ');
 }

@@ -107,5 +107,5 @@ test('rate-limit detection needs the words and a failure signal', () => {
 
 test('footer names every runner and bolds the chosen one', () => {
   const f = footer(runners, cap(96, 30), 'codex');
-  assert.equal(f, 'Quota left: claude 4% · **codex** 70% · opencode ?%');
+  assert.equal(f, 'Budget left this cycle: Claude 4% left · **Codex** 70% left · Copilot (via opencode) ?%');
 });
