@@ -69,3 +69,15 @@ with the pool prefixes the CFO publishes. Next up: cursor-agent, grok, qwen, kim
 
 `npm test` — pure unit tests with a fake CLI; no Discord, no model calls.
 CI: `.github/workflows/discord-router.yml`.
+
+## Header line and standups
+
+Every reply begins `Runner: <cli>  Model: <model>  Agent: <role|NA>` (`src/header.mjs`).
+The model comes from the CLI itself: Claude Code's JSON `modelUsage`, Codex's
+event stream or the thread's rollout log under `~/.codex/sessions`, opencode's
+`modelID` or `BAMWARE_OPENCODE_MODEL`. The last seen model per runner is cached
+in `router-state.json` for replies that carry none.
+
+`status update` / `status?` / `standup` is a standup, not a one-liner: one
+runner turn, one section per role in `STANDUP_ROLES` (`src/handoff.mjs`) with
+Yesterday / Today / Blockers and a closing `Needs you:` line.

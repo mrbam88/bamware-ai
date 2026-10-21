@@ -12,11 +12,20 @@ How to run the software factory from Discord. One page. Since 2026-10-20 (ADR 00
 
 | You type | What happens |
 |---|---|
-| anything, e.g. `status?` | best runner by headroom answers; footer shows who and how much quota is left |
+| `status update` / `status?` / `standup` | a **standup**: every role (Scrum Master, Engineering Lead, CFO, Chief of Staff, Accountant) gives Yesterday / Today / Blockers, then one `Needs you:` line. Up to 250 words |
+| anything else, e.g. `newest open PR?` | best runner by headroom answers in under 100 words |
 | `claude …` / `codex …` / `opencode …` first word | forces that runner (`!claude` works too) |
 | `Scrum Master, …` / `CFO, …` / `Engineering Lead, …` | the runner wears that role's skill for this message |
 | `do #196` or `run ticket owner/repo#N` | claims the ticket, starts the executor, reports in `#cron`, finish line back to you |
 | a message in a **thread** | its own conversation; the channel itself is one conversation per day (resets 04:00 ET) |
+
+Every reply starts with one header line (Bilal, 2026-10-20):
+
+```
+Runner: Claude  Model: Fable 5.1  Agent: Scrum Master
+```
+
+Runner is the CLI that answered (Claude, Codex, opencode, or Seat when the router replied itself). Model is what that CLI reported using. Agent is the role the message named, the standup roster, or `NA`.
 
 Reply footer, always: `claude 85% · **codex** 100% · opencode 82%`. Bold is who answered. `?%` means the CFO has no reading for that pool yet.
 
@@ -40,10 +49,10 @@ unreadable to him. Replies he cannot parse hide signals and cause bad approvals.
 
 ## The daily loop
 
-1. **Morning:** `status?` then `Scrum Master, what's stuck?` Read the two replies. That is the checkpoint.
+1. **Morning:** `status update`. Every role reports Yesterday / Today / Blockers. That is the checkpoint.
 2. **Pick work:** `do #N` for each Agent-ready ticket you want moving. One ticket, one PR, one worker. Don't dispatch two tickets that touch the same files.
 3. **Decide:** PRs that pass QA get merged by the agents. Store submissions, spend over $20, and secrets wait for you, by policy.
-4. **Evening:** `status?` again. Anything "stuck > 1 cycle" gets split, reassigned, or cut.
+4. **Evening:** `status update` again. Anything "stuck > 1 cycle" gets split, reassigned, or cut.
 
 ## Where things live
 
