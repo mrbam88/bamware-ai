@@ -3,7 +3,7 @@ import { Client, GatewayIntentBits, Partials, AttachmentBuilder, ChannelType } f
 import { paths, loadDiscordEnv } from './config.mjs';
 import { Seat } from './seat.mjs';
 import { run } from './spawn.mjs';
-import { deliver as deliverChunks } from './reply.mjs';
+import { deliver as deliverChunks, waitNotice } from './reply.mjs';
 
 const env = loadDiscordEnv();
 const P = paths(env);
@@ -33,13 +33,29 @@ client.on('messageCreate', async (message) => {
   if (message.author.id !== USER) { console.error(`[seat] ignored message from ${message.author.id}`); return; }
   const scope = inScope(message);
   if (!scope) return;
+  // Never leave Bilal waiting blind: 👀 = received, a notice after 15 s that updates every 30 s, ✅ = answered.
+  message.react('👀').catch(() => {});
   const typing = setInterval(() => message.channel.sendTyping().catch(() => {}), 8000);
   message.channel.sendTyping().catch(() => {});
+  let notice = null;
+  const wait = waitNotice({
+    post: async (t) => { notice = await message.reply({ content: t, allowedMentions: { repliedUser: false } }); },
+    edit: async (t) => { if (notice) await notice.edit({ content: t }); },
+    remove: async () => { if (notice) await notice.delete(); notice = null; },
+  });
   try {
-    const res = await seat.handle({ text: message.content, authorId: message.author.id, epochMs: message.createdTimestamp, ...scope });
+    const res = await seat.handle(
+      { text: message.content, authorId: message.author.id, epochMs: message.createdTimestamp, ...scope },
+      { onProgress: (what) => wait.setWhat(what) },
+    );
+    await wait.stop();
     await deliverChunks(message.channel, res.text, res.footer, (body) => new AttachmentBuilder(Buffer.from(body, 'utf8'), { name: 'reply.md' }), res.header);
+    message.reactions.cache.get('👀')?.users.remove(client.user.id).catch(() => {});
+    message.react('✅').catch(() => {});
   } catch (err) {
     console.error('[seat] error', err);
+    await wait.stop();
+    message.react('❌').catch(() => {});
     await message.channel.send({ content: `Seat error: ${String(err.message || err).slice(0, 500)}` }).catch(() => {});
   } finally {
     clearInterval(typing);

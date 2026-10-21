@@ -69,7 +69,7 @@ export class Seat {
     const prompt = buildPrompt({ note: this.notes.read(key), ask: text, role: roleIn(text), standup });
     const { argv, meta: nextMeta } = a.command({ prompt, meta, cwd: this.paths.repo, env: this.env });
     this.log(`[seat] ${key} → ${a.name} (${choice.reason})`);
-    if (onProgress) onProgress(`${a.name} is on it (${choice.reason})`);
+    if (onProgress) onProgress(`${a.name === 'claude' ? 'Claude' : a.name === 'codex' ? 'Codex' : a.name} is working on it`);
 
     const res = await this.run(argv, { cwd: this.paths.repo, env: this.env });
     if (looksRateLimited(res.output, res.code)) {
