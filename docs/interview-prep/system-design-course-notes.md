@@ -1,7 +1,8 @@
 # System design — course notes and tutor guide
 
 **What this is.** A study guide that follows the syllabus of LeetCode's paid course
-*System Design for Interviews and Beyond* (15 chapters, 72 lessons). Bilal bought
+*System Design for Interviews and Beyond* (16 chapters, 81 lessons; the two
+Practice chapters are parts 1 and 2, merged here as section 14). Bilal bought
 it and found the videos too long. It's here so any agent can tutor him through
 the same topics.
 
@@ -32,6 +33,14 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   off with a commit.
 - The **★ lessons** are the ones interviewers ask about most. If time is short,
   do those first.
+- **This doc is the trusted syllabus.** Agents building drills and exercises
+  should stay inside these topics and treat the explanations here as correct.
+  Add depth from your own knowledge freely, but if you find something here that
+  is wrong, fix it in this file (with a commit), don't silently teach around it.
+- **Drill seeds** are at the end of each chapter. They are starting points for
+  drills, not a full list.
+- **Coverage check (2026-10-21):** every one of the course's 81 lessons maps to
+  a heading below; lesson titles were matched against the course's own list.
 
 ---
 
@@ -140,6 +149,14 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
 - Requirements decide the design. List them, rank them, and point back to
   them at every decision.
 
+**Drill seeds — chapters 0–1**
+- Given a one-line prompt ("design Instagram stories"), list 3 functional and 4 non-functional requirements with numbers, in 3 minutes, out loud.
+- Convert availability targets: 99%, 99.9%, 99.99% → downtime per year and per month. Then: why is count-based availability closer to what users feel?
+- Spot the mix-up: "our system is reliable because it's always up." Explain availability vs reliability vs durability with one example each.
+- Pick strong or eventual consistency for: bank balance, like count, inventory at checkout, profile photo. Defend each in one sentence.
+- p50 is 40 ms and p99 is 2 s. What does that tell you, and who are the p99 users likely to be?
+- Your app servers keep sessions in memory. What breaks when you add a second server? Fix it.
+
 ---
 
 ## 2. How to achieve system qualities with hardware (2 lessons)
@@ -168,6 +185,10 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   and no local state.
 - Moving down the list: less control and faster scaling, but you depend more
   on the cloud provider.
+
+**Drill seeds — chapter 2**
+- Where do you place 3 database copies to survive a zone outage? A region outage? What does each cost in write latency?
+- Pick physical, VM, container or serverless for: an image-resize job that runs 10 times a day; a WebSocket chat gateway; a GPU model server. Justify.
 
 ---
 
@@ -229,6 +250,12 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
 - That's why consumers have to be **idempotent**: processing the same message
   twice does no extra harm.
 
+**Drill seeds — chapter 3**
+- For each, sync or async and why: login check, welcome email, video transcoding, payment authorization.
+- Queue or pub/sub: "order placed" needs to reach billing, email and analytics. What about "resize this image"?
+- A consumer acks before processing and crashes mid-way. What happens? Now it acks after. What new problem appears, and how do you fix it?
+- Node analogy check: why does one CPU-heavy request slow down every other request on a Node server?
+
 ---
 
 ## 4. How to improve performance with caching (2 lessons)
@@ -253,6 +280,11 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   write), a **stampede** (when a hot key expires, thousands of requests hit
   the database at once; fix with a lock or a request coalescer), and
   **eviction** (LRU removes what was used least recently).
+
+**Drill seeds — chapter 4**
+- Design a dedup cache for payment requests: what key, what time-to-live, what happens on a Redis outage?
+- A hot config key expires and the database falls over. Name the problem and two fixes.
+- Cache-aside vs write-through vs write-back: which loses data on a crash, and when is that acceptable?
 
 ---
 
@@ -297,6 +329,12 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   results.
 - Queues make it fault tolerant. If a worker dies, its task becomes visible
   again (the visibility timeout) and another worker retries it.
+
+**Drill seeds — chapter 5**
+- The queue is full. List the four choices and pick one for: analytics events, payment jobs, live video frames.
+- Code drill: write a bounded blocking queue (Swift actor or TypeScript) with `put`/`take` that wait instead of spinning.
+- Size a thread pool for a CPU-bound job on 8 cores vs an I/O-bound API caller. Why are they different?
+- A batch worker dies mid-task. Walk through how the visibility timeout makes the task run again.
 
 ---
 
@@ -345,8 +383,9 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   **memtable** (in memory) plus the write-ahead log. When the memtable fills,
   it's flushed to sorted files on disk (**SSTables**), and background
   **compaction** merges those files.
-- **Bloom filters** skip files that can't contain the key. Used inside Kafka
-  Streams, CockroachDB, and many others.
+- **Bloom filters** skip files that can't contain the key. Used for Kafka
+  Streams state stores and MyRocks (MySQL on RocksDB); CockroachDB's storage
+  engine (Pebble) is modeled on it.
 
 **6.8 LSM-tree vs B-tree ★**
 - **LSM**: very fast writes (sequential appends) and good compression. Reads
@@ -363,6 +402,12 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   Repeated reads come from memory.
 - Kafka relies on this instead of its own cache. **Zero-copy** (`sendfile`)
   sends data from the page cache straight to the network.
+
+**Drill seeds — chapter 6**
+- Explain a write in an LSM-tree step by step (WAL → memtable → SSTable → compaction), then a read (memtable → Bloom filter → SSTables).
+- Pick LSM or B-tree for: metrics ingestion, a banking ledger with lots of reads, a chat message store. Say which amplification you're trading.
+- Bitcask-style store: why must every key fit in memory, and why can't it do range queries?
+- Why can Kafka skip having its own cache? (page cache + zero-copy)
 
 ---
 
@@ -449,6 +494,13 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   jitter), presence ("is the user online?"), and sending to everyone in a
   large group (fan-out).
 
+**Drill seeds — chapter 7**
+- Pick a protocol for: a public mobile API, service-to-service calls, a live video call, LLM token streaming to a browser. One sentence each.
+- Design notifications for a chat app: app open vs backgrounded vs killed.
+- 5 million users hold WebSockets. Sketch the gateway tier, how a message finds the right gateway, and what happens on a deploy (reconnect storm).
+- Client-side vs server-side service discovery: who knows the instance list, and what fails if the registry is down?
+- Explain adaptive bitrate streaming and why it plays well with CDNs.
+
 ---
 
 ## 8. How to deliver data reliably (7 lessons)
@@ -505,6 +557,12 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
 - You can rewind the offset to reprocess messages, which is a great feature
   for fixing bugs.
 
+**Drill seeds — chapter 8**
+- Code drill: write `retry(fn)` with exponential backoff, full jitter, a max attempt count, `Retry-After` support, and no retries on 4xx.
+- 3 layers each retry 3 times. How many calls hit the bottom service when it's down? Fix it two ways.
+- Which is safe to retry blindly: GET profile, POST payment, PUT avatar, DELETE comment? What makes the unsafe one safe?
+- Delivery guarantees: pick at-most / at-least / effectively-once for metrics, emails, money transfers. Where do you commit the Kafka offset for each?
+
 ---
 
 ## 9. How to deliver data quickly (2 lessons)
@@ -521,6 +579,10 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   well.
 - Choices: gzip compresses most but is slow. **LZ4 / Snappy** are fast with
   less compression. **zstd** is a good balance.
+
+**Drill seeds — chapter 9**
+- Batching math: 10,000 msgs/s, 1 ms overhead per request. Compare 1 msg per request vs batches of 100. What latency did you add?
+- Pick a compression codec for: logs shipped to cold storage, a low-latency message bus.
 
 ---
 
@@ -569,6 +631,12 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   evens out the load and allows weighting by machine capacity.
 - Used in DynamoDB, Cassandra, CDNs and load balancers.
 
+**Drill seeds — chapter 10**
+- You need per-user ordering of events with 50 consumers. Choose the partition key and explain what ordering you lose.
+- Timestamps as a range-partition key: what goes wrong? Fix it.
+- You go from 4 to 5 nodes with hash mod N. Roughly what share of keys move? With consistent hashing? Why add virtual nodes?
+- One celebrity account melts one partition. Two fixes.
+
 ---
 
 ## 11. How to protect servers from clients (5 lessons)
@@ -610,6 +678,12 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
 - Distributed version: counters in Redis (`INCR` + time-to-live, or a Lua
   script for an atomic token bucket). Return `429` with `Retry-After`.
 
+**Drill seeds — chapter 11**
+- Draw what happens to latency and throughput as load passes capacity, and explain why retries make it worse.
+- Code drill: implement a token bucket (capacity, refill rate, `tryAcquire()`); then make it work across servers with Redis.
+- Black Friday spike in 30 s; autoscaling takes 4 minutes. What keeps the site up in between?
+- Load shedding: which requests do you drop first in an e-commerce app, and what status code do you return?
+
 ---
 
 ## 12. How to protect clients from servers (5 lessons)
@@ -645,6 +719,11 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   their own combination. Few other customers share that exact combination,
   so the damage stays tiny.
 - AWS uses this heavily (Route 53). It's a strong senior-level detail.
+
+**Drill seeds — chapter 12**
+- Code drill: implement a circuit breaker with closed / open / half-open states, a failure threshold and a cooldown.
+- A slow payments service is eating all threads, and the profile page dies too. Name the pattern that prevents this and sketch it.
+- Explain shuffle sharding with numbers: 8 workers, each customer gets 2. How many customers share your exact pair?
 
 ---
 
@@ -703,8 +782,9 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   available.
 
 **Monitoring system ★**
-- Agents on each host collect metrics → push or pull (Prometheus pulls)
-  → a queue → a time-series database (downsample old data) → dashboards
+- Agents on each host collect metrics. Either they **push** them (through a
+  queue such as Kafka) or a collector **pulls** them (Prometheus scrapes each
+  host). Both end in a time-series database (downsample old data) → dashboards
   plus an alerting engine (thresholds, alert-after-N-minutes rules,
   deduplication, routing to on-call).
 - Heavy writes and time-ordered data, so an LSM / time-series store fits
@@ -712,6 +792,11 @@ system design; `mobile-system-design-cheatsheet.md` covers only the client side)
   storage explode.
 - The monitoring system has to be more available than what it watches.
   Who monitors the monitor? A separate, simple watchdog.
+
+**Drill seeds — chapter 14**
+- Run each practice problem as a timed 35-minute mock using the 7-step script, with an agent as interviewer.
+- After each mock, name which chapters' concepts you used and which you should have used.
+- Cold prompts to add once these are done: chat app, news feed, ride matching, rate limiter as a service, notification system.
 
 ---
 
