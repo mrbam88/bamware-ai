@@ -1,0 +1,10 @@
+[Unit]
+Description=Bamware Scrum Master board sweep (deterministic collector, writes latest.json) (#197)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# systemd user units get a bare PATH; gh and mise shims live here.
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
+ExecStart=/usr/bin/python3 %h/code/worktrees/bamware-ai-main/services/scrum-master/board_sweep.py --project 2 --owner mrbam88 --state-dir %h/.local/state/bamware/scrum-master
+TimeoutStartSec=5min

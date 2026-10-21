@@ -13,20 +13,6 @@ and shared drafting canvas; Discord is the primary communication/alert channel.
 Git owns code and versioned instructions, Drive shared files, and the private
 interviews repo existing career assets. See `skills/bamware-assistant/SKILL.md`.
 
-## Hermes runtime
-
-Hermes reads this skill directly through `skills.external_dirs`; never install
-an independent copy. The approved startup hook `scripts/hermes-context.py`
-fetches and pins current main, injects AGENTS.md, an explicitly bounded STATE
-excerpt and the skill index, and reports local drift without merging anything.
-A successful startup marker is evidence of that fetch, not of push access.
-
-Read `docs/hermes-integration.md` for install, verification, role routing,
-automation ownership and rollback. If the hook is absent, run the ordinary
-bootstrap below. A failed fetch is a stop, not permission to use cached facts.
-Use the native git/gh path. Hermes session history is useful evidence, not the
-canonical store. Operating procedures belong here; save other facts in their authoritative stores.
-
 ## Step 0 — resolve your WRITE path first, before reading anything
 
 Reading this repo needs no connector. **Writing does.** If you discover that gap
