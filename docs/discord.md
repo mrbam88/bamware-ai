@@ -68,6 +68,14 @@ Env (private machines): `DISCORD_HOME_CHANNEL` + `DISCORD_ASSISTANT_CHANNEL` = C
   missed-brief alert. The job's own text is never delivered unverified
   (2026-10-21 it reported yesterday's page as today's). Install like the
   digest timers. Retirement of the Hermes install: #197.
+- **Interview-mail safety net (every daily-brief run, so 08:00, 08:30 and
+  every 2 h):** `scripts/interview-mail-alert.py`, no model. Searches Gmail
+  through the read-only broker for interview-related mail from the last two
+  days and posts sender, time and subject of anything not shown before to
+  `#chief-of-staff`; shown ids in
+  `~/.local/state/bamware/interview-mail/alert-seen.json`. Added 2026-10-21
+  after the model-driven Interview Tracker reported "Gmail healthy" on runs
+  that never reached Gmail. Failures are loud in the journal.
 - **Deadlines:** `docs/deadlines.md` with `scripts/discord-deadlines.sh` (#38).
   Runs with the morning briefing and reminds once per window (7-4 days, 3-2,
   1, the day, overdue). Set `DISCORD_USER_ID` in `discord.env` for @mentions.
