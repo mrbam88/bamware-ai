@@ -1,5 +1,18 @@
 # State of the Union — Bamware
 
+## 2026-10-21 — Interview-mail safety net; Google broker allow-list fixed
+
+- **Found:** the model-driven Interview Tracker (Hermes cron, Grok) said
+  "Gmail healthy" at 12:00, 14:00 and 16:00 ET while every broker call was
+  refused or blocked and no search artifact was written. Last real scan was
+  2026-10-20. Bilal: "this is critically important."
+- **Fixed:** Bilal added `bamware-daily-brief.service` to the broker's
+  allow-list (sudo, 15:56 ET). `scripts/daily-brief.sh` now probes the broker
+  each run (PR #211) and runs `scripts/interview-mail-alert.py` (no model):
+  new interview-related mail from the last 2 days → one post in
+  `#chief-of-staff`. First run 16:02 ET posted 21 messages. The model job
+  stays as classifier only; the alert is the floor.
+
 ## 2026-10-21 — Interview Coach back: the seat now answers in #interviews
 
 - **Lost in the cutover:** the Hermes gateway had a `#interviews` channel

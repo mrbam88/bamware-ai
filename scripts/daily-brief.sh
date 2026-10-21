@@ -52,6 +52,10 @@ else
   echo "daily-brief: gmail broker DENIED/ERROR: ${probe:0:300}" >&2
 fi
 
+# Deterministic interview-mail safety net (no model): new interview-related
+# mail from the last 2 days → one post in #chief-of-staff. Failure is loud.
+python3 "$(dirname "$0")/interview-mail-alert.py" || echo "daily-brief: interview-mail-alert exit $?" >&2
+
 if ! verified && (( 10#$hour < 12 )); then
   hermes cron run "$JOB" >/dev/null   # due on the next tick
 fi
