@@ -1,0 +1,10 @@
+[Unit]
+Description=Bamware Scrum Master board sweep at 09:00 and 17:00 ET
+
+[Timer]
+OnCalendar=*-*-* 09:00:00 America/New_York
+OnCalendar=*-*-* 17:00:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target

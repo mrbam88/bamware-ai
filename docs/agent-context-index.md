@@ -25,7 +25,7 @@
 | Incident history | docs/incidents.md |
 | Session-end ritual | skills/session-handoff |
 | Other-vendor portability | docs/portability.md |
-| Hermes runtime | docs/hermes-integration.md |
+| Discord seat (router; Hermes retired 2026-10-21) | services/discord-router/README.md |
 | Assistant website | docs/assistant-website.md |
 
 Paths above are relative to the repository root. Start with `AGENTS.md` for mandatory policies.

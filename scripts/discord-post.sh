@@ -17,10 +17,10 @@ if ((${#text} > 1990)); then
 fi
 
 # BAMWARE_POST_TO=assistant posts as Bamware Bot in #bamware-bot, so Bilal can
-# reply to it there (skills/bamware-assistant). It uses the bot token Hermes
-# already holds on the server; without it, or on failure, the webhook is used.
+# reply to it there (skills/bamware-assistant). It uses DISCORD_BOT_TOKEN from
+# ~/.config/bamware/discord.env only; without it, or on failure, the webhook is used.
 if [[ ${BAMWARE_POST_TO:-} == assistant && -n ${DISCORD_ASSISTANT_CHANNEL:-} ]]; then
-  bot_token=$(sed -n 's/^DISCORD_BOT_TOKEN=//p' "$HOME/.hermes/.env" 2>/dev/null | tail -1)
+  bot_token=${DISCORD_BOT_TOKEN:-}
   if [[ -n $bot_token ]]; then
     # The header comes from a file descriptor so the token stays out of argv.
     # Keep the response: the message id is the delivery receipt (#37).

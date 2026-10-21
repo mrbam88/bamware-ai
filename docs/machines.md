@@ -31,9 +31,8 @@ same session.** Record only what's known: "model unknown" beats a guess.
 
 ## `mac` — MacBook Pro (M3 Pro), macOS
 
-**Hermes:** Bilal reports it is already installed on the Mac (2026-09-24).
-Version, active profile, Bamware integration and remote execution have not yet
-been verified. Do not reinstall merely because the earlier audit lacked access.
+**Hermes:** retired 2026-10-21 (ADR 0002); do not reinstall. The Discord seat
+is the router in `services/discord-router`.
 
 **The only machine that can ship.** Everything Apple lives here and nowhere else.
 
@@ -87,7 +86,7 @@ sometimes. Always-on work (Discord timers and bot) lives on `omarchy`.
 **Usage clarification (Bilal, 2026-09-24):** Bilal uses all three laptops in
 varying situations and tries to keep them in sync. The roles below are
 capability/availability defaults, not exclusive assignments: any machine may
-be his interactive workstation. Hermes planning must support switching among
+be his interactive workstation. Agent planning must support switching among
 all three without requiring the ThinkPad to be the sole control desk. Shared
 context/procedures and machine-local execution state are distinct concerns;
 no particular session/config synchronization mechanism has been chosen yet.
