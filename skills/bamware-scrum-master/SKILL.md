@@ -30,8 +30,8 @@ count and the status, then one bullet per ticket:
 - (web) About Bilal page [#50](https://github.com/mrbam88/bamware-web/issues/50)
 ```
 
-Short repo name = the GitHub repo minus the `bamware-` prefix (`ai`,
-`venue-engine`, `web`, `brewdesk`, `brewdesk-flutter`). Number and link come
+Short repo name = the GitHub repo minus the "bamware-" prefix (ai,
+venue-engine, web, brewdesk, brewdesk-flutter). Number and link come
 from the board cache (`~/.local/state/bamware/board/latest.json`: `repository`,
 `content.number`, `content.url`); never from memory. Same format for sprint
 proposals, grooming, standups and sweep reports.
