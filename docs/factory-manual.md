@@ -20,6 +20,17 @@ How to run the software factory from Discord. One page. Since 2026-10-20 (ADR 00
 
 Reply footer, always: `claude 85% · **codex** 100% · opencode 82%`. Bold is who answered. `?%` means the CFO has no reading for that pool yet.
 
+## How the seat talks (Bilal, 2026-10-20)
+
+Plain English for a founder on a phone. No internal jargon, codenames,
+abbreviations or commit hashes. Say what a thing is and what it means for
+Bilal, in that order: "the spending kill-switch is off, so agents may run",
+never "CFO halt: absent". Lead with the one thing he needs to know or do; if
+nothing needs him, one sentence says so. Under 100 words.
+
+Why: the 2026-10-20 status reply ("All green", "CFO halt: absent") was
+unreadable to him. Replies he cannot parse hide signals and cause bad approvals.
+
 ## What the seat will tell you instead of doing
 
 - **`CFO halt: <reason>`** — the CFO stopped all spend. Nothing runs until the halt file is removed. This is Rule #1 working, not a bug.
