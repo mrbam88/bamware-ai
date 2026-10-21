@@ -1,0 +1,121 @@
+{
+ "version": 1,
+ "generated_at": 1792616588.614679,
+ "policy": {
+  "reserve_used_pct": 85.0,
+  "warn_used_pct": 80.0,
+  "critical_used_pct": 95.0
+ },
+ "pools": [
+  {
+   "key": "claude-max:weekly-fable",
+   "label": "Claude Max Fable allowance (half of weekly)",
+   "window_min": 10080.0,
+   "reset_at": 1792807200.434695,
+   "level": "ok",
+   "used_pct": 22.0,
+   "observed_at": 1792616500.244,
+   "rate_pct_h": 2.2204869527443374,
+   "eta_reserve_h": 28.372155000567435,
+   "eta_exhaust_h": 35.12743000070254,
+   "to_reset_h": 52.947727782196466,
+   "stale": false,
+   "factor": 1.0,
+   "reserve_before_reset": true,
+   "exhaust_before_reset": true,
+   "sent_level": "ok"
+  },
+  {
+   "key": "copilot:premium-monthly",
+   "label": "GitHub Copilot premium requests (monthly)",
+   "window_min": 43200.0,
+   "reset_at": 1793491200.0,
+   "level": "ok",
+   "used_pct": 17.6,
+   "observed_at": 1792616589.401329,
+   "rate_pct_h": 0.0,
+   "eta_reserve_h": null,
+   "eta_exhaust_h": null,
+   "to_reset_h": 242.94760703358386,
+   "stale": false,
+   "factor": 1.0,
+   "reserve_before_reset": false,
+   "exhaust_before_reset": false,
+   "sent_level": "ok"
+  },
+  {
+   "key": "claude-max:weekly",
+   "label": "Claude Max weekly (all models)",
+   "window_min": 10080.0,
+   "reset_at": 1792807200.434455,
+   "level": "ok",
+   "used_pct": 14.0,
+   "observed_at": 1792616500.244,
+   "rate_pct_h": 1.1102434763721687,
+   "eta_reserve_h": 63.94993666794565,
+   "eta_exhaust_h": 77.46048666821585,
+   "to_reset_h": 52.94772771550549,
+   "stale": false,
+   "factor": 1.0,
+   "reserve_before_reset": false,
+   "exhaust_before_reset": false,
+   "sent_level": "ok"
+  },
+  {
+   "key": "claude-max:session",
+   "label": "Claude Max 5-hour session",
+   "window_min": 300.0,
+   "reset_at": 1792629000.434439,
+   "level": "ok",
+   "used_pct": 10.0,
+   "observed_at": 1792616500.244,
+   "rate_pct_h": 5.551217381860843,
+   "eta_reserve_h": 13.510550000270209,
+   "eta_exhaust_h": 16.212660000324252,
+   "to_reset_h": 3.4477277110682594,
+   "stale": false,
+   "factor": 1.0,
+   "reserve_before_reset": false,
+   "exhaust_before_reset": false,
+   "sent_level": "ok"
+  },
+  {
+   "key": "openai-codex:acct-488dd9f701671dd1289d2977:primary-10080min",
+   "label": "OpenAI (ChatGPT/Codex) weekly pool",
+   "window_min": 10080.0,
+   "reset_at": 1793117299.0,
+   "level": "ok",
+   "used_pct": 1.0,
+   "observed_at": 1792616499.359636,
+   "rate_pct_h": 0.0,
+   "eta_reserve_h": null,
+   "eta_exhaust_h": null,
+   "to_reset_h": 139.08621814469495,
+   "stale": false,
+   "factor": 1.0,
+   "reserve_before_reset": false,
+   "exhaust_before_reset": false,
+   "sent_level": "ok"
+  }
+ ],
+ "sources": {
+  "openai-codex": {
+   "last_ok": 1792616588.614679,
+   "last_error": null,
+   "blind_h": 0.0,
+   "stale": false
+  },
+  "copilot": {
+   "last_ok": 1792616588.614679,
+   "last_error": null,
+   "blind_h": 0.0,
+   "stale": false
+  },
+  "claude-max": {
+   "last_ok": 1792616588.614679,
+   "last_error": null,
+   "blind_h": 0.0,
+   "stale": false
+  }
+ }
+}

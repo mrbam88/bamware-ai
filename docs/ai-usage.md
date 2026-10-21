@@ -4,18 +4,43 @@ Personal view of Bilal's AI usage across harnesses: `bamware.io/admin/ai-usage`
 (bamware-web#12). Unblocked 2026-09-30: storage is DynamoDB (Bilal's call),
 collection runs on the always-on `omarchy` server like the Discord timers.
 
-## How it fits together
+## Two kinds of numbers, never mixed (re-scope 2026-10-21)
+
+1. **Headline = vendor readings from the CFO.** The CFO (`services/cfo`) is the
+   one owner of quota numbers. Every collector run posts each pool in
+   `~/.local/state/bamware/cfo/capacity.json` as a `vendor_reading`: the
+   vendor's `used_pct` (percent of the window already **used**), `window_min`,
+   `observed_at`, `reset_at` and `stale`, verbatim; epoch seconds become ISO UTC
+   to the millisecond. Nothing is recomputed or guessed. A pool missing a
+   number is skipped and named on stderr. The page shows "N% of the <window>
+   window used", "as of <observed_at>", "resets <reset_at>", and a STALE badge
+   when the CFO flags it or the reading is over 60 minutes old. Override the
+   file with `AI_USAGE_CAPACITY`. No capacity.json yet: transcripts still post.
+2. **Estimates = local transcripts.** Tokens and list-price $ below the headline,
+   labelled "estimated from local transcripts".
+
+The page also shows a cross-check row per pool (vendor vs estimate). Only the
+Claude Max 5-hour pool has an estimate (window tokens over the assumed budget
+below); a gap over 10 points is shown in orange.
 
 ```
-~/.claude/projects/**/*.jsonl      (Claude Code transcripts, any machine)
+CFO capacity.json ─┐                 (vendor readings, every run)
+~/.claude/projects/**/*.jsonl ─┤     (Claude Code transcripts, any machine)
         │  scripts/ai-usage-collect.py   every 2 min (systemd user timer)
-        ▼  hourly rollups per session / subagent / model
+        ▼  vendor readings + hourly rollups per session / subagent / model
 POST bamware.io/api/ai-usage/ingest   Bearer AI_USAGE_INGEST_TOKEN
         ▼
-DynamoDB bamware-dev-ai-usage   (PK DAY#<utc date>, SK <HH>#host#source#session#stream#model, TTL 400d)
+DynamoDB bamware-dev-ai-usage
+   rollups:  PK DAY#<utc date>, SK <HH>#host#source#session#stream#model, TTL 400d
+   readings: PK VENDOR#READING, SK <poolKey> (latest per pool; older observations are ignored), TTL 30d
         ▲
 /admin/ai-usage (admin JWT)   + CSV paste for Cursor / Cowork
 ```
+
+Accuracy tests: `tests/test_ai_usage_collect.py` (fixture `tests/ai-usage-fixtures/capacity.json`
+-> collector payload, exact) and bamware-web `lib/__tests__/ai-usage-accuracy.test.ts` (same payload ->
+ingest -> headline equals the fixture). If `burn_alert.py publish_capacity` changes shape, update the fixture
+in both repos.
 
 - **Idempotent.** The collector recomputes each changed transcript's rollups
   whole and the server overwrites them. Re-running, `--all`, or two machines
@@ -25,10 +50,11 @@ DynamoDB bamware-dev-ai-usage   (PK DAY#<utc date>, SK <HH>#host#source#session#
 - **5-hour window** is reconstructed from Claude Code + Cowork rollups on every
   host: a window opens at the first message after the last one expired, floored
   to the hour. "Window tokens" = input + output + cache writes (cache reads
-  excluded). The limit is `AI_USAGE_WINDOW_TOKEN_LIMIT` (default 1.5M, the
-  unverified figure from `token-diet.md`). **When you hit a real limit, note the
-  gauge reading and set the env var to it** — that turns the gauge into a
-  measured one. The banner shows at 80%.
+  excluded). It is an estimate and is no longer shown as a percentage on its own.
+  The cross-check row divides it by `AI_USAGE_WINDOW_TOKEN_LIMIT` (default 1.5M,
+  the unverified figure from `token-diet.md`); a persistent gap against the vendor
+  reading tells you what to set it to. The alert banner now comes from the CFO's
+  own `level` (warn/critical), not from this estimate.
 - **Ticket** is parsed from the branch (`feat/12-x` → `web#12`, `fix/bd-97-y` →
   `brewdesk#97`). **Repo** is the cwd's directory name (worktrees report their
   parent repo), so sessions started in `~` show as `bilalx1`.

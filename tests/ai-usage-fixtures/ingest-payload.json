@@ -1,0 +1,70 @@
+{
+ "rollups": [],
+ "vendorReadings": [
+  {
+   "type": "vendor_reading",
+   "poolKey": "claude-max:weekly-fable",
+   "label": "Claude Max Fable allowance (half of weekly)",
+   "windowMin": 10080,
+   "usedPct": 22,
+   "level": "ok",
+   "stale": false,
+   "observedAt": "2026-10-21T21:01:40.244Z",
+   "resetAt": "2026-10-24T02:00:00.435Z",
+   "capacityGeneratedAt": "2026-10-21T21:03:08.615Z",
+   "host": "omarchy"
+  },
+  {
+   "type": "vendor_reading",
+   "poolKey": "copilot:premium-monthly",
+   "label": "GitHub Copilot premium requests (monthly)",
+   "windowMin": 43200,
+   "usedPct": 17.6,
+   "level": "ok",
+   "stale": false,
+   "observedAt": "2026-10-21T21:03:09.401Z",
+   "resetAt": "2026-11-01T00:00:00.000Z",
+   "capacityGeneratedAt": "2026-10-21T21:03:08.615Z",
+   "host": "omarchy"
+  },
+  {
+   "type": "vendor_reading",
+   "poolKey": "claude-max:weekly",
+   "label": "Claude Max weekly (all models)",
+   "windowMin": 10080,
+   "usedPct": 14,
+   "level": "ok",
+   "stale": false,
+   "observedAt": "2026-10-21T21:01:40.244Z",
+   "resetAt": "2026-10-24T02:00:00.434Z",
+   "capacityGeneratedAt": "2026-10-21T21:03:08.615Z",
+   "host": "omarchy"
+  },
+  {
+   "type": "vendor_reading",
+   "poolKey": "claude-max:session",
+   "label": "Claude Max 5-hour session",
+   "windowMin": 300,
+   "usedPct": 10,
+   "level": "ok",
+   "stale": false,
+   "observedAt": "2026-10-21T21:01:40.244Z",
+   "resetAt": "2026-10-22T00:30:00.434Z",
+   "capacityGeneratedAt": "2026-10-21T21:03:08.615Z",
+   "host": "omarchy"
+  },
+  {
+   "type": "vendor_reading",
+   "poolKey": "openai-codex:acct-488dd9f701671dd1289d2977:primary-10080min",
+   "label": "OpenAI (ChatGPT/Codex) weekly pool",
+   "windowMin": 10080,
+   "usedPct": 1,
+   "level": "ok",
+   "stale": false,
+   "observedAt": "2026-10-21T21:01:39.360Z",
+   "resetAt": "2026-10-27T16:08:19.000Z",
+   "capacityGeneratedAt": "2026-10-21T21:03:08.615Z",
+   "host": "omarchy"
+  }
+ ]
+}
