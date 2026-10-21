@@ -2,13 +2,23 @@
 
 How to run the software factory from Discord. One page. Since 2026-10-20 (ADR 0002).
 
-## The idea in three lines
+## The idea in four lines (flow rule, Bilal 2026-10-21)
 
-- You talk to **one seat** in `#chief-of-staff`. It answers as one voice.
-- Behind it, whichever agent CLI has quota does the thinking: Claude Code, Codex, opencode, more later. The seat picks; you don't have to.
-- The seat **routes, never executes**. Engineering goes to the Overnight executor, one ticket at a time, and comes back as a PR.
+- **Chat happens in a CLI session, not in Discord.** Open Claude Code, Codex, Grok or any logged-in agent CLI on omarchy (from the Mac, or from your phone through that vendor's remote control) and talk in one long thread. Whichever CLI you open wears the **Chief of Staff** skill; the role is vendor-agnostic, the vendor is whoever has quota.
+- **Discord is the notice board.** Alerts, the daily brief, interview-mail hits, standups on a timer, and `do #N` to dispatch. You don't converse with it.
+- Behind the board sits **one seat** in `#chief-of-staff` that answers short asks by routing to whichever CLI has quota, and routes only.
+- Engineering goes to the Overnight executor, one ticket at a time, and comes back as a PR.
 
-## Talking to the seat
+## Chatting (the long thread)
+
+```
+ssh omarchy          # or the vendor's remote control from your phone
+claude               # or: codex, grok, opencode — whichever has quota today
+> Chief of Staff, where are we?
+```
+The CLI reads `AGENTS.md`, `STATE.md` and `skills/bamware-assistant`, so it is the same Chief of Staff on every vendor. Keep one session per day; end it with "handoff" so the next vendor can pick up from `STATE.md`.
+
+## Talking to the seat (short asks on the board)
 
 | You type | What happens |
 |---|---|
