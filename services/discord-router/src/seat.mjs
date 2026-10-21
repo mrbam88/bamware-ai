@@ -43,7 +43,7 @@ export class Seat {
   capacity() { return readJson(this.paths.capacity); }
   halt() { return readJson(this.paths.halt); }
 
-  /** @param {{text:string, channelId:string, threadId?:string|null, authorId:string, epochMs?:number}} msg */
+  /** @param {{text:string, channelId:string, threadId?:string|null, kind?:'home'|'interviews', authorId:string, epochMs?:number}} msg */
   async handle(msg, { onProgress } = {}) {
     const runners = this.runners();
     const capacity = this.capacity();
@@ -66,7 +66,7 @@ export class Seat {
     const a = adapter(choice.runner);
     const meta = this.notes.meta(key)[a.name] || {};
     const standup = isStandup(text);
-    const prompt = buildPrompt({ note: this.notes.read(key), ask: text, role: roleIn(text), standup });
+    const prompt = buildPrompt({ note: this.notes.read(key), ask: text, role: roleIn(text), standup, kind: msg.kind || 'home' });
     const { argv, meta: nextMeta } = a.command({ prompt, meta, cwd: this.paths.repo, env: this.env });
     this.log(`[seat] ${key} → ${a.name} (${choice.reason})`);
     if (onProgress) onProgress(`${a.name === 'claude' ? 'Claude' : a.name === 'codex' ? 'Codex' : a.name} is working on it`);
