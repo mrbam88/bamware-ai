@@ -38,6 +38,20 @@ post() { # bot post in #chief-of-staff; token never touches argv
     jq -r '"daily-brief: posted id=\(.id)"'
 }
 
+# Prove the read-only Google broker accepts this unit before any job relies on
+# it (it allow-lists callers by systemd unit; 2026-10-21 it refused this one
+# while the Interview Tracker still reported "Gmail healthy"). One tiny search,
+# receipt without message content, so a denial is visible in the journal.
+probe=$(printf '{"op":"gmail_search","query":"newer_than:1d","limit":1}' |
+  timeout 60 python3 /opt/bamware-google/client.py 2>&1 || true)
+if jq -e '.ok == true' <<<"$probe" >/dev/null 2>&1; then
+  jq -c '{at: (now|todate), ok: true, count: .result.count}' <<<"$probe" | tee "$STATE/gmail-probe.json"
+  echo "daily-brief: gmail broker ok"
+else
+  jq -nc --arg e "${probe:0:300}" '{at: (now|todate), ok: false, error: $e}' | tee "$STATE/gmail-probe.json"
+  echo "daily-brief: gmail broker DENIED/ERROR: ${probe:0:300}" >&2
+fi
+
 if ! verified && (( 10#$hour < 12 )); then
   hermes cron run "$JOB" >/dev/null   # due on the next tick
 fi
