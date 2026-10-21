@@ -1,0 +1,11 @@
+[Unit]
+Description=Bamware daily Notion newspaper at 08:00 ET (retry 08:30), scheduler tick every 2 h
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 America/New_York
+OnCalendar=*-*-* 08:30:00 America/New_York
+OnCalendar=*-*-* 10,12,14,16,18,20:00:00 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target
