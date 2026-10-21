@@ -1,15 +1,17 @@
-// Discord wiring for the seat. Only Bilal's user ID, only the home channel and its threads.
+// Discord wiring for the seat. Only Bilal's user ID; only the home channel, #interviews (coach) and their threads.
 import { Client, GatewayIntentBits, Partials, AttachmentBuilder, ChannelType } from 'discord.js';
 import { paths, loadDiscordEnv } from './config.mjs';
 import { Seat } from './seat.mjs';
 import { run } from './spawn.mjs';
 import { deliver as deliverChunks, waitNotice } from './reply.mjs';
+import { scopeFor } from './scope.mjs';
 
 const env = loadDiscordEnv();
 const P = paths(env);
 const USER = env.DISCORD_USER_ID;
 const HOME = env.DISCORD_HOME_CHANNEL || env.DISCORD_ASSISTANT_CHANNEL;
 const CRON = env.DISCORD_CRON_CHANNEL;
+const INTERVIEWS = env.DISCORD_INTERVIEWS_CHANNEL || null;
 
 for (const [k, v] of Object.entries({ DISCORD_BOT_TOKEN: env.DISCORD_BOT_TOKEN, DISCORD_USER_ID: USER, DISCORD_HOME_CHANNEL: HOME })) {
   if (!v) { console.error(`discord-router: ${k} missing (set it in ~/.config/bamware/discord.env)`); process.exit(2); }
@@ -22,10 +24,7 @@ const client = new Client({
 });
 
 function inScope(message) {
-  const ch = message.channel;
-  if (ch.id === HOME) return { channelId: HOME, threadId: null };
-  if (ch.isThread && ch.isThread() && ch.parentId === HOME) return { channelId: HOME, threadId: ch.id };
-  return null;
+  return scopeFor(message.channel, { home: HOME, interviews: INTERVIEWS });
 }
 
 client.on('messageCreate', async (message) => {

@@ -1,5 +1,17 @@
 # State of the Union — Bamware
 
+## 2026-10-21 — Interview Coach back: the seat now answers in #interviews
+
+- **Lost in the cutover:** the Hermes gateway had a `#interviews` channel
+  prompt (career prep, interview kits, drills by stack). The router only
+  listened in `#chief-of-staff`, so the coach vanished. Bilal, 2026-10-21:
+  "I need the Interview agent to help me study for interviews."
+- **Fix:** `services/discord-router/src/scope.mjs` admits
+  `DISCORD_INTERVIEWS_CHANNEL` and its threads; `interviewCoachBlock()` in
+  `handoff.mjs` is the hat: one question at a time in drill mode, kits per
+  application saved under `~/.local/state/bamware/interviews/kits/`, sources in
+  the private `~/code/interviews` library and `docs/interview-prep/`. 37 tests.
+
 ## 2026-10-21 — Daily Notion newspaper back on a systemd timer (#197 gap)
 
 - **What broke:** Bilal's 8 AM Notion brief is a Hermes cron job inside the

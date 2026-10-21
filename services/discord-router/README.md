@@ -16,7 +16,7 @@ Discord ──msg──▶ seat ──reads──▶ ~/.local/state/bamware/cfo/
 
 ## Rules it enforces
 
-- Only `DISCORD_USER_ID` is answered; only `DISCORD_HOME_CHANNEL` and its threads.
+- Only `DISCORD_USER_ID` is answered; only `DISCORD_HOME_CHANNEL`, `DISCORD_INTERVIEWS_CHANNEL` and their threads. In `#interviews` the seat wears the Interview Coach hat (`interviewCoachBlock` in `src/handoff.mjs`): drills one question at a time, kits per application under `~/.local/state/bamware/interviews/kits/`, sources in the private `~/code/interviews` library.
 - **CFO halt** (`halt.json` with `{"halted": true, "reason": "…"}`) → nothing is spawned, nothing dispatched. Company Rule #1.
 - Runner order, `floor_pct` and `cooldown_min` come from `config/model-routing.yaml` → `runners:`. The CFO owns that file.
 - A runner under the floor is skipped. A runner that returns a rate-limit error is cooled down for `cooldown_min` and the next one answers. Pools with no usage API (unknown headroom) always go last.
@@ -33,7 +33,7 @@ Discord ──msg──▶ seat ──reads──▶ ~/.local/state/bamware/cfo/
 git -C ~/code/bamware-ai worktree add --detach ~/code/worktrees/bamware-ai-main origin/main 2>/dev/null || git -C ~/code/worktrees/bamware-ai-main checkout --detach origin/main
 cd ~/code/worktrees/bamware-ai-main/services/discord-router && npm install --omit=dev --no-audit --no-fund
 
-# env (0600): DISCORD_BOT_TOKEN, DISCORD_USER_ID, DISCORD_HOME_CHANNEL, DISCORD_CRON_CHANNEL
+# env (0600): DISCORD_BOT_TOKEN, DISCORD_USER_ID, DISCORD_HOME_CHANNEL, DISCORD_CRON_CHANNEL, DISCORD_INTERVIEWS_CHANNEL (optional)
 chmod 600 ~/.config/bamware/discord.env
 
 # runners must be logged in as the service user
