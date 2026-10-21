@@ -37,4 +37,19 @@ export function answerFrom(output) {
   return texts.length ? texts.join('') : output;
 }
 
+/** Model from the event stream (modelID/providerID), else the pinned BAMWARE_OPENCODE_MODEL. */
+export function modelFrom(output, { env = process.env } = {}) {
+  for (const line of String(output || '').split('\n')) {
+    const t = line.trim();
+    if (!t.startsWith('{')) continue;
+    try {
+      const ev = JSON.parse(t);
+      const part = ev.part || ev.properties?.part || ev.info || ev;
+      const id = part.modelID || part.model || (part.model && part.model.modelID);
+      if (typeof id === 'string' && id) return part.providerID ? `${part.providerID}/${id}` : id;
+    } catch { /* ignore */ }
+  }
+  return env.BAMWARE_OPENCODE_MODEL || null;
+}
+
 export const authCheck = { argv: ['opencode', 'auth', 'list'], deadPattern: /no credentials|not logged in/i };

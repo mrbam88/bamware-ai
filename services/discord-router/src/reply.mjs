@@ -14,13 +14,15 @@ export function chunks(s, size = LIMIT) {
   return out;
 }
 
-/** Send text in ≤LIMIT chunks, or as a file when it is long. `channel` needs .send(); `fileOf` builds an attachment. */
-export async function deliver(channel, text, footer, fileOf) {
-  const body = String(text || '').trim();
-  if (body.length > LIMIT * 2 && fileOf) {
-    await channel.send({ content: footer ? `_${footer}_` : undefined, files: [fileOf(body)] });
+/** Header line first, then text in ≤LIMIT chunks (or a file when long), then the footer. `channel` needs .send(); `fileOf` builds an attachment. */
+export async function deliver(channel, text, footer, fileOf, header) {
+  const answer = String(text || '').trim();
+  if (answer.length > LIMIT * 2 && fileOf) {
+    const content = [header, footer ? `_${footer}_` : ''].filter(Boolean).join('\n');
+    await channel.send({ content: content || undefined, files: [fileOf(answer)] });
     return;
   }
+  const body = header ? `${header}\n${answer}` : answer;
   for (const chunk of chunks(body, LIMIT)) await channel.send({ content: chunk });
   if (footer) await channel.send({ content: `_${footer}_` });
 }

@@ -1,4 +1,8 @@
 // Runner adapter: OpenAI Codex CLI. `codex exec` first turn, `codex exec resume <id>` after.
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
+import path from 'node:path';
+
 export const name = 'codex';
 
 // cwd comes from spawn(); `codex exec resume` rejects -C, so no -C anywhere.
@@ -38,6 +42,50 @@ export function answerFrom(output) {
     } catch { /* ignore */ }
   }
   return texts.length ? texts[texts.length - 1] : output;
+}
+
+/** Walk ~/.codex/sessions/YYYY/MM/DD for the rollout file of one thread. */
+function rolloutFor(sessionId, codexHome) {
+  const root = path.join(codexHome, 'sessions');
+  const walk = (dir, depth) => {
+    let names = [];
+    try { names = readdirSync(dir); } catch { return null; }
+    for (const n of names.sort().reverse()) {
+      const p = path.join(dir, n);
+      let st; try { st = statSync(p); } catch { continue; }
+      if (st.isDirectory() && depth < 3) { const hit = walk(p, depth + 1); if (hit) return hit; }
+      else if (st.isFile() && n.endsWith(`${sessionId}.jsonl`)) return p;
+    }
+    return null;
+  };
+  return walk(root, 0);
+}
+
+/** Model used this turn: from the event stream if it says, else the thread's rollout log, else config.toml. */
+export function modelFrom(output, { env = process.env } = {}) {
+  for (const line of String(output || '').split('\n')) {
+    const t = line.trim();
+    if (!t.startsWith('{')) continue;
+    try {
+      const ev = JSON.parse(t);
+      const m = ev.model || (ev.item && ev.item.model) || (ev.turn && ev.turn.model);
+      if (typeof m === 'string' && m) return m;
+    } catch { /* ignore */ }
+  }
+  const codexHome = env.CODEX_HOME || path.join(env.HOME || homedir(), '.codex');
+  const sid = sessionFrom(output);
+  const file = sid ? rolloutFor(sid, codexHome) : null;
+  if (file) {
+    try {
+      const m = /"model":"([^"]+)"/.exec(readFileSync(file, 'utf8'));
+      if (m) return m[1];
+    } catch { /* ignore */ }
+  }
+  try {
+    const m = /^\s*model\s*=\s*"([^"]+)"/m.exec(readFileSync(path.join(codexHome, 'config.toml'), 'utf8'));
+    if (m) return m[1];
+  } catch { /* ignore */ }
+  return null;
 }
 
 export const authCheck = { argv: ['codex', 'login', 'status'], deadPattern: /not logged in/i };

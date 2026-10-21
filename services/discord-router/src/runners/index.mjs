@@ -1,5 +1,5 @@
 // Runner registry. Adding a vendor = one file here that exports
-// { name, command({prompt, meta, cwd, env}), sessionFrom(output), answerFrom?(output), authCheck? }.
+// { name, command({prompt, meta, cwd, env}), sessionFrom(output), answerFrom?(output), modelFrom?(output, {env}), authCheck? }.
 import * as claude from './claude.mjs';
 import * as codex from './codex.mjs';
 import * as opencode from './opencode.mjs';

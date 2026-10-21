@@ -37,7 +37,7 @@ client.on('messageCreate', async (message) => {
   message.channel.sendTyping().catch(() => {});
   try {
     const res = await seat.handle({ text: message.content, authorId: message.author.id, epochMs: message.createdTimestamp, ...scope });
-    await deliverChunks(message.channel, res.text, res.footer, (body) => new AttachmentBuilder(Buffer.from(body, 'utf8'), { name: 'reply.md' }));
+    await deliverChunks(message.channel, res.text, res.footer, (body) => new AttachmentBuilder(Buffer.from(body, 'utf8'), { name: 'reply.md' }), res.header);
   } catch (err) {
     console.error('[seat] error', err);
     await message.channel.send({ content: `Seat error: ${String(err.message || err).slice(0, 500)}` }).catch(() => {});
