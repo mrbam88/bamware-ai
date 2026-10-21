@@ -195,7 +195,7 @@ test("GET /api/decisions (live) lists the real, explicit candidates, all pending
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.mode, "live");
-    assert.deepEqual(body.decisions.map(d => d.id), ['brewdesk-first-carousel-72', 'backlog-triage-view-77']);
+    assert.deepEqual(body.decisions.map(d => d.id), ['brewdesk-first-carousel-72', 'backlog-triage-view-77', 'auth-atomic-docker-access-85']);
     assert.deepEqual(body.history.map(d => d.id), ['auth-email-aws-access-85', 'brewdesk-marketing-research-72']);
     for (const action of ['respond', 'handoff/refresh', 'discussion', 'discussion/sync']) {
       const retired = await fetch(`${base}/api/decisions/auth-email-aws-access-85/${action}`, { method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: '{}' });

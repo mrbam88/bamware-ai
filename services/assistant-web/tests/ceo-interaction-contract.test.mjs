@@ -55,3 +55,9 @@ test('Confirm commit path exists and discuss is chat-labeled', () => {
   assert.match(appJs, /commitActionFor/);
   assert.match(appJs, /Send to chat/);
 });
+
+test('face ask prefers summary and caps context fallback', () => {
+  assert.match(appJs, /function decisionFaceAsk/);
+  assert.match(appJs, /words\.slice\(0, 22\)/);
+  assert.match(appJs, /decisionFaceAsk\(d\)/);
+});
