@@ -1,5 +1,22 @@
 # State of the Union — Bamware
 
+## 2026-10-21 — Daily Notion newspaper back on a systemd timer (#197 gap)
+
+- **What broke:** Bilal's 8 AM Notion brief is a Hermes cron job inside the
+  Chief of Staff gateway. The 2026-10-20 cutover stopped that gateway (one bot
+  on Discord), so the brief, its 08:20 watchdog and the Interview Tracker job
+  stopped silently. A manual `hermes cron tick` then failed: the private Notion
+  helper scripts import the Hermes package, and the model posted yesterday's
+  page link to `#chief-of-staff` as today's edition.
+- **Fix (Bilal: "fix this ASAP"):** the helper and publisher in
+  `~/.hermes/scripts/` now re-exec under the Hermes venv; the job's own
+  delivery is set to local and the Hermes watchdog job paused;
+  `bamware-daily-brief.timer` → `scripts/daily-brief.sh` ticks the scheduler
+  at 08:00 (retry 08:30, every 2 h) and posts only the verified receipt or one
+  missed-brief alert. No new spend (Grok on the xAI subscription).
+- **Rule learned:** a scheduled job's "done" text is not evidence; deliver
+  from the receipt. Retiring the Hermes install (#197) must carry these jobs.
+
 ## 2026-10-20 — Discord seat rebuilt as a quota-aware router (ADR 0002); Rule #1 is "no surprise bills"
 
 - **Decision (Bilal, "Go. ASAP, highest priority, deploy"):** the Discord seat

@@ -57,6 +57,17 @@ Env (private machines): `DISCORD_HOME_CHANNEL` + `DISCORD_ASSISTANT_CHANNEL` = C
   fails the unit; GitHub outages show as `(unavailable: …)` rather than
   "none". `BAMWARE_DIGEST_LABEL="…"` marks a manual run in both messages and
   `BAMWARE_SKIP_DEADLINES=1` keeps it from consuming deadline reminders.
+- **Daily Notion newspaper (8 AM ET, Bilal's personal brief):** a Hermes cron
+  job (Grok, xAI subscription) writes a dated page under his Personal Diary;
+  private runbook in `~/.local/state/bamware/daily-newspaper/RUNBOOK.md`.
+  Since the Chief of Staff gateway was stopped (2026-10-20, ADR 0002) nothing
+  ticked the Hermes scheduler, so `bamware-daily-brief.timer` runs
+  `scripts/daily-brief.sh`: `hermes cron tick` at 08:00 (retry 08:30, every
+  2 h for the Interview Tracker job), then posts to `#chief-of-staff` only
+  what the publisher's verified receipt (`<date>.json`) proves, or one
+  missed-brief alert. The job's own text is never delivered unverified
+  (2026-10-21 it reported yesterday's page as today's). Install like the
+  digest timers. Retirement of the Hermes install: #197.
 - **Deadlines:** `docs/deadlines.md` with `scripts/discord-deadlines.sh` (#38).
   Runs with the morning briefing and reminds once per window (7-4 days, 3-2,
   1, the day, overdue). Set `DISCORD_USER_ID` in `discord.env` for @mentions.
