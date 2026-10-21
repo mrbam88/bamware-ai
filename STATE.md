@@ -27,6 +27,18 @@
   executor (never exercised live); #220 Hermes leftovers in scripts/tests/docs.
 - omarchy main worktree at `e34a604`; `discord-router` active throughout.
 
+## 2026-10-21 — Smart home: the seat can run Bilal's Govee lights
+
+- **Ask (Bilal):** turn the apartment lights on/off and change colors from
+  Discord. Govee Home app, glitchy. Not sure if Apple or Google home.
+- **Built:** `scripts/govee.sh` (Govee free cloud API: devices, on/off, color,
+  brightness) and `skills/bamware-smart-home`. The server is on the apartment
+  Wi-Fi (192.168.1.186) but Govee LAN Control answered no multicast scan, so
+  cloud it is. No spend; 10,000 calls/day per key.
+- **Blocked on Bilal:** the Govee API key (app → profile → Settings → Apply
+  for API Key → email) into `~/.config/bamware/govee.env`, chmod 600. Untested
+  against real lights until then.
+
 ## 2026-10-21 — Interview-mail safety net; Google broker allow-list fixed
 
 - **Found:** the model-driven Interview Tracker (Hermes cron, Grok) said
