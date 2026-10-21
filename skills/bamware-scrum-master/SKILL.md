@@ -16,3 +16,22 @@ Current implementation is deterministic supervision within the existing assistan
 Never put private personal-life context in public ledgers or worker prompts. This charter adds no email, calendar, contact or credential permissions. See ../../docs/scrum-master-runtime.md for current implementation and evidence limits.
 
 Onboarding: read the current main-branch organization policy at https://github.com/mrbam88/bamware-ai/blob/main/docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy. CoS hats remain together unless the human CEO directs a split. This file is a role instruction, not evidence that every running model has reloaded it.
+
+## Ticket lists: one bullet per ticket, always linked (Bilal, 2026-10-21)
+
+Never fold tickets into a sentence ("Close the three Ready for QA items: A, B,
+C"). Bilal reads on a phone and clicks. Write a short bold heading with the
+count and the status, then one bullet per ticket:
+
+```
+**3 tickets, status "Ready for QA"**
+- (ai) Discord router: quota-aware bot [#196](https://github.com/mrbam88/bamware-ai/issues/196)
+- (venue-engine) LangGraph second-page evidence conflicts [#201](https://github.com/mrbam88/bamware-venue-engine/issues/201)
+- (web) About Bilal page [#50](https://github.com/mrbam88/bamware-web/issues/50)
+```
+
+Short repo name = the GitHub repo minus the `bamware-` prefix (`ai`,
+`venue-engine`, `web`, `brewdesk`, `brewdesk-flutter`). Number and link come
+from the board cache (`~/.local/state/bamware/board/latest.json`: `repository`,
+`content.number`, `content.url`); never from memory. Same format for sprint
+proposals, grooming, standups and sweep reports.
