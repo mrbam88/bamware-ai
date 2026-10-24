@@ -1,5 +1,36 @@
 # State of the Union — Bamware
 
+## 2026-10-24 — Venue database chain DB-02..DB-07 verified and merged; hosting = Neon Free; G1 signed off
+
+- **What:** the dormant Postgres/PostGIS code in bamware-venue-engine (#145, Sept)
+  is now verified against a real database and hardened, one ticket at a time:
+  DB-02 schema (PR 209), DB-03 import (210), DB-04 read adapter (211), DB-05
+  saved spots (212), DB-06 community writes (213), DB-07 jobs + retention (214).
+  Each ran as one Sonnet worker in an isolated worktree, PR-only, merged after
+  green CI. 74 real-database tests now exist; parity JSON vs Postgres is zero
+  differences on 280 queries; indexed geo lookups confirmed; moderation and
+  saved spots are transactional; datasets prune to active + 1 (`npm run db:prune`).
+- **Production untouched:** JSON remains the default; the storage switch is off;
+  no hosting, no spend.
+- **Decisions (Bilal, 2026-10-24):** G1 signed off (Google-derived fields may be
+  imported to the hosted DB; same data is already public in git). Hosting is
+  **Neon Free** (0.5 GB, 100 CU-h/month, PostGIS, scale-to-zero), zero dollars,
+  created through the Vercel Marketplace by Bilal (human-only). One live dataset
+  is about 70 MB with indexes.
+- **Open before cutover (DB-08/DB-09):** Bilal creates the Neon project; decide
+  whether signed-out iPhone users may still submit observations in DB mode
+  (recommendation: require sign-in); reroute the remaining JSON-writing scripts
+  (`apply-verified-evidence`, `persist-research`, `ingest-open-places`,
+  `regate-open-places`); include `job_events`, `photo_review`, `evidence` in the
+  restore/privacy review; `tests/osm-baseline.test.ts` fails on main locally.
+- **Local tooling:** disposable Postgres 17 + PostGIS 3.6 on the Mac
+  (`brew postgresql@17 postgis`, port 55433, data under the job scratch dir;
+  `PG_BIN=/opt/homebrew/opt/postgresql@17/bin`). omarchy also has Docker and psql.
+- **Teaching record for Bilal:** [BrewDesk Cloud Primer](https://claude.ai/artifact/Qbpye7fBG2vmAnjjXUk9AG)
+  (serverless, pooler, hosting costs, scalability, recovery, decisions). He
+  asked for this kind of artifact to "engineer together"; DB/infra is his
+  self-declared weakest area.
+
 ## 2026-10-21 — First fan-out through the new factory: 4 tickets, 5 PRs merged, Hermes off
 
 - **Flow rule (Bilal):** Discord is the notice board and dispatch surface; chatting
