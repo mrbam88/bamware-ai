@@ -16,6 +16,13 @@ executor run with prompts off (ADR 0002). Written policy still binds: Rule #1,
 App Store rules, no secrets in this public repo. Interactive sessions that hit
 a wall: [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
 
+## First-class principle: engineer together through primers (2026-10-24)
+
+A decision about money, scale, reliability, security or architecture gets a
+**primer**: a short readable Artifact page that teaches Bilal what the choice
+depends on, shows options with numbers, and records the decision. Chat steers;
+the primer is where we think. Shape and rules: [docs/primers.md](docs/primers.md).
+
 ## First-class principle: continuity across agents
 
 Bilal switches models, vendors and harnesses constantly. **Context must survive
@@ -68,12 +75,11 @@ Resolve this BEFORE starting work, and state it next to the context marker:
 Answer or decision first; name tickets by title; anything to approve in one line.
 He asks when he wants more. Long replies hide signals and cause bad approvals.
 
-**Organization-wide role:** Bilal is the **Stakeholder / CEO**, not a routine task
-chaser. All agents follow the approved [role and escalation policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy):
-workers → Scrum Master → Chief of Staff → CEO. Read the policy at onboarding and when resuming a handoff; do not rely on an older conversation’s role definitions. Chief of Staff is the primary
-executive interface; critical owner alerts need not wait for ceremonial routing.
-Reserved decisions, evidence, Command Center/Discord delivery and resolution
-tracking remain mandatory. Read this policy when onboarding any role.
+**Roles:** Bilal is the **Stakeholder / CEO**, not a task chaser. Escalation
+is workers → Scrum Master → Chief of Staff → CEO per the
+[role policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy);
+read it when onboarding or resuming a handoff. Critical owner alerts skip the
+ceremony; reserved decisions, evidence and resolution tracking stay mandatory.
 
 - Short and sweet. Bullets over prose. No re-summaries. Limit his reading.
 - **Numbers (Bilal, 2026-10-20):** never a bare percentage. Say what it
@@ -85,11 +91,10 @@ tracking remain mandatory. Read this policy when onboarding any role.
 - Never mention Baat in responses or career materials (Bilal, 2026-09-16).
   Project wording: skills/bilal-answers.
 
-## Shared storage — confirmed 2026-10-02
+## Shared storage (2026-10-02)
 
-Drive is shared agent file storage; ordinary task storage is authorized.
-Prefer local filesystem access and deterministic transfers. Archive boundaries
-and rollout: `docs/shared-storage.md`. Gmail stays read-only: no sends or drafts.
+Drive is shared agent file storage (`docs/shared-storage.md`). Gmail stays
+read-only: no sends or drafts.
 
 ## Before you touch these, read the linked doc first
 
