@@ -10,6 +10,13 @@ Chat is for steering; the primer is where we think together.
 First one: [BrewDesk Cloud Primer](https://claude.ai/artifact/Qbpye7fBG2vmAnjjXUk9AG)
 (2026-10-24). Second: the Discord router design page
 (https://claude.ai/artifact/XDqEyLndAJuavvi6sD69fA, 2026-10-20).
+Third and fourth (2026-10-25, study pages for Bilal's AI-engineering pivot):
+[AI Engineering Primer](https://claude.ai/artifact/NboNzEuhXTW3FJBYapQwwQ) (evals,
+guardrails, traces, structured output, with mobile analogies and a self-test) and
+[How Bamware Works](https://claude.ai/artifact/1RVSQUexbApdSkKM698a6m) (architecture
+in plain words plus a file-level scorecard of which of those practices exist in
+the code: guardrails, tools and human-in-the-loop present; evals, traces,
+structured output, rollout and privacy partial; model-accuracy evals absent).
 
 ## When to write one
 
