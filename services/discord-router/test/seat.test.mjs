@@ -114,6 +114,22 @@ test('a rate-limited runner is cooled down and the next one answers', async () =
   assert.equal(state.cooldowns.claude, NOW + 3600);
 });
 
+test('a runner that times out with no output is cooled down and the next one answers', async () => {
+  const { paths } = fixture({ claudeUsed: 20 });
+  const run = fakeRun((argv) => {
+    if (argv[0] === 'claude') return { code: 1, output: '', timedOut: true };
+    if (argv[0] === 'codex') return { code: 0, output: 'codex here' };
+    throw new Error(`unexpected ${argv[0]}`);
+  });
+  const seat = new Seat({ paths, runFn: run, now: () => NOW, log: () => {} });
+  const r = await seat.handle({ text: 'hi', channelId: 'C', threadId: null, authorId: 'U', epochMs: NOW * 1000 });
+  assert.equal(r.runner, 'codex');
+  assert.equal(r.text, 'codex here');
+  const state = JSON.parse(readFileSync(path.join(paths.state, 'router-state.json'), 'utf8'));
+  assert.equal(state.cooldowns.claude, NOW + 3600);
+  assert.equal(state.cooldowns.codex, undefined);
+});
+
 test('CFO halt: nothing is spawned, the reply says why', async () => {
   const { paths } = fixture({ halt: { halted: true, reason: 'OpenAI weekly 97%' } });
   const run = fakeRun(() => { throw new Error('must not spawn'); });

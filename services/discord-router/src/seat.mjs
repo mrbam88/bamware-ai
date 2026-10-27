@@ -79,6 +79,16 @@ export class Seat {
       if (!forced) return this.handle({ ...msg, text: `${text}` }, { onProgress });
       return { header: header({ runner: a.name, model: this.state.models[a.name], agent: agentFor(text) }), text: `${a.name} is rate-limited; cooled down for ${runners.cooldown_min} min.`, runner: a.name, footer: footer(runners, capacity, a.name) };
     }
+    const hung = res.timedOut && !(a.answerFrom ? a.answerFrom(res.output) : res.output).trim();
+    if (hung) {
+      // A runner that hangs until the hard timeout with nothing to show is benched like a
+      // rate-limited one (2026-10-27: opencode hung on every message for a day).
+      this.state = coolDown(this.state, a.name, runners, this.now());
+      this.saveState();
+      this.log(`[seat] ${a.name} timed out with no output; cooling down ${runners.cooldown_min} min`);
+      if (!forced) return this.handle(msg, { onProgress });
+      return { header: header({ runner: a.name, model: this.state.models[a.name], agent: agentFor(text) }), text: `${a.name} timed out with no output; cooled down for ${runners.cooldown_min} min.`, runner: a.name, footer: footer(runners, capacity, a.name) };
+    }
     const sid = a.sessionFrom(res.output);
     this.notes.setMeta(key, { [a.name]: { ...nextMeta, ...(sid ? { sessionId: sid } : {}) } });
     const answer = (a.answerFrom ? a.answerFrom(res.output) : res.output).trim() || (res.timedOut ? '(timed out with no output)' : '(no output)');

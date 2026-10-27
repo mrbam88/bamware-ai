@@ -89,8 +89,11 @@ systemctl --user daemon-reload && systemctl --user enable --now bamware-cfo-burn
 - Covered: OpenAI (Codex) windows, Claude Max (5-hour session, weekly, Fable
   weekly share) and Copilot premium requests. Not yet: Grok, Cursor, Google
   (no known usage API for those plans).
-- The Claude samples file lives in a bamware-web worktree today; move it to a
-  stable path with `AI_QUOTA_SAMPLES_PATH` when that service is productized.
+- The Claude samples file is `~/.local/state/bamware/cfo/ai-quota-samples.jsonl`
+  (`AI_QUOTA_SAMPLES_PATH`, set in systemd drop-ins on both `ai-quota-sample.service`
+  and `bamware-cfo-burn-alert.service`); the sampler runs from `~/code/bamware-web`
+  on main. 2026-10-27: it pointed at a deleted worktree for a day and the Discord
+  seat routed everything to a hung opencode.
 - The Claude sampler (`ai-quota-sample.ts`) gives up on a 429 from the usage
   endpoint and does not back off or re-login; it was dark 2026-10-03 09:40 UTC
   to 2026-10-04 19:25 UTC. The CFO now escalates (above) but cannot restart it.
