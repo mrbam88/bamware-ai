@@ -1460,6 +1460,23 @@ its no-execution status; hosted activation and spend remain separate gates.
   (build 32). Session cron polls the state every 2 h (7-day limit); outcome
   goes here. Next after approval: release is AFTER_APPROVAL (auto), then
   1.1 marketing posts + web city pages per the post-approval order.
+- 2026-10-27: **Moshava Coffee post-mortem** (Bilal: app found him a great
+  café but ranked it wrong). Served 64/medium from 16 Sep research, then
+  99/high after ONE visit rating. Three engine faults, evidence in
+  https://claude.ai/artifact/H9tfKCNroTxq8h3tKw4DKd : (1) blog "laptops
+  upstairs only" mis-mapped to laptopPolicy=time_limited (caps 65; 35% of
+  score) — no "area limited" value exists; 2 of 4 time_limited venues are
+  area rules; (2) uncited research filler ("some"/"ok") at 0.75 counts as
+  evidence — 215 of 318 NYC researched claims have no citation; only 65 of
+  6,952 NYC venues have research at all; (3) a user report overwrites all
+  claims at 0.7, any single report clears "high" (store.ts:601, work-fit-
+  pilot.ts:73), no report counting, research can never refresh a user
+  report (merge.ts:31); report arrived submittedBy "anonymous". Seven-step
+  plan on the page (engine: filler→estimate, area_limited, blend not
+  overwrite; app: send JWT with ratings, provenance line under score,
+  fix-one-claim; both: Bilal's 10-café verdict set as CI regression).
+  Waiting on Bilal: the 10 verdicts + whether he was signed in. Tickets
+  not yet filed.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
