@@ -1,5 +1,27 @@
 # State of the Union — Bamware
 
+## 2026-10-27 — Discord seat silent for a day: stale quota feed routed every message to a hung opencode
+
+- **What Bilal saw:** every message since 10-26 16:00 came back "(timed out with no
+  output)" after 10 minutes. Bilal: keep the chat, fix it, he will not lean on it.
+- **Cause chain:** the `ai-spend-dashboard` worktree in bamware-web was deleted;
+  `ai-quota-sample.service` had it as WorkingDirectory, so the Claude sampler and
+  the OpenAI collector (its ExecStartPre) both stopped. Claude and Codex pools went
+  stale, the router treats stale as unknown headroom, so Copilot/opencode (fresh,
+  82% left) won every pick. `opencode run` hangs on omarchy even for a one-word
+  prompt (only an OpenAI oauth credential; no Copilot login), and a hang was not a
+  reason to bench a runner.
+- **Fixed on omarchy:** drop-ins `ai-quota-sample.service.d/20-main-checkout.conf`
+  (WorkingDirectory `~/code/bamware-web` on main, which has bamware-web#48;
+  `AI_QUOTA_SAMPLES_PATH=~/.local/state/bamware/cfo/ai-quota-samples.jsonl`; only
+  `ai-quota:sample`, the ingest script is not on main) and
+  `bamware-cfo-burn-alert.service.d/20-samples-path.conf` (same path). All five pools
+  fresh again at 12:34 ET; Claude 84% left. Hung opencode processes killed.
+- **Fixed in the seat:** a runner that hits the hard timeout with no output is cooled
+  down for `cooldown_min` like a rate limit and the next runner answers.
+- **Open:** opencode has no working provider on omarchy (`!opencode` will still hang
+  once per hour). Either log it into Copilot or drop it from `runners.order`.
+
 ## 2026-10-26 — Composio is Cowork-only; CLIs use native tools
 
 - **Decision (Bilal):** Composio serves the Claude desktop/web/mobile apps.
