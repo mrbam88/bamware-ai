@@ -72,6 +72,14 @@ Observed waste (not itemized per-ticket, but real):
 - Agents stopping idle and needing supervisor nudges — each nudge costs
   supervisor tokens too.
 
+### Tool-schema overhead per fresh CLI session (omarchy, 2026-10-26, measured)
+
+A one-word `claude -p` turn cost 28,106 cache-write tokens with the default
+37 MCP servers (418 tools) attached and 11,554 with `--strict-mcp-config`
+(0 servers, 26 tools). About 16,500 tokens of tool names per new session,
+before any work, and every new Discord thread is a new session. Policy and
+switches: `docs/runtimes.md`, "Connectors vs local tools".
+
 ## Levers (expected saving, risk)
 
 - **Sonnet/Haiku model defaults** — done (2026-08-22). Mechanical/well-specified

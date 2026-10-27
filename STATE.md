@@ -1,5 +1,26 @@
 # State of the Union — Bamware
 
+## 2026-10-26 — Composio is Cowork-only; CLIs use native tools
+
+- **Decision (Bilal):** Composio serves the Claude desktop/web/mobile apps.
+  CLI runtimes on our machines (Claude Code, Codex, opencode) never route
+  through it; GitHub is `git` over SSH + `gh`, Vercel is the `vercel` CLI.
+  Notion, Gmail and Drive keep their first-party connectors everywhere.
+  Rule in AGENTS.md §2, table and numbers in `docs/runtimes.md`.
+- **Applied:** `deniedMcpServers` by URL in `~/.claude/settings.json` on `mac`
+  and `omarchy`; `claude mcp list` on both now shows no Composio, Notion and
+  Gmail still connected. `thinkpad` offline; `scripts/bootstrap.sh` carries the
+  entry. Codex and opencode never had Composio configured.
+- **Measured on omarchy:** a one-word `claude -p` turn attaches 37 MCP servers
+  / 418 tools and writes 28,106 cache tokens; with `--strict-mcp-config` it is
+  0 servers / 26 tools / 11,554 tokens. About 16,500 tokens of tool names per
+  fresh session, and every new Discord thread is one.
+- **Primer:** [Connectors vs Local Tools](https://claude.ai/artifact/PSW9i9ABk6WyRFJBXrjNsh).
+- **Decisions for Bilal (one word each):** (1) Discord seat launches
+  `claude -p --strict-mcp-config` (recommended yes; nothing in the seat uses
+  Notion/Gmail/Drive). (2) Remove the 27 unauthenticated plugin servers synced
+  from the claude.ai account from the CLIs (recommended yes).
+
 ## 2026-10-26 — Govee lights live: key installed, living room verified
 
 - **Unblocked:** Bilal's Govee API key arrived by email ("Govee API Apply",
