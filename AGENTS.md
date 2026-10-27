@@ -76,6 +76,10 @@ Resolve BEFORE starting work; state it next to the context marker:
 **100-word rule (Bilal, 2026-10-03):** every reply is 100 words max by default.
 Answer or decision first; name tickets by title; anything to approve in one line.
 He asks when he wants more. Long replies hide signals and cause bad approvals.
+*Enforced since 2026-10-27:* a Claude Code Stop hook (`~/.claude/hooks/word-cap.py`,
+global settings) rejects any reply over 100 words outside code blocks and forces
+one rewrite. Text rules drift over long sessions; mechanisms do not. When a rule
+keeps failing, propose an enforcement mechanism (hook, check, gate) and say so.
 
 **Roles:** Bilal is the **Stakeholder / CEO**, not a task chaser. Escalation
 is workers → Scrum Master → Chief of Staff → CEO per the
