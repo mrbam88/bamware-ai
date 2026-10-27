@@ -61,8 +61,8 @@ Resolve BEFORE starting work; state it next to the context marker:
 | Cowork (Desktop/Web/mobile) | Composio → GITHUB_COMMIT_MULTIPLE_FILES |
 | Claude Code CLI / Sol / opencode | native git + gh |
 
-- **Composio is Cowork-only (Bilal, 2026-10-26):** CLIs use `git`/`gh`/
-  `vercel`; Claude settings deny it by URL. `docs/runtimes.md`.
+- **Native first (Bilal, 2026-10-27):** on a CLI use `git`/`gh`/`vercel`,
+  then first-party connectors; Composio last, never for GitHub.
 - A missing `gh` binary or container-git 403 does NOT mean "no access."
   Check the connector first.
 - No write path? STOP and hand Bilal the patch. Never write durable

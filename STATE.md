@@ -22,17 +22,17 @@
 - **Open:** opencode has no working provider on omarchy (`!opencode` will still hang
   once per hour). Either log it into Copilot or drop it from `runners.order`.
 
-## 2026-10-26 — Composio is Cowork-only; CLIs use native tools
+## 2026-10-27 — Composio: native tools first, not a ban
 
-- **Decision (Bilal):** Composio serves the Claude desktop/web/mobile apps.
-  CLI runtimes on our machines (Claude Code, Codex, opencode) never route
-  through it; GitHub is `git` over SSH + `gh`, Vercel is the `vercel` CLI.
-  Notion, Gmail and Drive keep their first-party connectors everywhere.
-  Rule in AGENTS.md §2, table and numbers in `docs/runtimes.md`.
-- **Applied:** `deniedMcpServers` by URL in `~/.claude/settings.json` on `mac`
-  and `omarchy`; `claude mcp list` on both now shows no Composio, Notion and
-  Gmail still connected. `thinkpad` offline; `scripts/bootstrap.sh` carries the
-  entry. Codex and opencode never had Composio configured.
+- **Decision (Bilal, 2026-10-26, refined 10-27):** on a CLI, native tools
+  (`git`/`gh`, `vercel`) and first-party connectors (Notion, Gmail, Drive)
+  come first; Composio only for a toolkit nothing local covers, never for
+  GitHub or Vercel. Composio stays loaded. Rule in AGENTS.md §2, table and
+  numbers in `docs/runtimes.md`.
+- **Deny list reverted:** a `deniedMcpServers` entry was applied on `mac` and
+  `omarchy` on 10-26 and removed on 10-27 ("be smarter with it, not ban it");
+  it would have blocked a future Composio-only toolkit silently. Both
+  machines show Composio connected again. Codex and opencode never had it.
 - **Measured on omarchy:** a one-word `claude -p` turn attaches 37 MCP servers
   / 418 tools and writes 28,106 cache tokens; with `--strict-mcp-config` it is
   0 servers / 26 tools / 11,554 tokens. About 16,500 tokens of tool names per

@@ -64,16 +64,14 @@ room we are already standing in.
 | Gmail (read-only) | first-party Gmail connector | same; Composio Gmail is redundant |
 | Drive | first-party Drive connector | same |
 
-Enforced by configuration, not by prompt. `~/.claude/settings.json` on every
-machine carries:
-
-    "deniedMcpServers": [{ "serverUrl": "https://connect.composio.dev/*" }]
-
-`scripts/bootstrap.sh` adds it idempotently. Applied by hand on `mac` and
-`omarchy` 2026-10-26; `thinkpad` was offline and gets it on its next
-bootstrap. Verify with `claude mcp list`: Composio absent, the other
-`claude.ai` entries present. Codex and opencode never had Composio configured
-(their only MCP server is `node_repl`).
+**Rule, not a ban (Bilal, 2026-10-27).** Composio stays loaded on the CLIs.
+Order of preference on a CLI: native tool (`git`, `gh`, `vercel`), then the
+first-party connector (Notion, Gmail, Drive), then Composio, and only for a
+toolkit neither of the first two covers. Never Composio for GitHub or Vercel.
+A deny list was tried on 2026-10-26 and removed the next day: it would block
+a future Composio-only toolkit silently, and Composio itself costs about 11
+tool names per session, so there is little to save. Codex and opencode never
+had Composio configured (their only MCP server is `node_repl`).
 
 Composio's active connections on 2026-10-26: GitHub and Gmail only. Both are
 covered on every CLI machine, so the CLIs lose nothing.
@@ -94,9 +92,10 @@ docs (read 2026-10-26): `deniedMcpServers` by `serverUrl` for one connector;
 `"disableClaudeAiConnectors": true` or `ENABLE_CLAUDEAI_MCP_SERVERS=false`
 for all of them; `--strict-mcp-config` for a single `claude -p` run.
 
-Open decisions (STATE.md 2026-10-26): whether the Discord seat's `claude -p`
+Open decisions (STATE.md 2026-10-27): whether the Discord seat's `claude -p`
 runs go strict, and whether the 27 unauthenticated plugin servers synced from
-the claude.ai account get removed from the CLIs.
+the claude.ai account get removed from the CLIs. Those 27, not Composio, are
+where the token overhead lives.
 
 ## Cowork and git — the details
 
