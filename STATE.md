@@ -1,5 +1,21 @@
 # State of the Union — Bamware
 
+## 2026-10-26 — Govee lights live: key installed, living room verified
+
+- **Unblocked:** Bilal's Govee API key arrived by email ("Govee API Apply",
+  2026-10-26). Installed in `~/.config/bamware/govee.env` (chmod 600) on the
+  MacBook. `scripts/govee.sh on <id>` turned on the TV Backlight 3 Lite, Smart
+  LED Bulb and Uplighter Floor Lamp (Govee code 200). "Smart LED Bulb Top"
+  answered 400 "Device is offline" (not on Wi-Fi), not a script fault.
+- **Device names:** no light is named "living room"; the four lights above are
+  the living-room set. Groups (Kill, Morning, Basic Group Control) list as sku
+  BaseGroup and are untested as control targets. Indoor thermometer is not a
+  light.
+- **Still pending:** the same env file on `omarchy` (Tailscale was down on the
+  Mac, LAN unreachable), so the Discord seat still exits 2 until it is copied.
+- **macOS note:** `/bin/bash` is 3.2; `on|off|bright` work there, `color` needs
+  bash 4+ (`${c,,}`), use Homebrew bash or run on the server.
+
 ## 2026-10-24 — Venue database chain DB-02..DB-07 verified and merged; hosting = Neon Free; G1 signed off
 
 - **What:** the dormant Postgres/PostGIS code in bamware-venue-engine (#145, Sept)
