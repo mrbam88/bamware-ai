@@ -49,6 +49,55 @@ permission classifier. New sessions read repo context; history is supplementary.
 - A *Mac only* row is a hard stop on the ThinkPad, not a slow path. Reassign
   the ticket to the Mac runner; never improvise a substitute.
 
+## Connectors vs local tools (Bilal, 2026-10-26)
+
+Composio exists for the **Cowork apps** (Claude desktop, web, mobile), which
+have no shell and no SSH key. A CLI on one of our machines already holds the
+real credentials, so a connector there is a slower, costlier second door to a
+room we are already standing in.
+
+| Service | CLI runtimes (Claude Code, Codex, opencode, any machine) | Cowork (desktop/web/mobile) |
+|---|---|---|
+| GitHub | native `git` over SSH + `gh` (authenticated `mrbam88` on `mac` and `omarchy`) | Composio `GITHUB_*` |
+| Vercel | `vercel` CLI (installed on `omarchy`) | Vercel connector |
+| Notion | first-party Notion connector (no CLI exists) | same |
+| Gmail (read-only) | first-party Gmail connector | same; Composio Gmail is redundant |
+| Drive | first-party Drive connector | same |
+
+Enforced by configuration, not by prompt. `~/.claude/settings.json` on every
+machine carries:
+
+    "deniedMcpServers": [{ "serverUrl": "https://connect.composio.dev/*" }]
+
+`scripts/bootstrap.sh` adds it idempotently. Applied by hand on `mac` and
+`omarchy` 2026-10-26; `thinkpad` was offline and gets it on its next
+bootstrap. Verify with `claude mcp list`: Composio absent, the other
+`claude.ai` entries present. Codex and opencode never had Composio configured
+(their only MCP server is `node_repl`).
+
+Composio's active connections on 2026-10-26: GitHub and Gmail only. Both are
+covered on every CLI machine, so the CLIs lose nothing.
+
+**Measured on `omarchy`, 2026-10-26** (`claude -p "Reply with exactly: ok"`,
+`--output-format stream-json --verbose`, fresh session each time):
+
+| Launch | MCP servers attached | Tools advertised | Cache-write tokens | Wall time |
+|---|---|---|---|---|
+| default | 37 (9 claude.ai connectors, 27 account-synced plugin servers, pdf) | 418 | 28,106 | 4.4 s |
+| `--strict-mcp-config` | 0 | 26 | 11,554 | 3.4 s |
+
+Every fresh session pays about 16,500 tokens of tool names before the first
+word of work. `--strict-mcp-config` drops account connectors and plugin
+servers alike; the Claude Code docs leave that unstated, so treat this
+measurement as the source. Switches, per the Claude Code settings and MCP
+docs (read 2026-10-26): `deniedMcpServers` by `serverUrl` for one connector;
+`"disableClaudeAiConnectors": true` or `ENABLE_CLAUDEAI_MCP_SERVERS=false`
+for all of them; `--strict-mcp-config` for a single `claude -p` run.
+
+Open decisions (STATE.md 2026-10-26): whether the Discord seat's `claude -p`
+runs go strict, and whether the 27 unauthenticated plugin servers synced from
+the claude.ai account get removed from the CLIs.
+
 ## Cowork and git — the details
 
 Reading the context repo needs no connector (public raw HTTPS). Writing does.

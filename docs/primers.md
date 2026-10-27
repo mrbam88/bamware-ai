@@ -17,6 +17,10 @@ guardrails, traces, structured output, with mobile analogies and a self-test) an
 in plain words plus a file-level scorecard of which of those practices exist in
 the code: guardrails, tools and human-in-the-loop present; evals, traces,
 structured output, rollout and privacy partial; model-accuracy evals absent).
+Fifth (2026-10-26): [Connectors vs Local Tools](https://claude.ai/artifact/PSW9i9ABk6WyRFJBXrjNsh)
+(Composio stays in the Claude apps, comes off the CLIs; measured per-session
+token cost of attached connectors; two one-word decisions on the Discord seat
+and account-synced plugins).
 
 ## When to write one
 

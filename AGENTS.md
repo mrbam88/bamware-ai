@@ -45,7 +45,7 @@ Public operating map: github.com/mrbam88/bamware-ai.
   ADR 0002, glossary in `CONTEXT.md`).
   Git owns code and versioned operating instructions; Drive owns shared files.
   Vendor memories are caches, not substitutes for these authoritative stores.
-  Read `skills/bamware-assistant/SKILL.md` for drafting and email boundaries.
+  `skills/bamware-assistant/SKILL.md`: drafting and email boundaries.
 - Staleness check: fetch CONTEXT_VERSION and state its contents in your
   first reply as `context: <marker>`.
   https://raw.githubusercontent.com/mrbam88/bamware-ai/main/CONTEXT_VERSION
@@ -53,21 +53,23 @@ Public operating map: github.com/mrbam88/bamware-ai.
 
 ## 2. How do I write to it?
 
-Resolve this BEFORE starting work, and state it next to the context marker:
+Resolve BEFORE starting work; state it next to the context marker:
 `write-path: composio/github` or `write-path: native git`.
 
 | Runtime | Write path |
 |---|---|
-| Claude Cowork (Desktop/Web) | Composio connector → GITHUB_COMMIT_MULTIPLE_FILES |
+| Cowork (Desktop/Web/mobile) | Composio → GITHUB_COMMIT_MULTIPLE_FILES |
 | Claude Code CLI / Sol / opencode | native git + gh |
 
-- A missing `gh` binary or a container-git 403 does NOT mean "no access."
+- **Composio is Cowork-only (Bilal, 2026-10-26):** CLIs use `git`/`gh`/
+  `vercel`; Claude settings deny it by URL. `docs/runtimes.md`.
+- A missing `gh` binary or container-git 403 does NOT mean "no access."
   Check the connector first.
-- No write path at all? STOP and hand Bilal the patch. Never write durable
+- No write path? STOP and hand Bilal the patch. Never write durable
   context into a vendor cache instead.
-- Save facts in their authoritative store, not only chat. Publish operating
-  rules here; organization and working drafts belong in Notion. Run the
-  session-handoff skill after durable decisions.
+- Save facts in their authoritative store, not only chat: operating rules
+  here, organization and drafts in Notion. Run session-handoff after durable
+  decisions.
 
 ## 3. How does Bilal work?
 
@@ -105,14 +107,14 @@ read-only: no sends or drafts.
 - Changing an API response shape silently breaks the app — docs/contracts.md.
 - App Store: never resubmit the rejected dating concept; show differentiation
   in binary + listing. docs/app-review-field-notes.md.
-- git/Xcode from Cowork? Check docs/runtimes.md first.
+- git/Xcode from Cowork? docs/runtimes.md first.
 - Agent PRs: QA merges after CI green + evidenced pass. Policy gates (by
   text, not prompts): store submission, spend over $20, secrets. Mobile builds
   use the Mac rail; Actions is BACKUP only.
-- Machine capabilities are not interchangeable: only the M3 Mac does Xcode,
-  simulators, signing. Read `docs/machines.md`; reassign, never improvise.
+- Machines are not interchangeable: only the M3 Mac does Xcode, simulators,
+  signing. `docs/machines.md`; reassign, never improvise.
 
 ## Reference map
 
-See [agent context index](docs/agent-context-index.md) for repositories, runtime
-capabilities, procedures, current state and technical documentation.
+See [agent context index](docs/agent-context-index.md) for repos, runtime
+capabilities, procedures, state and technical docs.

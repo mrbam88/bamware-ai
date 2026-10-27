@@ -82,6 +82,27 @@ for d in "$BAMWARE_AI_DIR"/skills/*/; do
   echo "  link  $name"
 done
 
+# --- Claude Code: no Composio on CLI runtimes (docs/runtimes.md, 2026-10-26) --
+# Composio is the Cowork write path. A machine with SSH keys and gh already has
+# the faster door, so deny the connector by URL. Idempotent; other settings kept.
+say "claude code: deny Composio connector"
+mkdir -p "$HOME/.claude"
+python3 - <<'PY'
+import json, os
+p = os.path.expanduser("~/.claude/settings.json")
+d = json.load(open(p)) if os.path.exists(p) else {}
+entry = {"serverUrl": "https://connect.composio.dev/*"}
+lst = d.setdefault("deniedMcpServers", [])
+if entry not in lst:
+    lst.append(entry)
+    with open(p, "w") as f:
+        json.dump(d, f, indent=2)
+        f.write("\n")
+    print("  added deniedMcpServers: composio")
+else:
+    print("  ok (already denied)")
+PY
+
 # --- opencode config -------------------------------------------------------
 say "opencode config"
 OC="$HOME/.config/opencode/opencode.jsonc"
