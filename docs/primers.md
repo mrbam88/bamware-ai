@@ -21,6 +21,10 @@ Fifth (2026-10-26): [Connectors vs Local Tools](https://claude.ai/artifact/PSW9i
 (native tools first on the CLIs, Composio last resort rather than banned;
 measured per-session token cost of attached connectors; two one-word
 decisions on the Discord seat and account-synced plugins).
+Sixth (2026-10-28): [BrewDesk Chat Primer](https://claude.ai/artifact/Y7h3uGgshKuu3YycQXRvuV)
+(a grounded cafe chatbot: server-side Claude call through a new engine endpoint,
+tool use over the existing venue search, Haiku 5.5 at about $0.001 a turn, prepaid
+credit with auto-reload off as the hard cap; four one-word decisions before tickets).
 
 ## When to write one
 
