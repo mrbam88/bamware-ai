@@ -103,9 +103,15 @@ pauses Spotify, and powers off the Apple TV, Samsung and Roku. Coming home
 triggers nothing by itself; the vibes timers skip while away. Manual check-in
 from any agent: `presence.sh home|away` (3 h override), `presence.sh status`.
 Quiet hours 22:00-08:00: the same check caps the stereo at 55% for the
-neighbours. Real decibels are not available: omarchy's built-in mic (Apple T2)
-returns a constant full-scale value under Linux, so the stereo volume is the
-only loudness signal; a USB mic on omarchy would fix that (his purchase).
+neighbours. Room loudness: omarchy's built-in mic (Apple T2) is dead under Linux (constant
+full scale), but Bilal plugged Apple USB-C EarPods into omarchy on 2026-10-29
+and their mic works. `scripts/roomlevel.sh` samples 3 s every minute
+(`roomlevel.timer`) into `~/.local/state/bamware/roomlevel.log` as dBFS
+(uncalibrated: < -45 quiet, -45..-30 music or talk, > -25 loud) and, in quiet
+hours, steps the stereo down 10% whenever the room reads above -25 dBFS.
+Plugging the EarPods in also made them the default OUTPUT; the stereo must stay
+on sink "Apple Audio Device Headphones" (`wpctl set-default <id>`), check this
+if the stereo goes silent after a USB change.
 
 ## Daily vibes (shipped 2026-10-29, v1)
 
