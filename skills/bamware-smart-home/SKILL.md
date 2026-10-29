@@ -69,6 +69,29 @@ Apple TV is where he actually watches; a second one for the bedroom is on his
 wish list. For "Netflix" default to the Apple TV, with the Samsung on its HDMI.
 The pyatv CLI (`atvremote`) crashes on the server's Python 3.14; use the script.
 
+### Putting a video on the living-room TV (integration test passed 2026-10-29)
+
+"Put the latest NBA game on my TV": web-search the latest game's official
+"FULL GAME HIGHLIGHTS" upload on YouTube (NBA channel), then on omarchy:
+
+```
+P=~/.venvs/smarthome/bin/python
+$P ~/.local/bin/appletv.py key turn_on
+$P ~/.local/bin/appletv.py app "youtube://www.youtube.com/watch?v=<VIDEO_ID>"   # queues it in the YouTube app
+$P ~/.local/bin/appletv.py key select                                           # starts playback
+$P ~/.local/bin/appletv.py status     # verify: "Playing <title> pos/total" comes from the Apple TV itself
+```
+
+Verified: `Playing 'WIZARDS at CAVALIERS | FULL GAME HIGHLIGHTS | October 28,
+2026' 1/1008`. Bilal switched the Samsung to the Apple TV's HDMI by hand; the
+HDMI port number and his Netflix profile position are still unknown (asked
+2026-10-29), after which "Netflix" should wake the Samsung, switch input, open
+Netflix on the Apple TV and pick his profile. Known dead ends: AirPlay
+`play_url` from pyatv fails "not authenticated" despite a successful AirPlay
+pairing (unsolved); `metadata.app` is None on this box, so verify with
+`metadata.playing()`; YouTube keyboard focus never reported Focused, so typed
+search is unproven. `yt-dlp` is in the venv if a direct stream is ever needed.
+
 ## The lights (inventory, verified live 2026-10-29)
 
 One-bedroom apartment in New York City. The living room is one open space
