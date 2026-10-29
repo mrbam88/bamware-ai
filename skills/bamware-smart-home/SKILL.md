@@ -130,6 +130,19 @@ after a command, `device/state` reflects it. A control call is one of the
 
 ### Scenes that worked
 
+- **Romance (2026-10-29, "I'm in love", "so impressed"):** every light on
+  Govee's built-in `Candlelight` scene, per-light brightness first and the
+  scene LAST (any brightness/toggle/colour sent after a scene cancels it):
+  lamp 70% (ripple on, bottom ring on, disc off), TV backlight 15%, kitchen
+  strip 6%, desk bulb 5%; Bulb Top (cloud-offline) steady `rgb(255,70,0)` at
+  1% over the LAN; stereo on Spotify "Late Night Jazz"
+  `spotify:playlist:37i9dQZF1DX4wta20PHgwo`, shuffled. The room goes one deep
+  candle red with the ripple rolling over the ceiling. Other scenes all four
+  lights share: Sunset, Aurora, Forest, Starry Sky, Valentine's Day, Rainbow.
+- **Desk bulbs too bright at 1%:** colour is the second dimmer. Deep amber
+  `rgb(255,70,0)` at 1% reads like a candle; white at 1% reads like a lamp.
+
+
 - **Evening / soothing (2026-10-29, "impress me"):** ceiling bulb amber
   `rgb(255,140,40)` 12%, floor lamp peach `rgb(255,170,100)` 18%, TV backlight
   lavender `rgb(110,70,200)` 30%. His verdict before this: "these lights are
