@@ -16,6 +16,7 @@ tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep
   $PY ~/.local/bin/appletv.py app "youtube://www.youtube.com/watch?v=$id" >/dev/null 2>&1; sleep 8; $PY ~/.local/bin/appletv.py key select >/dev/null 2>&1; sleep 6
   $PY ~/.local/bin/appletv.py status 2>&1 | tail -1
 }
+[[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
 case ${1:-} in
   morning)   # sunrise over ~6 min, then news
     $LAN on all >/dev/null; $LAN kelvin all 2700 >/dev/null

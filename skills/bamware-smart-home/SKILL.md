@@ -92,6 +92,21 @@ pairing (unsolved); `metadata.app` is None on this box, so verify with
 `metadata.playing()`; YouTube keyboard focus never reported Focused, so typed
 search is unproven. `yt-dlp` is in the venv if a direct stream is ever needed.
 
+## Presence, quiet hours, and the room's loudness (2026-10-29)
+
+Bilal works from cafes and is in and out all day (BrewDesk exists for that
+reason). `scripts/presence.sh` runs every 2 min on omarchy (`presence.timer`):
+home = his iPhone or MacBook answered on the apartment Wi-Fi within 15 min
+(MACs in the script; the iPhone uses a private address that is stable per
+network). On home -> away it turns every light off (LAN + the "Kill" group),
+pauses Spotify, and powers off the Apple TV, Samsung and Roku. Coming home
+triggers nothing by itself; the vibes timers skip while away. Manual check-in
+from any agent: `presence.sh home|away` (3 h override), `presence.sh status`.
+Quiet hours 22:00-08:00: the same check caps the stereo at 55% for the
+neighbours. Real decibels are not available: omarchy's built-in mic (Apple T2)
+returns a constant full-scale value under Linux, so the stereo volume is the
+only loudness signal; a USB mic on omarchy would fix that (his purchase).
+
 ## Daily vibes (shipped 2026-10-29, v1)
 
 Bilal's standing ask: "always set the scenery and set the vibes", replace the
