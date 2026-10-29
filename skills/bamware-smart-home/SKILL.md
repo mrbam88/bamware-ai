@@ -38,10 +38,43 @@ with the kitchen; the TV wall is on the right, windows at the back.
 |---|---|---|---|---|
 | Smart LED Bulb | H6006 | `11:AC:5C:E7:53:99:CB:E6` | ceiling fixture, living room | main room light |
 | Smart LED Bulb Top | H6006 | `16:BA:5C:E7:53:99:82:EE` | same ceiling fixture | **offline since at least 2026-10-26**: Govee answers 400 "Device is offline". Bilal is not worried about it; mention once, never nag |
-| Uplighter Floor Lamp | H60B0 | `40:F9:DA:C3:41:06:03:53` | right wall by the TV | bright; has side/bottom light toggles; reads brighter than the number says |
+| Uplighter Floor Lamp | H60B0 | `40:F9:DA:C3:41:06:03:53` | black pole lamp by the window, left of the mirror | three lights, see below; his favourite, bought for the ceiling ripple |
 | TV Backlight 3 Lite | H6099 | `1C:CF:D4:0F:40:46:18:6A` | behind the TV | wall wash; the TV is usually off, so this is the accent light |
 | Indoor thermometer | H5075 | `68:68:A4:C1:38:87:AB:20` | living room | Bluetooth-only, reports offline to the cloud. Not a light |
 | Kill, Morning, Basic Group Control | BaseGroup | | app groups | listed by the API but **not controllable** through it; drive the member lights |
+
+Not yet mapped: the white torchiere with a gooseneck on the right wall by
+the TV (lit bright white in his 2026-10-29 photo). Probably where the two
+H6006 bulbs live; confirm with a colour tag and a photo before relying on it.
+The ceiling fixture in the kitchen/living area is a dumb light.
+
+### The Uplighter (H60B0), verified by photo 2026-10-29
+
+Three lights, Bilal's words in quotes:
+
+| Light | Toggle instance | Colour | Brightness | Notes |
+|---|---|---|---|---|
+| "top": ripple projection onto the ceiling | `rippleLightToggle` | no, fixed rainbow prism | no | the reason he bought it |
+| "middle": the disc head | `sideLightToggle` | yes: `colorRgb`, `colorTemperatureK`, `segmentedColorRgb` zones 0-7 | yes: `brightness`, `segmentedBrightness` | |
+| "bottom": white ring under the disc | `bottomLightToggle` | no | no, ignores `brightness` | on/off only; same in the app |
+
+- **Ripple and bottom ring never run together.** Turning one on makes the
+  lamp report the other off, both directions. Asking for both is a no.
+- The lamp `brightness` and `colorTemperatureK` act on the disc only.
+- `segmentedColorRgb` / `segmentedBrightness` accept segments 0-7 (8 returns
+  "out of range"); they are zones of the disc, not the three lights.
+- Scenes: `POST /device/scenes` lists ~120 (Water Drop, Floating Mist,
+  Aurora, Candlelight, Starry Sky...). Send the option's `value` object
+  verbatim (`{"id":27668,"paramId":39204}` for Water Drop); guessing
+  `paramId` fails. "service is busy" = retry once after 5 s.
+- Snapshots he saved in the app, recallable via `dynamic_scene`/`snapshot`:
+  "Bam day", "Low light chill both".
+- Music modes exist (Stippling, Hopping, Flowing Light, Luminous, Sprouting,
+  Rhythm, Shiny) but are untested.
+- His preference (2026-10-29): light at the top, floor level dim. The
+  "ceiling-only" look that landed: bottom off, ripple on, disc warm 2700K at
+  15%, ceiling bulb 5%, TV backlight amber 15-40%. He reads colours from
+  photos, not by eye: ask for a photo instead of asking what colour he sees.
 
 Not in the account: a kitchen under-cabinet LED strip. It lights up fine on
 its own but lost its pairing; Bluetooth finds it, pairing always fails, and
