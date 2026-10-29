@@ -19,15 +19,15 @@ tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
 case ${1:-} in
   morning)   # sunrise over ~6 min, then news
-    $LAN on all >/dev/null; $LAN kelvin all 2700 >/dev/null
+    $LAN on all >/dev/null; $LAN color all 255,150,60 >/dev/null   # warm gold, never white (Bilal 2026-10-29: "white light's depressing")
     cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     spotify "spotify:playlist:37i9dQZF1DX4sWSpwq3LiO" 0.45   # Peaceful Piano
     for b in 5 15 30 50 70 85; do $LAN bright uplighter $b >/dev/null; $LAN bright strip $((b/2+5)) >/dev/null; $LAN bright "smart led bulb" $((b/3+3)) >/dev/null; $LAN bright "bulb top" $((b/3+3)) >/dev/null; sleep 60; done
-    $LAN kelvin all 4000 >/dev/null
+    $LAN color all 255,195,125 >/dev/null   # light apricot
     for u in "https://www.youtube.com/@markets/live" "https://www.youtube.com/@CNBC/live" "https://www.youtube.com/@NBCNews/live"; do tv_youtube "$u" && break; done ;;
   afternoon) # bright, focused, game in the background
-    $LAN on all >/dev/null; $LAN kelvin all 4500 >/dev/null; $LAN bright uplighter 100 >/dev/null; $LAN bright strip 70 >/dev/null; $LAN bright "smart led bulb" 40 >/dev/null; $LAN bright "bulb top" 40 >/dev/null
+    $LAN on all >/dev/null; $LAN color all 255,205,145 >/dev/null; $LAN bright uplighter 100 >/dev/null; $LAN bright strip 70 >/dev/null; $LAN bright "smart led bulb" 40 >/dev/null; $LAN bright "bulb top" 40 >/dev/null   # pale warm cream
     cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     spotify "spotify:playlist:37i9dQZF1DWWQRwui0ExPn" 0.70   # lo-fi beats
