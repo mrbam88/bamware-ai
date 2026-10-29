@@ -149,11 +149,16 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | morning | 6-min sunrise on the lamp (5->85%), strip and desk bulbs warm then 4000K | Peaceful Piano, 45% | Samsung + Apple TV on, YouTube live news (Bloomberg `@markets/live`, else CNBC, NBC) |
 | afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
-| cleaning (on demand) | everything 100% at 5000K, lamp disc + ring on, ripple off, TV wall on; touches `lights.hold` | untouched | untouched |
+| cleaning (on demand) | everything 100% at 5000K, lamp bottom ring + disc (ripple off, see the two-of-three rule), TV wall on; touches `lights.hold` | untouched | untouched |
 
-"Cleaning lights" (Bilal, 2026-10-29): `vibes.sh cleaning`. Ultra bright for
-chores. When he says he is done, go back with `daylight.py` (afternoon) or
-`vibes.sh evening` (night).
+"Cleaning lights" (Bilal, 2026-10-29: "bottom definitely 100% and then
+whatever is the most you can do with the other lights"): `vibes.sh cleaning`.
+**Manual scenes win over the schedule:** scheduled morning/afternoon/evening
+runs and `daylight.timer` skip while `~/.local/state/bamware/lights.hold` is
+under 3 h old (the 19:30 run clobbered cleaning lights once). `vibes.sh
+release` drops the hold; `vibes.sh evening --force` overrides it. When he says
+he is done cleaning: release, then `daylight.py` (afternoon) or `vibes.sh
+evening` (night).
 
 **Daylight tracking (2026-10-29, "it's ridiculously bright in here, adjust
 the lighting based on the daylight"):** the afternoon preset used to stay at
@@ -205,9 +210,13 @@ Three lights, Bilal's words in quotes:
 | "middle": the disc head | `sideLightToggle` | yes: `colorRgb`, `colorTemperatureK`, `segmentedColorRgb` zones 0-7 | yes: `brightness`, `segmentedBrightness` | |
 | "bottom": white ring under the disc | `bottomLightToggle` | no | unproven: ignored lamp `brightness` once; Bilal says the app dims it to 2% | |
 
-- Ripple and bottom ring DO run together (verified 2026-10-29 in both orders;
-  an earlier "mutually exclusive" finding came from stale state reads right
-  after a toggle). Wait 5 s before reading state after a toggle.
+- **At most two of the three lights are on at once** (verified 2026-10-29
+  evening with 6 s waits): ripple + bottom works only while the disc is off;
+  turning the disc on drops the bottom ring; turning the bottom ring on while
+  disc + ripple are on drops the ripple. Send the light you care about LAST.
+  Bottom-heavy max (cleaning): bottom + disc 100%, ripple off. No API
+  brightness exists for the bottom ring or ripple (only the disc's
+  `brightness`). Wait 5 s before reading state after a toggle.
 - His default lamp look: ripple on, bottom ring on, disc off ("the only part
   that's off is the middle"). Snapshot "Low light chill both" = that look.
 - The lamp `brightness` and `colorTemperatureK` act on the disc only.
