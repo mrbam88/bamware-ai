@@ -51,7 +51,7 @@ status flow. Roles will grow (Architect, Product) as the team builds up.
 | `definition-of-ready` | The grooming gate a ticket passes BEFORE it becomes Agent-ready. Catch problems in daylight. |
 | `board-ops` | Board statuses, fields, the Dev-QA loop, gh commands. Tickets, never "cards". |
 | `bamware-assistant` | The Discord bot in #bamware-bot: Bilal's Bamware personal assistant. Status, idea intake, "have an agent do X" → a groomed ticket, briefing follow-ups. Intake only; the repo and board are the record. |
-| `bamware-smart-home` | Bilal's apartment: Govee lights (inventory, ids, scenes, colorblind-safe palette, `scripts/govee.sh` cloud, `scripts/govee_lan.py` LAN-direct from omarchy) the stereo (Spotify desktop on omarchy over MPRIS, reference volume), and both TVs (`scripts/samsung_tv.py`, `scripts/roku_tv.py`). Key on the MacBook and omarchy. |
+| `bamware-smart-home` | Bilal's apartment: Govee lights (inventory, ids, scenes, colorblind-safe palette, `scripts/govee.sh` cloud, `scripts/govee_lan.py` LAN-direct from omarchy) the stereo (Spotify desktop on omarchy over MPRIS, reference volume), both TVs (`scripts/samsung_tv.py`, `scripts/roku_tv.py`) and the Apple TV (`scripts/appletv.py`). Key on the MacBook and omarchy. |
 | `bamware-scrum-master` | Shared durable delivery supervision: ownership, pickup, source reconciliation, review routing and completion evidence; no authority expansion. |
 | `idea-capture` | Bilal spitballs an app or business idea → one `idea` ticket, quick or spike depth, no code or spend. Also listing, killing and promoting ideas. |
 

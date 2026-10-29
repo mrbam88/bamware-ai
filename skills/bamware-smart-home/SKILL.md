@@ -58,12 +58,16 @@ Uplighter, .167 Strip Light; they can change with DHCP, so always scan, never ha
 |---|---|---|---|
 | Samsung QN90B 65" (Tizen) | living room, the main one | 192.168.1.152, MAC e0:9d:13:6a:f2:0c | `scripts/samsung_tv.py`: REST :8001 for status/app launch, websocket :8002 for remote keys (token in `~/.config/bamware/samsung_tv.token`, paired as "Bamware"), Wake-on-LAN from standby |
 | TCL Roku TV 55" (55R615) | bedroom, backup | 192.168.1.93 | `scripts/roku_tv.py`: Roku ECP :8060, no auth; power, keys, launch apps |
-| Apple TV "Living Room" | living room | 192.168.1.169 | not paired yet (needs pyatv + on-screen PIN) |
+| Apple TV 4K gen 3 "Living Room" | living room, **his preferred TV OS, all accounts signed in** | 192.168.1.169 | `scripts/appletv.py` via pyatv (`~/.venvs/smarthome`, srptools pinned 1.0.1): status, apps, launch app, remote keys, type text. Paired Companion + AirPlay as "Bamware" 2026-10-29, creds in `~/.config/bamware/appletv.json`. Prefer it over the Samsung's own apps |
 
 Both scripts run from omarchy; the Samsung one needs `~/.venvs/smarthome/bin/python`
 (websocket-client; system python has no pip). In standby the Samsung closes every
 port: send `wake` first, it answers within 5 s. First proof 2026-10-29: Roku
-woke and opened Netflix on "TV on, Netflix"; Samsung paired and took KEY_HOME.
+woke and opened Netflix on "TV on, Netflix"; Samsung paired and took KEY_HOME;
+Apple TV paired and launched Netflix. Bilal (2026-10-29): both TVs are old, the
+Apple TV is where he actually watches; a second one for the bedroom is on his
+wish list. For "Netflix" default to the Apple TV, with the Samsung on its HDMI.
+The pyatv CLI (`atvremote`) crashes on the server's Python 3.14; use the script.
 
 ## The lights (inventory, verified live 2026-10-29)
 
