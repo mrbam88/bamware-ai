@@ -17,8 +17,10 @@ PY
 )
 echo "$(date '+%F %T') $dbfs $peak" >> $LOG
 [[ ${1:-} == now ]] && echo "room: ${dbfs} dBFS rms, ${peak} dBFS peak"
-h=$(date +%H)
-if (( 10#$h >= 22 || 10#$h < 8 )) && awk "BEGIN{exit !($dbfs > -25)}"; then
-  v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}'); nv=$(awk "BEGIN{v=$v-0.1; if(v<0.2)v=0.2; print v}")
-  wpctl set-volume @DEFAULT_AUDIO_SINK@ $nv; echo "$(date '+%F %T') quiet hours: room $dbfs dBFS, volume $v -> $nv" >> $LOG
+[[ ${1:-} == club-test ]] && { python3 ~/.local/bin/club_alert.py "$dbfs" --test; exit 0; }
+# too loud (any hour; threshold in $S/roomlevel.threshold, default -25 dBFS, to be calibrated): club-blue feedback loop, 5-min cooldown
+T=$(cat $S/roomlevel.threshold 2>/dev/null || echo -25); last=$(cat $S/club.last 2>/dev/null || echo 0)
+if awk "BEGIN{exit !($dbfs > $T)}" && (( $(date +%s) - last > 300 )); then
+  date +%s > $S/club.last; echo "$(date '+%F %T') TOO LOUD $dbfs > $T: club alert" >> $LOG
+  python3 ~/.local/bin/club_alert.py "$dbfs" >> $LOG 2>&1
 fi
