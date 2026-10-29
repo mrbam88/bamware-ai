@@ -17,6 +17,14 @@ so control goes through Govee's free cloud API. No spend.
 - `scripts/govee.sh on <name|all>` / `off`.
 - `scripts/govee.sh color <name|all> <red|warm|blue|white|purple|orange|pink|#rrggbb>`.
 - `scripts/govee.sh bright <name|all> <1-100>`.
+- Bilal is red-green colorblind: never pair red with green in a scene, and
+  never use red/green as a status signal. Soothing palette that works for him:
+  amber, peach, warm white at low brightness, with blue or lavender as the one
+  accent (2026-10-29 evening scene: ceiling amber 12%, floor lamp peach 18%,
+  TV backlight lavender 30%).
+- Power-on restores each light's last saved color. When turning lights on,
+  set color and brightness explicitly in the same request (2026-10-29: a bare
+  power-on brought back an "obnoxious blue").
 - Report what changed in one line ("Living room: on, warm"). If Govee refused,
   say so plainly with its message. Exit 2 = no key on the server: tell Bilal
   the one-time setup below, do not guess.
