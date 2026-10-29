@@ -1,5 +1,30 @@
 # State of the Union — Bamware
 
+## 2026-10-29 — BrewDesk user inventory: 12 downloads, 8 accounts, no telemetry; analytics primer published
+
+- **Trigger (Bilal):** App Store Connect showed 12 downloads; our systems could
+  see far less. He wants basic info on all users and "as much as we can pull".
+- **Inventory (read-only, all sources, 2026-10-29):** auth DynamoDB
+  `bamware-dev-users` has 8 BrewDesk accounts (1 Bilal, 1 internal test, 5 seeded
+  screenshot personas from 2026-09-26, 1 real Apple sign-in 2026-10-01; no
+  last-login field). Neon: 0 `saved_sets`, 2 anonymous community observations
+  (10-24, 10-27). Push devices: 0 rows. ASC API: 1.0 and 1.1 READY_FOR_SALE,
+  1 TestFlight tester, 0 reviews. Vercel Hobby logs keep 1 h and log nothing
+  about callers. The app sends no telemetry; label is "Data Not Collected"
+  (guarded by `PrivacyClaimTests`).
+- **Blocker:** both ASC API keys on the Mac (897K96ABU4, KT8D6Z334F) return 403
+  on `POST /v1/analyticsReportRequests`; Apple requires the Admin role. Bilal
+  must generate an Admin key (decision 3 in the primer). Issuer id lives at
+  `~/.config/bamware/asc-issuer-id` on omarchy; Neon URLs in
+  `~/.config/bamware/neon.env` there (never copy them).
+- **Primer:** [BrewDesk Analytics Primer](https://claude.ai/artifact/5xjDWsBonYPyKoQUC7LFB4).
+  Recommendation: option B, first-party events (install id, city-level, batched,
+  kill switch via health flags) into a Neon `app_events` table with a nightly
+  rollup, $0; run Apple's analytics alongside. Requires the label to move to
+  "Data Not Linked to You". Four one-word decisions pending; tickets after.
+- Ops note: Tailscale on the M3 Mac was stopped and was started this session to
+  reach omarchy.
+
 ## 2026-10-28 — BrewDesk chatbot shipped same day: engine endpoint live (off), Ask tab in TestFlight 1.2 (33)
 
 - **Decision (Bilal, 2026-10-28):** after the [BrewDesk Chat Primer](https://claude.ai/artifact/Y7h3uGgshKuu3YycQXRvuV)
