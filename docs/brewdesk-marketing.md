@@ -99,7 +99,12 @@ in the old game plan are not a current cost audit.
 - Verified Instagram API profile: BUSINESS; name and biography both `Bamware.io`;
   one follower; zero media objects; no website field returned. Snapshot only.
 
-### Proposed profile copy — NOT approved or applied
+### Profile copy — approved, not applied
+
+Bilal explicitly approved the name, bio and website below in the follow-up
+approval form. Scope: profile only, not posts, messages or spending. The preview
+typing attempt did not change the bio value; no submission was made. Name/link
+and bio changes remain unapplied pending a working settings surface.
 
 Name: **BrewDesk | NYC Work Cafés**
 
@@ -189,7 +194,7 @@ Still unfinished:
 1. Recheck identity using the local helper without exposing the credential.
 2. Establish expiry/renewal and a minimal approved-content publishing interface;
    do not create a broad automation platform or spend without approval.
-3. Obtain approval for the proposed profile copy; then prepare the first actual
+3. Apply the approved profile copy through a working settings surface; then prepare the first actual
    content pack from accurate, licensed assets. Current drafts are concepts only.
 4. Keep product/web fixes and marketing publishing separate; verify each external
    change by reading its exact target before claiming success.

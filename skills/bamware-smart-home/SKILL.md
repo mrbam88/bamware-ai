@@ -10,6 +10,12 @@ color?" He uses the Govee Home app (glitchy). The build server `omarchy` sits
 on the apartment Wi-Fi (192.168.1.0/24), but Govee LAN Control answered nothing,
 so control goes through Govee's free cloud API. No spend.
 
+**Where it runs:** everything below runs on the server only. From a laptop,
+wrap each command: `ssh server '...'` on the X1, `ssh omarchy '...'` on the
+M3. The X1's hostname is also `omarchy`, so check for
+`~/.config/bamware/govee.env` (server only) rather than trusting `hostname`
+(`docs/machines.md`, "Two laptops in heavy rotation").
+
 ## Do
 
 - `scripts/govee.sh devices` → his lights (name, model, id). Match his words to
@@ -22,6 +28,12 @@ so control goes through Govee's free cloud API. No spend.
   amber, peach, warm white at low brightness, with blue or lavender as the one
   accent (2026-10-29 evening scene: ceiling amber 12%, floor lamp peach 18%,
   TV backlight lavender 30%).
+- **No white light, ever (Bilal, 2026-10-29: "Choose a little bit lighter
+  colors. Needs to be warmer. White light's depressing.").** Never use
+  `kelvin`/`colorTemperatureK` (2700K-4500K all read as white to him). For a
+  bright, light look use pale warm RGB instead: light apricot
+  `rgb(255,195,125)`, pale warm cream `rgb(255,205,145)` (his daytime
+  default, set live that afternoon), warm gold `rgb(255,150,60)`.
 - Power-on restores each light's last saved color. When turning lights on,
   set color and brightness explicitly in the same request (2026-10-29: a bare
   power-on brought back an "obnoxious blue").
@@ -42,7 +54,7 @@ the Uplighter's three toggles, segments, scenes, snapshots, groups.
 python3 scripts/govee_lan.py scan              # who answers (needs "LAN Control" on per device in the app)
 python3 scripts/govee_lan.py status all
 python3 scripts/govee_lan.py off "bulb top"    # name substring, ip, id or all
-python3 scripts/govee_lan.py kelvin uplighter 3000
+python3 scripts/govee_lan.py color uplighter 255,195,125   # warm, never kelvin (see Do)
 ```
 
 Requirements, done 2026-10-29: "LAN Control" toggled on in the app for the
@@ -131,8 +143,8 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 
 | Moment | Lights | Stereo | Screen |
 |---|---|---|---|
-| morning | 6-min sunrise on the lamp (5->85%), strip and desk bulbs warm then 4000K | Peaceful Piano, 45% | Samsung + Apple TV on, YouTube live news (Bloomberg `@markets/live`, else CNBC, NBC) |
-| afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
+| morning | 6-min sunrise on the lamp (5->85%), strip and desk bulbs warm gold then light apricot `255,195,125` (was 4000K until 2026-10-29) | Peaceful Piano, 45% | Samsung + Apple TV on, YouTube live news (Bloomberg `@markets/live`, else CNBC, NBC) |
+| afternoon | everything pale warm cream `255,205,145` (was 4500K until 2026-10-29), lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 
 Live video ids are resolved at run time with `yt-dlp --get-id <channel>/live`
@@ -243,7 +255,7 @@ after a command, `device/state` reflects it. A control call is one of the
   `rgb(255,140,40)` 12%, floor lamp peach `rgb(255,170,100)` 18%, TV backlight
   lavender `rgb(110,70,200)` 30%. His verdict before this: "these lights are
   too bright bro".
-- **Reset / neutral:** all three online lights `colorTemperatureK` 2700, 40%.
+- **Reset / neutral:** all lights pale warm cream `rgb(255,205,145)`, 40% (was 2700K; no white, 2026-10-29).
 
 ## The stereo (verified live 2026-10-29)
 
