@@ -1,6 +1,6 @@
 ---
 name: bamware-smart-home
-description: Bilal's apartment from any Bamware agent - Govee lights (inventory, on/off, color, brightness, scenes) and the living-room stereo (Spotify on omarchy over the media bus). Use for any "lights", "lamp", "strip", "Govee", "music", "Spotify", "stereo", "play", "smart home" request, from Discord, Claude Code, or any other harness.
+description: Bilal's apartment from any Bamware agent - Govee lights (inventory, on/off, color, brightness, scenes), the living-room stereo (Spotify on omarchy over the media bus), and both TVs (Samsung Tizen, Roku). Use for any "lights", "lamp", "strip", "Govee", "music", "Spotify", "stereo", "play", "TV", "Netflix", "movie", "smart home" request, from Discord, Claude Code, or any other harness.
 ---
 
 # Smart home: Govee lights
@@ -51,6 +51,19 @@ and the ufw rule `allow from 192.168.1.0/24 to any port 4002 proto udp` on
 omarchy (its default input policy is DROP, which silently ate the replies).
 LAN addresses as of 2026-10-29: .161 Smart LED Bulb, .162 Bulb Top, .166
 Uplighter, .167 Strip Light; they can change with DHCP, so always scan, never hardcode.
+
+## The TVs (verified live 2026-10-29)
+
+| TV | Where | Address | Control |
+|---|---|---|---|
+| Samsung QN90B 65" (Tizen) | living room, the main one | 192.168.1.152, MAC e0:9d:13:6a:f2:0c | `scripts/samsung_tv.py`: REST :8001 for status/app launch, websocket :8002 for remote keys (token in `~/.config/bamware/samsung_tv.token`, paired as "Bamware"), Wake-on-LAN from standby |
+| TCL Roku TV 55" (55R615) | bedroom, backup | 192.168.1.93 | `scripts/roku_tv.py`: Roku ECP :8060, no auth; power, keys, launch apps |
+| Apple TV "Living Room" | living room | 192.168.1.169 | not paired yet (needs pyatv + on-screen PIN) |
+
+Both scripts run from omarchy; the Samsung one needs `~/.venvs/smarthome/bin/python`
+(websocket-client; system python has no pip). In standby the Samsung closes every
+port: send `wake` first, it answers within 5 s. First proof 2026-10-29: Roku
+woke and opened Netflix on "TV on, Netflix"; Samsung paired and took KEY_HOME.
 
 ## The lights (inventory, verified live 2026-10-29)
 
