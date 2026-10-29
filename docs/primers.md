@@ -25,6 +25,11 @@ Sixth (2026-10-28): [BrewDesk Chat Primer](https://claude.ai/artifact/Y7h3uGgshK
 (a grounded cafe chatbot: server-side Claude call through a new engine endpoint,
 tool use over the existing venue search, Haiku 5.5 at about $0.001 a turn, prepaid
 credit with auto-reload off as the hard cap; four one-word decisions before tickets).
+Seventh (2026-10-29): [BrewDesk Analytics Primer](https://claude.ai/artifact/5xjDWsBonYPyKoQUC7LFB4)
+(App Store Connect shows 12 downloads against 8 accounts, 0 saved sets and no
+telemetry; inventory of every store that knows a user; options A Apple analytics
+only, B first-party events on Neon at $0 (recommended), C TelemetryDeck, D PostHog;
+the privacy-label change this implies; four one-word decisions before tickets).
 
 ## When to write one
 
