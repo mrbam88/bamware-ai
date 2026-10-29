@@ -41,7 +41,7 @@ with the kitchen; the TV wall is on the right, windows at the back.
 | Uplighter Floor Lamp | H60B0 | `40:F9:DA:C3:41:06:03:53` | black pole lamp by the window, left of the mirror | three lights, see below; his favourite, bought for the ceiling ripple |
 | TV Backlight 3 Lite | H6099 | `1C:CF:D4:0F:40:46:18:6A` | behind the TV | wall wash; the TV is usually off, so this is the accent light |
 | Indoor thermometer | H5075 | `68:68:A4:C1:38:87:AB:20` | living room | Bluetooth-only, reports offline to the cloud. Not a light |
-| Kill, Morning, Basic Group Control | BaseGroup | | app groups | listed by the API but **not controllable** through it; drive the member lights |
+| Kill, Morning, Basic Group Control | BaseGroup | 15560214 / 15560142 / 15546539 | app groups | accept `powerSwitch` on/off only (verified 2026-10-29); for colour drive the member lights |
 
 Not yet mapped: the white torchiere with a gooseneck on the right wall by
 the TV (lit bright white in his 2026-10-29 photo). Probably where the two
@@ -85,8 +85,20 @@ Key location: `~/.config/bamware/govee.env` on the MacBook (installed
 2026-10-26). The same file still needs copying to `omarchy` for the Discord
 seat. The key is only in those files, never in a repo, Notion or Discord.
 
-Known Govee behaviour: the Home app is glitchy and lights drop off Wi-Fi at
-random; the cloud `online` flag is the honest signal. Three to four seconds
+Known Govee behaviour (measured from omarchy 2026-10-29, same Wi-Fi): the
+lights' Wi-Fi is fine. Three Govee devices on the LAN (192.168.1.161 = Smart
+LED Bulb, .166 and .167 = TV backlight / Uplighter), 20 pings each, 0% loss,
+jittery 2.4GHz (avg 12-61 ms, worst 237 ms) but no drops; 90 s of cloud
+polling showed no flapping. The "connecting, disconnecting" he sees is the
+Home app's Bluetooth path hopping between lights when his phone is nearby.
+The cloud `online` flag is the honest signal. Bulb Top offline = its MAC is
+absent from the LAN, a real Wi-Fi loss, needs a factory reset (switch on/off
+5 times) and re-pairing in the app. Govee LAN Control (UDP 4001/4002) answered
+nothing; it needs the per-device "LAN Control" toggle in the app first.
+A Govee hub would not help: hubs bridge Bluetooth-only sensors (his H5075),
+not Wi-Fi lights. Groups (Kill, Morning, Basic Group Control) DO accept
+`powerSwitch` via the API (sku BaseGroup, device = the numeric id); they
+expose nothing else. Three to four seconds
 after a command, `device/state` reflects it. A control call is one of the
 10,000 daily calls; a state call is another.
 
