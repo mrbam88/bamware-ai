@@ -50,7 +50,7 @@ bulbs and the Uplighter (the TV backlight did not answer; check its toggle),
 and the ufw rule `allow from 192.168.1.0/24 to any port 4002 proto udp` on
 omarchy (its default input policy is DROP, which silently ate the replies).
 LAN addresses as of 2026-10-29: .161 Smart LED Bulb, .162 Bulb Top, .166
-Uplighter; they can change with DHCP, so always scan, never hardcode.
+Uplighter, .167 Strip Light; they can change with DHCP, so always scan, never hardcode.
 
 ## The lights (inventory, verified live 2026-10-29)
 
@@ -63,13 +63,13 @@ with the kitchen; the TV wall is on the right, windows at the back.
 | Smart LED Bulb Top | H6006 | `16:BA:5C:E7:53:99:82:EE` | same ceiling fixture | **offline since at least 2026-10-26**: Govee answers 400 "Device is offline". Bilal is not worried about it; mention once, never nag |
 | Uplighter Floor Lamp | H60B0 | `40:F9:DA:C3:41:06:03:53` | black pole lamp by the window, left of the mirror | three lights, see below; his favourite, bought for the ceiling ripple |
 | TV Backlight 3 Lite | H6099 | `1C:CF:D4:0F:40:46:18:6A` | behind the TV | wall wash; the TV is usually off, so this is the accent light |
+| Strip Light | H61F2 | `22:A6:C2:53:56:54:74:A1` | kitchen under-cabinet | re-paired 2026-10-29 (was the "unpaired strip"); LAN at .167; on/off, brightness, colour |
 | Indoor thermometer | H5075 | `68:68:A4:C1:38:87:AB:20` | living room | Bluetooth-only, reports offline to the cloud. Not a light |
 | Kill, Morning, Basic Group Control | BaseGroup | 15560214 / 15560142 / 15546539 | app groups | accept `powerSwitch` on/off only (verified 2026-10-29); for colour drive the member lights |
 
-Not yet mapped: the white torchiere with a gooseneck on the right wall by
-the TV (lit bright white in his 2026-10-29 photo). Probably where the two
-H6006 bulbs live; confirm with a colour tag and a photo before relying on it.
-The ceiling fixture in the kitchen/living area is a dumb light.
+The white torchiere with a gooseneck on the right wall by the desk holds the
+two H6006 bulbs ("the smart bulbs by my desk", 2026-10-29). The ceiling
+fixture is a dumb light.
 
 ### The Uplighter (H60B0), verified by photo 2026-10-29
 
@@ -114,9 +114,9 @@ LED Bulb, .166 and .167 = TV backlight / Uplighter), 20 pings each, 0% loss,
 jittery 2.4GHz (avg 12-61 ms, worst 237 ms) but no drops; 90 s of cloud
 polling showed no flapping. The "connecting, disconnecting" he sees is the
 Home app's Bluetooth path hopping between lights when his phone is nearby.
-The cloud `online` flag is the honest signal. Bulb Top offline = its MAC is
-absent from the LAN, a real Wi-Fi loss, needs a factory reset (switch on/off
-5 times) and re-pairing in the app. Govee LAN Control (UDP 4001/4002) answered
+The cloud `online` flag is the honest signal. A cloud "offline" can be a lie: Bulb Top
+answered on the LAN at .162 while the cloud said offline for days. Scan the
+LAN before telling him a light is dead. Govee LAN Control (UDP 4001/4002) answered
 nothing; it needs the per-device "LAN Control" toggle in the app first.
 A Govee hub would not help: hubs bridge Bluetooth-only sensors (his H5075),
 not Wi-Fi lights. Groups (Kill, Morning, Basic Group Control) DO accept

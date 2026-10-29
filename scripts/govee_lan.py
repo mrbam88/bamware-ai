@@ -20,6 +20,7 @@ NAMES = {
     "16:BA:5C:E7:53:99:82:EE": "Smart LED Bulb Top",
     "40:F9:DA:C3:41:06:03:53": "Uplighter Floor Lamp",
     "1C:CF:D4:0F:40:46:18:6A": "TV Backlight 3 Lite",
+    "22:A6:C2:53:56:54:74:A1": "Strip Light",  # kitchen under-cabinet
 }
 COLORS = {"warm": (255, 160, 60), "amber": (255, 140, 40), "peach": (255, 170, 100),
           "blue": (40, 90, 255), "lavender": (110, 70, 200), "teal": (0, 230, 190),
