@@ -92,6 +92,28 @@ pairing (unsolved); `metadata.app` is None on this box, so verify with
 `metadata.playing()`; YouTube keyboard focus never reported Focused, so typed
 search is unproven. `yt-dlp` is in the venv if a direct stream is ever needed.
 
+## Daily vibes (shipped 2026-10-29, v1)
+
+Bilal's standing ask: "always set the scenery and set the vibes", replace the
+alarm clock, news on the TV in the morning, bright and chill in the afternoon,
+romantic wind-down in the evening; background company = NBA, golf, AI/tech
+podcasts, NYC. `scripts/vibes.sh morning|afternoon|evening` runs on omarchy
+from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
+08:00 / 13:00 / 19:30 America/New_York (`systemctl --user list-timers`).
+
+| Moment | Lights | Stereo | Screen |
+|---|---|---|---|
+| morning | 6-min sunrise on the lamp (5->85%), strip and desk bulbs warm then 4000K | Peaceful Piano, 45% | Samsung + Apple TV on, YouTube live news (Bloomberg `@markets/live`, else CNBC, NBC) |
+| afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
+| evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
+
+Live video ids are resolved at run time with `yt-dlp --get-id <channel>/live`
+(handles change; `@Bloomberg` is dead, `@markets` works). Iterate from his
+feedback; he asked for creativity ("test your boundaries, impress me"). Ideas
+not built yet: golf in the background, AI podcasts via Spotify shows, weather
+and NYC events in the morning, a "movie night" preset, Peacock game nights
+(timer `gameday.timer` exists for Mon 2026-11-02).
+
 ## The lights (inventory, verified live 2026-10-29)
 
 One-bedroom apartment in New York City. The living room is one open space
