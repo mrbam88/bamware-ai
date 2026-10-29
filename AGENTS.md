@@ -94,6 +94,9 @@ ceremony; reserved decisions, evidence and resolution tracking stay mandatory.
 - RN + Express mental model; mobile/Node analogies land.
 - Specs are GitHub issues: story / scope / out-of-scope / acceptance criteria.
 - Tool use proportional to the ask. Fan-outs need an explicit ask.
+- **His apartment lights are ours to run (2026-10-29):** Govee, four lights,
+  full inventory and scenes in `skills/bamware-smart-home`. Any agent with the
+  key file can control them; he is red-green colorblind, so no red/green.
 - Never mention Baat in responses or career materials (Bilal, 2026-09-16).
   Project wording: skills/bilal-answers.
 
