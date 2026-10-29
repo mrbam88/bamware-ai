@@ -29,6 +29,29 @@ so control goes through Govee's free cloud API. No spend.
   say so plainly with its message. Exit 2 = no key on the server: tell Bilal
   the one-time setup below, do not guess.
 
+## LAN first, cloud second (2026-10-29)
+
+From `omarchy`, `scripts/govee_lan.py` talks to the lights directly over the
+apartment Wi-Fi: no Govee cloud, no API key, instant, and it reaches lights
+the cloud calls "offline" (Bulb Top answered on the LAN at 192.168.1.162
+while the cloud had said offline for days). Use it for on/off, brightness,
+colour and colour temperature. Use the cloud script for what LAN lacks:
+the Uplighter's three toggles, segments, scenes, snapshots, groups.
+
+```
+python3 scripts/govee_lan.py scan              # who answers (needs "LAN Control" on per device in the app)
+python3 scripts/govee_lan.py status all
+python3 scripts/govee_lan.py off "bulb top"    # name substring, ip, id or all
+python3 scripts/govee_lan.py kelvin uplighter 3000
+```
+
+Requirements, done 2026-10-29: "LAN Control" toggled on in the app for the
+bulbs and the Uplighter (the TV backlight did not answer; check its toggle),
+and the ufw rule `allow from 192.168.1.0/24 to any port 4002 proto udp` on
+omarchy (its default input policy is DROP, which silently ate the replies).
+LAN addresses as of 2026-10-29: .161 Smart LED Bulb, .162 Bulb Top, .166
+Uplighter; they can change with DHCP, so always scan, never hardcode.
+
 ## The lights (inventory, verified live 2026-10-29)
 
 One-bedroom apartment in New York City. The living room is one open space
