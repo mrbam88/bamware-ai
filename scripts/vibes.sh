@@ -41,6 +41,13 @@ case ${1:-} in
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.range brightness 12; sleep 1; scene H6099 $TVB Candlelight
     spotify "spotify:playlist:37i9dQZF1DX4wta20PHgwo" 0.65   # Late Night Jazz
     ;;
-  *) echo "usage: vibes.sh morning|afternoon|evening"; exit 1;;
+  cleaning)  # "cleaning lights" (Bilal 2026-10-29): everything 100%, cool white, no music or screen change
+    $LAN on all >/dev/null; $LAN kelvin all 5000 >/dev/null; $LAN bright all 100 >/dev/null
+    cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0
+    cloud H60B0 $LAMP devices.capabilities.range brightness 100
+    cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorTemperatureK 5000; cloud H6099 $TVB devices.capabilities.range brightness 100
+    touch ~/.local/state/bamware/lights.hold   # keep daylight.timer from dimming it for 3 h
+    echo "cleaning lights: every light 100% at 5000K; say 'done cleaning' for daylight.py or vibes.sh evening" ;;
+  *) echo "usage: vibes.sh morning|afternoon|evening|cleaning"; exit 1;;
 esac
 echo "$(date '+%F %T') vibes $1 done"
