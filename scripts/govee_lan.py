@@ -5,7 +5,7 @@
   govee_lan.py status [name|ip|all]
   govee_lan.py on|off  <name|ip|all>
   govee_lan.py bright  <name|ip|all> <1-100>
-  govee_lan.py color   <name|ip|all> <warm|amber|blue|lavender|white|#rrggbb|r,g,b>
+  govee_lan.py color   <name|ip|all> <warm|amber|peach|rust|ember|gold|copper|rose|white|#rrggbb|r,g,b>  (blue/lavender exist but are alert-only)
   govee_lan.py kelvin  <name|ip|all> <2700-6500>
 
 Protocol: UDP multicast 239.255.255.250:4001 for scan, unicast <ip>:4001 for
@@ -24,7 +24,8 @@ NAMES = {
 }
 COLORS = {"warm": (255, 160, 60), "amber": (255, 140, 40), "peach": (255, 170, 100),
           "blue": (40, 90, 255), "lavender": (110, 70, 200), "teal": (0, 230, 190),
-          "white": (255, 255, 255), "orange": (255, 120, 0), "pink": (255, 105, 180)}
+          "white": (255, 255, 255), "orange": (255, 120, 0), "pink": (255, 105, 180),
+          "rust": (190, 60, 15), "ember": (200, 50, 10), "gold": (255, 160, 40), "copper": (184, 90, 40), "rose": (255, 60, 90)}
 MCAST, CMD_PORT, REPLY_PORT = "239.255.255.250", 4001, 4002
 
 

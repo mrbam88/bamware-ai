@@ -5,7 +5,7 @@ Bilal (2026-10-29, 19:10, afternoon preset still on an hour after sunset): "it's
 Adjust the lighting based on the daylight." So: compute the sun's elevation over Greenwich Village (no network,
 no key), interpolate brightness and colour temperature between keyframes, apply over the LAN (TV backlight via
 cloud). The morning (08:00) and evening (19:30) vibes own their windows; this owns the slide from bright
-afternoon to dusk. Night keyframe = the evening/soothing palette he liked (amber, peach, lavender accent; no red/green).
+afternoon to dusk. Night keyframe = the evening/soothing palette he liked (amber, peach, rust accent; no blue, no red/green pairs).
 
   daylight.py            compute and apply
   daylight.py --dry      print what it would do
@@ -37,14 +37,14 @@ def sun_elevation(dt_utc):
 
 # keyframes by elevation: (elev, kelvin or None, lamp%, bulbs%, strip%, tv backlight%)  kelvin None = night palette (rgb)
 KEYS = [
-    (-8,  None, 18, 8,  6,  30),   # night: peach lamp, amber bulbs and strip, lavender TV wall (his soothing scene)
+    (-8,  None, 18, 8,  6,  30),   # night: peach lamp, amber bulbs and strip, rust TV wall (fall palette, 2026-10-29: blue is alert-only)
     (-3,  2700, 28, 10, 10, 25),   # civil dusk
     (0,   2900, 40, 14, 20, 20),   # sunset
     (6,   3300, 55, 20, 35, 15),   # golden hour
     (15,  3900, 80, 30, 55, 10),   # late afternoon
     (25,  4500, 100, 40, 70, 0),   # full day (the afternoon preset)
 ]
-NIGHT = {"lamp": (255, 170, 100), "bulbs": (255, 140, 40), "strip": (255, 140, 40), "tvb": (110, 70, 200)}
+NIGHT = {"lamp": (255, 170, 100), "bulbs": (255, 140, 40), "strip": (255, 140, 40), "tvb": (190, 60, 15)}
 
 def lerp(a, b, t): return a + (b - a) * t
 def target(elev):

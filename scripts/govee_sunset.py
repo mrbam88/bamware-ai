@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Slow sunset: every Govee light drifts amber -> lavender over MINUTES. Runs on omarchy.
+"""Slow sunset: every Govee light drifts amber -> ember over MINUTES (2026-10-29: no blue, Bilal wants fall tones). Runs on omarchy.
 
   python3 scripts/govee_sunset.py [minutes]      default 20; run detached:
   setsid -f bash -c "python3 ~/tmp/govee_sunset.py > ~/tmp/sunset.log 2>&1"
@@ -10,7 +10,7 @@ Sends colour then brightness, so it also cancels any running Govee scene.
 import json, os, socket, subprocess, sys, time, urllib.request
 MINUTES = float(sys.argv[1]) if len(sys.argv) > 1 else 20
 STEPS = 40
-A, Z = (255, 140, 40), (110, 70, 200)
+A, Z = (255, 140, 40), (200, 50, 10)
 LAN = {"192.168.1.166": ("lamp", 70, 40), "192.168.1.167": ("strip", 6, 4), "192.168.1.161": ("bulb", 4, 2), "192.168.1.162": ("bulbtop", 2, 1)}
 TV = ("H6099", "1C:CF:D4:0F:40:46:18:6A", 15, 10)
 key = [l.split("=", 1)[1].strip() for l in open(os.path.expanduser("~/.config/bamware/govee.env")) if l.startswith("GOVEE_API_KEY=")][0]
