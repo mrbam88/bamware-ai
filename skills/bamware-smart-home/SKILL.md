@@ -208,7 +208,7 @@ Three lights, Bilal's words in quotes:
 |---|---|---|---|---|
 | "top": ripple projection onto the ceiling | `rippleLightToggle` | no, fixed rainbow prism | no | the reason he bought it |
 | "middle": the disc head | `sideLightToggle` | yes: `colorRgb`, `colorTemperatureK`, `segmentedColorRgb` zones 0-7 | yes: `brightness`, `segmentedBrightness` | |
-| "bottom": white ring under the disc | `bottomLightToggle` | no | unproven: ignored lamp `brightness` once; Bilal says the app dims it to 2% | |
+| "bottom": white ring under the disc | `bottomLightToggle` | no | **no, confirmed 2026-10-29:** lamp `brightness` 100 via cloud and LAN with the disc off changed nothing ("not different at all"). Its level is app-only: Govee Home, Uplighter, bottom light slider. Never test this on him again | |
 
 - **At most two of the three lights are on at once** (verified 2026-10-29
   evening with 6 s waits): ripple + bottom works only while the disc is off;
