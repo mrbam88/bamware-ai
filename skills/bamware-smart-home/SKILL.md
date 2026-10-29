@@ -149,6 +149,11 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | morning | 6-min sunrise on the lamp (5->85%), strip and desk bulbs warm then 4000K | Peaceful Piano, 45% | Samsung + Apple TV on, YouTube live news (Bloomberg `@markets/live`, else CNBC, NBC) |
 | afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
+| cleaning (on demand) | everything 100% at 5000K, lamp disc + ring on, ripple off, TV wall on; touches `lights.hold` | untouched | untouched |
+
+"Cleaning lights" (Bilal, 2026-10-29): `vibes.sh cleaning`. Ultra bright for
+chores. When he says he is done, go back with `daylight.py` (afternoon) or
+`vibes.sh evening` (night).
 
 **Daylight tracking (2026-10-29, "it's ridiculously bright in here, adjust
 the lighting based on the daylight"):** the afternoon preset used to stay at
