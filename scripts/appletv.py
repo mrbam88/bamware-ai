@@ -29,7 +29,7 @@ async def main(a):
     loop = asyncio.get_running_loop(); atv = await connect(loop)
     try:
         if a[0] == "status":
-            pw = await atv.power.power_state
+            pw = atv.power.power_state
             try: app = atv.metadata.app; appname = f"{app.name} ({app.identifier})" if app else "-"
             except Exception: appname = "-"
             pl = await atv.metadata.playing()
