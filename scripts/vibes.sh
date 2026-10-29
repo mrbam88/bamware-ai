@@ -17,6 +17,9 @@ tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep
   $PY ~/.local/bin/appletv.py status 2>&1 | tail -1
 }
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
+# a manual scene (cleaning, or any agent that touched lights.hold) wins over the schedule for 3 h (2026-10-29: the 19:30 run clobbered cleaning lights)
+HOLD=~/.local/state/bamware/lights.hold
+if [[ ${1:-} =~ ^(morning|afternoon|evening)$ && -f $HOLD && $(( $(date +%s) - $(stat -c %Y $HOLD) )) -lt 10800 && ${2:-} != --force ]]; then echo "$(date "+%F %T") vibes $1 skipped: lights.hold is fresh (vibes.sh $1 --force to override)"; exit 0; fi
 case ${1:-} in
   morning)   # sunrise over ~6 min, then news
     $LAN on all >/dev/null; $LAN kelvin all 2700 >/dev/null
@@ -41,13 +44,16 @@ case ${1:-} in
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.range brightness 12; sleep 1; scene H6099 $TVB Candlelight
     spotify "spotify:playlist:37i9dQZF1DX4wta20PHgwo" 0.65   # Late Night Jazz
     ;;
-  cleaning)  # "cleaning lights" (Bilal 2026-10-29): everything 100%, cool white, no music or screen change
+  cleaning)  # "cleaning lights" (Bilal 2026-10-29): everything 100%, cool white, bottom-heavy lamp; no music or screen change
     $LAN on all >/dev/null; $LAN kelvin all 5000 >/dev/null; $LAN bright all 100 >/dev/null
-    cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0
+    # the lamp runs at most two of its three lights (verified 2026-10-29): bottom ring + disc is the bottom-heavy max, ripple stays off
+    cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1
     cloud H60B0 $LAMP devices.capabilities.range brightness 100
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorTemperatureK 5000; cloud H6099 $TVB devices.capabilities.range brightness 100
-    touch ~/.local/state/bamware/lights.hold   # keep daylight.timer from dimming it for 3 h
-    echo "cleaning lights: every light 100% at 5000K; say 'done cleaning' for daylight.py or vibes.sh evening" ;;
-  *) echo "usage: vibes.sh morning|afternoon|evening|cleaning"; exit 1;;
+    touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
+    echo "cleaning lights: every light 100% at 5000K, lamp bottom + disc; 'vibes.sh release' when done" ;;
+  release)   # drop the manual hold so timers run again
+    rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
+  *) echo "usage: vibes.sh morning|afternoon|evening|cleaning|release"; exit 1;;
 esac
 echo "$(date '+%F %T') vibes $1 done"
