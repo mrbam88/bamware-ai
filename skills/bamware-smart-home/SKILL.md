@@ -79,10 +79,13 @@ Three lights, Bilal's words in quotes:
 |---|---|---|---|---|
 | "top": ripple projection onto the ceiling | `rippleLightToggle` | no, fixed rainbow prism | no | the reason he bought it |
 | "middle": the disc head | `sideLightToggle` | yes: `colorRgb`, `colorTemperatureK`, `segmentedColorRgb` zones 0-7 | yes: `brightness`, `segmentedBrightness` | |
-| "bottom": white ring under the disc | `bottomLightToggle` | no | no, ignores `brightness` | on/off only; same in the app |
+| "bottom": white ring under the disc | `bottomLightToggle` | no | unproven: ignored lamp `brightness` once; Bilal says the app dims it to 2% | |
 
-- **Ripple and bottom ring never run together.** Turning one on makes the
-  lamp report the other off, both directions. Asking for both is a no.
+- Ripple and bottom ring DO run together (verified 2026-10-29 in both orders;
+  an earlier "mutually exclusive" finding came from stale state reads right
+  after a toggle). Wait 5 s before reading state after a toggle.
+- His default lamp look: ripple on, bottom ring on, disc off ("the only part
+  that's off is the middle"). Snapshot "Low light chill both" = that look.
 - The lamp `brightness` and `colorTemperatureK` act on the disc only.
 - `segmentedColorRgb` / `segmentedBrightness` accept segments 0-7 (8 returns
   "out of range"); they are zones of the disc, not the three lights.
