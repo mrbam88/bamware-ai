@@ -107,15 +107,25 @@ neighbours. Room loudness: omarchy's built-in mic (Apple T2) is dead under Linux
 full scale), but Bilal plugged Apple USB-C EarPods into omarchy on 2026-10-29
 and their mic works. `scripts/roomlevel.sh` samples 3 s every minute
 (`roomlevel.timer`) into `~/.local/state/bamware/roomlevel.log` as dBFS
-(uncalibrated: < -45 quiet, -45..-30 music or talk, > -25 loud). **Too-loud
-feedback loop (Bilal's idea, 2026-10-29):** above the threshold
-(`~/.local/state/bamware/roomlevel.threshold`, default -25, calibrate in
-daytime) `scripts/club_alert.py` snapshots every light, turns the room club
-blue for 10 s, steps the stereo down 15%, posts "Too loud, the neighbours can
-hear" to Discord via `scripts/discord-post.sh`, then restores every light
-exactly. 5-min cooldown. Safe test any time: `roomlevel.sh club-test` (lights
-and alert only, volume untouched); verified 2026-10-29 03:20, all four lights
-restored to the running sunset lavender.
+(uncalibrated: < -45 quiet, -45..-30 music or talk across the room, -25..-15
+Bilal talking at the desk, > -15 loud). **Too-loud feedback loop (Bilal's
+idea, 2026-10-29):** `scripts/club_alert.py` snapshots every light, turns the
+room club blue for 10 s, steps the stereo down 15%, posts "Too loud, the
+neighbours can hear" to Discord via `scripts/discord-post.sh`, then restores
+every light and verifies each one (re-read, retry 3 times; an unverified light
+gets a Discord warning). 5-min cooldown.
+**Retuned 2026-10-29 evening:** the first version fired 12 times in one
+afternoon because Bilal talks out loud at his desk (an interview read -18..-24
+dBFS, as loud as music to the mic), and one dropped UDP restore left a desk
+bulb club blue at 100% until he flipped the wall switch. Now it fires only
+when the room reads above **-15 dBFS** (`roomlevel.threshold` overrides) for
+**2 consecutive samples** (`roomlevel.need`): speech is bursty, music is
+steady. `roomlevel.sh mute [minutes]` (default 120) pauses it for interviews
+and calls, `unmute` resumes, `status` shows threshold, streak, mute, last
+alert. If he mentions an interview or call, mute first. Safe test any time:
+`roomlevel.sh club-test` (lights and alert only, volume untouched).
+"The lights randomly flicker blue" = this loop; check `roomlevel.log` for
+`TOO LOUD` lines before blaming Govee.
 Plugging the EarPods in also made them the default OUTPUT; the stereo must stay
 on sink "Apple Audio Device Headphones" (`wpctl set-default <id>`), check this
 if the stereo goes silent after a USB change.
