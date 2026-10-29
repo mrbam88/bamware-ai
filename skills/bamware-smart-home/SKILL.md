@@ -10,6 +10,12 @@ color?" He uses the Govee Home app (glitchy). The build server `omarchy` sits
 on the apartment Wi-Fi (192.168.1.0/24), but Govee LAN Control answered nothing,
 so control goes through Govee's free cloud API. No spend.
 
+**Where it runs:** everything below runs on the server only. From a laptop,
+wrap each command: `ssh server '...'` on the X1, `ssh omarchy '...'` on the
+M3. The X1's hostname is also `omarchy`, so check for
+`~/.config/bamware/govee.env` (server only) rather than trusting `hostname`
+(`docs/machines.md`, "Two laptops in heavy rotation").
+
 ## Do
 
 - `scripts/govee.sh devices` → his lights (name, model, id). Match his words to

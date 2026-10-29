@@ -91,6 +91,32 @@ all three without requiring the ThinkPad to be the sole control desk. Shared
 context/procedures and machine-local execution state are distinct concerns;
 no particular session/config synchronization mechanism has been chosen yet.
 
+**Two laptops in heavy rotation (Bilal, 2026-10-29):** "I'm basically using
+two different laptops pretty badly, the M3 and my X1." A session can open on
+either, so an agent must never assume it is on the machine that did the last
+piece of work. What went wrong the night this was written, and the rules it
+produced:
+
+- **Sync the local checkout first.** The X1's `~/code/bamware-ai` sat 288
+  commits behind `main` for 26 days (the startup hook said `STALE` and
+  `git pull` refused over one uncommitted edit), so sessions there started
+  from October-3 context. The M3 was 1 behind. When the hook reports drift,
+  fix it before working: commit or port any uncommitted edit through a PR,
+  then `git pull --ff-only`. An edit that lives on one laptop only is lost
+  context for the other (a BrewDesk profile-copy approval had been sitting
+  uncommitted on the X1).
+- **Check which box you are on before acting on the apartment.** The X1's
+  hostname is also `omarchy` (tailnet `omarchy-1`), so `hostname` proves
+  nothing. The server has Apple T2 audio and `~/.config/bamware/govee.env`;
+  the X1 has `thinkpad_acpi` and no Govee files. Lights, stereo, TVs,
+  presence, room level and the vibes timers run **only on the server**:
+  `ssh server '<command>'` from the X1, `ssh omarchy '<command>'` from the M3
+  (verified 2026-10-29; both reach `bilal@omarchy.tailb7fa1e.ts.net`).
+  Running `govee_lan.py` on the X1 gets no LAN replies and looks like
+  "no lights".
+- Scheduled things (timers, one-off wake-ups) belong on the server, never on
+  a laptop: either laptop may be asleep, closed or in a cafe.
+
 **Likely roles across the three machines (2026-09-24):**
 
 - `thinkpad` (Omarchy): the portable daily driver for code, browser, backend
