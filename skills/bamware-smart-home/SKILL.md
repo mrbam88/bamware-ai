@@ -107,8 +107,15 @@ neighbours. Room loudness: omarchy's built-in mic (Apple T2) is dead under Linux
 full scale), but Bilal plugged Apple USB-C EarPods into omarchy on 2026-10-29
 and their mic works. `scripts/roomlevel.sh` samples 3 s every minute
 (`roomlevel.timer`) into `~/.local/state/bamware/roomlevel.log` as dBFS
-(uncalibrated: < -45 quiet, -45..-30 music or talk, > -25 loud) and, in quiet
-hours, steps the stereo down 10% whenever the room reads above -25 dBFS.
+(uncalibrated: < -45 quiet, -45..-30 music or talk, > -25 loud). **Too-loud
+feedback loop (Bilal's idea, 2026-10-29):** above the threshold
+(`~/.local/state/bamware/roomlevel.threshold`, default -25, calibrate in
+daytime) `scripts/club_alert.py` snapshots every light, turns the room club
+blue for 10 s, steps the stereo down 15%, posts "Too loud, the neighbours can
+hear" to Discord via `scripts/discord-post.sh`, then restores every light
+exactly. 5-min cooldown. Safe test any time: `roomlevel.sh club-test` (lights
+and alert only, volume untouched); verified 2026-10-29 03:20, all four lights
+restored to the running sunset lavender.
 Plugging the EarPods in also made them the default OUTPUT; the stereo must stay
 on sink "Apple Audio Device Headphones" (`wpctl set-default <id>`), check this
 if the stereo goes silent after a USB change.
