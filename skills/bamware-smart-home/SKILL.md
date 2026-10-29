@@ -139,6 +139,12 @@ after a command, `device/state` reflects it. A control call is one of the
   `spotify:playlist:37i9dQZF1DX4wta20PHgwo`, shuffled. The room goes one deep
   candle red with the ripple rolling over the ceiling. Other scenes all four
   lights share: Sunset, Aurora, Forest, Starry Sky, Valentine's Day, Rainbow.
+- **Slow Sunset (2026-10-29):** `scripts/govee_sunset.py [minutes]` on omarchy,
+  detached. All lights drift amber `rgb(255,140,40)` to lavender
+  `rgb(110,70,200)` in 40 steps, ceiling easing 70% to 40%. Blue/orange
+  endpoints by design for his colour vision. "Stop the sunset" =
+  `pkill -f "govee_sunset.p[y]"` (bracket trick so pkill doesn't match its
+  own shell, which has killed my commands three times tonight).
 - **Desk bulbs too bright at 1%:** colour is the second dimmer. Deep amber
   `rgb(255,70,0)` at 1% reads like a candle; white at 1% reads like a lamp.
 
