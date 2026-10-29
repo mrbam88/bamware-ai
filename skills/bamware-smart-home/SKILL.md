@@ -18,10 +18,15 @@ so control goes through Govee's free cloud API. No spend.
 - `scripts/govee.sh color <name|all> <red|warm|blue|white|purple|orange|pink|#rrggbb>`.
 - `scripts/govee.sh bright <name|all> <1-100>`.
 - Bilal is red-green colorblind: never pair red with green in a scene, and
-  never use red/green as a status signal. Soothing palette that works for him:
-  amber, peach, warm white at low brightness, with blue or lavender as the one
-  accent (2026-10-29 evening scene: ceiling amber 12%, floor lamp peach 18%,
-  TV backlight lavender 30%).
+  never use red/green as a status signal.
+- **Palette (Bilal, 2026-10-29 evening): no blue, ever, unless it is an
+  alert.** "I don't like seeing this blue... I'm liking more romantic tones,
+  perhaps fall vibes." Blue and lavender are reserved for the too-loud alert.
+  Default to romantic fall tones: amber, peach, rust `rgb(190,60,15)`, ember
+  `rgb(200,50,10)`, gold, copper, deep candle red `rgb(255,70,0)`, rose as the
+  one cooler accent. `govee_lan.py color <light> rust|ember|gold|copper|rose`
+  knows them. Night palette now: lamp peach 18%, bulbs and strip amber 8/6%,
+  TV wall rust 30%. Earlier "lavender accent" notes below are superseded.
 - Power-on restores each light's last saved color. When turning lights on,
   set color and brightness explicitly in the same request (2026-10-29: a bare
   power-on brought back an "obnoxious blue").
