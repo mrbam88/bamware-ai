@@ -145,6 +145,20 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 
+**Daylight tracking (2026-10-29, "it's ridiculously bright in here, adjust
+the lighting based on the daylight"):** the afternoon preset used to stay at
+lamp 100% / 4500K until the 19:30 evening run, an hour after sunset.
+`scripts/daylight.py` computes the sun's elevation over Greenwich Village
+(NOAA formula, no network) and interpolates between keyframes: full day 4500K
+lamp 100% bulbs 40% strip 70%; 15 deg 3900K; golden hour 3300K; sunset 2900K
+lamp 40%; civil dusk 2700K; below -8 deg the soothing night palette (lamp
+peach 18%, bulbs and strip amber 8/6%, TV wall lavender 30%). `daylight.timer`
+runs it every 20 min 13:00-19:20 (`--dry --at 17:30` previews). It skips while
+away and for 3 h after `~/.local/state/bamware/lights.hold` is touched: touch
+that file after any manual scene in the afternoon so the tracker does not
+undo it. Morning and evening vibes own their windows. Not built: cloud cover
+(Open-Meteo is free and keyless if he wants grey days brighter).
+
 Live video ids are resolved at run time with `yt-dlp --get-id <channel>/live`
 (handles change; `@Bloomberg` is dead, `@markets` works). Iterate from his
 feedback; he asked for creativity ("test your boundaries, impress me"). Ideas
