@@ -1,5 +1,39 @@
 # State of the Union — Bamware
 
+## 2026-10-28 — BrewDesk chatbot shipped same day: engine endpoint live (off), Ask tab in TestFlight 1.2 (33)
+
+- **Decision (Bilal, 2026-10-28):** after the [BrewDesk Chat Primer](https://claude.ai/artifact/Y7h3uGgshKuu3YycQXRvuV)
+  he approved all four recommendations and said "ship this right away, everything":
+  Haiku 5.5, sign-in required for chat, $5 prepaid with auto-reload off, both halves
+  built now (the 2026-09-19 "iOS only" instruction relaxed for this feature).
+- **Engine:** ve#218, PR #219 merged → production `8469add`. `POST /v1/chat`
+  (Bearer user JWT) runs Claude Haiku 5.5 with one `search_venues` tool over the
+  existing venue query; final answer is structured `{ reply, venueIds }` and the
+  server keeps only ids the tool returned (grounding). Per-user 30/day and
+  per-deployment 2,000/day caps (in-memory per instance until Neon-backed).
+  **Fails closed:** 503 `chat_disabled` and `health.features.chat=false` until
+  `CHAT_ENABLED=1` + `ANTHROPIC_API_KEY` are set in Vercel. Contract recorded in
+  docs/contracts.md (#237). 25 new tests; full suite 1,252 passed.
+- **iOS:** bd#247, PR #248 merged (`9c8738d`). Fourth tab **Ask** (Spots · Saved ·
+  Ask · You), shown only when the engine reports chat on or a scenario runs.
+  Chips, transcript, venue cards → `VenueDetailScreen`, inline sign-in gate, error
+  rows per `ChatError`. `ScenarioChatClient` fixture; 3 UI tests + unit tests green
+  on iPhone 17 / Xcode 27.1; contact sheet reviewed before merge. Side fix: six
+  `Shape` conformances marked `nonisolated` (Xcode 27.1 `ConformanceIsolation`).
+- **TestFlight:** 1.1 is closed (approved on the store), so the build is
+  **1.2 (33)** from new branch `release/1.2.0` (tag `store/1.2-build33`), free
+  local rail, "Upload succeeded" 2026-10-28 23:28 ET; processing pending at
+  handoff. Build 33 shows the Ask tab only after the env flip below.
+- **Human-only, next (Bilal):** Anthropic console → load $5, auto-reload OFF,
+  create key; Vercel → venuekit → production env `ANTHROPIC_API_KEY`,
+  `CHAT_ENABLED=1` (redeploy happens on save or next push). Then install 1.2 (33),
+  sign in, open Ask.
+- **Notes:** Vercel MCP connector cannot see project `venuekit` (404), so env vars
+  are dashboard-only; no `vercel` CLI on the Mac or omarchy. `~/code/bamware-venue-engine`
+  is on branch `product/manhattan-places-live-seed` (another session), left untouched.
+  Local `npm ci` fails on Node 26 (`duckdb` native build; lockfile lists deps
+  package.json does not) — CI on Node 20 is fine.
+
 ## 2026-10-27 — Discord seat silent for a day: stale quota feed routed every message to a hung opencode
 
 - **What Bilal saw:** every message since 10-26 16:00 came back "(timed out with no
