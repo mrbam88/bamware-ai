@@ -69,6 +69,14 @@ Apple TV is where he actually watches; a second one for the bedroom is on his
 wish list. For "Netflix" default to the Apple TV, with the Samsung on its HDMI.
 The pyatv CLI (`atvremote`) crashes on the server's Python 3.14; use the script.
 
+**Samsung remote pairing revoked (2026-10-29 11:40, "turn off, I'm not home"):** the
+websocket on :8002 accepted the stored token but answered `ms.error "No Authorized"`
+to every key, and `samsung_tv.py key` hangs 30 s waiting for the connect ack. Status
+on :8001 still worked. Apple TV `turn_off` did not put the Samsung into standby
+over HDMI, so the Samsung stayed on while away. Fix needs Bilal in front of the TV:
+delete `~/.config/bamware/samsung_tv.token`, run `samsung_tv.py key KEY_HOME`, accept
+the "Allow Bamware?" prompt. Until then "away" cannot turn off the living-room TV.
+
 ### Putting a video on the living-room TV (integration test passed 2026-10-29)
 
 "Put the latest NBA game on my TV": web-search the latest game's official
