@@ -30,6 +30,10 @@ Seventh (2026-10-29): [BrewDesk Analytics Primer](https://claude.ai/artifact/5xj
 telemetry; inventory of every store that knows a user; options A Apple analytics
 only, B first-party events on Neon at $0 (recommended), C TelemetryDeck, D PostHog;
 the privacy-label change this implies; four one-word decisions before tickets).
+Eighth (2026-10-29): [Instant Buttons](https://claude.ai/artifact/7Jy7fEUvY1bwDqrwrFDe9N)
+(apartment reflexes without an agent in the loop: a whitelist HTTP server on
+omarchy behind Tailscale HTTPS plus iOS Shortcuts, $0, under 1 s; Stream Deck
+and Home Assistant weighed and deferred; built the same evening).
 
 ## When to write one
 

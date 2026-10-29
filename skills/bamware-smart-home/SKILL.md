@@ -135,6 +135,25 @@ Plugging the EarPods in also made them the default OUTPUT; the stereo must stay
 on sink "Apple Audio Device Headphones" (`wpctl set-default <id>`), check this
 if the stereo goes silent after a USB change.
 
+## Instant buttons (shipped 2026-10-29)
+
+Bilal: "I can't use a prompting-like experience. That's way too slow. It has
+to be instantaneous, like a button." `scripts/buttons.py` runs on omarchy as
+`buttons.service` (port 8787, stdlib, no AI in the loop): `GET /` is a big
+amber-on-dark button page for the iPhone home screen, `POST /do/<action>`
+runs one whitelisted shell command (`/actions` lists them: lights-on/off,
+dim, bright, evening, cleaning, daylight, play, next, prev, vol-up/down,
+mute-alert, tv-off). Tailscale fronts it with HTTPS for his devices only:
+**`https://omarchy.tailb7fa1e.ts.net:8443`** (set with `tailscale serve
+--bg --https=8443 http://127.0.0.1:8787`, no sudo needed; the raw LAN port
+stays behind ufw). Verified from the Mac: page 30 ms, "next" 6 ms. iOS
+Shortcuts "Get Contents of URL" (POST) on a `/do/...` address gives Siri,
+Apple Watch, widgets and the iPhone 15 Pro Action Button. Adding an action is
+one line in `ACTIONS`; redeploy = scp + `systemctl --user restart buttons`.
+Log: `~/.local/state/bamware/buttons.log`. Primer:
+https://claude.ai/artifact/7Jy7fEUvY1bwDqrwrFDe9N. When he asks for a new
+reflex ("make X a button"), add it there, never a chat command.
+
 ## Daily vibes (shipped 2026-10-29, v1)
 
 Bilal's standing ask: "always set the scenery and set the vibes", replace the
