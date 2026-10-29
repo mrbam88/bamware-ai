@@ -3,9 +3,14 @@ name: bilal-resume
 description: Bilal Malik's current resume content and the rules for attaching it to an application. Use when uploading a resume, pasting resume text, filling work-history fields, or answering questions about his roles, dates, stack, or accomplishments.
 ---
 
-# Resume, current as of 2026-10-08
+# Resume, current as of 2026-10-29
 
-Canonical source: private `mrbam88/interviews`, `documents/kits/2026-10-08/`.
+Canonical source: private `mrbam88/interviews`, `documents/kits/2026-10-29/`.
+Framing since 2026-10-27/29 (recruiter said three short roles since 2023 read as
+job hopping): one **Bamware, May 2023 – present** entry with BrewDesk first
+(Jul 2026 – present, his full-time work since the VPG engagement closed) and
+NuvoAir, Photobucket and VPG nested as completed client engagements. Dates,
+clients and bullets are unchanged; never flatten it back into separate jobs.
 Four variants, one folder each: mobile-ios, mobile-rn, `fullstack`,
 `manager`. Every folder holds `Bilal_Malik_Resume_<Variant>.pdf` (upload this),
 `.docx` (editable) and `.txt` (paste into web forms), plus the matching
