@@ -28,6 +28,16 @@ A shared contract package is the real answer — that decision is parked in
 
 ## Recent contract changes
 
+- **2026-10-28 (venue-engine ve#218, PR #219, additive):** new `POST /v1/chat`
+  (Bearer BrewDesk user JWT). Body `{ messages: [{ role: "user"|"assistant",
+  content ≤500 chars }] (1..10, last = user), location?: { lat, lng } }`.
+  200 `{ reply, venues: VenueWithDistance[] (≤5, only ids the search tool
+  returned), meta: { model, turnsLeftToday } }`. Errors: 400 `bad_body`, 401,
+  429 `{ error: "chat_daily_cap", resetAt }`, 502 `chat_upstream`, 503
+  `chat_disabled` (route is OFF until `CHAT_ENABLED=1` + `ANTHROPIC_API_KEY`).
+  `GET /v1/health` gains `features: { chat: boolean }`; the app shows the Ask
+  tab only when true. Consumer: bamware-brewdesk#247. Primer:
+  https://claude.ai/artifact/Y7h3uGgshKuu3YycQXRvuV
 - **2026-09-23 (venue-engine ve#144 + ve#148, branch `feat/work-fit-v2`, NOT
   merged — awaiting Bilal's review):** two additive changes, no field removed
   or renamed.
