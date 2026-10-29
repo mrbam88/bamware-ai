@@ -9,7 +9,7 @@
 | Venue Engine release route | docs/venue-engine-deployment.md |
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
 | Machines, displays, gear | docs/machines.md |
-| Apartment lights (Govee inventory, scenes) | skills/bamware-smart-home/SKILL.md |
+| Apartment lights (Govee) and stereo (Spotify on omarchy) | skills/bamware-smart-home/SKILL.md |
 | Security: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |

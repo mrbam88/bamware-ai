@@ -1,6 +1,6 @@
 ---
 name: bamware-smart-home
-description: Bilal's apartment lights (Govee) from any Bamware agent with the API key - device inventory, on/off, color, brightness, scenes, and the glitches he lives with. Use for any "lights", "lamp", "strip", "Govee", "smart home" request, from Discord, Claude Code, or any other harness.
+description: Bilal's apartment from any Bamware agent - Govee lights (inventory, on/off, color, brightness, scenes) and the living-room stereo (Spotify on omarchy over the media bus). Use for any "lights", "lamp", "strip", "Govee", "music", "Spotify", "stereo", "play", "smart home" request, from Discord, Claude Code, or any other harness.
 ---
 
 # Smart home: Govee lights
@@ -64,6 +64,39 @@ after a command, `device/state` reflects it. A control call is one of the
   lavender `rgb(110,70,200)` 30%. His verdict before this: "these lights are
   too bright bro".
 - **Reset / neutral:** all three online lights `colorTemperatureK` 2700, 40%.
+
+## The stereo (verified live 2026-10-29)
+
+Marshall Kilburn Bluetooth speaker under the TV, fed by an AUX cable from
+`omarchy`'s headphone jack (Apple T2 audio, PipeWire sink "Apple Audio Device
+Headphones", card profile "HiFi (Headphones, Mic)"). Bilal installed the
+Spotify desktop app himself (`/opt/spotify/spotify`, his account); it runs in
+his desktop session and exposes MPRIS. Drive it from an SSH shell:
+
+```
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_RUNTIME_DIR=/run/user/1000
+P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player
+$P call $D $O $I OpenUri s "spotify:playlist:37i9dQZF1DX889U0CL85jj"   # play a URI (track/album/playlist)
+$P call $D $O $I Pause | Play | Next | Previous
+$P set-property $D $O $I Shuffle b true
+$P get-property $D $O $I PlaybackStatus ; Metadata                       # verify, always
+wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 = his reference level
+```
+
+- Reference volume: sink 0.83, Spotify volume 1.0, the Kilburn dial does the
+  rest. Do not change either unless asked.
+- Verify after every command: PlaybackStatus "Playing" and an active Spotify
+  stream on the Headphones sink (`wpctl status`). Silence with everything
+  green means Spotify Connect moved playback to another device (phone,
+  AirPods, the Mac): say where it went instead of retrying.
+- No search by name yet: playing needs a Spotify URI or link. A Spotify Web
+  API app on his developer dashboard would add search (client id in a
+  600-mode file, never in the repo); he has not asked for it.
+- Do not install Spotify clients or daemons on omarchy. 2026-10-29: spotifyd
+  and spotify_player were installed and then removed at his request ("chill
+  on the install Spotify, I'll do it myself"). The desktop app is his.
+- "Chill" = Spotify's Chill Vibes `spotify:playlist:37i9dQZF1DX889U0CL85jj`
+  (2026-10-29, "Perfect").
 
 ## One-time setup (Bilal)
 
