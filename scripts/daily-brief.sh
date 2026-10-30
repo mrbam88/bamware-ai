@@ -52,7 +52,7 @@ post() { # bot post in #chief-of-staff; token never touches argv
 # One headless Claude call. $1 = stage name, $2 = comma list of allowed tools,
 # stdin = prompt. Everything that can act on the world is denied outright:
 # deny rules bind even where the server's settings would otherwise allow.
-DENY='Bash,Write,Edit,MultiEdit,NotebookEdit,WebFetch,WebSearch,Agent,Task,TodoWrite,KillShell,mcp__claude_ai_Gmail,mcp__claude_ai_Google_Drive,mcp__claude_ai_Composio,mcp__claude_ai_Vercel,mcp__claude_ai_Postman,mcp__claude_ai_Claude_Docs,mcp__claude_ai_Sentry,mcp__claude_ai_Mermaid_Chart'
+DENY='Bash,Write,Edit,NotebookEdit,WebFetch,WebSearch,Agent,mcp__claude_ai_Gmail,mcp__claude_ai_Google_Drive,mcp__claude_ai_Composio,mcp__claude_ai_Vercel,mcp__claude_ai_Postman,mcp__claude_ai_Claude_Docs,mcp__claude_ai_Sentry,mcp__claude_ai_Mermaid_Chart'
 ask() {
   local stage=$1 allow=$2
   timeout 10m claude -p --output-format text \
@@ -91,9 +91,10 @@ if ! verified && { (( 10#$hour < 12 )) || [[ ${FORCE:-0} == 1 ]]; }; then
     jq -nc --arg q "$q" '{op:"gmail_search", query:$q, limit:15}' |
       timeout 90 python3 /opt/bamware-google/client.py >"$work/mail-search.json" 2>/dev/null || echo '{"ok":false}' >"$work/mail-search.json"
     # bodies for the hits (bounded), so dates/deadlines come from the mail, not the subject line
-    jq -r '[.result | (.messages? // .)] | .. | objects | select(has("id")) | .id' "$work/mail-search.json" 2>/dev/null | awk '!s[$0]++' | head -15 | while read -r id; do
+    jq -r '.result.messages[]?.id // empty' "$work/mail-search.json" 2>/dev/null | head -15 | while read -r id; do
       jq -nc --arg i "$id" '{op:"gmail_get", id:$i}' | timeout 60 python3 /opt/bamware-google/client.py 2>/dev/null || true
-    done | jq -s '.' >"$work/mail-bodies.json" 2>/dev/null || echo '[]' >"$work/mail-bodies.json"
+    done | jq -s '[.[] | select(.ok == true) | .result | {id: .message.id, from: .headers.from, date: .headers.date, subject: .headers.subject, body: ((.body // "") | tostring | .[0:3000])}]' \
+      >"$work/mail-bodies.json" 2>/dev/null || echo '[]' >"$work/mail-bodies.json"   # headers + text only, 3 KB each; raw MIME stays out of the prompt
   else
     echo '{"ok":false,"error":"broker unavailable"}' >"$work/mail-search.json"; echo '[]' >"$work/mail-bodies.json"
   fi
@@ -102,6 +103,12 @@ if ! verified && { (( 10#$hour < 12 )) || [[ ${FORCE:-0} == 1 ]]; }; then
   done
 
   # compose: read-only Notion + the prefetched files; prints the edition only.
+  # A draft from an earlier run today that already passes the gate is reused
+  # (a retry after a publish hiccup must not rewrite the edition).
+  shaped() { [[ -s $1 ]] && grep -q '^## Daily Newspaper' "$1" && grep -q '^### Needs You' "$1" && grep -q "$today" "$1" && (( $(wc -w <"$1") >= 120 )); }
+  if shaped "$content"; then
+    echo "daily-brief: reusing today's draft $content"
+  else
   ask compose "Read,$NOTION_RO" <<EOF >/dev/null
 You write Bilal's daily Notion newspaper for $weekday $today (America/New_York). Output ONLY the markdown of the edition: no preamble, no code fence, no commentary.
 
@@ -126,9 +133,10 @@ Exact shape (keep every heading):
 ### Watch List
 ### What I handled
 EOF
-  # gate: same checks the old publisher enforced, now in the shell.
   sed -e '1{/^```/d}' -e '${/^```/d}' "$work/compose.out" >"$content"
-  if ! grep -q '^## Daily Newspaper' "$content" || ! grep -q '^### Needs You' "$content" || ! grep -q "$today" "$content" || (( $(wc -w <"$content") < 120 )); then
+  fi
+  # gate: same checks the old publisher enforced, now in the shell.
+  if ! shaped "$content"; then
     echo "daily-brief: compose output failed the shape gate (see $work/compose.out)" >&2
   else
     # locate: fetch only; find today's M/D child page(s) under the diary root.
@@ -176,8 +184,9 @@ EOF
 Fetch Notion page $url. Reply with ONLY this JSON, no fence, no prose: {"title":"<page title>","content":"<the page's full markdown content verbatim>"}
 EOF
       rb=$(json_of "$work/readback.out" 2>/dev/null || echo '')
+      # Notion returns the icon in the title ("🗞️ 10/30"); compare the trailing M/D.
       if [[ -n $rb ]] && jq -e --arg t "$title" --arg d "$today" \
-           '.title == $t and (.content | contains("## Daily Newspaper") and contains("### Needs You") and contains($d))' <<<"$rb" >/dev/null; then
+           '((.title // "") | sub("^[^0-9]*"; "")) == $t and (.content | contains("## Daily Newspaper") and contains("### Needs You") and contains($d))' <<<"$rb" >/dev/null; then
         jq -nc --arg d "$today" --arg u "$url" --arg a "$action" \
           '{date:$d, verified_at:(now|todate), url:$u, action:$a, verified:true}' | tee "$receipt" >"$STATE/latest.json"
         echo "daily-brief: verified $action $url"
