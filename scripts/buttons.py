@@ -32,6 +32,8 @@ ACTIONS = {
     "lights-off":  ("Kill",           "lights", f"{LAN} off all; {BIN}/govee.sh off 'TV Backlight 3 Lite' >/dev/null 2>&1; {BIN}/govee.sh off Kill >/dev/null 2>&1; true"),
     "dim":         ("Dim",            "lights", f"{LAN} bright all 8"),
     "bright":      ("Bright",         "lights", f"{LAN} on all && {LAN} bright all 100"),
+    "morning":     ("Morning",        "scenes", f"{BIN}/vibes.sh morning --now"),
+    "work":        ("Work",           "scenes", f"{BIN}/vibes.sh work"),
     "evening":     ("Evening",        "scenes", f"touch {STATE}/lights.hold; {BIN}/vibes.sh evening --force"),
     "cleaning":    ("Cleaning",       "scenes", f"{BIN}/vibes.sh cleaning"),
     "daylight":    ("Match the sun",  "scenes", f"rm -f {STATE}/lights.hold; python3 {BIN}/daylight.py"),

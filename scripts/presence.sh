@@ -3,7 +3,9 @@
 #   presence.sh            one check: home if his iPhone or MacBook answered on the LAN in the last 15 min
 #   presence.sh home|away  manual override for 3 h (he can check in/out from the seat)
 #   presence.sh status
-# Away transition: lights off, Spotify pause, TVs off. Home transition: nothing automatic (vibes timers handle the day).
+# Away transition: lights off, Spotify pause, TVs off.
+# Home transition (Bilal 2026-10-29, "things could just automatically turn on when I get home"): the scene that fits
+# the hour: before 11:00 morning (at once), 11:00-18:30 daylight tracker, after that evening. Writes presence.log.
 export XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 S=~/.local/state/bamware; mkdir -p $S; STATE=$S/presence.state; SEEN=$S/presence.lastseen; OVR=$S/presence.override
 PHONE_MAC=66:ce:e3:fd:bb:78; MAC_MAC=60:3e:5f:58:ac:92; PY=~/.venvs/smarthome/bin/python
@@ -30,5 +32,11 @@ if [[ $new != $old ]]; then
     . ~/.config/bamware/govee.env; curl -s -H "Govee-API-Key: $GOVEE_API_KEY" -H "Content-Type: application/json" -X POST https://openapi.api.govee.com/router/api/v1/device/control -d '{"requestId":"p","payload":{"sku":"BaseGroup","device":"15560214","capability":{"type":"devices.capabilities.on_off","instance":"powerSwitch","value":0}}}' >/dev/null
     busctl --user call org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player Pause 2>/dev/null
     $PY ~/.local/bin/appletv.py key turn_off >/dev/null 2>&1; $PY ~/.local/bin/samsung_tv.py key KEY_POWER >/dev/null 2>&1; python3 ~/.local/bin/roku_tv.py off >/dev/null 2>&1
+  elif [[ $old == away ]]; then   # welcome home: only on a real away->home flip, never on the first run after boot
+    hm=$((10#$(date +%H) * 60 + 10#$(date +%M)))
+    if (( hm < 11*60 )); then scene="morning --now"; elif (( hm < 18*60+30 )); then scene=daylight; else scene="evening --force"; fi
+    echo "$(date '+%F %T') welcome home -> $scene" >> $S/presence.log
+    rm -f $S/lights.hold
+    if [[ $scene == daylight ]]; then python3 ~/.local/bin/daylight.py >> $S/presence.log 2>&1; else ~/.local/bin/vibes.sh $scene >> $S/presence.log 2>&1 & fi
   fi
 fi

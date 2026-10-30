@@ -19,16 +19,28 @@ tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
 # a manual scene (cleaning, or any agent that touched lights.hold) wins over the schedule for 3 h (2026-10-29: the 19:30 run clobbered cleaning lights)
 HOLD=~/.local/state/bamware/lights.hold
-if [[ ${1:-} =~ ^(morning|afternoon|evening)$ && -f $HOLD && $(( $(date +%s) - $(stat -c %Y $HOLD) )) -lt 10800 && ${2:-} != --force ]]; then echo "$(date "+%F %T") vibes $1 skipped: lights.hold is fresh (vibes.sh $1 --force to override)"; exit 0; fi
+if [[ ${1:-} =~ ^(morning|afternoon|evening)$ && -f $HOLD && $(( $(date +%s) - $(stat -c %Y $HOLD) )) -lt 10800 && ${2:-} != --force && ${2:-} != --now ]]; then echo "$(date "+%F %T") vibes $1 skipped: lights.hold is fresh (vibes.sh $1 --force to override)"; exit 0; fi
 case ${1:-} in
-  morning)   # sunrise over ~6 min, then news
+  morning)   # sunrise over ~6 min (or at once with --now, the breakfast button), then news
+    STEP=60; [[ ${2:-} == --now ]] && STEP=1
     $LAN on all >/dev/null; $LAN kelvin all 2700 >/dev/null
-    cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1
+    # lamp runs two of three: disc + bottom ring for breakfast light, ripple off (send the one you care about last)
+    cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     spotify "spotify:playlist:37i9dQZF1DX4sWSpwq3LiO" 0.45   # Peaceful Piano
-    for b in 5 15 30 50 70 85; do $LAN bright uplighter $b >/dev/null; $LAN bright strip $((b/2+5)) >/dev/null; $LAN bright "smart led bulb" $((b/3+3)) >/dev/null; $LAN bright "bulb top" $((b/3+3)) >/dev/null; sleep 60; done
-    $LAN kelvin all 4000 >/dev/null
+    for b in 5 15 30 50 70 85; do $LAN bright uplighter $b >/dev/null; $LAN bright strip $((b/2+5)) >/dev/null; $LAN bright "smart led bulb" $((b/3+3)) >/dev/null; $LAN bright "bulb top" $((b/3+3)) >/dev/null; sleep $STEP; done
+    $LAN kelvin all 4000 >/dev/null; $LAN bright strip 80 >/dev/null   # kitchen strip bright: he cooks breakfast (2026-10-29)
+    touch ~/.local/state/bamware/lights.hold
     for u in "https://www.youtube.com/@markets/live" "https://www.youtube.com/@CNBC/live" "https://www.youtube.com/@NBCNews/live"; do tv_youtube "$u" && break; done ;;
+  work)      # study / focus (Bilal 2026-10-29): steady neutral light, no ripple, no TV wall, focus music, mic alert muted for calls
+    $LAN on all >/dev/null; $LAN kelvin all 4000 >/dev/null
+    $LAN bright uplighter 70 >/dev/null; $LAN bright "smart led bulb" 60 >/dev/null; $LAN bright "bulb top" 60 >/dev/null; $LAN bright strip 25 >/dev/null
+    cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1
+    cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
+    ~/.local/bin/roomlevel.sh mute 180 >/dev/null
+    touch ~/.local/state/bamware/lights.hold
+    spotify "spotify:playlist:37i9dQZF1DWZeKCadgRdKQ" 0.50   # Deep Focus
+    echo "work mode: 4000K, lamp disc + ring, TV wall off, Deep Focus 50%, mic alert muted 3 h" ;;
   afternoon) # bright, focused, game in the background
     $LAN on all >/dev/null; $LAN kelvin all 4500 >/dev/null; $LAN bright uplighter 100 >/dev/null; $LAN bright strip 70 >/dev/null; $LAN bright "smart led bulb" 40 >/dev/null; $LAN bright "bulb top" 40 >/dev/null
     cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1
@@ -55,6 +67,6 @@ case ${1:-} in
     echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
   release)   # drop the manual hold so timers run again
     rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
-  *) echo "usage: vibes.sh morning|afternoon|evening|cleaning|release"; exit 1;;
+  *) echo "usage: vibes.sh morning [--now]|afternoon|evening|cleaning|work|release"; exit 1;;
 esac
 echo "$(date '+%F %T') vibes $1 done"
