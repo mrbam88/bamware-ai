@@ -51,7 +51,8 @@ case ${1:-} in
     # TV wall: 5000K photographs lavender on the H6099 (no blue, ever), so warm white by RGB instead
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(235<<8)+205 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
-    echo "cleaning lights: every light 100% at 5000K, lamp bottom + disc; 'vibes.sh release' when done" ;;
+    spotify "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
+    echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
   release)   # drop the manual hold so timers run again
     rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
   *) echo "usage: vibes.sh morning|afternoon|evening|cleaning|release"; exit 1;;
