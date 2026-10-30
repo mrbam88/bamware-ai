@@ -1,5 +1,29 @@
 # State of the Union — Bamware
 
+## 2026-10-30 — Daily Notion newspaper was still on Hermes; now on Claude Code
+
+- **Bilal:** "notion daily tracker?????" then "i thought we stop using hermes
+  and switched to claude??? did you miss something so important". Yes: #197
+  retired Hermes on 10/21 but the 8 AM newspaper and the Interview Tracker
+  classifier stayed Hermes cron jobs on the leftover install. A Claude session
+  on omarchy removed `pipx:hermes-agent` from mise at 00:58 on 10/29 (before
+  the 30-day grace); every tick since failed (`hermes cron tick exit 127`),
+  no 10/29 edition, and the missed-brief alert was the only signal.
+- **Fix:** `scripts/daily-brief.sh` runs the job itself with headless
+  `claude -p` calls (Max quota, $0 new): prefetch interview mail through the
+  read-only broker → compose from Notion (read-only) + files → locate today's
+  M/D page → create or prepend → read back; the **shell** checks headings and
+  date before writing the receipt and posting to `#chief-of-staff`. Hard deny
+  list on every call (Bash, Write, Gmail/Drive connectors, web). 10/30 edition
+  published and verified 11:29 ET. Details: `docs/discord.md`.
+- **Lessons:** (1) retiring a control plane must list and port every job on
+  it first — `~/.hermes/cron/jobs.json` was the inventory nobody read;
+  (2) a Hermes reinstall "to get today's edition out" was the wrong reflex;
+  Bilal's direction is Claude everywhere. (3) The Google broker allow-lists by
+  systemd unit, so test through the real unit with a drop-in, not a shell.
+- **Open:** Interview Tracker classifier (Hermes job `b39e407c0329`) is dead;
+  the deterministic `interview-mail-alert.py` floor still runs. Tracked in #220.
+
 ## 2026-10-29/30 — Apartment: instant buttons, modes, daylight tracking, verified lights (one evening, $0)
 
 - **Trigger (Bilal):** lights "randomly flicker blue"; then "it has to be
