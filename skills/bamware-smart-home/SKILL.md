@@ -180,6 +180,19 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 | cleaning (on demand) | bulbs and strip 100% at 5000K; lamp bottom ring + ripple, disc off (his look, photo 2026-10-29); TV wall warm white `rgb(255,235,205)` 100% (5000K on the H6099 photographs lavender); touches `lights.hold` | I Love My '90s Hip-Hop `spotify:playlist:37i9dQZF1DX186v583rmzp`, 75%, shuffled ("Way better music" after Mood Booster flopped) | untouched |
 
+| work (on demand) | 4000K, lamp disc 70% + ring (ripple off), desk bulbs 60%, strip 25%, TV wall off; mutes the mic alert 3 h for calls; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% | untouched |
+
+**Morning as a button (2026-10-29):** `vibes.sh morning --now` does the
+sunrise in seconds instead of 6 min and ends with the kitchen strip at 80%
+because he cooks breakfast; the 08:00 timer still does the slow version. The
+`Morning` and `Work` buttons exist on the button page and as `/go/morning`,
+`/go/work`. **Welcome home (2026-10-29):** `presence.sh` on a real away ->
+home flip runs the scene for the hour (before 11:00 morning at once,
+11:00-18:30 `daylight.py`, after that evening), clears `lights.hold`, logs to
+`~/.local/state/bamware/presence.log`. Presence is Wi-Fi based (his iPhone or
+MacBook seen within 15 min), so "home" lags arrival by up to 2 min and
+"away" by 15.
+
 "Cleaning lights" (Bilal, 2026-10-29: "bottom definitely 100% and then
 whatever is the most you can do with the other lights"): `vibes.sh cleaning`.
 **Manual scenes win over the schedule:** scheduled morning/afternoon/evening
