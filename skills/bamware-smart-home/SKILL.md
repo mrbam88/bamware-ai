@@ -193,7 +193,19 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 | cleaning (on demand) | bulbs and strip 100% at 5000K; lamp bottom ring + ripple, disc off (his look, photo 2026-10-29); TV wall warm white `rgb(255,235,205)` 100% (5000K on the H6099 photographs lavender); touches `lights.hold` | I Love My '90s Hip-Hop `spotify:playlist:37i9dQZF1DX186v583rmzp`, 75%, shuffled ("Way better music" after Mood Booster flopped) | untouched |
 
-| work (on demand) | 4000K, lamp disc 70% + ring (ripple off), desk bulbs 60%, strip 25%, TV wall off; mutes the mic alert 3 h for calls; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% | untouched |
+| work (on demand, v2 2026-10-29) | **light near the ceiling, nothing at eye level** ("I don't want to be blinded looking at my monitors"): lamp ripple 100% + ring at 2-3% (app snapshot "Work"), disc off; desk bulbs amber 1%; strip amber 1%; TV wall off; mutes the mic alert 3 h; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% ("perfect") | untouched |
+
+**Morning v2 (2026-10-29, "mimic the sun... gloomy rainy mornings... very
+depressing"):** same eye-level rule as work. Desk bulbs amber 1%; lamp ripple
++ ring (snapshot "Morning", else "Work"); TV wall vibrant sunrise orange
+`rgb(255,120,20)` 100%; kitchen strip warm 2700K ramping to 100% then 3000K
+(he cooks); "Have a Great Day!" `spotify:playlist:37i9dQZF1DX7KNKjOK0o75`
+55%; news on the TV in the background. The 08:00 timer ramps over ~6 min,
+the button (`--now`) at once. **Ring level is app-only:** Bilal saves lamp
+snapshots in the Govee app named `Work` (ripple on, ring 2-3%, disc off),
+`Morning` (same, ring brighter) and `Clean` (ring 100% + disc 100% 5000K);
+`vibes.sh` recalls them by name via `snapshot()` and falls back to toggles
+when a name is missing.
 
 **Morning as a button (2026-10-29):** `vibes.sh morning --now` does the
 sunrise in seconds instead of 6 min and ends with the kitchen strip at 80%
