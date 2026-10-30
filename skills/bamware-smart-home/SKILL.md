@@ -95,10 +95,11 @@ TV; the Samsung is just the panel ("I hate the Samsung TV OS"). So:
 `com.peacocktv.peacock`: NBC 4 New York live feed, Sunday Night Football,
 NBA on NBC Mon/Tue, Premier League, golf. He also has Amazon Prime:
 `Prime Video` button (`/go/prime`, `com.amazon.aiv.AIVApp`) for Thursday
-Night Football and Amazon's NBA games. ESPN, ABC, FOX NOW, CBS Sports,
-NBC Sports, Paramount+ are installed but need logins he does not have; do
-not offer them. Free legal fillers on the Apple TV: Pluto TV, Tubi (not
-installed yet). True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
+Night Football and Amazon's NBA games. Later the same night he signed into
+ESPN and installed Pluto TV and Tubi (free), so the button page has a TV
+group: Peacock, Prime Video, ESPN, Pluto TV, Tubi (`/go/<name>`; bundle ids
+in `TV_APPS` in `buttons.py`). ABC, FOX NOW, CBS Sports, NBC Sports,
+Paramount+ are installed but have no login; do not offer them. True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
 an antenna on the Samsung's tuner (indoor works in Manhattan), which is a
 purchase and his call; Rule #1.
 **Samsung input:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
