@@ -42,6 +42,9 @@ ACTIONS = {
     "prev":        ("Previous",       "music",  f"{MPRIS} Previous"),
     "vol-down":    ("Quieter",        "music",  "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 10%-"),
     "vol-up":      ("Louder",         "music",  "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 10%+"),
+    "espn":        ("ESPN",           "misc",   f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; $P {BIN}/appletv.py key turn_on >/dev/null 2>&1; "
+                                                 f"h=$(cat {HOME}/.config/bamware/samsung_hdmi 2>/dev/null); [ -n \"$h\" ] && {{ sleep 4; $P {BIN}/samsung_tv.py key KEY_HDMI$h >/dev/null 2>&1; }}; "
+                                                 f"$P {BIN}/appletv.py app com.espn.ScoreCenter"),
     "mute-alert":  ("Quiet the mic 2 h", "misc", f"{BIN}/roomlevel.sh mute 120"),
     "tv-off":      ("TVs off",        "misc",   f"{HOME}/.venvs/smarthome/bin/python {BIN}/appletv.py key turn_off >/dev/null 2>&1; {HOME}/.venvs/smarthome/bin/python {BIN}/samsung_tv.py off >/dev/null 2>&1; true"),
 }
