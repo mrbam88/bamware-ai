@@ -18,7 +18,7 @@ lamp_top() { # ripple on the ceiling + bottom ring, disc off (two of three); arg
 spotify() { ( P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player; $P call $D $O $I OpenUri s "$1" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2" 2>/dev/null ) >/dev/null 2>&1 & }   # backgrounded 2026-10-29: the button should not wait on Spotify
 LOGD=~/.local/state/bamware
 tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep link into the Apple TV YouTube app
-  $PY ~/.local/bin/samsung_tv.py wake >/dev/null 2>&1; $PY ~/.local/bin/appletv.py key turn_on >/dev/null 2>&1; sleep 5
+  $PY ~/.local/bin/appletv.py key turn_on >/dev/null 2>&1; $PY ~/.local/bin/samsung_tv.py appletv >/dev/null 2>&1   # wake the panel AND land on the Apple TV input (2026-10-30: it woke on Live TV)
   id=$(~/.venvs/smarthome/bin/yt-dlp --no-warnings --flat-playlist --playlist-items 1 --get-id "$1" 2>/dev/null | head -1)
   [[ -n $id ]] || { echo "no video id for $1"; return 1; }
   $PY ~/.local/bin/appletv.py app "youtube://www.youtube.com/watch?v=$id" >/dev/null 2>&1; sleep 8; $PY ~/.local/bin/appletv.py key select >/dev/null 2>&1; sleep 6
