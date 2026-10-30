@@ -38,6 +38,10 @@ Ninth (2026-10-29): [Talking to the Apartment](https://claude.ai/artifact/E1A3eb
 (voice today through Siri Shortcuts at $0; a local wake-word pilot on the
 EarPods before any far-field mic ($40-90) or HomePod mini ($99); audio stays
 local on the hacker path; three decisions in order, none spent).
+Tenth (2026-10-30): [Push-to-Talk Slice](https://claude.ai/artifact/2eWru4MPctwJKDPrNBGMmB)
+(first usable voice path: Siri Shortcut dictation to an `/ask` route on omarchy,
+whitelist reflex first, `claude -p` read-only otherwise, reply spoken back; $0,
+14-day usage trial decides whether voice continues; six holes listed to poke).
 
 ## When to write one
 
