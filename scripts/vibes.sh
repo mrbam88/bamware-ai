@@ -33,7 +33,7 @@ case ${1:-} in
     STEP=60; [[ ${2:-} == --now ]] && STEP=1                 # the 08:00 timer ramps over ~6 min; the button does it at once
     $LAN on all >/dev/null
     $LAN color "smart led bulb" amber >/dev/null; $LAN bright "smart led bulb" 1 >/dev/null   # desk bulbs stay at eye level: 1%
-    lamp_top "Morning" "Work"                                                                  # ripple 100% on the ceiling + ring, disc off (snapshot "Morning", else "Work", else toggles)
+    lamp_top "Morning Bright" "Focus Bright" "Low light chill both"                          # his app snapshot "Morning Bright" (2026-10-30), else the work look, else toggles
     # TV wall: vibrant sunrise, bright
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(120<<8)+20 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     spotify "spotify:playlist:37i9dQZF1DX7KNKjOK0o75" 0.55   # Have a Great Day! (upbeat, fun, inspiring)
@@ -75,7 +75,7 @@ case ${1:-} in
   cleaning)  # "cleaning lights" (Bilal 2026-10-29): everything 100%, cool white, bottom-heavy lamp; no music or screen change
     $LAN on all >/dev/null; $LAN kelvin all 5000 >/dev/null; $LAN bright all 100 >/dev/null
     # lamp, Bilal's cleaning look (photo 2026-10-29 22:48): bottom ring (level set in the app) + ripple on the ceiling, disc off; the lamp runs at most two of three
-    [[ $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }   # app snapshot "Clean" (ring 100%) wins when he has saved it
+    [[ $(snapshot H60B0 $LAMP "Cleaning") == 1 || $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }   # app snapshot "Clean" (ring 100%) wins when he has saved it
     # TV wall: 5000K photographs lavender on the H6099 (no blue, ever), so warm white by RGB instead
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(235<<8)+205 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
