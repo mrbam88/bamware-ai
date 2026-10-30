@@ -87,14 +87,27 @@ Apple TV is where he actually watches; a second one for the bedroom is on his
 wish list. For "Netflix" default to the Apple TV, with the Samsung on its HDMI.
 The pyatv CLI (`atvremote`) crashes on the server's Python 3.14; use the script.
 
-**ESPN / live sports (2026-10-30):** the Apple TV has the ESPN app
-(`com.espn.ScoreCenter`), FanDuel Sports Network, FOX NOW, NBA, DIRECTV. The
-`ESPN` button (`/go/espn`) wakes the Samsung and the Apple TV, switches the
-Samsung to the Apple TV's HDMI if `~/.config/bamware/samsung_hdmi` holds the
-port number (Tizen keys `KEY_HDMI1..4`; Bilal re-cabled 2026-10-30 and the
-port is unknown until he says), then launches ESPN. Whether a live game
-plays inside ESPN depends on his provider login in the app; unverified.
-`appletv.py status` can lag or report the previous app, so confirm with him.
+**Live sports and local TV (2026-10-30):** Bilal's only subscription is
+Peacock Premium ("I used to have subscriptions to everything but I canceled
+them"); he wants NYC local on-air stuff too. Everything plays from the Apple
+TV; the Samsung is just the panel ("I hate the Samsung TV OS"). So:
+`Peacock` button (`/go/peacock`) wakes both and launches
+`com.peacocktv.peacock`: NBC 4 New York live feed, Sunday Night Football,
+NBA on NBC Mon/Tue, Premier League, golf. He also has Amazon Prime:
+`Prime Video` button (`/go/prime`, `com.amazon.aiv.AIVApp`) for Thursday
+Night Football and Amazon's NBA games. ESPN, ABC, FOX NOW, CBS Sports,
+NBC Sports, Paramount+ are installed but need logins he does not have; do
+not offer them. Free legal fillers on the Apple TV: Pluto TV, Tubi (not
+installed yet). True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
+an antenna on the Samsung's tuner (indoor works in Manhattan), which is a
+purchase and his call; Rule #1.
+**Samsung input:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
+cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30). Blind
+cycling is fragile; the fix is HDMI-CEC on both ends (Apple TV: Settings,
+Remotes and Devices, Control TVs and Receivers; Samsung: General, External
+Device Manager, Anynet+), after which `appletv.py key turn_on` switches the
+input itself. `appletv.py status` can lag or report the previous app, so
+confirm with him.
 
 ### Putting a video on the living-room TV (integration test passed 2026-10-29)
 
