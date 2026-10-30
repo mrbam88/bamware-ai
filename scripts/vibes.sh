@@ -8,7 +8,8 @@ API=https://openapi.api.govee.com/router/api/v1; H=(-H "Govee-API-Key: $GOVEE_AP
 LAMP=40:F9:DA:C3:41:06:03:53; TVB=1C:CF:D4:0F:40:46:18:6A
 cloud() { curl -s "${H[@]}" -X POST $API/device/control -d "{\"requestId\":\"v\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\",\"capability\":{\"type\":\"$3\",\"instance\":\"$4\",\"value\":$5}}}" >/dev/null; }
 scene() { v=$(curl -s "${H[@]}" -X POST $API/device/scenes -d "{\"requestId\":\"q\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\"}}" | jq -c --arg n "$3" '.payload.capabilities[0].parameters.options[] | select(.name==$n) | .value' | head -1); [[ -n $v ]] && cloud $1 $2 devices.capabilities.dynamic_scene lightScene "$v"; }
-spotify() { P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player; $P call $D $O $I OpenUri s "$1" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2" 2>/dev/null; }
+spotify() { ( P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player; $P call $D $O $I OpenUri s "$1" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2" 2>/dev/null ) >/dev/null 2>&1 & }   # backgrounded 2026-10-29: the button should not wait on Spotify
+LOGD=~/.local/state/bamware
 tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep link into the Apple TV YouTube app
   $PY ~/.local/bin/samsung_tv.py wake >/dev/null 2>&1; $PY ~/.local/bin/appletv.py key turn_on >/dev/null 2>&1; sleep 5
   id=$(~/.venvs/smarthome/bin/yt-dlp --no-warnings --flat-playlist --playlist-items 1 --get-id "$1" 2>/dev/null | head -1)
@@ -31,7 +32,8 @@ case ${1:-} in
     for b in 5 15 30 50 70 85; do $LAN bright uplighter $b >/dev/null; $LAN bright strip $((b/2+5)) >/dev/null; $LAN bright "smart led bulb" $((b/3+3)) >/dev/null; $LAN bright "bulb top" $((b/3+3)) >/dev/null; sleep $STEP; done
     $LAN kelvin all 4000 >/dev/null; $LAN bright strip 80 >/dev/null   # kitchen strip bright: he cooks breakfast (2026-10-29)
     touch ~/.local/state/bamware/lights.hold
-    for u in "https://www.youtube.com/@markets/live" "https://www.youtube.com/@CNBC/live" "https://www.youtube.com/@NBCNews/live"; do tv_youtube "$u" && break; done ;;
+    ( for u in "https://www.youtube.com/@markets/live" "https://www.youtube.com/@CNBC/live" "https://www.youtube.com/@NBCNews/live"; do tv_youtube "$u" && break; done ) >> $LOGD/vibes-tv.log 2>&1 &
+    echo "morning: lights up, piano on, news starting on the TV (about 30 s)" ;;
   work)      # study / focus (Bilal 2026-10-29): steady neutral light, no ripple, no TV wall, focus music, mic alert muted for calls
     $LAN on all >/dev/null; $LAN kelvin all 4000 >/dev/null
     $LAN bright uplighter 70 >/dev/null; $LAN bright "smart led bulb" 60 >/dev/null; $LAN bright "bulb top" 60 >/dev/null; $LAN bright strip 25 >/dev/null
@@ -46,7 +48,8 @@ case ${1:-} in
     cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     spotify "spotify:playlist:37i9dQZF1DWWQRwui0ExPn" 0.70   # lo-fi beats
-    tv_youtube "https://www.youtube.com/@NBA/videos" ;;
+    tv_youtube "https://www.youtube.com/@NBA/videos" >> $LOGD/vibes-tv.log 2>&1 &
+    echo "afternoon: lights bright, lo-fi on, NBA starting on the TV" ;;
   evening)   # wind down: candlelight, jazz
     $LAN on all >/dev/null
     $LAN color strip 255,60,90 >/dev/null; $LAN bright strip 3 >/dev/null
