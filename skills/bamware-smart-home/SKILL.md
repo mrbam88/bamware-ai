@@ -62,6 +62,11 @@ Uplighter, .167 Strip Light; they can change with DHCP, so always scan, never ha
 (`scan` forces a refresh) and skips the read-back when stdout is not a
 terminal. Work mode went from 38 s to 6 s; lights now change together. If a
 light stops answering after a router restart, run `govee_lan.py scan` once.
+**Verified sends (2026-10-29, "my strip lights didn't update in some of the
+modes"):** every on/off/bright/color/kelvin command reads the light back
+(sender-checked) and resends up to 3 times; about 0.5 s per command, exit 1
+and a stderr line naming the light if it never confirms. Work mode 10 s with
+all four lights confirmed.
 "Is it done?": the Shortcut's banner appears only after omarchy answers, the
 button page prints "done (N ms)", a `/go/` icon's dot lights up.
 

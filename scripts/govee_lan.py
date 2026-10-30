@@ -119,20 +119,54 @@ def main(argv):
     targets = resolve(argv[1] if len(argv) > 1 else "all", devices)
     if not targets:
         print(f"govee_lan: nothing matches '{argv[1] if len(argv) > 1 else ''}' among {[d['name'] for d in devices]}"); return 2
-    for d in targets:
-        if cmd in ("on", "off"):
-            send(d["ip"], "turn", {"value": 1 if cmd == "on" else 0})
-        elif cmd == "bright":
-            send(d["ip"], "brightness", {"value": max(1, min(100, int(argv[2])))})
-        elif cmd == "color":
-            r_, g, b = parse_color(argv[2])
-            send(d["ip"], "colorwc", {"color": {"r": r_, "g": g, "b": b}, "colorTemInKelvin": 0})
-        elif cmd == "kelvin":
-            send(d["ip"], "colorwc", {"color": {"r": 0, "g": 0, "b": 0}, "colorTemInKelvin": int(argv[2])})
-    if cmd != "status" and not sys.stdout.isatty(): return 0   # scripts redirect output: skip the 1.2 s settle and the read-back
-    time.sleep(1.2)
+    # Build the one message per target plus a check, then send-verify-resend up to 3 times (2026-10-29: the kitchen
+    # strip on the far end of the 2.4 GHz kept missing scene changes; UDP drops are silent).
+    if cmd in ("on", "off"):
+        on = 1 if cmd == "on" else 0; msg = ("turn", {"value": on}); ok = lambda st: st.get("onOff") == on
+    elif cmd == "bright":
+        v = max(1, min(100, int(argv[2]))); msg = ("brightness", {"value": v}); ok = lambda st: st.get("brightness") == v
+    elif cmd == "color":
+        r_, g, b = parse_color(argv[2]); msg = ("colorwc", {"color": {"r": r_, "g": g, "b": b}, "colorTemInKelvin": 0})
+        ok = lambda st: all(abs((st.get("color") or {}).get(k, -99) - val) <= 2 for k, val in (("r", r_), ("g", g), ("b", b)))
+    elif cmd == "kelvin":
+        k = int(argv[2]); msg = ("colorwc", {"color": {"r": 0, "g": 0, "b": 0}, "colorTemInKelvin": k}); ok = lambda st: st.get("colorTemInKelvin") == k
+    else:
+        msg = None
+    if msg:
+        s, r = sockets(1.0); pending = list(targets); missed = []
+        for attempt in range(3):
+            for d in pending: send(d["ip"], *msg, s, r); time.sleep(0.05)
+            time.sleep(0.35)
+            still = []
+            for d in pending:
+                st = read_state(d["ip"], s, r)
+                if not (st and ok(st)): still.append(d)
+            pending = still
+            if not pending: break
+        missed = pending; s.close(); r.close()
+        if missed: print(f"govee_lan: no confirmation from {', '.join(d['name'] for d in missed)} after 3 tries", file=sys.stderr)
+    if cmd != "status" and not sys.stdout.isatty(): return 1 if msg and missed else 0
+    time.sleep(0.5)
     for d in targets: print(status(d))
     return 0
+
+
+def read_state(ip, s, r, wait=1.0):
+    """devStatus from exactly this light: drain stale replies, accept only a packet whose sender is ip."""
+    r.settimeout(0.02)
+    try:
+        while True: r.recvfrom(4096)
+    except socket.timeout: pass
+    r.settimeout(wait)
+    s.sendto(json.dumps({"msg": {"cmd": "devStatus", "data": {}}}).encode(), (ip, CMD_PORT))
+    t0 = time.time()
+    while time.time() - t0 < wait:
+        try: d, a = r.recvfrom(4096)
+        except socket.timeout: return None
+        if a[0] == ip:
+            try: return json.loads(d)["msg"]["data"]
+            except Exception: return None
+    return None
 
 
 if __name__ == "__main__":
