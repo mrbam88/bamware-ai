@@ -193,7 +193,7 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 | cleaning (on demand) | bulbs and strip 100% at 5000K; lamp bottom ring + ripple, disc off (his look, photo 2026-10-29); TV wall warm white `rgb(255,235,205)` 100% (5000K on the H6099 photographs lavender); touches `lights.hold` | I Love My '90s Hip-Hop `spotify:playlist:37i9dQZF1DX186v583rmzp`, 75%, shuffled ("Way better music" after Mood Booster flopped) | untouched |
 
-| work (on demand, v2 2026-10-29) | **light near the ceiling, nothing at eye level** ("I don't want to be blinded looking at my monitors"): lamp ripple only at 100% (ring off: it shares the ripple's dimmer), disc off; desk bulbs amber 1%; strip amber 1%; TV wall off; mutes the mic alert 3 h; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% ("perfect") | untouched |
+| work (on demand, v2 2026-10-29) | **light near the ceiling, nothing at eye level** ("I don't want to be blinded looking at my monitors"): lamp via app snapshot `Work` else `Low light chill both` (ripple 100% + faint ring, disc off); desk bulbs amber 1%; strip amber 1%; TV wall off; mutes the mic alert 3 h; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% ("perfect") | untouched |
 
 **Morning v2 (2026-10-29, "mimic the sun... gloomy rainy mornings... very
 depressing"):** same eye-level rule as work. Desk bulbs amber 1%; lamp ripple
@@ -281,7 +281,11 @@ Three lights, Bilal's words in quotes:
   `brightness` dims whichever lights are on, ring and ripple together
   (brightness 1 with disc off: "the bottom ring is good now but the top is
   very dark"). `segmentedBrightness` does nothing for the ring. So "ring 1%,
-  ripple 100%" cannot exist; Work mode is ripple only, ring off. The earlier
+  ripple 100%" cannot be SENT, but the Govee app can set the ring alone and
+  an app snapshot keeps it: recalling "Low light chill both" gave ripple
+  full + ring faint ("Yes this is what I wanted for work mode", 2026-10-30).
+  Work recalls snapshot `Work` first, then `Low light chill both`. To change
+  the ring level he re-saves the snapshot in the app. The earlier
   "brightness ignores the ring" note was wrong: that test sent 100 onto a
   ring already at 100. **We have no eyes:** the lamp reports toggles and a
   number, never what the room looks like; ask Bilal or ask for a photo
