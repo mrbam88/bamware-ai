@@ -48,6 +48,7 @@ ACTIONS = {
     "espn":        ("ESPN",           "tv",     None),
     "pluto":       ("Pluto TV",       "tv",     None),   # free live channels incl. CBS News New York
     "tubi":        ("Tubi",           "tv",     None),
+    "local-tv":    ("Local TV",       "tv",     f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; sleep 3; $P {BIN}/samsung_tv.py key KEY_TV"),   # Samsung Live TV / TV Plus: free NYC local channels (verified by Bilal 2026-10-30)
     "mute-alert":  ("Quiet the mic 2 h", "misc", f"{BIN}/roomlevel.sh mute 120"),
     "tv-off":      ("TVs off",        "misc",   f"{HOME}/.venvs/smarthome/bin/python {BIN}/appletv.py key turn_off >/dev/null 2>&1; {HOME}/.venvs/smarthome/bin/python {BIN}/samsung_tv.py off >/dev/null 2>&1; true"),
 }
