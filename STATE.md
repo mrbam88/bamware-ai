@@ -1566,6 +1566,12 @@ its no-execution status; hosted activation and spend remain separate gates.
   fix-one-claim; both: Bilal's 10-café verdict set as CI regression).
   Waiting on Bilal: the 10 verdicts + whether he was signed in. Tickets
   not yet filed.
+- 2026-10-30: **BrewDesk 1.1 (build 32) is LIVE — READY_FOR_SALE** (ASC
+  version 02b2835c…; submitted 2026-09-30, blocked for a while by an
+  unsigned Apple agreement that Bilal accepted). Second production release:
+  accounts, city-wide search + fly-to, recent searches, lime micro pins,
+  venue-type badges + Place-type filter, honest filters, launch animation.
+  Next product work: the Moshava post-mortem plan (tickets not yet filed).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
