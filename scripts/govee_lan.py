@@ -13,7 +13,7 @@ commands, replies to our port 4002 (ufw must allow udp 4002 from 192.168.1.0/24)
 Only devices with "LAN Control" switched on in the Govee Home app answer.
 Names come from NAMES below (Govee ids -> Bilal's words); cloud names differ.
 """
-import json, socket, sys, time
+import json, os, socket, sys, time
 
 NAMES = {
     "11:AC:5C:E7:53:99:CB:E6": "Smart LED Bulb",
@@ -52,6 +52,25 @@ def scan(wait=3.0):
         except socket.timeout:
             break
     return list(found.values())
+
+
+CACHE = os.path.expanduser("~/.local/state/bamware/govee_lan.scan.json"); CACHE_TTL = 900
+
+def cached_scan(force=False):
+    """Scan results for 15 min (2026-10-29: every command rescanned for 3 s, so a scene took 24-38 s and the
+    lights changed one at a time). `scan` forces a refresh; a cache that fails to load just scans."""
+    if not force:
+        try:
+            with open(CACHE) as f: c = json.load(f)
+            if time.time() - c["t"] < CACHE_TTL and c["devices"]: return c["devices"]
+        except Exception: pass
+    devices = scan()
+    if devices:
+        try:
+            os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+            with open(CACHE, "w") as f: json.dump({"t": time.time(), "devices": devices}, f)
+        except Exception: pass
+    return devices
 
 
 def resolve(q, devices):
@@ -93,7 +112,7 @@ def main(argv):
     if not argv or argv[0] not in ("scan", "status", "on", "off", "bright", "color", "kelvin"):
         print(__doc__.strip()); return 1
     cmd = argv[0]
-    devices = scan()
+    devices = cached_scan(force=(cmd == "scan"))
     if cmd == "scan":
         for d in devices: print(f"{d['name']}\t{d['sku']}\t{d['ip']}\t{d['id']}")
         return 0 if devices else 2
@@ -110,6 +129,7 @@ def main(argv):
             send(d["ip"], "colorwc", {"color": {"r": r_, "g": g, "b": b}, "colorTemInKelvin": 0})
         elif cmd == "kelvin":
             send(d["ip"], "colorwc", {"color": {"r": 0, "g": 0, "b": 0}, "colorTemInKelvin": int(argv[2])})
+    if cmd != "status" and not sys.stdout.isatty(): return 0   # scripts redirect output: skip the 1.2 s settle and the read-back
     time.sleep(1.2)
     for d in targets: print(status(d))
     return 0

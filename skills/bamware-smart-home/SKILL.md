@@ -57,6 +57,14 @@ omarchy (its default input policy is DROP, which silently ate the replies).
 LAN addresses as of 2026-10-29: .161 Smart LED Bulb, .162 Bulb Top, .166
 Uplighter, .167 Strip Light; they can change with DHCP, so always scan, never hardcode.
 
+**Speed (2026-10-29, "it kind of will flicker before it gets it right"):**
+`govee_lan.py` caches its scan 15 min in `~/.local/state/bamware/govee_lan.scan.json`
+(`scan` forces a refresh) and skips the read-back when stdout is not a
+terminal. Work mode went from 38 s to 6 s; lights now change together. If a
+light stops answering after a router restart, run `govee_lan.py scan` once.
+"Is it done?": the Shortcut's banner appears only after omarchy answers, the
+button page prints "done (N ms)", a `/go/` icon's dot lights up.
+
 ## The TVs (verified live 2026-10-29)
 
 | TV | Where | Address | Control |
