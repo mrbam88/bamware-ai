@@ -47,7 +47,8 @@ case ${1:-} in
     $LAN on all >/dev/null
     $LAN color "smart led bulb" amber >/dev/null; $LAN bright "smart led bulb" 1 >/dev/null   # both desk bulbs, eye level: 1%
     $LAN color strip amber >/dev/null; $LAN bright strip 1 >/dev/null                          # under-cabinet strip: 1%
-    lamp_top "Work"                                                                            # ripple 100% on the ceiling + ring at the app level (snapshot "Work" = ring 2-3%), disc off
+    # lamp: ripple only at 100%. Ring and ripple share the lamp's one dimmer (confirmed 2026-10-29), so "ring 1%, ripple 100%" is impossible; ring off instead
+    cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; sleep 1; cloud H60B0 $LAMP devices.capabilities.range brightness 100
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     ~/.local/bin/roomlevel.sh mute 180 >/dev/null
     touch ~/.local/state/bamware/lights.hold
