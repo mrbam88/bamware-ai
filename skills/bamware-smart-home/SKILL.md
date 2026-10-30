@@ -284,8 +284,11 @@ Three lights, Bilal's words in quotes:
   ripple 100%" cannot be SENT, but the Govee app can set the ring alone and
   an app snapshot keeps it: recalling "Low light chill both" gave ripple
   full + ring faint ("Yes this is what I wanted for work mode", 2026-10-30).
-  Work recalls snapshot `Work` first, then `Low light chill both`. To change
-  the ring level he re-saves the snapshot in the app. The earlier
+  Work recalls snapshot `Focus Bright` (he saved it 2026-10-30: ripple
+  100%, ring ~1%, disc off), then `Work`, then `Low light chill both`.
+  Snapshot names match loosely (case and surrounding spaces ignored; the app
+  stored his as "Focus bright "). To change the ring level he re-saves the
+  snapshot in the app. The earlier
   "brightness ignores the ring" note was wrong: that test sent 100 onto a
   ring already at 100. **We have no eyes:** the lamp reports toggles and a
   number, never what the room looks like; ask Bilal or ask for a photo
