@@ -42,14 +42,19 @@ ACTIONS = {
     "prev":        ("Previous",       "music",  f"{MPRIS} Previous"),
     "vol-down":    ("Quieter",        "music",  "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 10%-"),
     "vol-up":      ("Louder",         "music",  "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 10%+"),
-    "peacock":     ("Peacock",        "misc",   f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; $P {BIN}/appletv.py key turn_on >/dev/null 2>&1; "
-                                                 f"$P {BIN}/appletv.py app com.peacocktv.peacock"),   # his one subscription: NBC 4 NY live, SNF, NBA Mon/Tue, Premier League, golf. ESPN needs a cable login he no longer has (2026-10-30)
-    "prime":       ("Prime Video",    "misc",   f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; $P {BIN}/appletv.py key turn_on >/dev/null 2>&1; "
-                                                 f"$P {BIN}/appletv.py app com.amazon.aiv.AIVApp"),   # his second subscription (2026-10-30): Thursday Night Football, Amazon's NBA games
+    # TV apps: wake the Samsung (panel only, he hates its OS) and the Apple TV, then open the app. Signed in 2026-10-30: Peacock, Prime, ESPN; Pluto and Tubi are free.
+    "peacock":     ("Peacock",        "tv",     None),   # NBC 4 NY live, SNF, NBA Mon/Tue, Premier League, golf
+    "prime":       ("Prime Video",    "tv",     None),   # Thursday Night Football, Amazon's NBA games
+    "espn":        ("ESPN",           "tv",     None),
+    "pluto":       ("Pluto TV",       "tv",     None),   # free live channels incl. CBS News New York
+    "tubi":        ("Tubi",           "tv",     None),
     "mute-alert":  ("Quiet the mic 2 h", "misc", f"{BIN}/roomlevel.sh mute 120"),
     "tv-off":      ("TVs off",        "misc",   f"{HOME}/.venvs/smarthome/bin/python {BIN}/appletv.py key turn_off >/dev/null 2>&1; {HOME}/.venvs/smarthome/bin/python {BIN}/samsung_tv.py off >/dev/null 2>&1; true"),
 }
-GROUPS = [("lights", "Lights"), ("scenes", "Scenes"), ("music", "Stereo"), ("misc", "Other")]
+TV_APPS = {"peacock": "com.peacocktv.peacock", "prime": "com.amazon.aiv.AIVApp", "espn": "com.espn.ScoreCenter", "pluto": "tv.pluto.ios", "tubi": "com.adrise.tubitv"}
+for _n, _b in TV_APPS.items():
+    ACTIONS[_n] = (ACTIONS[_n][0], "tv", f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; $P {BIN}/appletv.py key turn_on >/dev/null 2>&1; $P {BIN}/appletv.py app {_b}")
+GROUPS = [("lights", "Lights"), ("scenes", "Scenes"), ("music", "Stereo"), ("tv", "TV"), ("misc", "Other")]
 
 def run(name):
     label, _, cmd = ACTIONS[name]; t0 = time.time()
