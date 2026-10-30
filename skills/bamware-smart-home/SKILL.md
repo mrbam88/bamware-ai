@@ -150,6 +150,16 @@ stays behind ufw). Verified from the Mac: page 30 ms, "next" 6 ms. iOS
 Shortcuts "Get Contents of URL" (POST) on a `/do/...` address gives Siri,
 Apple Watch, widgets and the iPhone 15 Pro Action Button. Adding an action is
 one line in `ACTIONS`; redeploy = scp + `systemctl --user restart buttons`.
+**One-tap home-screen buttons (2026-10-29, replacing his glitchy Govee
+widgets "Kill / Lights / TV / Morning Lights"):** `GET /go/<action>` is a
+page that runs the action the moment it opens and shows the result, with its
+own name and amber/rust tile via `/icon/<action>.png`. Safari on the iPhone:
+open `https://omarchy.tailb7fa1e.ts.net:8443/go/lights-off`, Share, Add to
+Home Screen; the icon is the button. His set: `/go/lights-off` (Kill, every
+light and the TV wall), `/go/lights-on`, `/go/cleaning`, `/go/evening`. The
+Govee app widgets and groups can be deleted; nothing here depends on them.
+Tailscale serve answers 502 for a second or two after a restart: wait, do
+not debug.
 Log: `~/.local/state/bamware/buttons.log`. Primer:
 https://claude.ai/artifact/7Jy7fEUvY1bwDqrwrFDe9N. When he asks for a new
 reflex ("make X a button"), add it there, never a chat command.
