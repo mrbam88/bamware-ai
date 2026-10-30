@@ -168,7 +168,7 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | morning | 6-min sunrise on the lamp (5->85%), strip and desk bulbs warm then 4000K | Peaceful Piano, 45% | Samsung + Apple TV on, YouTube live news (Bloomberg `@markets/live`, else CNBC, NBC) |
 | afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
-| cleaning (on demand) | everything 100% at 5000K, lamp bottom ring + disc (ripple off, see the two-of-three rule), TV wall on; touches `lights.hold` | untouched | untouched |
+| cleaning (on demand) | bulbs and strip 100% at 5000K; lamp bottom ring + ripple, disc off (his look, photo 2026-10-29); TV wall warm white `rgb(255,235,205)` 100% (5000K on the H6099 photographs lavender); touches `lights.hold` | untouched | untouched |
 
 "Cleaning lights" (Bilal, 2026-10-29: "bottom definitely 100% and then
 whatever is the most you can do with the other lights"): `vibes.sh cleaning`.
