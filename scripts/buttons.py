@@ -54,7 +54,7 @@ ACTIONS = {
 }
 TV_APPS = {"peacock": "com.peacocktv.peacock", "prime": "com.amazon.aiv.AIVApp", "espn": "com.espn.ScoreCenter", "pluto": "tv.pluto.ios", "tubi": "com.adrise.tubitv"}
 for _n, _b in TV_APPS.items():
-    ACTIONS[_n] = (ACTIONS[_n][0], "tv", f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; $P {BIN}/appletv.py key turn_on >/dev/null 2>&1; $P {BIN}/appletv.py app {_b}")
+    ACTIONS[_n] = (ACTIONS[_n][0], "tv", f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/appletv.py key turn_on >/dev/null 2>&1; $P {BIN}/appletv.py app {_b}; $P {BIN}/samsung_tv.py appletv >/dev/null 2>&1; true")   # app first, then the panel wakes and lands on the Apple TV input
 GROUPS = [("lights", "Lights"), ("scenes", "Scenes"), ("music", "Stereo"), ("tv", "TV"), ("misc", "Other")]
 
 def run(name):

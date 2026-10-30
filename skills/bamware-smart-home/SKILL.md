@@ -109,11 +109,15 @@ the key is the way. True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
 an antenna on the Samsung's tuner (indoor works in Manhattan), which is a
 purchase and his call; Rule #1.
 **Samsung input:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
-cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30). Blind
-cycling is fragile; the fix is HDMI-CEC on both ends (Apple TV: Settings,
-Remotes and Devices, Control TVs and Receivers; Samsung: General, External
-Device Manager, Anynet+), after which `appletv.py key turn_on` switches the
-input itself. `appletv.py status` can lag or report the previous app, so
+cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30).
+**`samsung_tv.py appletv`** = wake, wait for the REST port, KEY_HOME, then
+KEY_SOURCE twice: lands on the Apple TV from any state. Every TV launch
+(vibes `tv_youtube`, the TV buttons) calls it, after the 2026-10-30 morning
+when the panel woke on Live TV and Bloomberg played to nobody. If the input
+order ever changes (new HDMI device), re-verify the press count with him.
+HDMI-CEC on both ends (Apple TV: Settings, Remotes and Devices, Control TVs
+and Receivers; Samsung: General, External Device Manager, Anynet+) would
+make this unnecessary. `appletv.py status` can lag or report the previous app, so
 confirm with him.
 
 ### Putting a video on the living-room TV (integration test passed 2026-10-29)

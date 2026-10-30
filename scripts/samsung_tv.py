@@ -29,8 +29,16 @@ def keys(names):
     import websocket
     tok = open(TOK).read().strip() if os.path.exists(TOK) else ""
     name = base64.b64encode(b"Bamware").decode()
-    ws = websocket.create_connection(f"wss://{IP}:8002/api/v2/channels/samsung.remote.control?name={name}&token={tok}", sslopt={"cert_reqs": ssl.CERT_NONE}, timeout=30)
-    r = json.loads(ws.recv())
+    r = None
+    for attempt in range(3):   # right after wake the remote channel can accept the socket and then say nothing; reconnect instead of hanging 30 s
+        try:
+            ws = websocket.create_connection(f"wss://{IP}:8002/api/v2/channels/samsung.remote.control?name={name}&token={tok}", sslopt={"cert_reqs": ssl.CERT_NONE}, timeout=10)
+            r = json.loads(ws.recv()); break
+        except Exception as e:
+            try: ws.close()
+            except Exception: pass
+            if attempt == 2: raise
+            time.sleep(2)
     if r.get("data", {}).get("token"):
         open(TOK, "w").write(r["data"]["token"]); os.chmod(TOK, 0o600)
     for k in names:
@@ -43,6 +51,18 @@ def main(a):
         try: d = rest("")["device"]; print(f"{d.get('name')} ({d.get('modelName')}): power {d.get('PowerState')}")
         except Exception as e: print(f"standby or unreachable ({type(e).__name__}); try: samsung_tv.py wake")
     elif a[0] == "wake": wake(); print("wol sent")
+    elif a[0] == "off": print("off,", keys(["KEY_POWER"]))
+    elif a[0] == "appletv":
+        # Wake and land on the Apple TV's input without CEC. KEY_HDMIn is ignored on the QN90B; KEY_SOURCE cycles
+        # home -> Xbox -> Apple TV (Bilal verified 2026-10-30). KEY_HOME first so the cycle starts from a known place.
+        # 2026-10-30 morning: the panel woke on Live TV and the news played to nobody; this is the fix.
+        wake()
+        for _ in range(8):
+            time.sleep(2)
+            try: rest(""); break
+            except Exception: pass
+        time.sleep(3); keys(["KEY_HOME"]); time.sleep(2.5); keys(["KEY_SOURCE"]); time.sleep(2.5); keys(["KEY_SOURCE"])
+        print("samsung: awake, home, source x2 -> Apple TV")
     elif a[0] == "key": print("keys sent,", keys(a[1:]))
     elif a[0] == "app":
         app = APPS.get(a[1].lower(), a[1]); req = urllib.request.Request(f"http://{IP}:8001/api/v2/applications/{app}", method="POST")
