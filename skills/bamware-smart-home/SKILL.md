@@ -205,7 +205,12 @@ the button (`--now`) at once. **Ring level is app-only:** Bilal saves lamp
 snapshots in the Govee app named `Work` (ripple on, ring 2-3%, disc off),
 `Morning` (same, ring brighter) and `Clean` (ring 100% + disc 100% 5000K);
 `vibes.sh` recalls them by name via `snapshot()` and falls back to toggles
-when a name is missing.
+when a name is missing. **His set after the 2026-10-30 cleanup:** `Focus
+bright` (work), `Morning bright` (morning), `Cleaning` (cleaning), `Low
+light chill both` (his default look). Calibration is his: Govee Home,
+Uplighter, set the three lights by hand, save a snapshot, tell the agent
+the name; the agent wires the name to a mode and replays it. The API can
+replay a snapshot by number but never read or edit what is inside it.
 
 **Morning as a button (2026-10-29):** `vibes.sh morning --now` does the
 sunrise in seconds instead of 6 min and ends with the kitchen strip at 80%
