@@ -1,10 +1,10 @@
 [Unit]
-Description=Bamware daily Notion newspaper: tick the Hermes scheduler, deliver only the verified receipt (#197)
+Description=Bamware daily Notion newspaper on Claude Code: compose, publish, read back, deliver only the verified receipt (#197/#220)
 After=network-online.target
 
 [Service]
 Type=oneshot
-# systemd user units get a bare PATH; hermes, jq and mise shims live here.
+# systemd user units get a bare PATH; claude, jq and mise shims live here.
 Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin
 ExecStart=%h/code/worktrees/bamware-ai-main/scripts/daily-brief.sh
 TimeoutStartSec=25min

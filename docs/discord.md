@@ -60,17 +60,22 @@ Env (private machines): `DISCORD_HOME_CHANNEL` + `DISCORD_ASSISTANT_CHANNEL` = C
   fails the unit; GitHub outages show as `(unavailable: …)` rather than
   "none". `BAMWARE_DIGEST_LABEL="…"` marks a manual run in both messages and
   `BAMWARE_SKIP_DEADLINES=1` keeps it from consuming deadline reminders.
-- **Daily Notion newspaper (8 AM ET, Bilal's personal brief):** a Hermes cron
-  job (Grok, xAI subscription) writes a dated page under his Personal Diary;
-  private runbook in `~/.local/state/bamware/daily-newspaper/RUNBOOK.md`.
-  Since the Chief of Staff gateway was stopped (2026-10-20, ADR 0002) nothing
-  ticked the Hermes scheduler, so `bamware-daily-brief.timer` runs
-  `scripts/daily-brief.sh`: `hermes cron tick` at 08:00 (retry 08:30, every
-  2 h for the Interview Tracker job), then posts to `#chief-of-staff` only
-  what the publisher's verified receipt (`<date>.json`) proves, or one
-  missed-brief alert. The job's own text is never delivered unverified
-  (2026-10-21 it reported yesterday's page as today's). Install like the
-  digest timers. Retirement of the Hermes install: #197.
+- **Daily Notion newspaper (8 AM ET, Bilal's personal brief):**
+  `bamware-daily-brief.timer` → `scripts/daily-brief.sh` on **Claude Code**
+  (headless `claude -p`, Max quota, no Hermes since 2026-10-30). Stages:
+  shell prefetches interview-scoped mail through the read-only Google
+  broker; one model call composes the edition from Notion (read-only) plus
+  the prefetched files; one locates today's M/D page under the Personal
+  Diary; one creates it (or prepends when a scratch page exists); one reads
+  it back and the **shell** checks headings and date before writing the
+  receipt (`<date>.json`). Every call carries a hard deny list (Bash, Write,
+  Gmail/Drive connectors, web). Posts to `#chief-of-staff` only what the
+  receipt proves, or one missed-brief alert; compose runs before noon
+  (`FORCE=1` for a manual run). Private ids in
+  `~/.config/bamware/daily-brief.env`. History: the job was a Hermes cron
+  (Grok) that kept running on the leftover install after #197 until an agent
+  removed that install on 2026-10-29; the brief then failed silently for two
+  days.
 - **Interview-mail safety net (every daily-brief run, so 08:00, 08:30 and
   every 2 h):** `scripts/interview-mail-alert.py`, no model. Searches Gmail
   through the read-only broker for interview-related mail from the last two
