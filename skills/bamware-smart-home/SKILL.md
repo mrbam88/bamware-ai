@@ -99,7 +99,13 @@ Night Football and Amazon's NBA games. Later the same night he signed into
 ESPN and installed Pluto TV and Tubi (free), so the button page has a TV
 group: Peacock, Prime Video, ESPN, Pluto TV, Tubi (`/go/<name>`; bundle ids
 in `TV_APPS` in `buttons.py`). ABC, FOX NOW, CBS Sports, NBC Sports,
-Paramount+ are installed but have no login; do not offer them. True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
+Paramount+ are installed but have no login; do not offer them.
+**Local channels for free:** the Samsung's own Live TV (Samsung TV Plus)
+carries NYC local channels; `KEY_TV` on the remote channel opens it
+(verified by Bilal 2026-10-30: "that's the Live TV with local channels").
+`Local TV` button (`/go/local-tv`). TV Plus is a system app, invisible to
+the REST app launcher, and `ed.installedApp.get` over the websocket hung;
+the key is the way. True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
 an antenna on the Samsung's tuner (indoor works in Manhattan), which is a
 purchase and his call; Rule #1.
 **Samsung input:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
