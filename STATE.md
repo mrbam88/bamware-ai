@@ -1,5 +1,35 @@
 # State of the Union — Bamware
 
+## 2026-10-29/30 — Apartment: instant buttons, modes, daylight tracking, verified lights (one evening, $0)
+
+- **Trigger (Bilal):** lights "randomly flicker blue"; then "it has to be
+  instantaneous, like a button"; then modes. All in `skills/bamware-smart-home`.
+- **Diagnosis:** the blue flashes were the too-loud mic loop misreading his own
+  talking (12 alerts in one afternoon) plus one dropped UDP restore. Fixed:
+  threshold -25 to -15 dBFS over 2 samples, `roomlevel.sh mute`, verified
+  restore (#266).
+- **Instant buttons:** `scripts/buttons.py` on omarchy (`buttons.service`,
+  whitelist of 17 actions, no AI in the loop), fronted by Tailscale at
+  `https://omarchy.tailb7fa1e.ts.net:8443`; `/go/<action>` pages are one-tap
+  home-screen icons; 8 Siri Shortcuts imported on the Mac (Kill, Lights On,
+  Clean Mode, Evening, Work, Morning, Next Song, Play Pause). Govee widgets
+  retired (#273, #276). Primer: Instant Buttons. Voice primer: Siri now, local
+  wake-word pilot before any mic purchase (#278).
+- **Modes (vibes.sh):** cleaning (full lights + 90s hip-hop), work and morning
+  v2 ("light near the ceiling, nothing at eye level"), evening, daylight
+  tracker 13:00-19:20 by sun elevation, welcome-home scene by hour in
+  `presence.sh`. Manual scenes hold off timers 3 h (`lights.hold`).
+- **Palette rule:** no blue or lavender unless it is an alert; fall tones.
+- **Lamp (H60B0) facts that cost hours:** two of three lights max; one dimmer
+  shared by ring and ripple; the ring's own level exists only in the app, so
+  modes recall his app snapshots by name (Focus bright, Morning bright,
+  Cleaning, Low light chill both). We have no eyes: ask for a photo.
+- **Speed:** LAN scan cached 15 min + verified sends; Work 38 s to 6 s, strip no
+  longer skips (#279-#281).
+- **Open:** Samsung HDMI port for the Apple TV changed after a cable cleanup
+  (write it to `~/.config/bamware/samsung_hdmi` on omarchy); ESPN button added,
+  live-sports playback inside the ESPN app unverified (#287).
+
 ## 2026-10-29 — BrewDesk user inventory: 12 downloads, 8 accounts, no telemetry; analytics primer published
 
 - **Trigger (Bilal):** App Store Connect showed 12 downloads; our systems could
