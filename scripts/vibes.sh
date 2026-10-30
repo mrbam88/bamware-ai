@@ -9,7 +9,8 @@ LAMP=40:F9:DA:C3:41:06:03:53; TVB=1C:CF:D4:0F:40:46:18:6A
 cloud() { curl -s "${H[@]}" -X POST $API/device/control -d "{\"requestId\":\"v\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\",\"capability\":{\"type\":\"$3\",\"instance\":\"$4\",\"value\":$5}}}" >/dev/null; }
 scene() { v=$(curl -s "${H[@]}" -X POST $API/device/scenes -d "{\"requestId\":\"q\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\"}}" | jq -c --arg n "$3" '.payload.capabilities[0].parameters.options[] | select(.name==$n) | .value' | head -1); [[ -n $v ]] && cloud $1 $2 devices.capabilities.dynamic_scene lightScene "$v"; }
 snapshot() { # $1 sku $2 device $3 snapshot name saved in the Govee app -> recall it; prints 1 if found (the only way to set the lamp's ring level)
-  v=$(curl -s "${H[@]}" $API/user/devices | jq -c --arg d "$2" --arg n "$3" '.data[] | select(.device==$d) | .capabilities[] | select(.instance=="snapshot") | .parameters.options[] | select(.name==$n) | .value' | head -1)
+  # loose match: the app keeps whatever he typed ("Focus bright " with a trailing space, 2026-10-30), so compare lowercased and trimmed
+  v=$(curl -s "${H[@]}" $API/user/devices | jq -c --arg d "$2" --arg n "$(echo "$3" | tr "[:upper:]" "[:lower:]" | xargs)" '.data[] | select(.device==$d) | .capabilities[] | select(.instance=="snapshot") | .parameters.options[] | select((.name | ascii_downcase | gsub("^\\s+|\\s+$"; "")) == $n) | .value' | head -1)
   [[ -n $v ]] && { cloud $1 $2 devices.capabilities.dynamic_scene snapshot "$v"; echo 1; } || echo 0; }
 lamp_top() { # ripple on the ceiling + bottom ring, disc off (two of three); args = snapshot names to try in order (a snapshot also sets the ring level)
   for n in "$@"; do [[ $(snapshot H60B0 $LAMP "$n") == 1 ]] && return; done
@@ -49,7 +50,7 @@ case ${1:-} in
     $LAN color strip amber >/dev/null; $LAN bright strip 1 >/dev/null                          # under-cabinet strip: 1%
     # lamp: ripple 100% + faint ring, disc off. The API has one dimmer for both, but the APP can set the ring alone and a
     # snapshot keeps it: recall "Work" if he saved one, else his "Low light chill both" (2026-10-30: "this is what I wanted")
-    lamp_top "Work" "Low light chill both"
+    lamp_top "Focus Bright" "Work" "Low light chill both"   # his snapshot "Focus Bright" (2026-10-30): ripple 100%, ring ~1%, disc off
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     ~/.local/bin/roomlevel.sh mute 180 >/dev/null
     touch ~/.local/state/bamware/lights.hold
