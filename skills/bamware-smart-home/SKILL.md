@@ -193,7 +193,7 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 | cleaning (on demand) | bulbs and strip 100% at 5000K; lamp bottom ring + ripple, disc off (his look, photo 2026-10-29); TV wall warm white `rgb(255,235,205)` 100% (5000K on the H6099 photographs lavender); touches `lights.hold` | I Love My '90s Hip-Hop `spotify:playlist:37i9dQZF1DX186v583rmzp`, 75%, shuffled ("Way better music" after Mood Booster flopped) | untouched |
 
-| work (on demand, v2 2026-10-29) | **light near the ceiling, nothing at eye level** ("I don't want to be blinded looking at my monitors"): lamp ripple 100% + ring at 2-3% (app snapshot "Work"), disc off; desk bulbs amber 1%; strip amber 1%; TV wall off; mutes the mic alert 3 h; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% ("perfect") | untouched |
+| work (on demand, v2 2026-10-29) | **light near the ceiling, nothing at eye level** ("I don't want to be blinded looking at my monitors"): lamp ripple only at 100% (ring off: it shares the ripple's dimmer), disc off; desk bulbs amber 1%; strip amber 1%; TV wall off; mutes the mic alert 3 h; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% ("perfect") | untouched |
 
 **Morning v2 (2026-10-29, "mimic the sun... gloomy rainy mornings... very
 depressing"):** same eye-level rule as work. Desk bulbs amber 1%; lamp ripple
@@ -275,8 +275,17 @@ Three lights, Bilal's words in quotes:
 |---|---|---|---|---|
 | "top": ripple projection onto the ceiling | `rippleLightToggle` | no, fixed rainbow prism | no | the reason he bought it |
 | "middle": the disc head | `sideLightToggle` | yes: `colorRgb`, `colorTemperatureK`, `segmentedColorRgb` zones 0-7 | yes: `brightness`, `segmentedBrightness` | |
-| "bottom": white ring under the disc | `bottomLightToggle` | no | **no, confirmed 2026-10-29:** lamp `brightness` 100 via cloud and LAN with the disc off changed nothing ("not different at all"). Its level is app-only: Govee Home, Uplighter, bottom light slider. Never test this on him again | |
+| "bottom": white ring under the disc | `bottomLightToggle` | no | follows the lamp `brightness`, shared with the ripple (confirmed 2026-10-29 23:55); no separate control from the API | |
 
+- **One dimmer for the whole lamp (confirmed 2026-10-29 23:55, by his eyes):**
+  `brightness` dims whichever lights are on, ring and ripple together
+  (brightness 1 with disc off: "the bottom ring is good now but the top is
+  very dark"). `segmentedBrightness` does nothing for the ring. So "ring 1%,
+  ripple 100%" cannot exist; Work mode is ripple only, ring off. The earlier
+  "brightness ignores the ring" note was wrong: that test sent 100 onto a
+  ring already at 100. **We have no eyes:** the lamp reports toggles and a
+  number, never what the room looks like; ask Bilal or ask for a photo
+  before claiming a lamp result.
 - **At most two of the three lights are on at once** (verified 2026-10-29
   evening with 6 s waits): ripple + bottom works only while the disc is off;
   turning the disc on drops the bottom ring; turning the bottom ring on while
