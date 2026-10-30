@@ -34,6 +34,10 @@ Eighth (2026-10-29): [Instant Buttons](https://claude.ai/artifact/7Jy7fEUvY1bwDq
 (apartment reflexes without an agent in the loop: a whitelist HTTP server on
 omarchy behind Tailscale HTTPS plus iOS Shortcuts, $0, under 1 s; Stream Deck
 and Home Assistant weighed and deferred; built the same evening).
+Ninth (2026-10-29): [Talking to the Apartment](https://claude.ai/artifact/E1A3ebJYuoPfAXfYbSoB9A)
+(voice today through Siri Shortcuts at $0; a local wake-word pilot on the
+EarPods before any far-field mic ($40-90) or HomePod mini ($99); audio stays
+local on the hacker path; three decisions in order, none spent).
 
 ## When to write one
 
