@@ -8,6 +8,10 @@ no AI in the loop. Two front doors share it:
   GET  /                 big-button page for a phone home screen (Safari: Share, Add to Home Screen)
   GET|POST /do/<action>  run one action, answer in plain text. iOS Shortcuts "Get Contents of URL"
                          points here, which gives Siri, the Action Button, Apple Watch and widgets.
+  GET  /go/<action>      ONE-TAP HOME-SCREEN BUTTON: a page that runs the action the moment it opens and shows
+                         the result. Add it to the home screen in Safari and the icon IS the button (its own name
+                         and colour via /icon/<action>.png). Replaces the glitchy Govee widgets (Bilal 2026-10-29).
+  GET  /icon/<action>.png 180x180 tile, colour by group, no blue
   GET  /actions          the whitelist as JSON
 
 Reachable only on the apartment Wi-Fi (192.168.1.186:8787) and Bilal's tailnet
@@ -25,7 +29,7 @@ LAN = f"python3 {BIN}/govee_lan.py"
 # name: (label, group, shell)   order here = order on the page. Blue is alert-only, so the page never shows it.
 ACTIONS = {
     "lights-on":   ("Lights on",      "lights", f"{LAN} on all && {LAN} kelvin all 3000 && {LAN} bright all 40"),
-    "lights-off":  ("Lights off",     "lights", f"{LAN} off all; {BIN}/govee.sh off 'TV Backlight 3 Lite' >/dev/null 2>&1; true"),
+    "lights-off":  ("Kill",           "lights", f"{LAN} off all; {BIN}/govee.sh off 'TV Backlight 3 Lite' >/dev/null 2>&1; {BIN}/govee.sh off Kill >/dev/null 2>&1; true"),
     "dim":         ("Dim",            "lights", f"{LAN} bright all 8"),
     "bright":      ("Bright",         "lights", f"{LAN} on all && {LAN} bright all 100"),
     "evening":     ("Evening",        "scenes", f"touch {STATE}/lights.hold; {BIN}/vibes.sh evening --force"),
@@ -76,14 +80,51 @@ def page():
         out.append(f"<h2>{title}</h2><div class=\"grid\">{btns}</div>")
     return PAGE.replace("__GROUPS__", "".join(out))
 
+# one-tap page: runs the action on open. Colours per group: amber, rust, gold, copper. Kill is near-black. No blue.
+TILE = {"lights": (224, 138, 60), "scenes": (190, 60, 15), "music": (224, 179, 60), "misc": (184, 90, 40)}
+GO = """<title>__LABEL__</title><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="__LABEL__"><link rel="apple-touch-icon" href="/icon/__NAME__.png">
+<style>:root{color-scheme:dark}body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#141210;color:#f3ebe0;font:600 28px/1.2 -apple-system,system-ui,sans-serif;text-align:center;padding:24px}
+#s{font-size:17px;font-weight:400;color:#9a8f80;white-space:pre-wrap}#dot{width:88px;height:88px;border-radius:50%;background:rgb(__RGB__);opacity:.5;transition:opacity .2s,transform .2s}#dot.on{opacity:1;transform:scale(1.08)}
+a{color:#e08a3c;font-size:15px;font-weight:500;margin-top:30px}button{appearance:none;border:0;border-radius:14px;background:#2c261f;color:#f3ebe0;font:inherit;font-size:18px;padding:14px 22px}</style>
+<div id="dot"></div><div>__LABEL__</div><div id="s">running…</div><button onclick="run()">Again</button><a href="/">All buttons</a>
+<script>const s=document.getElementById('s'),d=document.getElementById('dot');async function run(){s.textContent='running…';d.className='';try{const r=await fetch('/do/__NAME__',{method:'POST'});s.textContent=await r.text();d.className=r.ok?'on':'';}catch(e){s.textContent='omarchy did not answer'}}run();</script>"""
+
+def go_page(name):
+    label, group, _ = ACTIONS[name]; rgb = TILE.get(group, TILE["misc"])
+    if name == "lights-off": rgb = (60, 52, 44)
+    return GO.replace("__LABEL__", label).replace("__NAME__", name).replace("__RGB__", ",".join(map(str, rgb)))
+
+def icon_png(name, size=180):
+    """Solid tile with a soft disc: no PIL on omarchy, so a hand-rolled PNG."""
+    import struct, zlib
+    _, group, _ = ACTIONS[name]; rgb = TILE.get(group, TILE["misc"])
+    if name == "lights-off": rgb, disc = (40, 34, 28), (120, 104, 88)
+    else: disc = tuple(min(255, int(c * 0.55 + 255 * 0.45)) for c in rgb)
+    cx = cy = size / 2; r2 = (size * 0.27) ** 2; rows = []
+    for y in range(size):
+        row = bytearray([0])
+        for x in range(size):
+            row += bytes(disc if (x - cx) ** 2 + (y - cy) ** 2 <= r2 else rgb)
+        rows.append(bytes(row))
+    def chunk(t, d): return struct.pack(">I", len(d)) + t + d + struct.pack(">I", zlib.crc32(t + d) & 0xffffffff)
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(b"".join(rows), 9)) + chunk(b"IEND", b"")
+
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def send(self, code, body, ctype="text/plain; charset=utf-8"):
-        b = body.encode(); self.send_response(code); self.send_header("Content-Type", ctype); self.send_header("Content-Length", str(len(b))); self.send_header("Cache-Control", "no-store"); self.end_headers(); self.wfile.write(b)
+        b = body if isinstance(body, bytes) else body.encode(); self.send_response(code); self.send_header("Content-Type", ctype); self.send_header("Content-Length", str(len(b))); self.send_header("Cache-Control", "no-store"); self.end_headers(); self.wfile.write(b)
     def handle_path(self):
         p = self.path.split("?")[0].rstrip("/") or "/"
         if p == "/": return self.send(200, page(), "text/html; charset=utf-8")
         if p == "/actions": return self.send(200, json.dumps({n: a[0] for n, a in ACTIONS.items()}), "application/json")
+        if p.startswith("/go/"):
+            name = p[4:]
+            if name not in ACTIONS: return self.send(404, f"unknown action '{name}'")
+            return self.send(200, go_page(name), "text/html; charset=utf-8")
+        if p.startswith("/icon/") and p.endswith(".png"):
+            name = p[6:-4]
+            if name not in ACTIONS: return self.send(404, "no icon")
+            return self.send(200, icon_png(name), "image/png")
         if p.startswith("/do/"):
             name = p[4:]
             if name not in ACTIONS: return self.send(404, f"unknown action '{name}'. Known: {', '.join(ACTIONS)}")
