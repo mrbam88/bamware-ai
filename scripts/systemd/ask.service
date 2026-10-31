@@ -1,0 +1,11 @@
+[Unit]
+Description=Push-to-talk /ask (HTTP 127.0.0.1:8788, fronted by tailscale serve :8788)
+After=network-online.target buttons.service
+[Service]
+ExecStart=/usr/bin/python3 /home/bilal/.local/bin/ask.py 8788
+Environment=BAMWARE_REPO=%h/code/worktrees/bamware-ai-main
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+Restart=always
+RestartSec=3
+[Install]
+WantedBy=default.target

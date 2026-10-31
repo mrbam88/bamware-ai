@@ -222,6 +222,37 @@ Log: `~/.local/state/bamware/buttons.log`. Primer:
 https://claude.ai/artifact/7Jy7fEUvY1bwDqrwrFDe9N. When he asks for a new
 reflex ("make X a button"), add it there, never a chat command.
 
+## Push-to-talk (shipped 2026-10-31, trial until 2026-11-14)
+
+Bilal's north star is a voice operating system (Jarvis, Her). He is one
+person, so we build no audio stack: the phone's dictation and speech are the
+microphone and speaker, and omarchy answers. `scripts/ask.py` runs as
+`ask.service` on 127.0.0.1:8788, fronted by
+**`https://omarchy.tailb7fa1e.ts.net:8788/ask`** (`tailscale serve --bg
+--https=8788 http://127.0.0.1:8788`). `POST /ask` with the sentence as the body
+(raw text or `{"text": ...}`), plain text back. Two routes, reflex first:
+
+- **Reflex:** the sentence is one of the button phrases in `REFLEX` ("lights
+  on", "kill the lights", "next song", "quiet the mic"); ask.py calls
+  `buttons.py` over loopback. Measured 0.3 s end to end over the tailnet.
+- **Agent:** anything else runs one headless `claude -p` in
+  `~/code/worktrees/bamware-ai-main` with read-only tools (same deny list as
+  `daily-brief.sh`), 45 s timeout, prompt asks for at most 40 spoken words.
+  Honors `~/.local/state/bamware/cfo/halt.json`. Measured 15.6 s.
+- Log: `~/.local/state/bamware/ask.log` (time, route, latency). This is the
+  trial meter: an agent ask on 10 of 14 days means voice continues (wake
+  word next); fewer means shelve it. Primer:
+  https://claude.ai/artifact/2eWru4MPctwJKDPrNBGMmB. Ticket #295.
+
+Shortcut **Jarvis** (Dictate Text, Get Contents of URL POST, Speak Text):
+`python3 scripts/make-jarvis-shortcut.py ~/Downloads/Bamware\ Shortcuts`
+signs it, `open` imports it (one "Add Shortcut" click), then Settings >
+Action Button > Shortcut > Jarvis on the phone. Redeploy = scp `ask.py` and
+`systemctl --user restart ask`. Tests: `python3 -I scripts/tests/test_ask.py`.
+New phrase for an existing button = one entry in `REFLEX`; a new action still
+goes in `buttons.py` first. Day-two idea, only if the log shows follow-up
+questions: a session id per hour with `--resume`.
+
 ## Daily vibes (shipped 2026-10-29, v1)
 
 Bilal's standing ask: "always set the scenery and set the vibes", replace the

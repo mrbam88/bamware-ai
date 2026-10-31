@@ -1,5 +1,23 @@
 # State of the Union — Bamware
 
+## 2026-10-31 — Voice: push-to-talk slice live on omarchy, 14-day trial (#295)
+
+- **Bilal:** Hermes is given up on ("too buggy"); the voice-website epic #62
+  is dead with it. North star is a voice operating system (Jarvis, Her), but
+  "I'm just a guy": only worth building if he actually uses it, no audio
+  stack of our own, mic is a mic. Focus is the talking layer, not the agent.
+- **Shipped ($0):** `scripts/ask.py` as `ask.service`, HTTPS
+  `omarchy.tailb7fa1e.ts.net:8788/ask`. Reflex phrases hit `buttons.py`
+  (0.3 s measured); everything else is one read-only headless `claude -p` in
+  the router's checkout (15.6 s measured), halt-file aware. Log
+  `~/.local/state/bamware/ask.log` is the trial meter: agent ask on 10 of 14
+  days by 2026-11-14 = continue to wake word; fewer = shelve voice.
+- **Shortcut Jarvis** built and signed by `scripts/make-jarvis-shortcut.py`
+  into `~/Downloads/Bamware Shortcuts/`; the import dialog is open on the Mac
+  and needs his one "Add Shortcut" click, then Action Button binding.
+- Primer (tenth): [Push-to-Talk Slice](https://claude.ai/artifact/2eWru4MPctwJKDPrNBGMmB).
+  Known weak spot: the 8 to 30 s wait on agent asks.
+
 ## 2026-10-30 — Daily Notion newspaper was still on Hermes; now on Claude Code
 
 - **Bilal:** "notion daily tracker?????" then "i thought we stop using hermes
