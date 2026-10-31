@@ -100,6 +100,18 @@ ESPN and installed Pluto TV and Tubi (free), so the button page has a TV
 group: Peacock, Prime Video, ESPN, Pluto TV, Tubi (`/go/<name>`; bundle ids
 in `TV_APPS` in `buttons.py`). ABC, FOX NOW, CBS Sports, NBC Sports,
 Paramount+ are installed but have no login; do not offer them.
+**NBA game watcher (2026-10-31, "any time I'm at home and there is a live
+NBA game and I have access to it, turn on the TV"):** `scripts/nba_watch.py`
+on omarchy, `nba-watch.timer` every 5 min. Reads ESPN's public scoreboard
+(`site.api.espn.com/.../nba/scoreboard`: state pre/in/post and broadcaster
+names; cdn.nba.com returns 403 from the server). Access map: Prime Video ->
+Prime; NBC/Peacock -> Peacock; ESPN/ESPN2/ABC -> ESPN app. Knicks first.
+Fires once per game (`nba_watch.<id>` marker), only while presence is home
+and 11:00-23:30; turns on the Apple TV, opens the app, lands the Samsung on
+the Apple TV, posts "Game on" to Discord. `nba_watch.py status` lists today's
+games and access; `off`/`on` pause it; the `Game on` button (`/go/game-on`)
+forces it. MSG / regional games are League Pass only: no access, say so.
+
 **Local channels for free:** the Samsung's own Live TV (Samsung TV Plus)
 carries NYC local channels; `KEY_TV` on the remote channel opens it
 (verified by Bilal 2026-10-30: "that's the Live TV with local channels").
