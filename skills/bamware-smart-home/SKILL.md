@@ -200,7 +200,7 @@ to be instantaneous, like a button." `scripts/buttons.py` runs on omarchy as
 `buttons.service` (port 8787, stdlib, no AI in the loop): `GET /` is a big
 amber-on-dark button page for the iPhone home screen, `POST /do/<action>`
 runs one whitelisted shell command (`/actions` lists them: lights-on/off,
-dim, bright, evening, cleaning, daylight, play, next, prev, vol-up/down,
+dim, bright, evening, cleaning, party, daylight, play, next, prev, vol-up/down,
 mute-alert, tv-off). Tailscale fronts it with HTTPS for his devices only:
 **`https://omarchy.tailb7fa1e.ts.net:8443`** (set with `tailscale serve
 --bg --https=8443 http://127.0.0.1:8787`, no sudo needed; the raw LAN port
@@ -214,7 +214,7 @@ page that runs the action the moment it opens and shows the result, with its
 own name and amber/rust tile via `/icon/<action>.png`. Safari on the iPhone:
 open `https://omarchy.tailb7fa1e.ts.net:8443/go/lights-off`, Share, Add to
 Home Screen; the icon is the button. His set: `/go/lights-off` (Kill, every
-light and the TV wall), `/go/lights-on`, `/go/cleaning`, `/go/evening`. The
+light and the TV wall), `/go/lights-on`, `/go/cleaning`, `/go/party`, `/go/evening`. The
 Govee app widgets and groups can be deleted; nothing here depends on them.
 Tailscale serve answers 502 for a second or two after a restart: wait, do
 not debug.
@@ -268,6 +268,7 @@ from systemd user timers `vibes-{morning,afternoon,evening}.timer` at
 | afternoon | everything 4500K, lamp 100%, strip 70%, bulbs 40% | lo-fi beats, 70% | latest NBA channel video on YouTube |
 | evening | Candlelight on lamp (55%) and TV wall (12%), strip rose 3%, bulbs amber 1% | Late Night Jazz, 65% | untouched |
 | cleaning (on demand) | bulbs and strip 100% at 5000K; lamp bottom ring + ripple, disc off (his look, photo 2026-10-29); TV wall warm white `rgb(255,235,205)` 100% (5000K on the H6099 photographs lavender); touches `lights.hold` | I Love My '90s Hip-Hop `spotify:playlist:37i9dQZF1DX186v583rmzp`, 75%, shuffled ("Way better music" after Mood Booster flopped) | untouched |
+| party (on demand, 2026-10-31) | cleaning brightness, moving colour: every light 100%, `party_loop` in `vibes.sh` rotates hot pink, orange, gold, candle red, fuchsia across bulbs, strip, lamp disc every 4 s (each device one step out of phase) and the TV wall every 8 s, for 3 h; lamp = `Cleaning` snapshot (ring + disc), ripple off; no blue, no green; touches `lights.hold`; PID in `~/.local/state/bamware/party.pid`, any other scene, Kill/Lights on/Dim/Bright or `vibes.sh party-stop` ends the loop | Dance Party `spotify:playlist:37i9dQZF1DXaXB8fQg7xif`, 80%, shuffled | untouched |
 
 | work (on demand, v2 2026-10-29) | **light near the ceiling, nothing at eye level** ("I don't want to be blinded looking at my monitors"): lamp via app snapshot `Work` else `Low light chill both` (ripple 100% + faint ring, disc off); desk bulbs amber 1%; strip amber 1%; TV wall off; mutes the mic alert 3 h; touches `lights.hold` | Deep Focus `spotify:playlist:37i9dQZF1DWZeKCadgRdKQ`, 50% ("perfect") | untouched |
 

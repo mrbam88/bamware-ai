@@ -24,10 +24,22 @@ tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep
   $PY ~/.local/bin/appletv.py app "youtube://www.youtube.com/watch?v=$id" >/dev/null 2>&1; sleep 8; $PY ~/.local/bin/appletv.py key select >/dev/null 2>&1; sleep 6
   $PY ~/.local/bin/appletv.py status 2>&1 | tail -1
 }
+PARTY_PID=~/.local/state/bamware/party.pid
+party_stop() { [[ -f $PARTY_PID ]] && { kill $(cat $PARTY_PID) 2>/dev/null; rm -f $PARTY_PID; }; }
+party_loop() { # party (Bilal 2026-10-31): warm party colours rotate across the room every few seconds for up to 3 h. Each device is one step out of phase so the room is never one colour.
+  # hot pink, orange, gold, candle red, fuchsia. No blue (alerts only), no green next to red (he is red-green colorblind). The TV wall is cloud-only, so it moves every other step.
+  local C=(255,20,110 255,110,0 255,200,0 255,0,60 230,40,160) n=5 i=0 end=$(( $(date +%s) + 10800 ))
+  while (( $(date +%s) < end )); do
+    $LAN color "smart led bulb" ${C[i%n]}; $LAN color "bulb top" ${C[(i+1)%n]}; $LAN color strip ${C[(i+2)%n]}; $LAN color uplighter ${C[(i+3)%n]}
+    (( i % 2 == 0 )) && { IFS=, read -r r g b <<< "${C[(i+4)%n]}"; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (r<<16)+(g<<8)+b )); }
+    sleep 4; i=$((i+1))
+  done; rm -f $PARTY_PID; }
+[[ ${1:-} == party-stop ]] && { party_stop; echo "party loop stopped"; exit 0; }   # buttons call this before any plain light command; works while away too
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
 # a manual scene (cleaning, or any agent that touched lights.hold) wins over the schedule for 3 h (2026-10-29: the 19:30 run clobbered cleaning lights)
 HOLD=~/.local/state/bamware/lights.hold
 if [[ ${1:-} =~ ^(morning|afternoon|evening)$ && -f $HOLD && $(( $(date +%s) - $(stat -c %Y $HOLD) )) -lt 10800 && ${2:-} != --force && ${2:-} != --now ]]; then echo "$(date "+%F %T") vibes $1 skipped: lights.hold is fresh (vibes.sh $1 --force to override)"; exit 0; fi
+party_stop   # any scene replaces the party colour loop
 case ${1:-} in
   morning)   # Bilal 2026-10-29 v2: "mimic the sun" on gloomy mornings. Light from the ceiling and the kitchen, warm, nothing at eye level.
     STEP=60; [[ ${2:-} == --now ]] && STEP=1                 # the 08:00 timer ramps over ~6 min; the button does it at once
@@ -81,8 +93,17 @@ case ${1:-} in
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
     spotify "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
     echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
+  party)     # party lights (Bilal 2026-10-31, Halloween): cleaning brightness, but warm party colours that keep moving; Dance Party on the stereo
+    $LAN on all >/dev/null; $LAN bright all 100 >/dev/null
+    # lamp: coloured disc + bottom ring, ripple off (two of three; the one sent last wins). "Cleaning" snapshot = ring 100% + disc 100%, then the loop colours the disc over the LAN.
+    [[ $(snapshot H60B0 $LAMP "Cleaning") == 1 || $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }
+    cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(20<<8)+110 )); cloud H6099 $TVB devices.capabilities.range brightness 100
+    touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
+    spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" 0.80   # Dance Party
+    ( party_loop ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
+    echo "party mode: every light full, colours rotating (hot pink, orange, gold, red, fuchsia) for 3 h, Dance Party at 80%; any other scene or Kill stops it" ;;
   release)   # drop the manual hold so timers run again
     rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
-  *) echo "usage: vibes.sh morning [--now]|afternoon|evening|cleaning|work|release"; exit 1;;
+  *) echo "usage: vibes.sh morning [--now]|afternoon|evening|cleaning|work|party|party-stop|release"; exit 1;;
 esac
 echo "$(date '+%F %T') vibes $1 done"

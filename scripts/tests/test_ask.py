@@ -9,7 +9,7 @@ class Reflex(unittest.TestCase):
     def test_plain_phrases(self):
         for said, want in [("lights on", "lights-on"), ("Lights off.", "lights-off"), ("kill the lights", "lights-off"),
                            ("Next song", "next"), ("skip", "next"), ("Evening", "evening"), ("match the sun", "daylight"),
-                           ("quiet the mic", "mute-alert"), ("TV off", "tv-off"), ("put the game on", "game-on")]:
+                           ("quiet the mic", "mute-alert"), ("TV off", "tv-off"), ("put the game on", "game-on"), ("party time", "party"), ("Let's party!", "party")]:
             self.t(said, want)
     def test_filler_is_ignored(self):
         self.t("Hey Jarvis, lights on please", "lights-on"); self.t("okay turn off the lights", "lights-off"); self.t("Jarvis next song, thanks", "next")
