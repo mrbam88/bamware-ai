@@ -41,6 +41,7 @@ REFLEX = {
     "work":        ["work", "work mode", "focus", "focus mode"],
     "evening":     ["evening", "evening mode", "romantic", "chill"],
     "cleaning":    ["cleaning", "clean mode", "cleaning mode", "clean up"],
+    "party":       ["party", "party mode", "party time", "party lights", "let s party", "lets party"],   # normalize() turns the apostrophe into a space
     "daylight":    ["match the sun", "daylight", "sun mode"],
     "play":        ["play", "pause", "play pause", "resume", "stop the music"],
     "next":        ["next", "next song", "skip", "skip this", "next track"],
