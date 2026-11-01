@@ -208,6 +208,22 @@ stays behind ufw). Verified from the Mac: page 30 ms, "next" 6 ms. iOS
 Shortcuts "Get Contents of URL" (POST) on a `/do/...` address gives Siri,
 Apple Watch, widgets and the iPhone 15 Pro Action Button. Adding an action is
 one line in `ACTIONS`; redeploy = scp + `systemctl --user restart buttons`.
+**Lights are the product; music and TV are extras (Bilal 2026-10-31: "Don't ever
+break the lights. The TV and the music are not that important. When I use
+these shortcuts they better work.")** Incident 2026-10-31 20:46: `buttons.log`
+shows Kill, Morning, Evening, Evening pressed within 63 s while the Govee
+cloud answered in 3-7 s per call (measured from omarchy AND the Mac, so it
+was Govee's side); `buttons.service` ran all four at once and their light
+commands interleaved into a jumble that read as "evening is broken". Fixes,
+live on omarchy: (1) **last press wins**: a `lights`/`scenes` press kills the
+scene still running (`os.killpg`, logged `X CANCELLED by Y` / `X replaced`),
+music and TV presses never wait on lights; (2) every Govee `curl` in
+`vibes.sh` and `govee.sh` carries `-m 8`, so a hung cloud can never stall a
+button past 8 s per call; (3) a phone that gives up waiting no longer
+tracebacks the service (BrokenPipe swallowed). Diagnose a "broken" scene from
+the log first: `tail ~/.local/state/bamware/buttons.log` (name, ok/FAIL,
+ms), then time one cloud call; a normal scene is 5-12 s, a 30-60 s run means
+the Govee cloud is slow, not the lights.
 **One-tap home-screen buttons (2026-10-29, replacing his glitchy Govee
 widgets "Kill / Lights / TV / Morning Lights"):** `GET /go/<action>` is a
 page that runs the action the moment it opens and shows the result, with its
