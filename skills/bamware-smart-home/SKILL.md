@@ -10,6 +10,12 @@ color?" He uses the Govee Home app (glitchy). The build server `omarchy` sits
 on the apartment Wi-Fi (192.168.1.0/24), but Govee LAN Control answered nothing,
 so control goes through Govee's free cloud API. No spend.
 
+**Where it runs:** everything below runs on the server only. From a laptop,
+wrap each command: `ssh server '...'` on the X1, `ssh omarchy '...'` on the
+M3. The X1's hostname is also `omarchy`, so check for
+`~/.config/bamware/govee.env` (server only) rather than trusting `hostname`
+(`docs/machines.md`, "Two laptops in heavy rotation").
+
 ## Do
 
 - `scripts/govee.sh devices` → his lights (name, model, id). Match his words to
@@ -87,6 +93,15 @@ Apple TV is where he actually watches; a second one for the bedroom is on his
 wish list. For "Netflix" default to the Apple TV, with the Samsung on its HDMI.
 The pyatv CLI (`atvremote`) crashes on the server's Python 3.14; use the script.
 
+**Samsung remote pairing revoked (2026-10-29 11:40, "turn off, I'm not home"):** the
+websocket on :8002 accepted the stored token but answered `ms.error "No Authorized"`
+to every key, and `samsung_tv.py key` hangs 30 s waiting for the connect ack. Status
+on :8001 still worked. Apple TV `turn_off` did not put the Samsung into standby
+over HDMI, so the Samsung stayed on while away. Fix needs Bilal in front of the TV:
+delete `~/.config/bamware/samsung_tv.token`, run `samsung_tv.py key KEY_HOME`,
+accept the "Allow Bamware?" prompt. Still unpaired on 2026-11-03 (token file dated
+before the revocation); until then "away" cannot turn off the living-room TV.
+
 **Live sports and local TV (2026-10-30):** Bilal's only subscription is
 Peacock Premium ("I used to have subscriptions to everything but I canceled
 them"); he wants NYC local on-air stuff too. Everything plays from the Apple
@@ -153,7 +168,7 @@ Netflix on the Apple TV and pick his profile. Known dead ends: AirPlay
 `play_url` from pyatv fails "not authenticated" despite a successful AirPlay
 pairing (unsolved); `metadata.app` is None on this box, so verify with
 `metadata.playing()`; YouTube keyboard focus never reported Focused, so typed
-search is unproven. `yt-dlp` is in the venv if a direct stream is ever needed.
+search is unproven. yt-dlp is in the venv if a direct stream is ever needed.
 
 ## Presence, quiet hours, and the room's loudness (2026-10-29)
 

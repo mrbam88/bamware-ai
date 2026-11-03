@@ -1,5 +1,31 @@
 # State of the Union — Bamware
 
+## 2026-11-03 — Repo cleanup: check green again, 18 stale PRs closed, focus reset
+
+- **Bilal:** "so messy and im getting overwhelmed... we need to rethink things";
+  product AI engineering interviews coming up, wants this fixed fast.
+- **Found:** `main` failed its own context check since AGENTS.md crossed the
+  6000-byte budget (6555) and the smart-home skill backticked `yt-dlp`; every
+  PR showed red for weeks regardless of content. 16 of 18 open PRs were from
+  September / early October; two drafts already conflicted. The server's
+  `~/code/bamware-ai` sat 103 commits behind with an unresolved conflict in the
+  resume skill and a staged QA-skill edit (timers unaffected: they run from
+  `~/.local/bin/vibes.sh`).
+- **Done ($0):** AGENTS.md trimmed to 5828 bytes (detail already lives in the
+  linked docs); check passes locally. Re-landed the two live facts stuck in
+  conflicting PRs: Samsung remote token still revoked (#260) and the two-laptop
+  rules (#265, `docs/machines.md`). All 18 old PRs closed with a note; branches
+  kept (`spike/video-gen` holds the video code).
+- **Proposed focus (awaiting Bilal's word):** keep the job search and the 8 AM
+  brief; freeze voice, apartment tweaks, factory, video. No new timers, roles or
+  scripts until he decides.
+- **Open:** (1) PR #265 claimed a "no white light, ever" rule from 2026-10-29,
+  but the afternoon timer (13:00) and `daylight.py` both set 4500K white by
+  design and the cleaning mode uses 5000K on his ask. Not changed; Bilal
+  decides. (2) Server checkout needs a human-free fast-forward once the
+  conflicting resume-skill edit is ported or dropped. (3) Samsung re-pair needs
+  him in front of the TV.
+
 ## 2026-10-31 — Voice: push-to-talk slice live on omarchy, 14-day trial (#295)
 
 - **Bilal:** Hermes is given up on ("too buggy"); the voice-website epic #62
