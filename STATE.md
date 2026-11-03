@@ -1687,6 +1687,29 @@ its no-execution status; hosted activation and spend remain separate gates.
   waiting on his go. Then add the contracts.md line from the PR body.
   Network note: GitHub SSH + intermittent TLS failures on the M3 today;
   agents died twice on API TLS errors; HTTPS git via gh credential works.
+- 2026-11-03 (afternoon): **Ask tab incident, builds 34–37, and the new
+  release gate.** Bilal (TestFlight feedback, build 34): "where is the
+  chat?" then "are not doing basic QA???". Three stacked causes, each only
+  visible by launching the Release build against production: (1) health
+  decode failed on `seededAt: null` (bd#254 → PR #255; engine contract
+  ticket ve#227); (2) SwiftUI TabView never inserts a conditional tab that
+  turns true after first render — `.id` rebuild (PR #257) inserted it but
+  reset the Spots screen mid-use (reviewer-sim failed on main ac2b5ae);
+  (3) the health fetch rode on a view `.task` and was cancelled on rebuild
+  → model-owned retrying task (PR #259). Final fix (PR #260 branch
+  fix/ask-tab-foreach): Ask tab present from first render unless the engine
+  explicitly says chat:false; tabs via ForEach. Builds 35, 36, 37 were
+  tagged/archived but NOT shipped (35 uploaded, superseded; 36/37 never
+  uploaded). **Build 38 = 1.2 (38)** uploaded 16:05, tag store/1.2-build38 =
+  0f12c55. Gate: bamware-ai docs/definition-of-done.md rule 7 ("nothing ships
+  to TestFlight unseen", 94bab4f) + bamware-brewdesk scripts/smoke-release.sh
+  (Release vs production on a sim, onboarding, one screenshot per tab, Ask
+  asserted, live contract tests TEST_RUNNER_BREWDESK_LIVE_CONTRACT=1) — the
+  sheet is read by the supervisor before every upload. Also filed: bd#256
+  zero-rated-viewport UI (Chelsea feedback), bd#258 fixedNow flake (cost two
+  CI re-runs today). Engine PR ve#226 still awaiting Bilal's display-rule go.
+  Network on the M3 today: SSH blocked, HTTPS TLS blips, 15 s client
+  timeouts → health retries; two agents died on API TLS errors.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
