@@ -94,19 +94,10 @@ if [ ${#MISSING_SHIMS[@]} -gt 0 ]; then
   DRIFT+=("${#MISSING_SHIMS[@]} repos missing CLAUDE.md shim (${MISSING_SHIMS[*]})")
 fi
 
-# -- 4. ~/.claude/skills/ has bamware skills symlinked ---------------------
-if [ ! -d "$HOME/.claude/skills" ]; then
-  DRIFT+=("~/.claude/skills/ missing — run $AI_DIR/scripts/bootstrap.sh")
-else
-  # Pick a bamware skill known to exist in the repo to verify symlinks
-  probe_skill=""
-  for candidate in session-handoff qa-engineer board-ops; do
-    if [ -d "$AI_DIR/skills/$candidate" ]; then probe_skill="$candidate"; break; fi
-  done
-  if [ -n "$probe_skill" ] && [ ! -L "$HOME/.claude/skills/$probe_skill" ]; then
-    DRIFT+=("bamware skills not linked into ~/.claude/skills/ — run $AI_DIR/scripts/bootstrap.sh")
-  fi
-fi
+# -- 4. ~/.claude/skills mirrors the catalog exactly -----------------------
+# Every machine shows the same "/" menu or it is drift (2026-11-03: Mac 63,
+# server 58, different sets). sync-skills.sh --check is read-only.
+SKILLS_MSG="$(bash "$AI_DIR/scripts/sync-skills.sh" --check 2>/dev/null)" || DRIFT+=("$SKILLS_MSG")
 
 # -- report ----------------------------------------------------------------
 echo "context: $MARKER_DISPLAY"

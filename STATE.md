@@ -1,5 +1,24 @@
 # State of the Union — Bamware
 
+## 2026-11-03 — One skill catalog: every machine shows the same "/" menu
+
+- **Bilal:** "as CEO of bamware it's like I have many different software
+  factories... I should only have 1 factory." The Mac had 63 skills (42 from a
+  global install the server never got, 8 first-party ones never linked, among
+  them smart-home and qa-engineer), the server 58 from the repo, the X1
+  unknown (asleep). The repo also tracked `.claude/skills`, so every
+  third-party skill listed twice in a session.
+- **Done ($0):** `skills/` is the only catalog: 27 first-party + vendored
+  third-party under `.agents/skills`, pinned in `skills-lock.json`. The Mac's
+  global-only skills (Matt Pocock workflow set, webapp-testing, argent) are
+  vendored in; Anthropic doc skills (docx, pdf, theme-factory...) are not,
+  since the claude.ai account bundle already provides them. New
+  `scripts/sync-skills.sh` mirrors the catalog into `~/.claude/skills` and
+  archives strays (never deletes); `bootstrap.sh` calls it, `preflight.sh`
+  reports drift at session start. `.claude/skills` untracked and ignored.
+- **Next:** prune. The catalog is ~85 skills; a usage count per skill (Skill
+  tool calls in session logs) decides what stays. Tracked as a ticket.
+
 ## 2026-11-03 — Repo cleanup: check green again, 18 stale PRs closed, focus reset
 
 - **Bilal:** "so messy and im getting overwhelmed... we need to rethink things";

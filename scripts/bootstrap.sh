@@ -57,30 +57,16 @@ for r in "${REPOS[@]}"; do
   fi
 done
 
-# --- general skills --------------------------------------------------------
-# Installed via the vercel-labs `skills` CLI into ~/.agents, symlinked into
-# ~/.claude/skills. This manifest mirrors ~/.agents/.skill-lock.json — when
-# you add/remove a skill, update BOTH the machine and this list.
-say "general skills (skills CLI -> ~/.agents + ~/.claude/skills)"
-add_skills() { npx -y skills add "$1" -g -y -a claude-code -s "$2"; }
-add_skills vercel-labs/skills find-skills
-add_skills anthropics/skills docx,pdf,webapp-testing,web-artifacts-builder,theme-factory,skill-creator,mcp-builder,frontend-design,doc-coauthoring,brand-guidelines,internal-comms
-add_skills vercel-labs/agent-skills vercel-react-best-practices,web-design-guidelines
-add_skills mattpocock/skills ask-matt,diagnosing-bugs,grill-with-docs,triage,improve-codebase-architecture,setup-matt-pocock-skills,tdd,to-spec,to-tickets,wayfinder,implement,prototype,research,domain-modeling,codebase-design,code-review,resolving-merge-conflicts,wizard,grill-me,grilling,handoff,teach,to-questionnaire,wait-what,writing-for-agents
-add_skills software-mansion/argent argent-react-native-app-workflow
-
-# --- bamware skills -> Claude Code (global) --------------------------------
-# opencode reads $BAMWARE_AI_DIR/skills directly (see templates/opencode.jsonc);
-# Claude Code needs symlinks in ~/.claude/skills.
-say "bamware skills -> ~/.claude/skills"
-mkdir -p "$HOME/.claude/skills"
-for d in "$BAMWARE_AI_DIR"/skills/*/; do
-  d="${d%/}"
-  [ -f "$d/SKILL.md" ] || continue
-  name="$(basename "$d")"
-  ln -sfn "$d" "$HOME/.claude/skills/$name"
-  echo "  link  $name"
-done
+# --- skills: one catalog, every machine -----------------------------------
+# The catalog is $BAMWARE_AI_DIR/skills (first-party dirs + symlinks into the
+# vendored .agents/skills, pinned by skills-lock.json). Nothing is installed
+# globally any more; sync-skills.sh mirrors the catalog into ~/.claude/skills
+# and archives anything else. opencode reads the catalog directly
+# (templates/opencode.jsonc). Add a third-party skill with
+#   cd $BAMWARE_AI_DIR && npx -y skills add <owner/repo> -a claude-code -s <name>
+# then move it from .claude/skills into .agents/skills and link it from skills/.
+say "skills -> ~/.claude/skills (one catalog)"
+bash "$BAMWARE_AI_DIR/scripts/sync-skills.sh"
 
 # --- Claude Code connectors: Composio stays loaded; native tools first ----------
 # Bilal, 2026-10-27: no deny list. A deny would block a future Composio-only
