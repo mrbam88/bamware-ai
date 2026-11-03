@@ -16,5 +16,15 @@
 6. Native Swift packages run `swift test` with strict concurrency; native apps
    build and launch through their documented development workspace.
 
+7. **Nothing ships to TestFlight unseen.** Before every upload, install the
+   Release build on a simulator against PRODUCTION, drive it past onboarding,
+   screenshot every top-level surface (each tab, one detail screen), and the
+   supervisor reads them. Fixture tests and a green backend curl are not this
+   step. (Build 34, 2026-11-03: chat was on, tests were green, the app
+   showed three tabs; nobody had launched the real build.) Mechanism:
+   `scripts/smoke-release.sh` in bamware-brewdesk writes the screenshots;
+   the live contract tests (`BREWDESK_LIVE_CONTRACT=1`) decode production
+   responses with the app's own models and run nightly and before upload.
+
 For context repos (`bamware-ai`, `interviews`), the equivalent gate is
 `python3 scripts/check-context.py`.
