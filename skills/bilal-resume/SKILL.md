@@ -3,6 +3,7 @@ name: bilal-resume
 description: Bilal Malik's current resume content and the rules for attaching it to an application. Use when uploading a resume, pasting resume text, filling work-history fields, or answering questions about his roles, dates, stack, or accomplishments.
 ---
 
+<<<<<<< Updated upstream
 # Resume, current as of 2026-10-08
 
 Canonical source: private `mrbam88/interviews`, `documents/kits/2026-10-08/`.
@@ -25,6 +26,12 @@ Underscores only.** The upload name is the same for every variant; the variant
 lives in the folder path and the PDF's Subject metadata, never in the name a
 recruiter sees. Log the variant folder and the `interviews` commit in the Notion
 application entry.
+=======
+# Resume — resolve current approved variant
+
+Canonical source: private `mrbam88/interviews`. Read `README.md` and `library.json` first. The October 8 approved kits in `documents/kits/2026-10-08/{mobile-ios,mobile-rn,fullstack,manager}/` supersede the September 30 master and October 2 drafts for new applications. Use each folder's original PDF and paired TXT, preserving its actual filename. The September 30 `documents/resume/Resume_BilalMalik_2026.pdf` remains historical; do not silently use it as current. Check repository guidance for later revisions.
+The factual summary below is a public reference, not a competing master copy.
+>>>>>>> Stashed changes
 
 ## Upload rules
 

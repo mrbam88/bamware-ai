@@ -29,10 +29,34 @@ by every other agent, including the digest.
 
 - **Cloud QA** (scheduled session): Express/Node repos only —
   `bamware-venue-engine`, `bamware-dating-service`, `bamware-auth-service`,
-  `bamware-web`, `bamware-mcp`.
+  `bamware-web`, `bamware-mcp`, and **`bamware-ai` Command Center**
+  (`services/assistant-web`).
 - **Mac QA**: anything needing Xcode (`bamware-brewdesk`, `bamware-ios`).
   A cloud wake that finds an iOS ticket in "Ready for QA" leaves it, states
   why in one comment, and moves on. Never fake an iOS verdict from the cloud.
+
+## Command Center CEO interaction gate (hard — 2026-10-10)
+
+Bilal hit Confirm repeatedly; the card stayed because choice options were
+`action: discuss` and Needs-you never archived. **Copy/UI polish AC is not
+enough** for assistant-web PRs.
+
+Before PASS on any Command Center / assistant-web change:
+
+1. `cd services/assistant-web && npm test` — must include
+   `ceo-interaction-contract` (Confirm archives; no discuss traps on choice labels).
+2. Browser fixtures (intercepted, no live writes):
+   `node scripts/verify-action-feedback.mjs` and
+   `node scripts/verify-cc-status.mjs` (with Chromium + Playwright).
+3. Explicit AC checks (evidence in the PR comment):
+   - Confirm on a choice option → response action is **approve** (or reject/defer), **not discuss**
+   - After Confirm/Reject/Defer the card **leaves Needs-you** (History)
+   - Send/discuss alone does **not** clear the card
+4. CI workflow `.github/workflows/assistant-web.yml` must be green when the
+   diff touches `services/assistant-web/**`.
+
+Fail the PR if any of the above is missing. Do not pass on “looks fine in
+screenshots” alone.
 
 ## The wake
 
