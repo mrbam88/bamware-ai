@@ -11,10 +11,8 @@ every seat, runner, timer and batch honours. New spend over **$20** = STOP and
 ask, even mid-task; under $20 = quote-and-confirm, cheapest option. Prefer
 free. Agent usage is spend (`docs/token-diet.md`). No idle polling loops.
 
-**Permissions (2026-10-20):** runners spawned by the Discord seat and the
-executor run with prompts off (ADR 0002). Written policy still binds: Rule #1,
-App Store rules, no secrets in this public repo. Interactive sessions that hit
-a wall: [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
+**Permissions:** seat runners run with prompts off (ADR 0002); written policy
+still binds. Stuck on a prompt? [docs/agent-permission-blocks.md](docs/agent-permission-blocks.md).
 
 ## First-class principle: engineer together through primers (2026-10-24)
 
@@ -74,29 +72,22 @@ Resolve BEFORE starting work; state it next to the context marker:
 ## 3. How does Bilal work?
 
 **100-word rule (Bilal, 2026-10-03):** every reply is 100 words max by default.
-Answer or decision first; name tickets by title; anything to approve in one line.
-He asks when he wants more. Long replies hide signals and cause bad approvals.
-*Enforced since 2026-10-27:* a Claude Code Stop hook (`~/.claude/hooks/word-cap.py`,
-global settings) rejects any reply over 100 words outside code blocks and forces
-one rewrite. Text rules drift over long sessions; mechanisms do not. When a rule
-keeps failing, propose an enforcement mechanism (hook, check, gate) and say so.
+Answer or decision first; anything to approve in one line. He asks when he wants
+more. Enforced by a Claude Code Stop hook since 2026-10-27. When a text rule
+keeps failing, propose a mechanism (hook, check, gate), not more text.
 
-**Roles:** Bilal is the **Stakeholder / CEO**, not a task chaser. Escalation
-is workers → Scrum Master → Chief of Staff → CEO per the
-[role policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy);
-read it when onboarding or resuming a handoff. Critical owner alerts skip the
-ceremony; reserved decisions, evidence and resolution tracking stay mandatory.
+**Roles:** Bilal is the Stakeholder / CEO, not a task chaser. Escalation per the
+[role policy](docs/bamware-agent-operating-system-prd.md#stakeholder--ceo-and-escalation-policy).
 
-- Short and sweet. Bullets over prose. No re-summaries. Limit his reading.
+- Short and sweet. Bullets over prose. No re-summaries.
 - **Numbers (Bilal, 2026-10-20):** never a bare percentage. Say what it
   measures, used or left, of what total and period.
 - Direct recommendations, not option menus. Plan before building.
 - RN + Express mental model; mobile/Node analogies land.
 - Specs are GitHub issues: story / scope / out-of-scope / acceptance criteria.
 - Tool use proportional to the ask. Fan-outs need an explicit ask.
-- **His apartment lights are ours to run (2026-10-29):** Govee, four lights,
-  full inventory and scenes in `skills/bamware-smart-home`. Any agent with the
-  key file can control them; he is red-green colorblind, so no red/green.
+- **Apartment lights, stereo, TVs:** `skills/bamware-smart-home` (server only;
+  he is red-green colorblind, so no red/green).
 - Never mention Baat in responses or career materials (Bilal, 2026-09-16).
   Project wording: skills/bilal-answers.
 
