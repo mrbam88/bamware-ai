@@ -1654,6 +1654,20 @@ its no-execution status; hosted activation and spend remain separate gates.
   uploaded 2026-10-28 by another session; the Ask tab is gated on
   features.chat, so it appears in build 33 now. Note: GitHub SSH (port 22)
   timed out from the M3 today; HTTPS via `gh auth git-credential` worked.
+- 2026-11-03: **Moshava plan started.** Tickets: ve#221 filler→estimate,
+  ve#222 area_limited, ve#223 blend reports, ve#224 read photos/site,
+  ve#225 founder verdict test, bd#249 token on ratings, bd#250 provenance
+  line, bd#251 fix-one-claim; idea bamware-ai#301 (Bamware Picks). SHIPPED
+  to main: bd#249 (PR #252, 720fce6) and bd#250 (PR #253, 24ceebb;
+  screenshots reviewed by supervisor). **TestFlight build 34 = 1.2 (34)**,
+  tag store/1.2-build34 = 84c9881 on release/1.2.0, VALID 11:43. Engine PR
+  ve#226 (closes #221+#222) is OPEN, NOT merged: with filler demoted all 65
+  researched venues fall below MIN_DISPLAY_WEIGHT 0.75 → "Not rated yet"
+  (USQ 50 rated → 23). Recommended to Bilal: show a number when laptop +
+  seating are cited (weight 0.60), label "medium", line "2 of 5 details";
+  waiting on his go. Then add the contracts.md line from the PR body.
+  Network note: GitHub SSH + intermittent TLS failures on the M3 today;
+  agents died twice on API TLS errors; HTTPS git via gh credential works.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
