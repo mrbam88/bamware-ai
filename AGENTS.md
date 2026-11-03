@@ -1,7 +1,8 @@
 # Bamware — read me first
 
 Solo-founder startup (Bilal Malik, NYC) building white-label mobile apps.
-Entry map; details in `docs/` and `skills/`.
+Entry map; the shape of the system is [DESIGN.md](DESIGN.md); details in
+`docs/` and `skills/`.
 
 ## RULE #1 — COMPANY POLICY: never a surprise bill
 

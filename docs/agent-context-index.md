@@ -2,6 +2,7 @@
 
 | Need | Where |
 |---|---|
+| **How the whole system is shaped (machines, stores, services, principles, open decisions)** | **DESIGN.md** |
 | **Permission blocks (RULE #1 detail)** | **docs/agent-permission-blocks.md** |
 | **Engineering operating contract** | **docs/engineering-operating-contract.md** |
 | **Release manager contract** | **docs/release-manager-contract.md** |
