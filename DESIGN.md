@@ -26,6 +26,7 @@ this week. Products are small, shipped often, and verified before merge.
 | Encode mistakes, not aspirations | incidents repeat unless a check stops them | each check in `check-context.py` names the drift it caught; hooks cap reply length |
 | Continuity across agents | Bilal switches models and harnesses daily | `STATE.md` + `CONTEXT_VERSION` marker; `session-handoff` skill; nothing durable in vendor memory |
 | Least privilege | agents open PRs, humans and gates merge | public repo holds no secrets (`docs/security.md`); seat routes, never executes; store submission and spend are text gates |
+| One skill catalog | each machine was its own factory (Mac 63 skills, server 58, different sets) | `skills/` in this repo is the only list; `scripts/sync-skills.sh` mirrors it on every bootstrap and session start, archives strays |
 | One path to production | drift between copies is how things break silently | mobile ships from the Mac rail only; web from Vercel; server jobs from `~/.local/bin` and user systemd |
 
 ## 3. The shape
