@@ -1614,6 +1614,20 @@ its no-execution status; hosted activation and spend remain separate gates.
   accounts, city-wide search + fly-to, recent searches, lime micro pins,
   venue-type badges + Place-type filter, honest filters, launch animation.
   Next product work: the Moshava post-mortem plan (tickets not yet filed).
+- 2026-11-03: **Chat (Ask tab) switched ON in production** (Bilal approved
+  the spend 2026-10-30). Vercel venuekit production env: CHAT_ENABLED=1,
+  CHAT_DAILY_CAP=300 (lowered from the 2000 default to bound spend, well
+  under $2/day worst case), CHAT_MODEL=claude-haiku-4-5-20251001 (engine
+  default "claude-haiku-5-5" is not a known model id), ANTHROPIC_API_KEY
+  from SSM /bamware/shared/anthropic-api-key (piped, never printed). Set via
+  Vercel CLI after Bilal ran `vercel login` on the M3 (CLI had been logged
+  out; the claude.ai Vercel connector cannot see this team: 404/403).
+  Redeploy sat ~15 min in the Hobby build queue. /v1/health now
+  features.chat=true; POST /v1/chat answers 401 without a JWT (sign-in
+  required; the app shows that state). TestFlight build 33 = 1.2 (33),
+  uploaded 2026-10-28 by another session; the Ask tab is gated on
+  features.chat, so it appears in build 33 now. Note: GitHub SSH (port 22)
+  timed out from the M3 today; HTTPS via `gh auth git-credential` worked.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
