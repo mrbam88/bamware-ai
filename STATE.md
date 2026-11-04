@@ -1710,6 +1710,24 @@ its no-execution status; hosted activation and spend remain separate gates.
   CI re-runs today). Engine PR ve#226 still awaiting Bilal's display-rule go.
   Network on the M3 today: SSH blocked, HTTPS TLS blips, 15 s client
   timeouts → health retries; two agents died on API TLS errors.
+- 2026-11-03 (evening): **Chat 502 on build 38** (Bilal's feedback 16:16:
+  "Couldn't reach BrewDesk"). Root cause: MY env override CHAT_MODEL=
+  claude-haiku-4-5-20251001 (set 11-03 because I assumed the engine default
+  "claude-haiku-5-5" was not a real id — it IS; the key's model list shows
+  it). The engine sends Anthropic's `effort` parameter, which Haiku 4.5
+  rejects (400 "This model does not support the effort parameter") → every
+  chat turn 502 chat_upstream in 0.3 s. Fix: removed CHAT_MODEL from Vercel
+  production env; redeploy nkjspyghy stuck "Building" at npm install 25+ min
+  (Hobby queue), waiting. Second finding: production cold start ≈ 34 s
+  (first request after idle; warm 0.2 s) vs the app's 15 s request timeout
+  → ve#228 filed; app gets a 75 s chat-only session (bd#261, PR #262, in
+  the build-39 chain). Third: the smoke gate now signs in with the vault test
+  account (/bamware/shared/test-superusers/curry, email in the SSM
+  description) and asks one real question (scripts/smoke/chat.yaml, branch
+  test/smoke-signed-in-chat, not yet merged) — a 502 blocks the upload.
+  Lesson: a feature flag flip is a deploy; verify the feature end to end
+  with a real account, not just /health. Build 39 is NOT uploaded until a
+  real chat answers in production.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
