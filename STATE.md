@@ -1728,6 +1728,21 @@ its no-execution status; hosted activation and spend remain separate gates.
   Lesson: a feature flag flip is a deploy; verify the feature end to end
   with a real account, not just /health. Build 39 is NOT uploaded until a
   real chat answers in production.
+- 2026-11-03 22:32: **Chat live in production; TestFlight build 39 = 1.2
+  (39) uploaded** (tag store/1.2-build39 = 0cefe1b). Engine: CLI
+  `vercel redeploy` without cache hit the build time limit twice (silent
+  Error at npm install); an empty commit on venue-engine main (Git
+  integration, cached) deployed in ~15 min → m28eznbyy. Verified with the
+  vault test account: POST /v1/chat 200, model claude-haiku-5-5, 3.3 s warm,
+  16.5 s first call (hence the 75 s chat timeout, PR #262 in build 39).
+  Gate: PR #263 adds a real signed-in chat to scripts/smoke-release.sh
+  (passed on build 39: reply asks for a neighbourhood because the sim has
+  location off). Keychain lesson: a simulator app built with
+  CODE_SIGNING_ALLOWED=NO has no application-identifier → securityd -34018
+  → sessions never persist → "Sign in to ask"; the smoke builds signed now.
+  Shared sign-in form hides password + button under the keyboard
+  (bamware-ios#14). Open: ve#226 display-rule go, ve#227 seededAt contract,
+  ve#228 cold start, bd#256 zero-rated viewport, bd#258 flake.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
