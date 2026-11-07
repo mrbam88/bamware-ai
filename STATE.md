@@ -1743,6 +1743,24 @@ its no-execution status; hosted activation and spend remain separate gates.
   Shared sign-in form hides password + button under the keyboard
   (bamware-ios#14). Open: ve#226 display-rule go, ve#227 seededAt contract,
   ve#228 cold start, bd#256 zero-rated viewport, bd#258 flake.
+- 2026-11-07: **INCIDENT — venue-engine production 503 storage_unavailable
+  since ≤ 2026-11-05 07:49** (TestFlight feedback "No data?!"; app showed its
+  saved snapshot). Engine log: "database mode cannot start (database
+  unreachable or invalid); returning 503, not falling back to JSON". Cause
+  unknown (Neon free-tier project suspended/archived/rotated?) — no Neon
+  credentials anywhere Claude can reach; DATABASE_URL is sensitive in Vercel.
+  Rolled back per docs/database-cutover.md §d: removed PRIVATE_STORAGE +
+  VENUE_READ_STORAGE from Production, empty commit f52f4dc, Ready 12:01 ET;
+  health ok, venues 200 from data/venues.json. Neon data (ratings, saved
+  spots, overrides since the cutover) is kept but not read until Postgres
+  mode is re-enabled. Incident + follow-ups: ve#231 (log the pg error, health
+  200 with storage flag, automatic JSON fallback, 5-min external probe).
+  Bilal to check the Neon console. Lesson: a 2-day outage went unnoticed
+  because nothing probes production; the smoke gate only runs at upload.
+- 2026-11-03/04 recap for the record: 1.2 staged in ASC (build 39), not
+  submitted; chat audit Phase 1 page https://claude.ai/artifact/7JXPPrP6ky4JaKEnJY2NkV ;
+  item 1 PR ve#230 green/unmerged; ve#229 chat follow-up quality; bamware-ios#14
+  sign-in keyboard; smoke gate now does a real signed-in chat (PR #263).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
