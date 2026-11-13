@@ -107,8 +107,8 @@ read-only: no sends or drafts.
 - App Store: never resubmit the rejected dating concept; show differentiation
   in binary + listing. docs/app-review-field-notes.md.
 - git/Xcode from Cowork? docs/runtimes.md first.
-- **Ship it: green + verified = merged and deployed the same day; breaking
-  changes go expand → migrate → contract. `docs/release-strategy.md`.**
+- **Green + verified = merged and deployed same day.
+  `docs/release-strategy.md`.**
 - Agent PRs: QA merges after CI green + evidenced pass. Policy gates (by
   text, not prompts): store submission, spend over $20, secrets. Mobile builds
   use the Mac rail; Actions is BACKUP only.
