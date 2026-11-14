@@ -6,10 +6,10 @@
 # IN_DIR holds: full.mp4, left-hi.mp4, right-hi.mp4 (other performer blacked out), ref-left.png, ref-right.png,
 #               prompt-left.txt, prompt-right.txt.  Make it with prep_pair_inputs.sh.
 # Usage: runpod_wan_pair.sh IN_DIR OUT_DIR      (run on the build server; needs aws, ssh key, python3, curl)
-# Env:   GPU="NVIDIA L40S"  W=1280 H=720 FRAMES=65 STEPS=6 MAX_MIN=75 MIN_MBPS=40 UNET=Wan2.2-Animate-14B-Q8_0.gguf
+# Env:   GPU="id1,id2" (first available, 48 GB class)  W=1280 H=720 FRAMES=65 STEPS=6 MAX_MIN=75 MIN_MBPS=40 UNET=Wan2.2-Animate-14B-Q8_0.gguf
 set -euo pipefail
 IN=$1 OUTD=$2
-GPU=${GPU:-"NVIDIA L40S"} W=${W:-1280} H=${H:-720} FRAMES=${FRAMES:-65} STEPS=${STEPS:-6}
+GPU=${GPU:-"NVIDIA L40S,NVIDIA RTX 6000 Ada Generation,NVIDIA RTX A6000,NVIDIA A40,NVIDIA L40"} W=${W:-1280} H=${H:-720} FRAMES=${FRAMES:-65} STEPS=${STEPS:-6}
 MAX_MIN=${MAX_MIN:-75} MIN_MBPS=${MIN_MBPS:-40} UNET=${UNET:-Wan2.2-Animate-14B-Q8_0.gguf}
 HERE=$(cd "$(dirname "$0")" && pwd)
 for f in full.mp4 left-hi.mp4 right-hi.mp4 ref-left.png ref-right.png prompt-left.txt prompt-right.txt; do
@@ -20,7 +20,7 @@ K=$(aws --profile "${BAMWARE_AWS_PROFILE:-bamware}" --region "${BAMWARE_AWS_REGI
 API=https://rest.runpod.io/v1
 PUB=$(cat ~/.ssh/id_ed25519.pub)
 mkdir -p "$OUTD"
-body=$(python3 -c "import json,sys; print(json.dumps({'name':'bamware-video-pair','imageName':'runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04','gpuTypeIds':[sys.argv[1]],'gpuCount':1,'cloudType':'SECURE','containerDiskInGb':90,'volumeInGb':0,'ports':['22/tcp','8188/http'],'supportPublicIp':True,'env':{'PUBLIC_KEY':sys.argv[2]}}))" "$GPU" "$PUB")
+body=$(python3 -c "import json,sys; print(json.dumps({'name':'bamware-video-pair','imageName':'runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04','gpuTypeIds':sys.argv[1].split(','),'gpuCount':1,'cloudType':'SECURE','containerDiskInGb':90,'volumeInGb':0,'ports':['22/tcp','8188/http'],'supportPublicIp':True,'env':{'PUBLIC_KEY':sys.argv[2]}}))" "$GPU" "$PUB")
 resp=$(curl -s -X POST "$API/pods" -H "Authorization: Bearer $K" -H "Content-Type: application/json" -d "$body")
 ID=$(echo "$resp" | python3 -c 'import sys,json; print(json.load(sys.stdin).get("id",""))')
 [ -n "$ID" ] || { echo "create failed: $(echo "$resp" | head -c 400)"; exit 1; }
