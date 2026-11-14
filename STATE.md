@@ -1761,6 +1761,27 @@ its no-execution status; hosted activation and spend remain separate gates.
   submitted; chat audit Phase 1 page https://claude.ai/artifact/7JXPPrP6ky4JaKEnJY2NkV ;
   item 1 PR ve#230 green/unmerged; ve#229 chat follow-up quality; bamware-ios#14
   sign-in keyboard; smoke gate now does a real signed-in chat (PR #263).
+- 2026-11-13/14: **Ship-when-green rule** (docs/release-strategy.md; Bilal:
+  "my role is to test", stop parking PRs). Venue-engine, all merged AND
+  verified in production: ve#230 per-turn log line; ve#226 uncited filler
+  demoted + area_limited + display on laptop+seating (Moshava 64 → 87, 2 of
+  5 details); ve#233 chat follow-ups search again (founder transcript
+  replayed: answers in 3.7 s); ve#235 NYC five-borough OSM fill + baseline
+  detail lookups (Flushing 0 → 23; live Overpass for unseen areas is too
+  slow to rely on, London still empty); ve#236 nightly real-model chat eval
+  (ANTHROPIC_API_KEY repo secret from SSM, ~2 cents/night, approved);
+  ve#237 circuit breaker, one jittered retry, failed turns refunded;
+  ve#238 kill switch via Vercel Edge Config store `venuekit-flags` (id in
+  SSM /bamware/venue-engine/edge-config-id, item chatEnabled; live drill:
+  off in 31 s, on in 35 s, was a ~15 min redeploy). Production still JSON
+  mode; Neon cause unknown (ve#231) so durable caps are blocked.
+  App main (not yet in a build): bd#266 unrated cafés as grey cup pins
+  (pan hitch 0.28 vs 0.23 on sim, noted on bd#211); auto-load on pan in
+  progress. Build 40 = RC once that lands. BLOCKED: Apple API 403
+  REQUIRED_AGREEMENTS since ≤ 11-13 — Bilal must accept in ASC before any
+  upload/submit. Side effect to fix next: with filler gone, strict chat
+  filters ("quiet with outlets") match few venues → ve#224 (read photos /
+  official sites) needs a spend quote.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
