@@ -9,6 +9,14 @@ cannot touch Xcode no matter what the runtime column says. Read both.
 Registered 2026-09-08; `omarchy` added 2026-09-17; `thinkpad` moved to Omarchy
 by 2026-09-23. Three devices, all Bilal's.
 
+## Build server first (Bilal, 2026-11-14)
+
+Work runs on `omarchy` by default: scripts, API calls, renders on rented or
+hosted GPUs, research, timers. Use the `mac` or `thinkpad` only for a specific
+reason (Xcode, simulators, signing, Apple GPU for local models, a file that
+only lives there) and state that reason at the start of the session. A session
+opened on the Mac drives the work over `ssh omarchy`.
+
 ## Rig and gear inventory
 
 Bilal wants every agent to know his whole setup and to help keep it in order
