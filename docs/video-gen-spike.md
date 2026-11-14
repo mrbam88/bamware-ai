@@ -597,6 +597,21 @@ secrets; to be folded into scripts/video-spike).
 Open: a free 15 s stitch (`runs/23-hybrid-15s-film.mp4`, auto-posts to Discord); her last
 5.1 s (2 shots, ~$0.85) is not rendered. Spend ≈ $28.20 of $30.
 
+**Public-figure swap test (2026-11-13/14): refused by all three hosts.** Same
+Hotel Lobby 15 s, two famous public figures from public-domain photos
+(sheets via `make_sheet.py`), parody label planned.
+- Higgsfield Genjutsu 720p 15 s ($10.21 quoted): `failed`, "Generation
+  failed" after ~14 min. 4 s 480p probe without names ($1.27 quoted): `nsfw`,
+  "blocked by content safety checks". Billing of either not confirmed.
+- Seedance 2.5 reference-to-video on fal: `content_policy_violation`
+  "likenesses of real people" at validation, for the photo sheets and again for
+  a local FLUX still of the pair (`image_urls[0]`). Not rendered.
+- Kling O1 edit on fal: "Failure to pass the risk control system". Not rendered.
+- Lesson: hosted people-swap tools block recognisable public figures on
+  purpose. Do not spend on rewording to get past them. `trend_video.py` also
+  dies on a network timeout while polling; the job keeps running, so re-poll
+  `https://api.higgsfield.ai/requests/<id>/status` instead of resubmitting.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
