@@ -112,8 +112,10 @@ read-only: no sends or drafts.
 - Agent PRs: QA merges after CI green + evidenced pass. Policy gates (by
   text, not prompts): store submission, spend over $20, secrets. Mobile builds
   use the Mac rail; Actions is BACKUP only.
-- Machines are not interchangeable: only the M3 Mac does Xcode, simulators,
-  signing. `docs/machines.md`; reassign, never improvise.
+- **Build server first (Bilal, 2026-11-14):** work runs on `omarchy` by
+  default. Use the M3 or X1 only for a specific reason (Xcode, simulators,
+  signing, Apple GPU) and say it up front. `docs/machines.md`; reassign, never
+  improvise.
 
 ## Reference map
 
