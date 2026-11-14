@@ -1782,6 +1782,18 @@ its no-execution status; hosted activation and spend remain separate gates.
   upload/submit. Side effect to fix next: with filler gone, strict chat
   filters ("quiet with outlets") match few venues → ve#224 (read photos /
   official sites) needs a spend quote.
+- 2026-11-14 ~14:00 ET: **BrewDesk 1.2 SUBMITTED to App Review** — build 40
+  (tag store/1.2-build40), ASC state WAITING_FOR_REVIEW, submitted via the
+  API (reviewSubmissions) after Bilal tested 40 on TestFlight: "looking
+  pretty good now, I approve, push to App Store". In 1.2: Ask chat, unrated
+  cafés as grey cup pins (bd#266), auto-load on pan (bd#268), score
+  provenance line, venue-type badges, rating attribution; engine fixes are
+  already live. What's New en/es updated in repo and ASC. Release type
+  AFTER_APPROVAL. Smoke gate passed (script fixed to close the detail sheet
+  before the chat step, bd#269). Apple agreement block cleared by Bilal the
+  same day. Kill switch: Edge Config store venuekit-flags, drill 31 s off /
+  35 s on. Open: Neon (ve#231), cold start (ve#228), read photos/sites
+  (ve#224, needs quote), cost alert, pan smoothness (bd#211).
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
