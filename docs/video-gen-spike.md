@@ -612,6 +612,21 @@ Hotel Lobby 15 s, two famous public figures from public-domain photos
   dies on a network timeout while polling; the job keeps running, so re-poll
   `https://api.higgsfield.ai/requests/<id>/status` instead of resubmitting.
 
+**Rented-GPU two-person replacement works (2026-11-14, ~$0.50).** Driven from
+the build server with `prep_pair_inputs.sh` + `runpod_wan_pair.sh`: RunPod
+secure A40 46 GB at $0.59/h (no L40S free), Wan 2.2 Animate Q8, two passes
+(left performer, then right on top), first shot 0-4 s, 1280x720, 61 frames,
+6 steps. Pass A 572 s, pass B 525 s: about 145 s of GPU per second of video
+per person at 720p. Models (28 GB) download in ~2 min at 167 MB/s.
+- Root cause of R3: `runpod_bootstrap.sh` ended on a bare `wait` that also
+  waited on its own self-delete timer, so setup never "finished". Fixed
+  (`disown`); this run lost 30 min to it before a manual unblock.
+- Result: both people replaced in place, suits and motion right, no host
+  filter. Faces are soft and only roughly like the references; colours are
+  over-saturated. Next: an identity pass on the faces, more steps, cut-aware
+  chaining for the full 15 s.
+- No network volume was used, so nothing bills after the pod is deleted.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
