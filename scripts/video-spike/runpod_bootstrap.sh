@@ -7,6 +7,7 @@ LOG=/workspace/bootstrap.log; mkdir -p /workspace; exec > >(tee -a "$LOG") 2>&1
 # Belt and braces: the pod removes itself after MAX_MIN minutes even if the laptop disappears.
 MAX_MIN=${MAX_MIN:-100}
 ( sleep $((MAX_MIN * 60)); command -v runpodctl >/dev/null && runpodctl remove pod "${RUNPOD_POD_ID:-}" ) &
+disown  # a bare `wait` below must not block on this timer (it did: R3 and 2026-11-14)
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq && apt-get install -y -qq git curl ffmpeg ca-certificates >/dev/null
