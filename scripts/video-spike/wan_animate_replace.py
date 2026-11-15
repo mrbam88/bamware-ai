@@ -38,6 +38,9 @@ p.add_argument("--server", help="remote ComfyUI base URL (inputs are uploaded, o
 p.add_argument("--sam2-device", default="mps", help="mps (Mac, fp32) or cuda (fp16)")
 p.add_argument("--segments", help="chain windows for >77 frames, e.g. '77,25' (sum-overlap must cover --frames)")
 p.add_argument("--download", help="where to save the output when using --server")
+p.add_argument("--full-quality", action="store_true",
+               help="no lightx2v shortcut LoRA: uni_pc sampler, shift 5 (use --steps 20). ~3x slower, less waxy")
+p.add_argument("--relight", type=float, default=1.0, help="relight LoRA strength")
 a = p.parse_args()
 
 W, H, N = a.width, a.height, a.frames
@@ -104,6 +107,12 @@ g = {
                                                         "loop_count": 0, "filename_prefix": a.prefix,
                                                         "format": "video/h264-mp4", "pingpong": False, "save_output": True}},
 }
+
+g["13"]["inputs"]["strength_model"] = a.relight
+if a.full_quality:
+    del g["14"]
+    g["14"] = {"class_type": "ModelSamplingSD3", "inputs": {"model": ["13", 0], "shift": 5.0}}
+    g["22"]["inputs"].update(sampler_name="uni_pc", scheduler="simple")
 
 if a.segments:
     # Chain windows: each later window seeks via video_frame_offset and is primed with the last

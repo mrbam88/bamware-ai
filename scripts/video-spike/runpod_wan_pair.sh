@@ -6,7 +6,7 @@
 # IN_DIR holds: full.mp4, left-hi.mp4, right-hi.mp4 (other performer blacked out), ref-left.png, ref-right.png,
 #               prompt-left.txt, prompt-right.txt.  Make it with prep_pair_inputs.sh.
 # Usage: runpod_wan_pair.sh IN_DIR OUT_DIR      (run on the build server; needs aws, ssh key, python3, curl)
-# Env:   GPU="id1,id2" (first available, 48 GB class)  W=1280 H=720 FRAMES=65 STEPS=6 MAX_MIN=75 MIN_MBPS=40 UNET=Wan2.2-Animate-14B-Q8_0.gguf
+# Env:   EXTRA="--full-quality" (extra flags for wan_animate_replace.py)  GPU="id1,id2" (first available, 48 GB class)  W=1280 H=720 FRAMES=65 STEPS=6 MAX_MIN=75 MIN_MBPS=40 UNET=Wan2.2-Animate-14B-Q8_0.gguf
 set -euo pipefail
 IN=$1 OUTD=$2
 GPU=${GPU:-"NVIDIA L40S,NVIDIA RTX 6000 Ada Generation,NVIDIA RTX A6000,NVIDIA A40,NVIDIA L40"} W=${W:-1280} H=${H:-720} FRAMES=${FRAMES:-65} STEPS=${STEPS:-6}
@@ -68,7 +68,7 @@ R="$HERE/wan_animate_replace.py"
 run() {  # video pose ref promptfile prefix out
   python3 "$R" --server http://127.0.0.1:18188 --unet "$UNET" --sam2-device cuda --video "$1" --pose-video "$2" \
     --pose-width 1920 --pose-height 1080 --ref "$3" --width "$W" --height "$H" --frames "$FRAMES" --steps "$STEPS" \
-    --prefix "$5" --download "$6" --prompt "$(cat "$4")" | tail -2
+    --prefix "$5" --download "$6" ${EXTRA:-} --prompt "$(cat "$4")" | tail -2
 }
 run "$IN/full.mp4" "$IN/left-hi.mp4" "$IN/ref-left.png" "$IN/prompt-left.txt" pair-a "$OUTD/passA.mp4"
 t1=$(date +%s); echo "pass A: $((t1 - tb))s"
