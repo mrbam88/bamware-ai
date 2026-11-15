@@ -1794,6 +1794,24 @@ its no-execution status; hosted activation and spend remain separate gates.
   same day. Kill switch: Edge Config store venuekit-flags, drill 31 s off /
   35 s on. Open: Neon (ve#231), cold start (ve#228), read photos/sites
   (ve#224, needs quote), cost alert, pan smoothness (bd#211).
+- 2026-11-15: **BrewDesk 1.2 APPROVED, READY_FOR_SALE.** Same day found
+  **production DOWN since 2026-11-14 22:09 UTC**: Vercel 402
+  DEPLOYMENT_DISABLED, team softBlock FAIR_USE_LIMITS_EXCEEDED
+  (fluidCpuDuration), auto-unpause 2026-12-14. Cause: Claude's 10-minute
+  probe (ve#232, added 11-07) × ~4 s CPU cold starts parsing the 17 MB
+  dataset burned the Hobby allowance in 7 days; probe disabled. Incident
+  ve#239. Bilal chose the FREE route over Vercel Pro ($20/mo): move the
+  engine to AWS Lambda (free tier, same account as auth) behind
+  **venuekit.bamware.io** (Cloudflare DNS, bamware-infra modules lambda +
+  api-gateway + api-custom-domain). Bilal: "I may switch, make sure we have
+  a SOLID architecture" → rule: clients call only a domain we own; one core
+  Express app with thin per-host entry points (Vercel entry kept as
+  fallback); hosting moves by DNS. In progress: engine PR (lambda handler,
+  build:lambda, deploy workflow, /v1/ping), infra PR + terraform plan (not
+  applied yet), app branch fix/api-own-domain (commit 219a0aa, local only)
+  → build 41 / 1.2.1. The live 1.2 app shows its saved snapshot until 1.2.1
+  is approved. Lesson: monitoring is load; probe a route that does no work,
+  and know the host's quota before adding a schedule.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
