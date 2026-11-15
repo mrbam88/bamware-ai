@@ -52,6 +52,38 @@ the switch-on are separate steps and the switch-off needs no deploy.
 - The 10-minute production probe stays green. If it goes red, roll back
   first and diagnose second. Rollback is `git revert` and push, or the flag.
 
+## Mandatory gates (added 2026-11-15, after the Vercel outage)
+
+BrewDesk 1.2 went live on the App Store and its backend was disabled three
+hours after submission: a health probe added a week earlier used up the
+host's free CPU allowance. Nobody knew the allowance, the alarm reached
+nobody who would act, and the app was tied to the host's own address, so the
+only fix was another app release. These four gates are not optional.
+
+1. **Know every limit before shipping.** Each product keeps a dependency
+   sheet (`docs/dependencies.md` in its repo): every outside service it needs
+   to run, the plan, the quota that would stop it, current usage, what
+   happens at the limit (block or bill), and the fallback. A store submission
+   or a new scheduled job is not allowed while a row is blank or usage is
+   over 50% of a blocking quota.
+2. **Alarms reach someone who acts.** Usage alerts at 50% and 80% of every
+   blocking quota, and a production-down alert, all delivered to Discord
+   (the channel Bilal reads), never only to email. An alert nobody is
+   watching is not an alert. The agent that ships a release owns checking
+   production again the same day and the next morning.
+3. **Monitoring must cost almost nothing.** Probes hit a route that does no
+   work (`/v1/ping`), and any schedule is costed against the host's quota
+   before it is switched on: runs per month × cost per run, written in the PR.
+4. **Clients call only domains we own.** No released app, script or partner
+   may point at a host's address (`*.vercel.app`, an API Gateway id). Hosting
+   then changes with a DNS record: no app release, no review, no downtime.
+   One core service with thin entry points per host, and the previous host
+   kept deployable as a fallback.
+
+Before submitting to a store, the release owner states in one line each:
+dependency sheet current, alarms tested by firing one, probe cost, and the
+domain the build calls.
+
 ## Mobile
 
 - Every merge to the app's main branch that changes behaviour gets a

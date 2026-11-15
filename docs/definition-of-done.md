@@ -26,5 +26,10 @@
    the live contract tests (`BREWDESK_LIVE_CONTRACT=1`) decode production
    responses with the app's own models and run nightly and before upload.
 
+8. **A release names what it depends on.** Dependency sheet current, quota
+   alarms tested, probe costed, client calls only a domain we own
+   (`docs/release-strategy.md`, mandatory gates). Added after the 2026-11-15
+   outage that followed the 1.2 release by three hours.
+
 For context repos (`bamware-ai`, `interviews`), the equivalent gate is
 `python3 scripts/check-context.py`.
