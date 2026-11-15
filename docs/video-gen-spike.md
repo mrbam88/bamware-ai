@@ -627,6 +627,21 @@ per person at 720p. Models (28 GB) download in ~2 min at 167 MB/s.
   chaining for the full 15 s.
 - No network volume was used, so nothing bills after the pod is deleted.
 
+**Follow-up 2026-11-15 (Bilal rated the first clip 1/10: "nothing like Elon",
+plastic, not smooth).**
+- Full-quality rerun (`--full-quality`, 20 steps, uni_pc, shift 5, L40S
+  $1.09/h, 770 s + 723 s per pass, $1.19): NOT better. A head-and-shoulders
+  reference dropped the jacket and the model kept the source performer's
+  sunglasses and bracelets. Skin slightly less waxy. Lesson: the reference
+  must show the whole outfit; more steps do not buy identity.
+- FaceFusion identity pass (lips excluded, two passes, ~105 s each on the M3)
+  over the first clip: the right-hand face now clearly matches; the left one
+  improves a little. Texture and colour unchanged. Sent with caveats.
+- The speed gate at 40 MB/s rejected three usable hosts (16, 37, 35); 15 is the
+  working floor. The bootstrap stall needed `wait "${DL[@]}"`; `disown` did
+  not fix it and cost 40 min of GPU.
+- Spend on the rented-GPU route so far: about $1.71.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
