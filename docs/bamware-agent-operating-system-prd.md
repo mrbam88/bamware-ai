@@ -125,6 +125,10 @@ This applies to **every agent and project**, including onboarding and handoffs.
   or API keys still need the CEO. Reports to the Chief of Staff; budget
   breaches are critical alerts. Origin: one day of `gpt-6-astra` on everything
   used ~90% of a weekly OpenAI limit (2026-10-02). Detail: #100.
+- **Superseded 2026-11-15:** the Accountant below was never built as a seat.
+  The job is now done by any agent session following
+  `skills/bamware-money/SKILL.md` (accountant and adviser, read-only, bank
+  feeds first).
 - **Accountant (founder decision, 2026-10-03):** the one agent with privileged,
   read-only access to the founder's financial information (Gmail receipts and
   invoices first; other sources only with explicit approval). Keeps a private

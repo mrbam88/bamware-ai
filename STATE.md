@@ -1,5 +1,32 @@
 # State of the Union — Bamware
 
+## 2026-11-15 — Bamware is now Bilal's personal accountant and financial adviser
+
+- **Bilal:** "This is a big new feature for us... effectively Bamware is now my
+  personal accountant and financial advisor." One working session went from
+  "I don't trust those numbers" to a full, sourced picture and a plan.
+- **What exists now (no figures in this public repo):** read-only bank feeds
+  through two aggregators chosen for overlap, because neither covers every
+  institution (one paid, under $20 a year, approved; one on a free plan with a
+  lifetime cap on linked logins, so never re-link casually). Keys live only on
+  the build server. A small local page links new banks; a refresh script
+  prints balances, card rates, minimums and due dates. Accounts no feed
+  supports come from a monthly statement. Code and private notes: the private
+  repo mrbam88/bamware-finance. The page he reads is in Notion.
+- **Delivered the same day, all private:** every account on one list with
+  real balances and rates, a budget built from 45 days of his transactions, a
+  payoff plan in his chosen order, a subscription cut list he decided, a loan
+  comparison, and a day-by-day cash chart. Three primer pages hold the
+  reasoning; they are linked from the Notion page only.
+- **Rules that came out of it:** `skills/bamware-money` (new). Read-only
+  always: the agent never moves money, applies, cancels or contacts a lender.
+  Model cash by date, not by month. State fee and term assumptions before
+  judging a loan. Primers now cover personal decisions too (docs/primers.md).
+- **Mistake to avoid:** handing him dense shell commands to move a one-time
+  token cost three round trips; a single-use token can simply be pasted.
+- **Not built yet:** stored transaction history and the daily morning line.
+  The old Accountant ticket (102) is superseded by this.
+
 ## 2026-11-03 — One skill catalog: every machine shows the same "/" menu
 
 - **Bilal:** "as CEO of bamware it's like I have many different software

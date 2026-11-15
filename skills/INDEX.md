@@ -54,6 +54,7 @@ status flow. Roles will grow (Architect, Product) as the team builds up.
 | `bamware-smart-home` | Bilal's apartment: Govee lights (inventory, ids, scenes, colorblind-safe palette, `scripts/govee.sh` cloud, `scripts/govee_lan.py` LAN-direct from omarchy) the stereo (Spotify desktop on omarchy over MPRIS, reference volume), both TVs (`scripts/samsung_tv.py`, `scripts/roku_tv.py`) the Apple TV (`scripts/appletv.py`), and the daily vibes routine (`scripts/vibes.sh` + timers). Key on the MacBook and omarchy. |
 | `bamware-scrum-master` | Shared durable delivery supervision: ownership, pickup, source reconciliation, review routing and completion evidence; no authority expansion. |
 | `idea-capture` | Bilal spitballs an app or business idea → one `idea` ticket, quick or spike depth, no code or spend. Also listing, killing and promoting ideas. |
+| `bamware-money` | Bamware as Bilal's personal accountant and financial adviser: where each number comes from (two bank feeds, statements, checking, email), what the role may never do (move money, apply, cancel), and how he wants money advice. Holds no figures; routes to the private Notion page and the private finance repo. |
 
 ### DEV
 

@@ -11,6 +11,7 @@
 | Which runtime can do what (capability matrix) | docs/runtimes.md |
 | Machines, displays, gear | docs/machines.md |
 | Apartment lights (Govee) and stereo (Spotify on omarchy) | skills/bamware-smart-home/SKILL.md |
+| Bilal's personal finances: accountant and adviser role (no figures in this repo) | skills/bamware-money/SKILL.md |
 | Security: credentials, PII, accounts | docs/security.md |
 | Cross-repo API contracts | docs/contracts.md |
 | App Review / 4.3(b) evidence base | docs/app-review-field-notes.md |
