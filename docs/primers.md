@@ -43,7 +43,17 @@ Tenth (2026-10-30): [Push-to-Talk Slice](https://claude.ai/artifact/2eWru4MPctwJ
 whitelist reflex first, `claude -p` read-only otherwise, reply spoken back; $0,
 14-day usage trial decides whether voice continues; six holes listed to poke).
 
+**Reaffirmed (Bilal, 2026-11-15, after an eleventh primer on a personal,
+non-Bamware decision):** "another example of how much I love these artifact
+wiki things!!! this is a great way to communicate complex things to me." So
+the principle is not limited to company work: any complex choice in any part of
+his life gets the same page. Primers on private matters (money, health, career)
+are not listed or linked in this public repo; they are linked from the private
+Notion page for that area.
+
 ## When to write one
+
+- Any complex personal decision, not only Bamware ones (2026-11-15).
 
 - Any hosting, vendor, database, or infrastructure choice.
 - Any spend above $0, any new account, any change to how production runs.
