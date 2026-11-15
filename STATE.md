@@ -1812,6 +1812,28 @@ its no-execution status; hosted activation and spend remain separate gates.
   → build 41 / 1.2.1. The live 1.2 app shows its saved snapshot until 1.2.1
   is approved. Lesson: monitoring is load; probe a route that does no work,
   and know the host's quota before adding a schedule.
+- 2026-11-15 (afternoon): **Engine is back, on AWS Lambda at
+  https://venuekit.bamware.io** (API Gateway HTTP API 28cb91qu2j, function
+  bamware-dev-venue-engine, arm64 1024 MB 29 s; ACM cert + Cloudflare CNAME;
+  bamware-infra PRs #14, #15 applied and merged; engine PRs #240 lambda
+  entry + build:lambda + deploy-lambda.yml, #241 gates, ADR 0003). Verified:
+  ping, health, venues, detail, signed-in chat. Cold start 3.3 s on Lambda
+  (init cut 4.2 s → 0.9 s locally by memoising two normalisers). Applied
+  with the ROOT `default` AWS profile, stated to Bilal: `bamware-deployer`
+  cannot PassRole and the `bamware-dev` admin key is invalid — he should
+  rotate a proper admin key. Cloudflare token now in SSM
+  /bamware/shared/cloudflare-api-token (scripts/cf-token.sh). GitHub OIDC:
+  venue-engine issues the immutable subject (repo:mrbam88@18681433/...);
+  role trust now accepts both forms. Gates live: probe on /v1/ping every 10
+  min + hourly deep check → Discord webhook on failure (secret
+  DISCORD_WEBHOOK_STATUS from SSM); daily usage watch (0.4% of the Lambda
+  free tier month-to-date; warns at 50/80%); docs/dependencies.md.
+  Rules: docs/release-strategy.md mandatory gates + DoD rule 8. Not on
+  Lambda yet: GOOGLE_MAPS_API_KEY (photo routes 503), EDGE_CONFIG (kill
+  switch = env/terraform), Neon. HARD RULE from Bilal same day: never
+  contact Apple or any outside party, or say I will. App: PR #270 merged
+  (base URL → venuekit.bamware.io); build 41 = 1.2.1 in the pipeline; the
+  live 1.2 shows its snapshot until 1.2.1 ships. Submission is Bilal's call.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
