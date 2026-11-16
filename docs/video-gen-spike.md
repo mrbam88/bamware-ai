@@ -673,6 +673,22 @@ Frames: faces photoreal and steady across consecutive frames; motion between
 the pins is invented, so the dance follows the original only loosely and lip
 sync to the real lyrics is not driven by anything. My score 5, his pending.
 
+**Measure motion before sending (2026-11-16).** Bilal rated the keyframe clip
+1/10 ("not even dancing, so glitchy") against my 5: sampled stills cannot show
+motion. A free check does: per-frame change,
+`ffmpeg -i X -vf "scale=320:180,tblend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG" -f null -`,
+compared with the source clip's curve.
+- Keyframe route: motion falls to ~0.5 at every pinned frame (freeze, then
+  lurch). Dead for dance; fine only for stills.
+- Edit route: a spike every 24 frames. Cause: a 25 fps source into a 24 fps
+  model drops one frame per second. Fix: retime without dropping,
+  `setpts=PTS*25/24,fps=24` (+ `atempo=0.96`), edit, then
+  `setpts=PTS*24/25,fps=25` and the original audio. Spikes gone, curve follows
+  the source (97 of 100 frames returned).
+- A FaceFusion pass on top sharpens the right-hand face and leaves the motion
+  curve unchanged. Picture is still soft (older model, 720p). Sent as take 4,
+  my score 4.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
