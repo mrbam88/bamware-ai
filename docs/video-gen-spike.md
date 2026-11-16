@@ -642,6 +642,23 @@ plastic, not smooth).**
   not fix it and cost 40 min of GPU.
 - Spend on the rented-GPU route so far: about $1.71.
 
+**Grok Imagine video edit is the route for public-figure parody (2026-11-16).**
+`xai_env.sh xai_video.py edit SRC.mp4 OUT.mp4 --prompt ...` (key in the vault
+at `/bamware/video-spike/xai-key`), `POST /v1/videos/edits`, model
+`grok-imagine-video`: source mp4 up to 8.7 s, output up to 720p, $0.05/s,
+about 40 s of wall time for a 4 s clip. Moderated requests are still billed.
+- First shot (0-4 s, 1280x720): choreography, set and camera kept pose for
+  pose; the left face right in every sampled frame. No refusal.
+- The right face drifted (hair went blond) in the last 1.5 s with a bare
+  name; adding hair, shirt and tie plus "both faces stay exactly the same
+  person from the first frame to the last" held it. Describe each person's
+  look, not only the name.
+- Output is 24 fps and 3.71 s for a 4.0 s 25 fps source; audio and lip sync
+  not verified (frames only).
+- Earlier the same day Bilal's own typed prompt in the Grok app gave a clip he
+  judged "way better and worse": faces right, but not the real choreography.
+  Lesson: name the source video in prompts, and prefer editing the real clip.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
