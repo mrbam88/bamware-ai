@@ -659,6 +659,20 @@ about 40 s of wall time for a 4 s clip. Moderated requests are still billed.
   judged "way better and worse": faces right, but not the real choreography.
   Lesson: name the source video in prompts, and prefer editing the real clip.
 
+**Keyframe route on the newer Grok model (2026-11-16, ~$0.72 for 4 s).**
+Bilal rated the edit-endpoint clip 3/10 ("Elon is not realistic, they both are
+jittery"); that endpoint only runs the older `grok-imagine-video`. Route two:
+1. Five real frames from the shot (0, 1, 2, 3, 3.92 s).
+2. `xai_video.py image-edit` each with `grok-imagine-image-2.0` ($0.08 each):
+   same set, mic and poses, both people replaced. Stills are photoreal and the
+   two identities stay consistent across all five.
+3. `xai_video.py generate --image e0 --keyframe 1:e1 --keyframe 2:e2
+   --keyframe 3:e3 --last-frame e3.92 --duration 4 --silent` on
+   `grok-imagine-video-1.5` ($0.08/s, 58 s wall), then the real song muxed on.
+Frames: faces photoreal and steady across consecutive frames; motion between
+the pins is invented, so the dance follows the original only loosely and lip
+sync to the real lyrics is not driven by anything. My score 5, his pending.
+
 ## 7. Open questions
 
 1. Measured M3 Pro render time and quality for LTX-2.5 at 480p and 720p.
