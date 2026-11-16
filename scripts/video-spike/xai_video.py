@@ -34,12 +34,19 @@ g = sub.add_parser("generate")
 g.add_argument("out")
 g.add_argument("--image", help="first frame")
 g.add_argument("--ref", action="append", default=[], help="reference image, named <IMAGE_0>.. in the prompt")
+g.add_argument("--keyframe", action="append", default=[], metavar="SECONDS:IMG",
+               help="pin a frame at a time (1.5 only, up to 4, 0 < t < duration, 1/3 s grid)")
+g.add_argument("--last-frame", help="pin the final frame (1.5 only)")
 g.add_argument("--duration", type=int, default=8)
 g.add_argument("--resolution", default="720p", choices=["480p", "720p", "1080p"])
 g.add_argument("--aspect", default="16:9")
 g.add_argument("--model", default="grok-imagine-video-1.5", choices=list(PRICE))
 g.add_argument("--silent", action="store_true")
-for s in (e, g):
+i = sub.add_parser("image-edit", help="edit a still with grok-imagine-image-2.0 ($0.04 in + $0.04 out)")
+i.add_argument("src")
+i.add_argument("out")
+i.add_argument("--quality", default="medium", choices=["low", "medium", "auto"])
+for s in (e, g, i):
     s.add_argument("--prompt", required=True)
     s.add_argument("--dry-run", action="store_true")
 a = p.parse_args()
@@ -49,6 +56,26 @@ def data_uri(path):
     mime = mimetypes.guess_type(path)[0] or "application/octet-stream"
     return f"data:{mime};base64,{base64.b64encode(open(path, 'rb').read()).decode()}"
 
+
+if a.mode == "image-edit":
+    print("image edit with grok-imagine-image-2.0: ~$0.08", flush=True)
+    if a.dry_run:
+        raise SystemExit
+    req = urllib.request.Request(API + "/images/edits", headers={
+        "Authorization": f"Bearer {os.environ['XAI_KEY']}", "Content-Type": "application/json"}, data=json.dumps({
+            "model": "grok-imagine-image-2.0", "prompt": a.prompt, "quality": a.quality, "response_format": "b64_json",
+            "image": {"url": data_uri(a.src), "type": "image_url"}}).encode())
+    try:
+        d = json.load(urllib.request.urlopen(req, timeout=300))
+    except urllib.error.HTTPError as err:
+        raise SystemExit(f"http {err.code}: {err.read().decode()[:600]}")
+    item = d["data"][0]
+    if item.get("b64_json"):
+        open(a.out, "wb").write(base64.b64decode(item["b64_json"]))
+    else:
+        urllib.request.urlretrieve(item["url"], a.out)
+    print(json.dumps({"out": a.out}))
+    raise SystemExit
 
 if a.mode == "edit":
     secs = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", a.src],
@@ -64,6 +91,11 @@ else:
         body["image"] = {"url": data_uri(a.image)}
     if a.ref:
         body["reference_images"] = [{"url": data_uri(r)} for r in a.ref]
+    if a.keyframe:
+        body["keyframes"] = [{"image": {"url": data_uri(k.split(":", 1)[1])}, "timestamp_s": float(k.split(":", 1)[0])}
+                             for k in a.keyframe]
+    if a.last_frame:
+        body["last_frame"] = {"url": data_uri(a.last_frame)}
 print(f"{a.mode} {secs:.2f}s with {model}: ~${secs * PRICE[model]:.2f}", flush=True)
 if a.dry_run:
     raise SystemExit
