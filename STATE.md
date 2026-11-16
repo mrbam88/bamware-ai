@@ -1861,6 +1861,27 @@ its no-execution status; hosted activation and spend remain separate gates.
   contact Apple or any outside party, or say I will. App: PR #270 merged
   (base URL → venuekit.bamware.io); build 41 = 1.2.1 in the pipeline; the
   live 1.2 shows its snapshot until 1.2.1 ships. Submission is Bilal's call.
+- 2026-11-16 ~15:45 ET: **BrewDesk 1.2.1 SUBMITTED** — build 42 (tag
+  store/1.2.1-build42), ASC WAITING_FOR_REVIEW, release AFTER_APPROVAL.
+  Bilal: "do all 4, regression test, submit ASAP". The live 1.2 still shows
+  "Offline — showing saved snapshot" (it calls the dead vercel.app host)
+  until 1.2.1 is approved. In 1.2.1: base URL venuekit.bamware.io (#270),
+  correct one detail from the detail screen (bd#251 → #273; engine #245
+  accepts any non-empty subset of answers), "Waking up BrewDesk…" chat
+  stages, vibe-tag contrast (bd#232), no "0 of 5 details" on unscored cards
+  (#274). Map smoothness (bd#211): no fix shipped; the +0.05 regression was
+  measurement noise; real cost = Map content rebuilding on unchanged plans.
+  **Writes are durable again**: DynamoDB table bamware-dev-venue-writes
+  (provisioned 10R/5W, free tier), engine #247 + infra #16; health reports
+  storage {writes: dynamodb}; proven by write → forced cold start → read.
+  Observations, corrections, reports durable; saved-spot sync and community
+  photos still in memory. Cold start after a restart measured 5.8 s.
+  Regression before submit: package suites green, smoke on build 42 (tabs,
+  detail, real signed-in chat, live contract tests), CI screenshots reviewed.
+  Known test problems, not app bugs (bd#275): pinch test taps the Ask tab;
+  correct-one-claim test's last scroll flakes on CI iOS 26 (Reviewer
+  simulation red on main 0ae4a5a for that reason). What's New en/es in
+  repo PR #276 and in ASC.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
