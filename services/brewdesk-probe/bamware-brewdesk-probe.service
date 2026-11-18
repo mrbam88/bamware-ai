@@ -1,0 +1,8 @@
+[Unit]
+Description=BrewDesk production probe (ping every 5 min, deep check hourly, Discord on change)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/brewdesk-probe.sh
+# A failed probe is a signal, not a unit failure worth restarting.
+SuccessExitStatus=1

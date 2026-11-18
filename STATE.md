@@ -1882,6 +1882,21 @@ its no-execution status; hosted activation and spend remain separate gates.
   correct-one-claim test's last scroll flakes on CI iOS 26 (Reviewer
   simulation red on main 0ae4a5a for that reason). What's New en/es in
   repo PR #276 and in ASC.
+- 2026-11-18: **BrewDesk 1.2.1 APPROVED, READY_FOR_SALE** (build 42). The
+  App Store app now reaches venuekit.bamware.io; backend healthy, writes
+  durable (DynamoDB). Same day found **venue-engine GitHub Actions blocked
+  since 13:23 UTC**: the repo is PRIVATE (2,000 free minutes/month, $0
+  spending limit) and Claude's 10-minute probe used ~4,300/month. No charge;
+  every job on that repo (tests, deploy-lambda, usage watch, nightly eval)
+  is blocked until 2026-12-01. Second quota Claude failed to check (first:
+  Vercel, 11-14); the dependency sheet had wrongly said "free for public
+  repos". Fix: probe moved to the build server — bamware-ai
+  services/brewdesk-probe (systemd user timer on omarchy every 5 min, deep
+  check hourly, Discord on state change, webhook at
+  ~/.config/bamware/discord-webhook-status); test alert sent. prod-probe.yml
+  removed; docs/dependencies.md corrected. Until Dec 1 engine deploys are by
+  hand (docs/aws-lambda.md) and engine PRs get no CI: run `npm test`
+  locally. Rule added: cost a schedule against the scheduler's own quota too.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
 
