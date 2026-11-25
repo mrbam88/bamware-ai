@@ -1899,6 +1899,22 @@ its no-execution status; hosted activation and spend remain separate gates.
   locally. Rule added: cost a schedule against the scheduler's own quota too.
 - Data-source shortlist for later: Apple MapKit (free), HERE (250k/mo free),
   Mapbox (100k/mo free), TomTom (2.5k/day free). Yelp rejected (license).
+- 2026-11-25: **BrewDesk 1.3 build 43 in TestFlight** (tag store/1.3-build43,
+  branch release/1.3, app main 7540f85). Not submitted to the store; that is
+  Bilal's call. In it: Bamware Picks on the Saved tab (bd#279, engine ve#249,
+  `GET /v1/picks` + additive `pick` field, list in engine `data/picks.json`,
+  one pick so far, blurb awaits Bilal's wording); map redraw fix (bd#278,
+  hitch time -35%, stall time -51 to -60%, closes bd#211; one ~0.1 s frame per
+  camera rest remains); smoke gate read (6 screens). Engine, live for every
+  app version: saved spots durable in DynamoDB (ve#250, infra#17 applied,
+  `SAVED#<userId>` partition, proven across a forced restart). Site-evidence
+  reader merged but NOT run (ve#252): free sample of 40 sites found 0 mention
+  laptops or outlets; a full run is ~$0.07 for 0-8 new scores, so websites are
+  not the fix; photos need a verified Google price and a quote over $20.
+  Known: ve#251 (osm-baseline test red on main), bd#277 (saved sync replaces
+  without merging after a failed fetch). Engine has no CI until 2026-12-01;
+  deploys are by hand. The build server (omarchy) has been offline since
+  2026-11-23, so the outage probe and bank feeds are not running.
 
 ## Vision (one line)
 

@@ -121,3 +121,18 @@ A shared contract package is the real answer — that decision is parked in
   slice (client-side "real viewport + honest banner" work is a separate
   child ticket in the same epic); the app can ignore the new fields safely
   since they're additive.
+- **2026-11-24 (venue-engine, Bamware Picks, bamware-ai#301, additive):** new
+  public `GET /v1/picks` (`Cache-Control: public, max-age=300`). 200
+  `{ updatedAt?: "YYYY-MM-DD", curator?: string, picks: [{ rank: 1-10,
+  blurb: string (≤140 chars), visitedAt: "YYYY-MM-DD", venue }] }`, sorted by
+  `rank`. `venue` is the `compact=1` map shape plus `neighborhood`,
+  `venueType?`, `scoreCoverage?`. No list → `{ "picks": [] }` with 200. An
+  engine without the route answers 404; clients hide the section. New optional
+  field on venue objects in `GET /v1/venues`, `POST /v1/venues/search` and
+  `GET /v1/venues/:id`: `pick: { rank, blurb, visitedAt }`, present only on
+  picks, absent otherwise. A pick never changes any score field or listing
+  order. Source: engine `data/picks.json`; picks are never sold.
+- **2026-11-25 (venue-engine, durable saved spots, additive):** `GET /v1/health`
+  `storage` gains `savedSpots: "dynamodb" | "memory"`. `/v1/users/me/saved`
+  wire contract unchanged; a storage failure now answers 503 on reads and
+  writes instead of serving an in-memory list.
