@@ -1,5 +1,24 @@
 # State of the Union — Bamware
 
+## 2026-11-25 — Power loss on omarchy switched the apartment off (presence bug, fixed)
+
+- **Bilal:** "my light not working?!!! this laptop randomly lost power and did a
+  reboot." Server rebooted ~12:52 ET; linger and every timer came back.
+- **Cause:** `presence.sh` only pinged addresses already in the kernel
+  neighbour table. After a reboot that table is empty, so the 12:53 check saw
+  neither phone nor Mac, flipped home -> away and ran the away routine: lights
+  off, Spotify paused, TVs off. The 13:00 vibes and every daylight tick then
+  skipped as "away" for an hour.
+- **Fix ($0):** when neither device is in the table, sweep 192.168.1.0/24 once
+  (~1 s). Installed to `~/.local/bin` and the next check flipped away -> home
+  and restored daylight. Worth a glance: the away routine has no boot guard,
+  while the welcome-home path does.
+- **Also failing after the reboot, not touched:** `bamware-neon-dump` (Neon
+  says the account is over quota: Bilal's call); `ai-quota-sample` (wants
+  `~/.claude/.credentials.json`; fresh `/login` on 11-25 did not create it);
+  `bamware-daily-brief` (no 11-25 edition: machine was off at 08:00, catch-up
+  run failed, 16:00 retry pending).
+
 ## 2026-11-15 — Bamware is now Bilal's personal accountant and financial adviser
 
 - **Bilal:** "This is a big new feature for us... effectively Bamware is now my

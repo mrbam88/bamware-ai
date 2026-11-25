@@ -14,8 +14,12 @@ case ${1:-} in
   home|away) echo "$1 $((now+10800))" > $OVR; echo "override: $1 for 3 h";;
   status) echo "state: $(cat $STATE 2>/dev/null || echo unknown); last seen: $(date -d @$(cat $SEEN 2>/dev/null || echo 0) '+%F %T'); override: $(cat $OVR 2>/dev/null || echo none)"; exit 0;;
 esac
-# did a personal device answer?
+# did a personal device answer? Ping what the kernel already knows; if neither device is in the table (empty after a
+# reboot: 2026-11-25 a power loss made the first check flip home->away and switch the apartment off) sweep the /24 once.
 for ip in $(ip neigh | awk '/192\.168\.1\./{print $1}'); do ping -c1 -W1 $ip >/dev/null 2>&1 & done; wait
+if ! ip neigh | grep -qi -E "$PHONE_MAC|$MAC_MAC"; then
+  for i in $(seq 1 254); do ping -c1 -W1 192.168.1.$i >/dev/null 2>&1 & done; wait
+fi
 present=$(ip neigh | grep -i -E "$PHONE_MAC|$MAC_MAC" | grep -v -E "FAILED|INCOMPLETE" | wc -l)
 [[ $present -gt 0 ]] && echo $now > $SEEN
 last=$(cat $SEEN 2>/dev/null || echo 0)
