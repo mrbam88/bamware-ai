@@ -303,10 +303,16 @@ class BleLights:
 
     def _thread(self, address: str) -> None:
         import asyncio
-        try:
-            asyncio.run(self._drive(address))
-        except Exception as error:  # noqa: BLE001 - no Bluetooth library or adapter: the party goes on without it
-            log(f"Bluetooth strip {address[-5:]}: gave up ({type(error).__name__}: {str(error)[:60]})")
+        # Bluetooth can fail in ways that are not ordinary exceptions (a cancelled connect), and a thread that
+        # dies takes its traceback with it. Catch everything, say what happened, and try again after a pause.
+        while not self.stop.is_set():
+            try:
+                asyncio.run(self._drive(address))
+            except BaseException as error:  # noqa: BLE001
+                log(f"Bluetooth strip {address[-5:]}: {type(error).__name__}: {str(error)[:70]}; trying again in 20 s")
+                if isinstance(error, (KeyboardInterrupt, SystemExit)):
+                    return
+            self.stop.wait(20)
 
     async def _drive(self, address: str) -> None:
         import asyncio
@@ -332,9 +338,9 @@ class BleLights:
                             idle = 0.0
                         await asyncio.sleep(0.15)
                         idle += 0.15
-            except Exception as error:  # noqa: BLE001 - out of range, switched off, or the phone has it
+            except (Exception, asyncio.CancelledError) as error:  # noqa: BLE001 - out of range, off, or the phone has it
                 if noted != "lost":
-                    log(f"Bluetooth strip {address[-5:]}: not reachable ({type(error).__name__}), retrying")
+                    log(f"Bluetooth strip {address[-5:]}: not reachable ({type(error).__name__}: {str(error)[:60]}), retrying")
                     noted = "lost"
                 for _ in range(40):
                     if self.stop.is_set():
