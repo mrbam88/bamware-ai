@@ -136,7 +136,15 @@ the key is the way. True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
 an antenna on the Samsung's tuner (indoor works in Manhattan), which is a
 purchase and his call; Rule #1.
 **Samsung input:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
-cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30).
+cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30; with
+omarchy on a third HDMI since 2026-11-26 the count is unverified, and the
+08:00 scene landed on the laptop's empty desktop: "audio works, screen black").
+The laptop's TV output is therefore `monitor = DP-4, disable` in
+`~/.config/hypr/monitors.conf` until a cast button enables it on purpose.
+Preferred path is HDMI-CEC: `samsung_tv.py appletv|off` go through the Apple
+TV first and only touch the Samsung websocket (each connect can re-prompt
+"Allow Bamware?") as fallback; `touch ~/.config/bamware/samsung_cec` once CEC
+is verified and the fallback dance stops entirely.
 **`samsung_tv.py appletv`** = wake, wait for the REST port, KEY_HOME, then
 KEY_SOURCE twice: lands on the Apple TV from any state. Every TV launch
 (vibes `tv_youtube`, the TV buttons) calls it, after the 2026-10-30 morning
@@ -174,12 +182,18 @@ search is unproven. yt-dlp is in the venv if a direct stream is ever needed.
 
 Bilal works from cafes and is in and out all day (BrewDesk exists for that
 reason). `scripts/presence.sh` runs every 2 min on omarchy (`presence.timer`):
-home = his iPhone or MacBook answered on the apartment Wi-Fi within 15 min
-(MACs in the script; the iPhone uses a private address that is stable per
-network). On home -> away it turns every light off (LAN + the "Kill" group),
-pauses Spotify, and powers off the Apple TV, Samsung and Roku. Coming home
-triggers nothing by itself; the vibes timers skip while away. Manual check-in
-from any agent: `presence.sh home|away` (3 h override), `presence.sh status`.
+**Absence is never evidence (Bilal, 2026-11-26: "my phone dies all the time").**
+Away happens only on an explicit `presence.sh away`: the "I'm leaving" button
+(`/go/away`), Siri, a leave-home Shortcut, or any agent. A sighting of his
+iPhone or MacBook on the LAN (MACs in the script; the iPhone's private address
+can rotate, so there are two) flips home, as does `presence.sh home`
+(`/go/home`); sightings in the first 60 min after an explicit away are ignored
+so a Mac left on at home cannot cancel it. Before this rule, 15 min without a
+ping reply shut the apartment twice (00:37 and 03:50 on 2026-11-26) while he was
+in it: a sleeping or dead phone does not answer pings. On home -> away it turns
+every light off (LAN + the "Kill" group), pauses Spotify, and powers off the
+Apple TV, Samsung and Roku. The vibes timers skip only while explicitly away.
+`presence.sh status` shows state and last sighting.
 Quiet hours 22:00-08:00: the same check caps the stereo at 55% for the
 neighbours. Room loudness: omarchy's built-in mic (Apple T2) is dead under Linux (constant
 full scale), but Bilal plugged Apple USB-C EarPods into omarchy on 2026-10-29
@@ -327,9 +341,8 @@ because he cooks breakfast; the 08:00 timer still does the slow version. The
 `/go/work`. **Welcome home (2026-10-29):** `presence.sh` on a real away ->
 home flip runs the scene for the hour (before 11:00 morning at once,
 11:00-18:30 `daylight.py`, after that evening), clears `lights.hold`, logs to
-`~/.local/state/bamware/presence.log`. Presence is Wi-Fi based (his iPhone or
-MacBook seen within 15 min), so "home" lags arrival by up to 2 min and
-"away" by 15.
+`~/.local/state/bamware/presence.log`. "Home" lags arrival by up to 2 min
+(the next presence tick); "away" only ever comes from him.
 
 "Cleaning lights" (Bilal, 2026-10-29: "bottom definitely 100% and then
 whatever is the most you can do with the other lights"): `vibes.sh cleaning`.
