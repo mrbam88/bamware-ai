@@ -6,11 +6,11 @@ PY=~/.venvs/smarthome/bin/python; LAN="python3 $HOME/.local/bin/govee_lan.py"
 . ~/.config/bamware/govee.env
 API=https://openapi.api.govee.com/router/api/v1; H=(-H "Govee-API-Key: $GOVEE_API_KEY" -H "Content-Type: application/json")
 LAMP=40:F9:DA:C3:41:06:03:53; TVB=1C:CF:D4:0F:40:46:18:6A
-cloud() { curl -s "${H[@]}" -X POST $API/device/control -d "{\"requestId\":\"v\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\",\"capability\":{\"type\":\"$3\",\"instance\":\"$4\",\"value\":$5}}}" >/dev/null; }
-scene() { v=$(curl -s "${H[@]}" -X POST $API/device/scenes -d "{\"requestId\":\"q\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\"}}" | jq -c --arg n "$3" '.payload.capabilities[0].parameters.options[] | select(.name==$n) | .value' | head -1); [[ -n $v ]] && cloud $1 $2 devices.capabilities.dynamic_scene lightScene "$v"; }
+cloud() { curl -s -m 8 "${H[@]}" -X POST $API/device/control -d "{\"requestId\":\"v\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\",\"capability\":{\"type\":\"$3\",\"instance\":\"$4\",\"value\":$5}}}" >/dev/null; }
+scene() { v=$(curl -s -m 8 "${H[@]}" -X POST $API/device/scenes -d "{\"requestId\":\"q\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\"}}" | jq -c --arg n "$3" '.payload.capabilities[0].parameters.options[] | select(.name==$n) | .value' | head -1); [[ -n $v ]] && cloud $1 $2 devices.capabilities.dynamic_scene lightScene "$v"; }
 snapshot() { # $1 sku $2 device $3 snapshot name saved in the Govee app -> recall it; prints 1 if found (the only way to set the lamp's ring level)
   # loose match: the app keeps whatever he typed ("Focus bright " with a trailing space, 2026-10-30), so compare lowercased and trimmed
-  v=$(curl -s "${H[@]}" $API/user/devices | jq -c --arg d "$2" --arg n "$(echo "$3" | tr "[:upper:]" "[:lower:]" | xargs)" '.data[] | select(.device==$d) | .capabilities[] | select(.instance=="snapshot") | .parameters.options[] | select((.name | ascii_downcase | gsub("^\\s+|\\s+$"; "")) == $n) | .value' | head -1)
+  v=$(curl -s -m 8 "${H[@]}" $API/user/devices | jq -c --arg d "$2" --arg n "$(echo "$3" | tr "[:upper:]" "[:lower:]" | xargs)" '.data[] | select(.device==$d) | .capabilities[] | select(.instance=="snapshot") | .parameters.options[] | select((.name | ascii_downcase | gsub("^\\s+|\\s+$"; "")) == $n) | .value' | head -1)
   [[ -n $v ]] && { cloud $1 $2 devices.capabilities.dynamic_scene snapshot "$v"; echo 1; } || echo 0; }
 lamp_top() { # ripple on the ceiling + bottom ring, disc off (two of three); args = snapshot names to try in order (a snapshot also sets the ring level)
   for n in "$@"; do [[ $(snapshot H60B0 $LAMP "$n") == 1 ]] && return; done
@@ -34,12 +34,24 @@ party_loop() { # party (Bilal 2026-10-31): warm party colours rotate across the 
     (( i % 2 == 0 )) && { IFS=, read -r r g b <<< "${C[(i+4)%n]}"; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (r<<16)+(g<<8)+b )); }
     sleep 4; i=$((i+1))
   done; rm -f $PARTY_PID; }
-[[ ${1:-} == party-stop ]] && { party_stop; echo "party loop stopped"; exit 0; }   # buttons call this before any plain light command; works while away too
+# TV stage for the everyday music scenes (2026-11-26): Spotify on the Samsung with the video or the cover full
+# screen, and the TV wall dancing in its own music mode. Its own PID file: party-stop is called by the plain light
+# buttons (Dim, Bright), and those must not take the TV down. Any scene, and Kill, do stop it.
+STAGE_PID=~/.local/state/bamware/tv-stage.pid
+stage_stop() { [[ -f $STAGE_PID ]] && { kill $(cat $STAGE_PID) 2>/dev/null; rm -f $STAGE_PID; }; }
+tv_music() { # $1 = playlist URI, $2 = volume. One background job, in order: Spotify onto the TV (may restart it once), the playlist, then the stage.
+  [[ -x ~/.local/bin/party_stage.py ]] || { spotify "$1" "$2"; return; }
+  ( ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
+    P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player
+    $P call $D $O $I OpenUri s "$1" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2" 2>/dev/null
+    PARTY_MODE=tv exec $PY ~/.local/bin/party_stage.py ) >/dev/null 2>&1 & echo $! > $STAGE_PID; disown; }
+[[ ${1:-} == party-stop ]] && { party_stop; echo "party loop stopped"; exit 0; }
+[[ ${1:-} == stage-stop ]] && { stage_stop; echo "tv stage stopped"; exit 0; }   # buttons call this before any plain light command; works while away too
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
 # a manual scene (cleaning, or any agent that touched lights.hold) wins over the schedule for 3 h (2026-10-29: the 19:30 run clobbered cleaning lights)
 HOLD=~/.local/state/bamware/lights.hold
 if [[ ${1:-} =~ ^(morning|afternoon|evening)$ && -f $HOLD && $(( $(date +%s) - $(stat -c %Y $HOLD) )) -lt 10800 && ${2:-} != --force && ${2:-} != --now ]]; then echo "$(date "+%F %T") vibes $1 skipped: lights.hold is fresh (vibes.sh $1 --force to override)"; exit 0; fi
-party_stop   # any scene replaces the party colour loop
+party_stop; stage_stop   # any scene replaces the party stage and the TV stage
 case ${1:-} in
   morning)   # Bilal 2026-10-29 v2: "mimic the sun" on gloomy mornings. Light from the ceiling and the kitchen, warm, nothing at eye level.
     STEP=60; [[ ${2:-} == --now ]] && STEP=1                 # the 08:00 timer ramps over ~6 min; the button does it at once
@@ -82,7 +94,7 @@ case ${1:-} in
     cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1
     cloud H60B0 $LAMP devices.capabilities.range brightness 55; sleep 1; scene H60B0 $LAMP Candlelight
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.range brightness 12; sleep 1; scene H6099 $TVB Candlelight
-    spotify "spotify:playlist:37i9dQZF1DX4wta20PHgwo" 0.65   # Late Night Jazz
+    tv_music "spotify:playlist:37i9dQZF1DX4wta20PHgwo" 0.65   # Late Night Jazz, with the TV (2026-11-26)
     ;;
   cleaning)  # "cleaning lights" (Bilal 2026-10-29): everything 100%, cool white, bottom-heavy lamp; no music or screen change
     $LAN on all >/dev/null; $LAN kelvin all 5000 >/dev/null; $LAN bright all 100 >/dev/null
@@ -91,17 +103,41 @@ case ${1:-} in
     # TV wall: 5000K photographs lavender on the H6099 (no blue, ever), so warm white by RGB instead
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(235<<8)+205 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
-    spotify "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
+    tv_music "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # with the TV (2026-11-26). I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
     echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
   party)     # party lights (Bilal 2026-10-31, Halloween): cleaning brightness, but warm party colours that keep moving; Dance Party on the stereo
-    $LAN on all >/dev/null; $LAN bright all 100 >/dev/null
-    # lamp: coloured disc + bottom ring, ripple off (two of three; the one sent last wins). "Cleaning" snapshot = ring 100% + disc 100%, then the loop colours the disc over the LAN.
-    [[ $(snapshot H60B0 $LAMP "Cleaning") == 1 || $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }
+    $LAN on all >/dev/null; $LAN bright "smart led bulb" 100 >/dev/null; $LAN bright strip 100 >/dev/null   # "smart led bulb" matches both bulbs
+    # Lamp (Bilal 2026-11-26): "the lamp has to be off, which is fine, but the top two should be on... I want the disk on
+    # too, obviously... the ripple at 100%." In his words the "lamp" is the white bottom ring; the "top two" are the disc
+    # and the ceiling ripple. So: ring off, disc on, ripple on, dimmer at 100. The disc takes the room's colour from the
+    # stage; the ripple is a fixed rainbow prism. The lamp runs two of its three lights, and the last toggle sent wins,
+    # so the ring goes off first. A snapshot he saves in the Govee app as "Party" wins over this.
+    [[ $(snapshot H60B0 $LAMP "Party") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1
+      $LAN bright uplighter 100 >/dev/null; }
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(20<<8)+110 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
-    spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" 0.80   # Dance Party
-    ( party_loop ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
-    echo "party mode: every light full, colours rotating (hot pink, orange, gold, red, fuchsia) for 3 h, Dance Party at 80%; any other scene or Kill stops it" ;;
+    # Party = lights + his music + the TV (Bilal 2026-11-26: "Party mode does not mean literally play party music! It's
+    # about sticking the lights and the music and the TV together"). Whatever he is playing stays, at his volume; Dance
+    # Party only fills a silence, at the current volume (no fixed level: the Marshall's dial moves).
+    # Same day: "party mode sucks... I want the lights way more dynamic, changing with the music frequency... music
+    # videos full screen by default... the colors from Spotify as the inspiration." So the colour loop gave way to
+    # party_stage.py: bulbs driven live from bass/mids/treble, strip + TV wall + lamp in Govee's own music modes, all in
+    # the cover's colours, and the video full screen on the Samsung. The old loop remains the fallback.
+    if [[ $(busctl --user get-property org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player PlaybackStatus 2>/dev/null) == *Playing* ]]; then silent=0; music="your music stays on"
+    else silent=1; music="Dance Party at the current volume (nothing was playing)"; fi
+    if [[ -x ~/.local/bin/party_stage.py ]]; then
+      # One background job, in order: Spotify onto the TV (may restart it once), music into a silence, then the stage.
+      # exec keeps the job's PID, so party-stop and every other scene end it the way they ended the old loop.
+      ( ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
+        (( silent )) && { busctl --user call org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player OpenUri s "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" >/dev/null 2>&1; sleep 2; }
+        exec $PY ~/.local/bin/party_stage.py ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
+      how="lights dancing to the music in the cover's colours"
+    else
+      (( silent )) && spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')"
+      ( party_loop ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
+      how="colours rotating"
+    fi
+    echo "party mode: every light full, $how for 3 h; $music; video full screen on the TV; any other scene or Kill stops it" ;;
   release)   # drop the manual hold so timers run again
     rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
   *) echo "usage: vibes.sh morning [--now]|afternoon|evening|cleaning|work|party|party-stop|release"; exit 1;;

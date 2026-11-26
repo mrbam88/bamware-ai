@@ -581,6 +581,127 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   keyboard focus back to his window afterwards. **Phone as the remote:**
   the app is a Spotify Connect device, so his phone's Spotify app can pick
   this computer and change songs with nothing built by us.
+- **Party = lights + his music + the TV, not a playlist (Bilal, 2026-11-26).**
+  "Party mode does not mean literally play party music! It's about sticking
+  the lights and the music and the TV together." After the first version
+  (rotating colours, Spotify's dashboard on the TV): "party mode sucks. I
+  want the lights to be way more dynamic and changing with the music
+  frequency... music videos full screen by default... the colors from Spotify
+  as the inspiration for the lights dancing in my room. I want movement,
+  fluidity, dynamism. Even the presets that come with the Govee app are
+  better." What `vibes.sh party` does now:
+  - **Music:** whatever is playing stays, at his volume. Dance Party starts
+    only into silence, at the current volume.
+  - **TV:** `tv-spotify.sh` casts, puts Spotify on the Samsung and makes sure
+    it runs with its developer port. `party_stage.py` then keeps the TV right
+    every 2 s: a track with a video gets that video element full screen, a
+    track without one gets Spotify's own full-screen cover view, and keyboard
+    focus goes back to whoever had it.
+  - **Lights:** `party_stage.py` (smarthome venv). Palette = the few most
+    vivid hues of the current cover, renewed per track; a colourless cover
+    gets the classic party palette; green is dropped beside red. The two
+    H6006 bulbs have no music mode, so they are driven live over the LAN
+    about 8 times a second from the server's own audio (sink monitor): one
+    follows the bass, the other mids and treble, both slide through the
+    palette and jump on each beat. The strip (Spectrum), TV wall (Spectrum)
+    and floor lamp (Flowing Light) are put in Govee's own music modes in the
+    palette's colours, once per track; those animate from each light's
+    built-in microphone.
+  - **Lights, second version the same day: the whole room follows the TV.**
+    "Much better... I just don't like the color pattern. It'd be really cool
+    if all the lights were in sync together, like the whole room was changing
+    colors. Let's go completely off the music video screen and don't worry
+    about the blue rule." So the default (`PARTY_MODE=screen`) reads the
+    picture on the TV about 6 times a second, takes its dominant vivid hue at
+    full strength, and sends that one colour to all four LAN lights at the
+    same instant; the room glides to each new colour and its brightness
+    breathes with the bass. The TV wall is cloud-only and follows every 5 s.
+    A black frame holds the last colour; a colourless frame is warm white, as
+    bright as the frame. Verified over a minute of a video: 366 looks, four
+    lights reading the same colour each time, tracking the picture's hue.
+    **How it looks at the TV: `grim -g` on three thin strips, in turn, about
+    0.1 s each.** It works for anything on the TV, not only Spotify. Capture
+    cost grows with area: the middle half of the screen took 0.7 s with a
+    video playing, the whole 4K output 1.4 s. Dead ends, do not retry:
+    reading the `<video>` from inside Spotify returns black (protected
+    video); `Page.captureScreenshot` over the developer port worked on the
+    cover view, then stalled with a video full screen and left the page's
+    viewport stuck at 0x0, which blanked the TV until full screen was left. `PARTY_MODE=cover` keeps the first
+    version (a palette from the cover, each light its own colour, Govee's
+    music modes on the strip, TV wall and lamp). **No colour rules apply in
+    party mode**, by his word; every other scene keeps the warm palette.
+    The Govee TV Backlight's own camera mode is not reachable from the API.
+  - **The ceiling strip is Bluetooth-only (found 2026-11-26).** "That strip
+    light on my ceiling is the only light that's not changing colors. Are
+    you sure you can't change it?" It is a Govee **H617A**, Bluetooth
+    address `E8:55:02:86:73:73` (advertises as `Govee_H617A_7373`). It is
+    not on the Wi-Fi and not in the Govee account's device list, so the LAN
+    and the cloud never saw it and it was missing from the inventory above.
+    The server's own Bluetooth adapter reaches it with `bleak` (installed in
+    the smarthome venv): write 20-byte packets to characteristic
+    `00010203-0405-0607-0809-0a0b0c0d2b11`, last byte the XOR of the rest.
+    Power `33 01 01`, brightness `33 04 <0-100>`, all segments one colour
+    `33 05 15 01 R G B 00 00 00 00 00 FF FF`, read segments back with
+    `AA A5 01` (answer on `...2b10`). Verified by read-back: orange, violet,
+    then the same red as the four Wi-Fi lights mid-party. `party_stage.py`
+    keeps the connection and repaints it with the room; while it is
+    connected the Govee app on his phone cannot connect to that strip. No
+    other scene or button knows this strip yet: Kill does not turn it off.
+  - **The floor lamp in party mode: disc + ceiling ripple on, white ring
+    off, dimmer 100.** His words, and how to read them: "the lamp has to be
+    off, which is fine, but the top two should be on... I want the disk on
+    too, obviously." **"The lamp" = the white bottom ring; "the top two" =
+    the disc and the ripple.** (An agent first read "turn off the lamp and
+    only use the top light with the ripple at 100%" as ripple alone and
+    turned the disc off; he corrected it.) The disc takes the room's colour
+    from the stage with the other three LAN lights; the ripple is a fixed
+    rainbow prism with no colour control. The ring goes off first because
+    the lamp runs two of three and the last toggle wins. An app snapshot
+    named `Party` wins over the toggles. Verified by read-back twice after
+    pressing the button: ripple 1, disc 1, ring 0, all four lights the same
+    colour. It used to recall the "Cleaning" look (ring + disc at 100%).
+  - Stop: any other scene, Kill, or `vibes.sh party-stop` (same PID file as
+    the old loop, which remains the fallback). Log:
+    `~/.local/state/bamware/party-stage.log` (track, palette, TV state,
+    beats per minute). Dry runs that touch nothing: `party_stage.py --listen`,
+    `--palette`. Tests: `python3 scripts/tests/test_party_stage.py`.
+  - **Album colours override the "no blue" rule in party mode only.** He
+    asked for Spotify's colours, and covers are often blue. Every other scene
+    keeps the warm palette.
+- **Everyday scenes that play music get the TV too (Bilal, 2026-11-26).**
+  "Make sure that the other modes, if they're playing music, music should be
+  integrated with the TV. By default I like the TV backlight changing with
+  the music. Party mode is the only mode where all the lights change."
+  `tv_music <uri> <volume>` in `vibes.sh` replaces `spotify` for those
+  scenes: Spotify onto the Samsung, the playlist, then `party_stage.py` with
+  `PARTY_MODE=tv`, which keeps the video (or the cover) full screen and puts
+  the TV wall in its Spectrum music mode in a colour from the cover, once per
+  track. Room lights are left exactly as the scene set them. Outside party
+  mode the TV wall still skips blue (a blue or colourless cover gives the
+  house amber).
+  - **On it now: cleaning and evening.** Cleaning verified with the real
+    button: bulbs and strip steady at 5000K 100%, 90s hip-hop playing, its
+    video full screen on the TV. The TV wall's music mode was accepted by
+    Govee but its state endpoint never reports a music mode, so how it looks
+    is unverified by an agent.
+  - **Not on it, his call pending:** morning and afternoon already put their
+    own video on the TV through the Apple TV (news, NBA), and work is "light
+    near the ceiling, nothing at eye level" with the TV wall off.
+  - Its own PID file (`tv-stage.pid`): `vibes.sh party-stop` is what Dim and
+    Bright call and must not take the TV down. Any scene and Kill stop it
+    (`vibes.sh stage-stop`). Both stages run inside `buttons.service`, so
+    restarting that service stops them.
+- **Driving Spotify: the developer port, not clicks.** Started with
+  `--remote-debugging-port=9222` (localhost only; `tv-spotify.sh` restarts a
+  launcher-started Spotify once to get it), the app's page takes JavaScript
+  over the Chrome DevTools protocol: buttons by their accessibility label
+  ("Enter Full screen", "Switch to video", "Video quality") and
+  `video.requestFullscreen()` with `userGesture`. That is what made full
+  screen reliable. Dead ends, do not retry: simulated pointer clicks
+  (`send_key_state` with `mouse:272`) landed on some elements and were
+  ignored by the video buttons; `OpenUri` navigates Spotify away from its
+  full-screen view. Many tracks have no video (six in a row in Dance Party);
+  Spotify's video tops out around 1080p, so `tv-play.sh` is still the 4K path.
 - Verify after every command: PlaybackStatus "Playing" and an active Spotify
   stream on the Headphones sink (`wpctl status`). Silence with everything
   green means Spotify Connect moved playback to another device (phone,
