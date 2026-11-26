@@ -142,7 +142,9 @@ omarchy on a third HDMI since 2026-11-26 the count is unverified, and the
 The laptop's TV output is therefore disabled by model in
 `~/.config/hypr/monitors.lua` (`hl.monitor({ output = "desc:Samsung Electric
 Company QBQ90 0x01000E00", disabled = true })`, Hyprland 0.56 Lua config; the
-old `monitors.conf` is not read) until a cast button enables it on purpose.
+old `monitors.conf` is not read) unless `~/.local/state/bamware/tv-cast` exists:
+`scripts/tv-cast.sh on|off|status` (buttons `/go/cast`, `/go/cast-off`) flips the
+flag and reloads Hyprland; the TV comes up at 4K, scale 2.
 Preferred path is HDMI-CEC: `samsung_tv.py appletv|off` go through the Apple
 TV first and only touch the Samsung websocket (each connect can re-prompt
 "Allow Bamware?") as fallback; `touch ~/.config/bamware/samsung_cec` once CEC

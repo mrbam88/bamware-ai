@@ -54,6 +54,8 @@ ACTIONS = {
     "mute-alert":  ("Quiet the mic 2 h", "misc", f"{BIN}/roomlevel.sh mute 120"),
     "away":        ("I'm leaving",    "misc",   f"{BIN}/presence.sh away"),   # the only way the apartment goes "away" (2026-11-26); lights/TV/stereo off follows
     "home":        ("I'm home",       "misc",   f"{BIN}/presence.sh home"),
+    "cast":        ("Cast omarchy",   "tv",     f"{BIN}/tv-cast.sh on"),      # laptop desktop on the Samsung (2026-11-26)
+    "cast-off":    ("Stop cast",      "tv",     f"{BIN}/tv-cast.sh off"),
     "tv-off":      ("TVs off",        "misc",   f"{HOME}/.venvs/smarthome/bin/python {BIN}/appletv.py key turn_off >/dev/null 2>&1; {HOME}/.venvs/smarthome/bin/python {BIN}/samsung_tv.py off >/dev/null 2>&1; true"),
 }
 TV_APPS = {"peacock": "com.peacocktv.peacock", "prime": "com.amazon.aiv.AIVApp", "espn": "com.espn.ScoreCenter", "pluto": "tv.pluto.ios", "tubi": "com.adrise.tubitv"}
