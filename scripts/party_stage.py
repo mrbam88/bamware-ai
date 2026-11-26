@@ -226,14 +226,17 @@ class Bulbs:
         spec.loader.exec_module(self.lan)
         devices = self.lan.cached_scan()
         self.ips = []
+        self.sock, _ = self.lan.sockets(0.2)
         for fragment in names:
             found = sorted((d for d in devices if fragment in d["name"].lower()), key=lambda d: len(d["name"]))
-            if found:
-                self.ips.append(found[0]["ip"])
-        self.sock, _ = self.lan.sockets(0.2)
+            if not found:
+                continue
+            self.ips.append(found[0]["ip"])
+            # Loudness is carried by the colour itself, so bulbs and strip sit at full. The floor lamp is the
+            # exception: its one dimmer sets the ceiling ripple and the ring, and Bilal sets that by hand.
+            if "uplighter" not in fragment:
+                self.lan.send(found[0]["ip"], "brightness", {"value": 100}, self.sock)
         self.sent = [None] * len(self.ips)
-        for ip in self.ips:
-            self.lan.send(ip, "brightness", {"value": 100}, self.sock)   # loudness is carried by the colour itself
 
     def show(self, colours) -> None:
         for index, ip in enumerate(self.ips):

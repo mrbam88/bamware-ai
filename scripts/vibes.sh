@@ -94,9 +94,14 @@ case ${1:-} in
     spotify "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
     echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
   party)     # party lights (Bilal 2026-10-31, Halloween): cleaning brightness, but warm party colours that keep moving; Dance Party on the stereo
-    $LAN on all >/dev/null; $LAN bright all 100 >/dev/null
-    # lamp: coloured disc + bottom ring, ripple off (two of three; the one sent last wins). "Cleaning" snapshot = ring 100% + disc 100%, then the loop colours the disc over the LAN.
-    [[ $(snapshot H60B0 $LAMP "Cleaning") == 1 || $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }
+    $LAN on all >/dev/null; $LAN bright "smart led bulb" 100 >/dev/null; $LAN bright strip 100 >/dev/null   # "smart led bulb" matches both bulbs
+    # Lamp (Bilal 2026-11-26, during a party: "I lowered the lamp intensity a little bit, and it's at a really good place
+    # now"): ceiling ripple + bottom ring, disc off, at the level he left it (6%, kept in party-lamp.level). A snapshot he
+    # saves in the Govee app as "Party" wins over this. The full-brightness "Cleaning" look this used to recall is gone.
+    # The ripple is a fixed rainbow prism: it cannot take the room's colour. Only the disc can, and the lamp runs two of
+    # its three lights at once, so colour on the lamp would cost the ripple or the ring.
+    [[ $(snapshot H60B0 $LAMP "Party") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1
+      $LAN bright uplighter "$(cat $LOGD/party-lamp.level 2>/dev/null || echo 6)" >/dev/null; }
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(20<<8)+110 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
     # Party = lights + his music + the TV (Bilal 2026-11-26: "Party mode does not mean literally play party music! It's

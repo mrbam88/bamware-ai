@@ -631,6 +631,16 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     music modes on the strip, TV wall and lamp). **No colour rules apply in
     party mode**, by his word; every other scene keeps the warm palette.
     The Govee TV Backlight's own camera mode is not reachable from the API.
+  - **The floor lamp in party mode is his setting, not ours.** Mid-party he
+    "lowered the lamp intensity a little bit, and it's at a really good place
+    now": ripple + ring on, disc off, 6%. The scene now restores exactly that
+    (level in `~/.local/state/bamware/party-lamp.level`; an app snapshot
+    named `Party` wins), and the stage never sends the lamp a brightness.
+    It used to recall the 100% "Cleaning" look and force 100% again.
+    "My top light is the only one not changing": that is the ceiling ripple,
+    a fixed rainbow prism with no colour control. The lamp only shows the
+    room's colour on its disc, and with two-of-three that costs the ripple
+    or the ring. Offered to him, not decided.
   - Stop: any other scene, Kill, or `vibes.sh party-stop` (same PID file as
     the old loop, which remains the fallback). Log:
     `~/.local/state/bamware/party-stage.log` (track, palette, TV state,
