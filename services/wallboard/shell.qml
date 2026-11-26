@@ -10,7 +10,13 @@ ShellRoot {
     id: root
 
     readonly property string here: Quickshell.shellDir + "/"
-    readonly property int idleSeconds: Math.max(10, Number(Quickshell.env("WALLBOARD_IDLE_SECONDS") || 150))
+    // 30 s: the server is the living room's clock and media hub more than a desk machine (Bilal 2026-11-26:
+    // "I want the screensaver to come on much more frequently... like 30 seconds of inactivity").
+    readonly property int idleSeconds: Math.max(10, Number(Quickshell.env("WALLBOARD_IDLE_SECONDS") || 30))
+    // The backlight level, in percent, while the board is up ("I don't want a bright screen. It should be a very
+    // subtle thing in my living room"). 0 leaves the backlight alone. It is put back the moment the board hides.
+    readonly property int dimPercent: Math.max(0, Math.min(100, Number(Quickshell.env("WALLBOARD_BRIGHTNESS") || 30)))
+    property bool dimmed: false
     // "all", or a comma-separated list of connector names such as "eDP-1".
     readonly property string screenFilter: Quickshell.env("WALLBOARD_SCREENS") || "all"
 
@@ -35,11 +41,13 @@ ShellRoot {
         root.now = new Date()
         root.fresh = false
         root.shown = true
+        if (root.dimPercent > 0 && !root.dimmed && !dimmer.running) dimmer.running = true
         refresh()
     }
 
     function hide() {
         root.shown = false
+        if (root.dimmed) { root.dimmed = false; undimmer.running = true }
         root.forced = false
     }
 
@@ -66,6 +74,25 @@ ShellRoot {
         onExited: function(exitCode) { if (exitCode === 0 && idle.isIdle) root.show(false) }
     }
 
+    // The level the backlight had before the board dimmed it lives in a file, not in this process: the
+    // service can be restarted (an update, a crash) while the board is up, and the screen must not stay dim.
+    readonly property string dimFile: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/bamware-wallboard-brightness"
+    readonly property string undimCommand: "f=" + dimFile + "; [[ -s $f ]] && brightnessctl -q set \"$(cat $f)%\"; rm -f $f"
+    Component.onCompleted: undimmer.running = true      // left dim by an earlier run? put it back first
+
+    // Dim only when the screen is brighter than the target.
+    Process {
+        id: dimmer
+        command: ["bash", "-c", "f=" + root.dimFile + "; now=$(brightnessctl -m | cut -d, -f4 | tr -d %); (( now > " + root.dimPercent + " )) || exit 1; [[ -s $f ]] || echo $now > $f; brightnessctl -q set " + root.dimPercent + "%"]
+        onExited: function(exitCode) {
+            if (exitCode !== 0) return
+            // The board may have been dismissed while this ran: then put the light straight back.
+            if (root.shown) root.dimmed = true
+            else undimmer.running = true
+        }
+    }
+    Process { id: undimmer; command: ["bash", "-c", root.undimCommand] }
+
     Process {
         id: collector
         command: ["python3", root.here + "collect.py"]
@@ -80,7 +107,7 @@ ShellRoot {
     // Nothing ticks while the board is hidden.
     Timer { interval: 1000; repeat: true; running: root.shown; onTriggered: root.now = new Date() }
     // Often enough that the board gets out of the way soon after a video starts, or changes track with the music.
-    Timer { interval: 20000; repeat: true; running: root.shown; onTriggered: root.refresh() }
+    Timer { interval: 10000; repeat: true; running: root.shown; onTriggered: root.refresh() }
 
     IpcHandler {
         target: "wallboard"
@@ -90,7 +117,7 @@ ShellRoot {
         function toggle(): void { if (root.shown) root.hide(); else root.show(true) }
         function status(): string {
             return JSON.stringify({ shown: root.shown, forced: root.forced, idle: idle.isIdle, idleSeconds: root.idleSeconds,
-                screens: root.screenFilter, dataFrom: root.info.generatedAt || null,
+                screens: root.screenFilter, dimmed: root.dimmed, dataFrom: root.info.generatedAt || null,
                 playing: !!(root.info.media && root.info.media.playing), skipped: (root.info.media && root.info.media.screens) || [] })
         }
     }

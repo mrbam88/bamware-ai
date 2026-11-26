@@ -501,7 +501,12 @@ def describe_player(name: str):
 
     artists = field("xesam:artist") or []
     art = field("mpris:artUrl") or ""
+    # Position and length in seconds (MPRIS counts microseconds), so the board can draw a moving progress line.
+    position = mpris_property(name, "org.mpris.MediaPlayer2.Player", "Position")
+    length = field("mpris:length")
     return {
+        "position": round(position / 1e6, 1) if isinstance(position, (int, float)) else 0,
+        "length": round(length / 1e6, 1) if isinstance(length, (int, float)) else 0,
         "player": mpris_property(name, "org.mpris.MediaPlayer2", "Identity") or name.rsplit(".", 1)[-1],
         "title": field("xesam:title") or "",
         "artist": ", ".join(artists) if isinstance(artists, list) else str(artists),

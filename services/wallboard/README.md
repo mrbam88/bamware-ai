@@ -1,6 +1,6 @@
 # Wall board: the living-room screensaver
 
-The build server's lid stays open in the living room. After 150 s without input
+The build server's lid stays open in the living room. After 30 s without input
 it shows a wall board instead of Omarchy's terminal animation: time, date, month,
 agenda, weather, and the state of Bamware. Any key or mouse movement dismisses it.
 
@@ -31,6 +31,22 @@ the notes line sits. It rechecks every 20 s, so it steps aside soon after a
 video starts. Idle inhibitors from video players are ignored on purpose; the
 per-screen rule replaces them.
 
+**Living-room rules (Bilal, 2026-11-26).** "I want the screensaver to come on
+much more frequently... 30 seconds of inactivity. More dynamic and smart...
+I love real-time updates. Keep the font very big so I can see it from a
+distance, and also subtle. I don't want a bright screen." So:
+
+- **30 s** to appear, and the lid's backlight drops to 30% while it is up
+  (`brightnessctl -s`), restored the moment it hides.
+- **Large:** the side column is three pages that take turns every 14 s
+  (calendar, systems, board), each set big enough to read from the sofa,
+  rather than everything at once in small type.
+- **Live:** data is re-read every 10 s; a line under the date fills with the
+  seconds of the minute; the now-playing block shows where the track is,
+  moving every second.
+- **Quiet:** the whole page rests at 80% and the glows at 60% of what they
+  were. Nothing on it is pure white.
+
 Colours follow the Omarchy theme. Trouble is amber with a different mark shape
 (dot = fine, ring = warning, square = alert), never red against green.
 
@@ -57,7 +73,8 @@ Optional, in `~/.config/bamware/wallboard.env` (never committed), then
 ```
 WALLBOARD_ICS_URLS=https://calendar.google.com/calendar/ical/.../basic.ics
 WALLBOARD_SCREENS=all            # or connector names: eDP-1,DP-4
-WALLBOARD_IDLE_SECONDS=150
+WALLBOARD_IDLE_SECONDS=30        # seconds without input before it shows
+WALLBOARD_BRIGHTNESS=30          # backlight percent while it shows; 0 leaves it alone
 WALLBOARD_LAT=40.7128
 WALLBOARD_LON=-74.0060
 WALLBOARD_NAME=Bilal

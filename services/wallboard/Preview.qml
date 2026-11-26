@@ -24,6 +24,7 @@ Window {
         request.send()
         var parsed = JSON.parse(request.responseText)
         if (parsed.previewNow) board.now = new Date(parsed.previewNow)
+        if (parsed.previewPage !== undefined) board.page = parsed.previewPage
         board.info = parsed
     }
 
