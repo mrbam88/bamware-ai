@@ -13,7 +13,8 @@
   samsung_tv.py sources                the TV's own source list by name, current one marked (SmartThings)
   samsung_tv.py source <name>          select a source by its label ("PC", "xbox") and read it back; exit 1 if the
                                        TV did not confirm. Use this, never counted KEY_SOURCE presses: the list reorders
-SmartThings token: ~/.config/bamware/smartthings.token (600). It is the only path that can READ the TV's sources.
+SmartThings is the only path that can READ the TV's sources. It goes through Samsung's CLI (`smartthings`, npm
+@smartthings/cli, signed in once in a browser, renews itself); ~/.config/bamware/smartthings.token is a 24 h fallback.
 Token from the one-time "Allow Bamware?" prompt lives in ~/.config/bamware/samsung_tv.token (600).
 Every websocket connect is a chance for the TV to ask "Allow Bamware?" again, so send a whole key
 sequence over ONE socket and prefer the Apple TV (CEC) path, which never touches the websocket.
@@ -69,10 +70,33 @@ ST_TOK = os.path.expanduser("~/.config/bamware/smartthings.token")
 ST_DEV = os.path.expanduser("~/.local/state/bamware/samsung_tv.smartthings-device")
 ST_CAP = "samsungvd.mediaInputSource"
 
+ST_NODE = os.path.expanduser("~/.local/share/mise/installs/node/latest/bin")
+ST_CLI = os.path.join(ST_NODE, "smartthings")
+
+def st_cli(*args):
+    """Run Samsung's own CLI. Its browser sign-in renews itself, which a personal token (24 h) cannot do, and
+    registering our own OAuth app needs a paid developer plan (2026-11-26). None when the CLI is not installed."""
+    import subprocess
+    if not os.path.exists(ST_CLI): return None
+    env = dict(os.environ, PATH=ST_NODE + ":" + os.environ.get("PATH", "/usr/bin"))   # timers and buttons.service have a bare PATH
+    try: r = subprocess.run([ST_CLI, *args], capture_output=True, text=True, timeout=40, env=env, stdin=subprocess.DEVNULL)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("SmartThings sign-in has lapsed (the CLI is waiting for a browser login): run `smartthings devices` in a terminal on the server once")
+    if r.returncode != 0: raise RuntimeError("SmartThings CLI failed: " + (r.stderr or r.stdout).strip()[-200:])
+    return r.stdout
+
 def st(path, body=None):
-    """One SmartThings call. Raises RuntimeError with a sentence Bilal can act on."""
+    """One SmartThings call: through the signed-in CLI when it is there, else the personal token.
+    Raises RuntimeError with a sentence Bilal can act on."""
     import urllib.error
-    if not os.path.exists(ST_TOK): raise RuntimeError(f"no SmartThings token at {ST_TOK}")
+    parts = path.strip("/").split("/")
+    if body: out = st_cli("devices:commands", parts[1], *[f"{c['component']}:{c['capability']}:{c['command']}({json.dumps(c['arguments'])[1:-1]})" for c in body["commands"]][:1])
+    elif len(parts) == 3: out = st_cli("devices:status", parts[1], "-j")
+    else: out = st_cli("devices", "-j")
+    if out is not None:
+        if body: return {}
+        data = json.loads(out); return {"items": data} if isinstance(data, list) else data
+    if not os.path.exists(ST_TOK): raise RuntimeError(f"no SmartThings CLI at {ST_CLI} and no token at {ST_TOK}")
     req = urllib.request.Request("https://api.smartthings.com/v1" + path, data=json.dumps(body).encode() if body else None,
                                  headers={"Authorization": "Bearer " + open(ST_TOK).read().strip(), "Content-Type": "application/json"},
                                  method="POST" if body else "GET")

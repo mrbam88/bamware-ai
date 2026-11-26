@@ -1,0 +1,8 @@
+[Unit]
+Description=Keep the SmartThings CLI sign-in alive by reading the Samsung's source list (skills/bamware-smart-home)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# A lapsed sign-in exits 1 with the fix in the log; that is a signal, not a reason to retry.
+ExecStart=/usr/bin/python3 %h/.local/bin/samsung_tv.py sources

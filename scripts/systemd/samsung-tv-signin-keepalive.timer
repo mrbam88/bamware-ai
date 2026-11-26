@@ -1,0 +1,9 @@
+[Unit]
+Description=Twice a week: use the SmartThings sign-in so it never sits idle long enough to expire
+
+[Timer]
+OnCalendar=Mon,Thu 11:15
+Persistent=true
+
+[Install]
+WantedBy=timers.target

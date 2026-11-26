@@ -142,11 +142,17 @@ lists the TV's own labels with the current one marked; `samsung_tv.py source
 pc` (or `xbox`, `tv`) selects by label and reads it back, exit 1 if the TV did
 not confirm. Verified: TV (dtv), XBOX One (HDMI3), PC (HDMI4). A source only
 appears while its device sends a signal, so the Apple TV was absent while
-asleep. Token in `~/.config/bamware/smartthings.token` (600), made at
-account.smartthings.com/tokens with the device scopes; personal tokens are
-believed to expire after 24 h, so a refusal means "make a new one" until a
-permanent sign-in is set up. Never count `KEY_SOURCE` presses for a new
-source.
+asleep. Never count `KEY_SOURCE` presses for a new source.
+**Sign-in (2026-11-26):** the script calls Samsung's CLI (`smartthings`, npm
+`@smartthings/cli` 3.0.1 in the mise node), which Bilal signed in once in a
+browser and which renews itself. `samsung-tv-signin-keepalive.timer` reads the
+source list Mon and Thu so the sign-in never sits idle. If it lapses the
+script says so: run `smartthings devices` in a terminal on the server and
+sign in again. Dead ends, do not retry: personal access tokens last 24 h and
+cannot be given app scopes; registering our own OAuth app
+(`smartapps:create`) answers "requires a paid plan" (Rule #1). A token file at
+`~/.config/bamware/smartthings.token` is only a fallback when the CLI is
+missing.
 **The server on the TV:** `tv-cast.sh on` enables the output, then selects
 "PC". The output is pinned to 4K at 30 Hz in `~/.config/hypr/monitors.lua`:
 at 60 Hz the AMD card refused the stream on this cable (kernel `Adding stream
