@@ -165,5 +165,22 @@ class ScreenTest(unittest.TestCase):
         self.assertGreater(current[2], 250, "and it arrives within a second or so")
 
 
+class BluetoothPacketTest(unittest.TestCase):
+    def test_packets_are_twenty_bytes_with_an_xor_checksum(self):
+        packet = ps.ble_packet(0x33, 0x01, 0x01)
+        self.assertEqual(len(packet), 20)
+        self.assertEqual(packet[:3], bytes([0x33, 0x01, 0x01]))
+        check = 0
+        for value in packet[:19]:
+            check ^= value
+        self.assertEqual(packet[19], check)
+        self.assertEqual(packet, bytes.fromhex("3301010000000000000000000000000000000033"))
+
+    def test_colour_packet_paints_every_segment(self):
+        packet = ps.ble_colour((255.4, 90, -3))
+        self.assertEqual(packet[:7], bytes([0x33, 0x05, 0x15, 0x01, 255, 90, 0]), "colour is clamped and rounded")
+        self.assertEqual(packet[12:14], b"\xff\xff", "all segments selected")
+
+
 if __name__ == "__main__":
     unittest.main()

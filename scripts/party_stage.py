@@ -49,6 +49,11 @@ BULBS = ["smart led bulb", "bulb top"]            # LAN, driven live; name fragm
 # Every light on the LAN that can show a colour. On the floor lamp that is the disc: in party mode its disc and
 # ceiling ripple are on and its white ring is off (Bilal 2026-11-26: "the top two should be on").
 ROOM = ["smart led bulb", "bulb top", "strip", "uplighter"]
+# Lights that only speak Bluetooth: the H617A strip on the ceiling. It is not on the Wi-Fi and not in the Govee
+# account's device list, so neither the LAN nor the cloud reaches it ("that strip light on my ceiling is the only
+# light that's not changing colors. Are you sure you can't change it?", Bilal 2026-11-26). The server's own
+# Bluetooth adapter does. While the stage holds the connection the Govee app on his phone cannot connect to it.
+BLE_STRIPS = ["E8:55:02:86:73:73"]
 TV_WALL = ("H6099", "1C:CF:D4:0F:40:46:18:6A")    # cloud only, so it follows a few seconds behind
 # "screen": the whole room takes one colour, read live from what is on the TV (Bilal 2026-11-26: "all the lights in
 # sync together, like the whole room was changing colors... go completely off the music video screen and don't
@@ -259,6 +264,82 @@ def bulb_colours(ear: Ear, palette, position: float):
         glow = 0.16 + 0.84 * min(1.0, drive) ** 1.4 if ear.playing else 0.5      # never fully dark
         out.append(tuple(c * glow for c in base))
     return out
+
+
+# --- Bluetooth lights -----------------------------------------------------------
+
+def ble_packet(*body: int) -> bytes:
+    """A Govee Bluetooth command: 20 bytes, zero-padded, the last one the XOR of the rest."""
+    data = bytearray(body) + bytearray(19 - len(body))
+    check = 0
+    for value in data:
+        check ^= value
+    return bytes(data + bytes([check]))
+
+
+def ble_colour(rgb) -> bytes:
+    """Every segment of an RGBIC strip to one colour (read back as sent on the H617A)."""
+    r, g, b = (max(0, min(255, round(c))) for c in rgb)
+    return ble_packet(0x33, 0x05, 0x15, 0x01, r, g, b, 0, 0, 0, 0, 0, 0xFF, 0xFF)
+
+
+class BleLights:
+    """Keeps a Bluetooth connection to each strip and repaints it with the room's colour.
+
+    Runs in its own thread: Bluetooth is slow to connect and can drop, and neither may hold up the lights
+    on Wi-Fi. A strip that is out of range or switched off at the wall is retried every 20 s.
+    """
+    WRITE = "00010203-0405-0607-0809-0a0b0c0d2b11"
+
+    def __init__(self, addresses, stop: threading.Event):
+        self.target = None
+        self.stop = stop
+        self.threads = [threading.Thread(target=self._thread, args=(address,), daemon=True) for address in addresses]
+        for thread in self.threads:
+            thread.start()
+
+    def show(self, rgb) -> None:
+        self.target = tuple(max(0, min(255, round(c))) for c in rgb)
+
+    def _thread(self, address: str) -> None:
+        import asyncio
+        try:
+            asyncio.run(self._drive(address))
+        except Exception as error:  # noqa: BLE001 - no Bluetooth library or adapter: the party goes on without it
+            log(f"Bluetooth strip {address[-5:]}: gave up ({type(error).__name__}: {str(error)[:60]})")
+
+    async def _drive(self, address: str) -> None:
+        import asyncio
+        from bleak import BleakClient
+        noted = None
+        while not self.stop.is_set():
+            try:
+                async with BleakClient(address, timeout=15) as client:
+                    await client.write_gatt_char(self.WRITE, ble_packet(0x33, 0x01, 0x01), response=False)   # power on
+                    await client.write_gatt_char(self.WRITE, ble_packet(0x33, 0x04, 100), response=False)    # full; loudness rides on the colour
+                    if noted != "connected":
+                        log(f"Bluetooth strip {address[-5:]}: connected")
+                        noted = "connected"
+                    sent = None
+                    idle = 0.0
+                    while not self.stop.is_set() and client.is_connected:
+                        colour = self.target
+                        if colour and (not sent or sum(abs(a - b) for a, b in zip(colour, sent)) >= 6):
+                            await client.write_gatt_char(self.WRITE, ble_colour(colour), response=False)
+                            sent, idle = colour, 0.0
+                        elif idle >= 2.0:
+                            await client.write_gatt_char(self.WRITE, ble_packet(0xAA, 0x01), response=False)  # keep-alive
+                            idle = 0.0
+                        await asyncio.sleep(0.15)
+                        idle += 0.15
+            except Exception as error:  # noqa: BLE001 - out of range, switched off, or the phone has it
+                if noted != "lost":
+                    log(f"Bluetooth strip {address[-5:]}: not reachable ({type(error).__name__}), retrying")
+                    noted = "lost"
+                for _ in range(40):
+                    if self.stop.is_set():
+                        return
+                    await asyncio.sleep(0.5)
 
 
 # --- Govee's own music modes -------------------------------------------------
@@ -543,8 +624,9 @@ def run() -> int:
     threading.Thread(target=stage_loop, args=(stop, shared), daemon=True).start()
 
     lights = Bulbs(ROOM if MODE == "screen" else BULBS)
+    ble = BleLights(BLE_STRIPS if MODE == "screen" else [], stop)
     ear = Ear()
-    log(f"started in {MODE} mode: {len(lights.ips)} lights driven live")
+    log(f"started in {MODE} mode: {len(lights.ips)} lights driven live over Wi-Fi, {len(ble.threads)} over Bluetooth")
     position = 0.0
     last_send = last_wall = minute = 0.0
     beats = 0
@@ -561,6 +643,7 @@ def run() -> int:
             if MODE == "screen":
                 current, send = room_colour(ear, current, shared["screen"])
                 lights.show([send])               # one colour, every light, the same instant
+                ble.show(send)
                 if ear.clock - last_wall >= 5:
                     last_wall = ear.clock
                     threading.Thread(target=wall, args=(current,), daemon=True).start()
@@ -574,6 +657,8 @@ def run() -> int:
     # Leave the room lit rather than frozen mid-pulse.
     final = [current] if MODE == "screen" else [tuple(c * 0.8 for c in shared["palette"][i % len(shared["palette"])]) for i in range(2)]
     lights.show(final)
+    for thread in ble.threads:                    # let each strip finish its last write and hang up cleanly
+        thread.join(timeout=3)
     log("stopped")
     return 0
 

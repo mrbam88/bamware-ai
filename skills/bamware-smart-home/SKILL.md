@@ -631,6 +631,22 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     music modes on the strip, TV wall and lamp). **No colour rules apply in
     party mode**, by his word; every other scene keeps the warm palette.
     The Govee TV Backlight's own camera mode is not reachable from the API.
+  - **The ceiling strip is Bluetooth-only (found 2026-11-26).** "That strip
+    light on my ceiling is the only light that's not changing colors. Are
+    you sure you can't change it?" It is a Govee **H617A**, Bluetooth
+    address `E8:55:02:86:73:73` (advertises as `Govee_H617A_7373`). It is
+    not on the Wi-Fi and not in the Govee account's device list, so the LAN
+    and the cloud never saw it and it was missing from the inventory above.
+    The server's own Bluetooth adapter reaches it with `bleak` (installed in
+    the smarthome venv): write 20-byte packets to characteristic
+    `00010203-0405-0607-0809-0a0b0c0d2b11`, last byte the XOR of the rest.
+    Power `33 01 01`, brightness `33 04 <0-100>`, all segments one colour
+    `33 05 15 01 R G B 00 00 00 00 00 FF FF`, read segments back with
+    `AA A5 01` (answer on `...2b10`). Verified by read-back: orange, violet,
+    then the same red as the four Wi-Fi lights mid-party. `party_stage.py`
+    keeps the connection and repaints it with the room; while it is
+    connected the Govee app on his phone cannot connect to that strip. No
+    other scene or button knows this strip yet: Kill does not turn it off.
   - **The floor lamp in party mode: disc + ceiling ripple on, white ring
     off, dimmer 100.** His words, and how to read them: "the lamp has to be
     off, which is fine, but the top two should be on... I want the disk on
