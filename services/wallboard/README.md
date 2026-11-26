@@ -36,7 +36,8 @@ Install sets `idle.screensaver` to `0` in `~/.config/omarchy/shell.json` so the
 stock screensaver does not also start. The lock timer there is left alone: the
 lock screen covers the board when it fires, so on a machine meant to show the
 board all day set `idle.lock` to `0` as well. That is a security choice for
-Bilal, not for an agent.
+Bilal, not for an agent; he made it for the at-home server on 2026-11-26
+(`docs/machines.md`).
 
 ## Settings
 
