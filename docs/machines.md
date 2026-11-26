@@ -266,6 +266,21 @@ not a gap here.
 Good for the same work as the ThinkPad, with more headroom (RAM, disk, no
 glibc ceiling — rolling release, glibc 2.44).
 
+**Screensaver is the wall board (Bilal, 2026-11-26).** The lid stays open in
+the living room, so after 150 s idle it shows time, date, calendar, weather and
+Bamware health instead of Omarchy's terminal animation. It reads local state
+only (no agent tokens). Install, settings and the calendar feed:
+`services/wallboard/README.md`. Omarchy's own screensaver is switched off by
+the installer.
+
+**No idle lock on the server (Bilal, 2026-11-26):** "it's me, I'm at home, I
+don't need to keep logging in all the time." `idle.lock` is `0` in
+`~/.config/omarchy/shell.json` (was 300 s), so the board stays up and nothing
+asks for a password after idle. Boot already autologs in (SDDM). The lid is
+ignored and the box does not suspend, so Omarchy's lock-before-suspend never
+fires. This is for the at-home server only: the ThinkPad and the M3 travel and
+keep their locks.
+
 Set up 2026-09-17 with `scripts/bootstrap.sh`, which runs unchanged on Linux
 despite its "any Mac" header. Unattended engineering runs here through the
 Overnight Mode executor (`services/overnight`).
