@@ -46,7 +46,7 @@ if [[ $new != $old ]]; then
     $PY ~/.local/bin/appletv.py key turn_off >/dev/null 2>&1; $PY ~/.local/bin/samsung_tv.py key KEY_POWER >/dev/null 2>&1; python3 ~/.local/bin/roku_tv.py off >/dev/null 2>&1
   elif [[ $old == away ]]; then   # welcome home: only on a real away->home flip, never on the first run after boot
     hm=$((10#$(date +%H) * 60 + 10#$(date +%M)))
-    if (( hm < 11*60 )); then scene="morning --now"; elif (( hm < 18*60+30 )); then scene=daylight; else scene="evening --force"; fi
+    if (( hm < 5*60 )); then scene="evening --force"; elif (( hm < 11*60 )); then scene="morning --now"; elif (( hm < 18*60+30 )); then scene=daylight; else scene="evening --force"; fi
     echo "$(date '+%F %T') welcome home -> $scene" >> $S/presence.log
     rm -f $S/lights.hold
     if [[ $scene == daylight ]]; then python3 ~/.local/bin/daylight.py >> $S/presence.log 2>&1; else ~/.local/bin/vibes.sh $scene >> $S/presence.log 2>&1 & fi
