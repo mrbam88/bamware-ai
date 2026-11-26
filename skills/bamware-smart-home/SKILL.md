@@ -607,6 +607,23 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     and floor lamp (Flowing Light) are put in Govee's own music modes in the
     palette's colours, once per track; those animate from each light's
     built-in microphone.
+  - **Lights, second version the same day: the whole room follows the TV.**
+    "Much better... I just don't like the color pattern. It'd be really cool
+    if all the lights were in sync together, like the whole room was changing
+    colors. Let's go completely off the music video screen and don't worry
+    about the blue rule." So the default (`PARTY_MODE=screen`) reads the
+    picture on the TV about 3 to 5 times a second (a thumbnail of Spotify's
+    page over the developer port, about 70 ms; `grim` on the 4K output took
+    1.4 s), takes its dominant vivid hue at full strength, and sends that one
+    colour to all four LAN lights at the same instant; the room glides to
+    each new colour and its brightness breathes with the bass. The TV wall is
+    cloud-only and follows every 5 s. A black frame holds the last colour; a
+    colourless bright frame is warm white. Verified: night-blue scene on the
+    TV, four lights reading the same blue. `PARTY_MODE=cover` keeps the first
+    version (a palette from the cover, each light its own colour, Govee's
+    music modes on the strip, TV wall and lamp). **No colour rules apply in
+    party mode**, by his word; every other scene keeps the warm palette.
+    The Govee TV Backlight's own camera mode is not reachable from the API.
   - Stop: any other scene, Kill, or `vibes.sh party-stop` (same PID file as
     the old loop, which remains the fallback). Log:
     `~/.local/state/bamware/party-stage.log` (track, palette, TV state,

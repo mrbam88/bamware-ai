@@ -46,6 +46,13 @@ HERE = pathlib.Path(__file__).resolve().parent
 LOG = HOME / ".local/state/bamware/party-stage.log"
 FALLBACK = [(255, 20, 110), (255, 110, 0), (255, 200, 0), (230, 40, 160)]   # the old party palette
 BULBS = ["smart led bulb", "bulb top"]            # LAN, driven live; name fragments
+ROOM = ["smart led bulb", "bulb top", "strip", "uplighter"]   # every light that answers on the LAN
+TV_WALL = ("H6099", "1C:CF:D4:0F:40:46:18:6A")    # cloud only, so it follows a few seconds behind
+# "screen": the whole room takes one colour, read live from what is on the TV (Bilal 2026-11-26: "all the lights in
+# sync together, like the whole room was changing colors... go completely off the music video screen and don't
+# worry about the blue rule"). "cover": each light its own colour from the track's artwork (the first version).
+MODE = os.environ.get("PARTY_MODE", "screen")
+LOOK_EVERY = 0.15                 # seconds between looks at the TV picture
 # Govee's own music modes: (sku, device id, mode number, label). Spectrum follows frequency.
 NATIVE = [
     ("H61F2", "22:A6:C2:53:56:54:74:A1", 3, "strip: Spectrum"),
@@ -214,13 +221,13 @@ def mix(a, b, t):
 
 
 class Bulbs:
-    def __init__(self):
+    def __init__(self, names=BULBS):
         spec = importlib.util.spec_from_file_location("govee_lan", HERE / "govee_lan.py")
         self.lan = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.lan)
         devices = self.lan.cached_scan()
         self.ips = []
-        for fragment in BULBS:
+        for fragment in names:
             found = sorted((d for d in devices if fragment in d["name"].lower()), key=lambda d: len(d["name"]))
             if found:
                 self.ips.append(found[0]["ip"])
@@ -303,45 +310,204 @@ def hypr(*args: str):
     return subprocess.run(["hyprctl", *args], capture_output=True, text=True, timeout=5).stdout  # noqa: S603, S607
 
 
-def stage_once(state: dict) -> str:
-    """Make the TV show the video (or the cover) full screen. Returns what it found."""
-    import websocket     # in the smarthome venv; imported here so the audio side runs without it
-    pages = json.load(urllib.request.urlopen(f"http://127.0.0.1:{CDP_PORT}/json", timeout=3))
-    page = next(p for p in pages if p["type"] == "page" and "spotify" in p["url"])
-    before = json.loads(hypr("activewindow", "-j") or "{}")
-    ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=8, origin=f"http://127.0.0.1:{CDP_PORT}")
-    try:
-        ws.send(json.dumps({"id": 1, "method": "Runtime.evaluate", "params": {
-            "expression": STAGE_JS, "returnByValue": True, "awaitPromise": True, "userGesture": True}}))
+def decode_png(data: bytes) -> list[tuple[int, int, int]]:
+    """The pixels of a small 8-bit RGB or RGBA PNG. Enough of the format for a thumbnail, no library needed."""
+    import zlib
+    position, packed, width, height, channels = 8, b"", 0, 0, 3
+    while position < len(data):
+        length, kind = struct.unpack(">I4s", data[position:position + 8])
+        body = data[position + 8:position + 8 + length]
+        if kind == b"IHDR":
+            width, height, _, colour_type = struct.unpack(">IIBB", body[:10])
+            channels = {2: 3, 6: 4}[colour_type]
+        elif kind == b"IDAT":
+            packed += body
+        position += 12 + length
+    raw = zlib.decompress(packed)
+    stride = width * channels
+    out: list[tuple[int, int, int]] = []
+    previous = bytearray(stride)
+    for y in range(height):
+        kind = raw[y * (stride + 1)]
+        line = bytearray(raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
+        for i in range(stride):
+            left = line[i - channels] if i >= channels else 0
+            up = previous[i]
+            corner = previous[i - channels] if i >= channels else 0
+            if kind == 1:
+                line[i] = (line[i] + left) & 255
+            elif kind == 2:
+                line[i] = (line[i] + up) & 255
+            elif kind == 3:
+                line[i] = (line[i] + (left + up) // 2) & 255
+            elif kind == 4:
+                guess = left + up - corner
+                dl, du, dc = abs(guess - left), abs(guess - up), abs(guess - corner)
+                line[i] = (line[i] + (left if dl <= du and dl <= dc else up if du <= dc else corner)) & 255
+        out.extend(tuple(line[x * channels:x * channels + 3]) for x in range(width))
+        previous = line
+    return out
+
+
+def screen_colour(picture: list[tuple[int, int, int]]):
+    """One light colour for a frame of video: its dominant vivid hue at full strength, or None for a dark frame.
+
+    Pixels vote with their saturation and brightness, so a neon sign outweighs a grey wall. The winner is
+    pushed to full saturation: a lamp showing the frame's true washed-out average would just look white.
+    """
+    if not picture:
+        return None
+    bins: dict[int, list[float]] = {}
+    light = 0.0
+    for r, g, b in picture:
+        h, sat, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+        light += v
+        weight = (sat ** 1.5) * v
+        if weight < 0.02:
+            continue
+        entry = bins.setdefault(int(h * 12) % 12, [0.0, 0.0, 0.0, 0.0])
+        entry[0] += weight
+        entry[1] += math.cos(2 * math.pi * h) * weight
+        entry[2] += math.sin(2 * math.pi * h) * weight
+        entry[3] += sat * weight
+    if light / len(picture) < 0.04:
+        return None                              # a black frame: hold the last colour instead of flashing
+    best = max(bins.values(), key=lambda entry: entry[0]) if bins else None
+    if not best or best[0] < 0.004 * len(picture):
+        return (255, 244, 229)                   # a frame with light but no colour: warm white
+    hue = (math.atan2(best[2], best[1]) / (2 * math.pi)) % 1
+    saturation = min(1.0, 0.55 + best[3] / best[0])
+    return tuple(round(c * 255) for c in colorsys.hsv_to_rgb(hue, saturation, 1.0))
+
+
+class Stage:
+    """One connection to Spotify's page: keeps the video (or the cover) full screen, and looks at the picture."""
+
+    def __init__(self):
+        import websocket     # in the smarthome venv; imported here so the audio side runs without it
+        pages = json.load(urllib.request.urlopen(f"http://127.0.0.1:{CDP_PORT}/json", timeout=3))
+        page = next(p for p in pages if p["type"] == "page" and "spotify" in p["url"])
+        self.ws = websocket.create_connection(page["webSocketDebuggerUrl"], timeout=8,
+                                              origin=f"http://127.0.0.1:{CDP_PORT}")
+        self.sent = 0
+        self.last = None
+
+    def call(self, method: str, params: dict) -> dict:
+        self.sent += 1
+        self.ws.send(json.dumps({"id": self.sent, "method": method, "params": params}))
         while True:
-            reply = json.loads(ws.recv())
-            if reply.get("id") == 1:
-                break
-    finally:
-        ws.close()
-    result = reply.get("result", {}).get("result", {}).get("value") or "error"
-    if "now" in result:
-        # Going full screen pulls the keyboard to the TV. Give it back to whoever had it.
-        time.sleep(0.8)
-        after = json.loads(hypr("activewindow", "-j") or "{}")
-        if after.get("class", "").lower() == "spotify" and before.get("class", "").lower() != "spotify" and before.get("address"):
-            hypr("dispatch", f'hl.dsp.focus({{ window = "address:{before["address"]}" }})')
-    if result != state.get("last"):
-        log(f"TV: {result}")
-        state["last"] = result
-    return result
+            reply = json.loads(self.ws.recv())
+            if reply.get("id") == self.sent:
+                return reply.get("result", {})
 
+    def arrange(self) -> str:
+        """Make the TV show the video (or the cover) full screen. Returns what it found."""
+        before = json.loads(hypr("activewindow", "-j") or "{}")
+        reply = self.call("Runtime.evaluate", {"expression": STAGE_JS, "returnByValue": True,
+                                               "awaitPromise": True, "userGesture": True})
+        result = reply.get("result", {}).get("value") or "error"
+        if "now" in result:
+            # Going full screen pulls the keyboard to the TV. Give it back to whoever had it.
+            time.sleep(0.8)
+            after = json.loads(hypr("activewindow", "-j") or "{}")
+            if (after.get("class", "").lower() == "spotify" and before.get("class", "").lower() != "spotify"
+                    and before.get("address")):
+                hypr("dispatch", f'hl.dsp.focus({{ window = "address:{before["address"]}" }})')
+        self.keep_keyboard()
+        if result != self.last:
+            log(f"TV: {result}")
+            self.last = result
+        return result
 
-def stage_loop(stop: threading.Event) -> None:
-    state: dict = {}
-    while not stop.wait(2.0):
+    def keep_keyboard(self) -> None:
+        """Spotify raises itself when a track or playlist starts. Typing must never land on the TV window.
+
+        Remember the last window that had the keyboard; if Spotify has taken it while the pointer is not on
+        the TV (so nobody went there on purpose), give it back.
+        """
+        active = json.loads(hypr("activewindow", "-j") or "{}")
+        if active.get("class", "").lower() != "spotify":
+            self.owner = active.get("address") or getattr(self, "owner", None)
+            return
+        owner = getattr(self, "owner", None)
+        if not owner:
+            clients = json.loads(hypr("clients", "-j") or "[]")
+            owner = next((c["address"] for c in clients if c.get("class", "").lower() != "spotify"
+                          and c.get("monitor") != active.get("monitor")), None)
+        if not owner:
+            return
         try:
-            stage_once(state)
+            x = int(hypr("cursorpos").split(",")[0])
+            monitors = json.loads(hypr("monitors", "-j") or "[]")
+            tv = next(m for m in monitors if m["id"] == active.get("monitor"))
+            on_tv = tv["x"] <= x < tv["x"] + tv["width"] / tv["scale"]
+        except Exception:  # noqa: BLE001 - cannot tell where the pointer is: leave focus alone
+            return
+        if not on_tv:
+            hypr("dispatch", f'hl.dsp.focus({{ window = "address:{owner}" }})')
+
+    def look(self):
+        """The colour of the picture on the TV right now (a thumbnail of the page, about 70 ms)."""
+        import base64
+        self.looks = getattr(self, "looks", 0) + 1
+        if self.looks % 20 == 1:      # the window's size only changes when it enters or leaves full screen
+            size = self.call("Runtime.evaluate", {"expression": "[innerWidth, innerHeight]", "returnByValue": True})
+            self.size = size.get("result", {}).get("value") or (1920, 1080)
+        width, height = self.size
+        shot = self.call("Page.captureScreenshot", {"format": "png", "clip": {
+            "x": 0, "y": 0, "width": width, "height": height, "scale": 0.02}})
+        return screen_colour(decode_png(base64.b64decode(shot["data"])))
+
+
+def stage_loop(stop: threading.Event, shared: dict) -> None:
+    stage = None
+    last_arrange = last_note = 0.0
+    while not stop.wait(LOOK_EVERY if MODE == "screen" else 2.0):
+        try:
+            stage = stage or Stage()
+            now = time.monotonic()
+            if now - last_arrange >= 2.0:
+                last_arrange = now
+                stage.arrange()
+            if MODE == "screen":
+                colour = stage.look()
+                if colour:
+                    shared["screen"] = colour
+                    shared["looks"] = shared.get("looks", 0) + 1
         except Exception as error:  # noqa: BLE001 - Spotify closed, or started without its developer port
-            message = f"TV: not reachable ({type(error).__name__})"
-            if state.get("last") != message:
-                log(message)
-                state["last"] = message
+            stage = None
+            if time.monotonic() - last_note > 30:
+                last_note = time.monotonic()
+                log(f"TV: not reachable ({type(error).__name__})")
+            stop.wait(2.0)
+
+
+def wall(colour) -> None:
+    """The TV wall only listens to Govee's cloud, so it gets the room's colour every few seconds."""
+    key = govee_key()
+    if not key:
+        return
+    r, g, b = (round(c) for c in colour)
+    body = {"requestId": "party", "payload": {"sku": TV_WALL[0], "device": TV_WALL[1], "capability": {
+        "type": "devices.capabilities.color_setting", "instance": "colorRgb", "value": (r << 16) + (g << 8) + b}}}
+    request = urllib.request.Request("https://openapi.api.govee.com/router/api/v1/device/control",
+                                     data=json.dumps(body).encode(),
+                                     headers={"Govee-API-Key": key, "Content-Type": "application/json"})
+    try:
+        urllib.request.urlopen(request, timeout=8).read()  # noqa: S310 - fixed https URL
+    except Exception:  # noqa: BLE001 - a slow cloud must not stop the party
+        pass
+
+
+def room_colour(ear: Ear, current, target):
+    """Glide the room toward the screen's colour and let the whole room breathe with the bass.
+
+    Returns (the smoothed colour to remember, the colour to send). The glide is what makes it fluid:
+    a hard cut on screen becomes a quick sweep in the room instead of a flicker.
+    """
+    current = mix(current, target, 0.38)
+    glow = 0.42 + 0.58 * min(1.0, ear.level[0]) ** 1.3 if ear.playing else 0.6
+    return current, tuple(c * glow for c in current)
 
 
 # --- running it ------------------------------------------------------------------
@@ -350,49 +516,59 @@ def run() -> int:
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
-    shared = {"palette": list(FALLBACK), "track": None}
+    shared = {"palette": list(FALLBACK), "track": None, "screen": FALLBACK[0], "looks": 0}
 
     def follow_track():
         while not stop.is_set():
             track_id, title, art = track()
             if track_id and track_id != shared["track"]:
                 shared["track"] = track_id
-                try:
-                    shared["palette"] = palette_from(pixels(art))
-                except Exception:  # noqa: BLE001 - no cover: keep dancing in the fallback colours
-                    shared["palette"] = list(FALLBACK)
-                log(f"track: {title[:50]} -> {['#%02x%02x%02x' % c for c in shared['palette']]}")
-                native_music(shared["palette"])
+                if MODE == "cover":
+                    try:
+                        shared["palette"] = palette_from(pixels(art))
+                    except Exception:  # noqa: BLE001 - no cover: keep dancing in the fallback colours
+                        shared["palette"] = list(FALLBACK)
+                    log(f"track: {title[:50]} -> {['#%02x%02x%02x' % c for c in shared['palette']]}")
+                    native_music(shared["palette"])
+                else:
+                    log(f"track: {title[:50]}")
             stop.wait(3.0)
 
     threading.Thread(target=follow_track, daemon=True).start()
-    threading.Thread(target=stage_loop, args=(stop,), daemon=True).start()
+    threading.Thread(target=stage_loop, args=(stop, shared), daemon=True).start()
 
-    bulbs = Bulbs()
+    lights = Bulbs(ROOM if MODE == "screen" else BULBS)
     ear = Ear()
-    log(f"started: {len(bulbs.ips)} bulbs live, {len(NATIVE)} lights in their own music modes")
+    log(f"started in {MODE} mode: {len(lights.ips)} lights driven live")
     position = 0.0
-    last_send = 0.0
+    last_send = last_wall = minute = 0.0
     beats = 0
-    minute = 0.0
+    current = shared["screen"]
     for frame in frames():
         if stop.is_set() or ear.clock > MAX_SECONDS:
             break
-        palette = shared["palette"]
         if ear.feed(frame):
             beats += 1
-            position += 1.0                      # a beat: jump to the next colour
-        # Between beats the colours keep sliding, faster when the music is busier.
+            position += 1.0
         position += (0.010 + 0.05 * ear.level[1]) if ear.playing else 0.006
         if ear.clock - last_send >= SEND_EVERY:
             last_send = ear.clock
-            bulbs.show(bulb_colours(ear, palette, position))
+            if MODE == "screen":
+                current, send = room_colour(ear, current, shared["screen"])
+                lights.show([send])               # one colour, every light, the same instant
+                if ear.clock - last_wall >= 5:
+                    last_wall = ear.clock
+                    threading.Thread(target=wall, args=(current,), daemon=True).start()
+            else:
+                lights.show(bulb_colours(ear, shared["palette"], position))
         if ear.clock - minute >= 60:
-            log(f"{beats} beats in the last minute" + ("" if ear.playing else " (silent)"))
-            beats, minute = 0, ear.clock
+            seen = f", {shared['looks']} looks at the screen, colour now #%02x%02x%02x" % tuple(round(c) for c in current) if MODE == "screen" else ""
+            log(f"{beats} beats in the last minute{seen}" + ("" if ear.playing else " (silent)"))
+            beats, minute, shared["looks"] = 0, ear.clock, 0
     stop.set()
-    # Leave the room lit in the palette rather than frozen mid-pulse.
-    bulbs.show([tuple(c * 0.8 for c in shared["palette"][i % len(shared["palette"])]) for i in range(2)])
+    # Leave the room lit rather than frozen mid-pulse.
+    final = [current] if MODE == "screen" else [tuple(c * 0.8 for c in shared["palette"][i % len(shared["palette"])]) for i in range(2)]
+    lights.show(final)
     log("stopped")
     return 0
 

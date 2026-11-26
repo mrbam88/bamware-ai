@@ -115,5 +115,73 @@ class BulbColourTest(unittest.TestCase):
             self.assertGreater(max(colour), 30)
 
 
+def png(width, height, colour_at, alpha=False, kind=0):
+    """A small PNG built by hand, with a chosen row filter, to check the decoder against known pixels."""
+    import struct
+    import zlib
+    channels = 4 if alpha else 3
+    rows = [[colour_at(x, y) + ((255,) if alpha else ()) for x in range(width)] for y in range(height)]
+    raw = b""
+    previous = bytes(width * channels)
+    for row in rows:
+        line = bytes(c for pixel in row for c in pixel)
+        if kind == 0:
+            packed = line
+        elif kind == 1:   # Sub
+            packed = bytes((line[i] - (line[i - channels] if i >= channels else 0)) & 255 for i in range(len(line)))
+        else:             # Up
+            packed = bytes((line[i] - previous[i]) & 255 for i in range(len(line)))
+        raw += bytes([kind]) + packed
+        previous = line
+
+    def chunk(name, body):
+        return struct.pack(">I", len(body)) + name + body + struct.pack(">I", zlib.crc32(name + body))
+
+    header = struct.pack(">IIBBBBB", width, height, 8, 6 if alpha else 2, 0, 0, 0)
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
+
+
+class ScreenTest(unittest.TestCase):
+    def test_png_decoder_reads_every_filter_and_alpha(self):
+        def colour(x, y):
+            return ((x * 40) % 256, (y * 60) % 256, (x * y * 7) % 256)
+
+        expected = [colour(x, y) for y in range(5) for x in range(7)]
+        for kind in (0, 1, 2):
+            for alpha in (False, True):
+                with self.subTest(kind=kind, alpha=alpha):
+                    self.assertEqual(ps.decode_png(png(7, 5, colour, alpha, kind)), expected)
+
+    def test_the_vivid_part_of_a_frame_sets_the_room(self):
+        night = [(8, 10, 30)] * 700 + [(20, 60, 230)] * 200 + [(200, 200, 200)] * 60
+        colour = ps.screen_colour(night)
+        self.assertAlmostEqual(hue_of(colour), hue_of((20, 60, 230)), delta=0.04)
+        self.assertEqual(max(colour), 255, "lights get the hue at full strength")
+
+    def test_blue_is_allowed_from_the_screen(self):
+        self.assertGreater(ps.screen_colour([(0, 40, 255)] * 100)[2], 200)
+
+    def test_black_frame_holds_the_last_colour(self):
+        self.assertIsNone(ps.screen_colour([(2, 2, 2)] * 500))
+        self.assertIsNone(ps.screen_colour([]))
+
+    def test_colourless_bright_frame_is_warm_white(self):
+        colour = ps.screen_colour([(210, 210, 210)] * 500)
+        self.assertGreater(min(colour), 200)
+
+    def test_room_glides_and_breathes_with_the_bass(self):
+        ear = ps.Ear()
+        ear.rms = 1000
+        ear.level = [0.0, 0.0, 0.0]
+        current, quiet = ps.room_colour(ear, (255, 0, 0), (0, 0, 255))
+        self.assertTrue(0 < current[2] < 255 and 0 < current[0] < 255, "a cut on screen becomes a sweep, not a jump")
+        ear.level = [1.0, 0.0, 0.0]
+        _, loud = ps.room_colour(ear, (255, 0, 0), (0, 0, 255))
+        self.assertGreater(sum(loud), sum(quiet) * 1.8)
+        for _ in range(12):
+            current, _ = ps.room_colour(ear, current, (0, 0, 255))
+        self.assertGreater(current[2], 250, "and it arrives within a second or so")
+
+
 if __name__ == "__main__":
     unittest.main()
