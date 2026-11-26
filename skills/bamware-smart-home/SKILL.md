@@ -671,7 +671,7 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
 - **Driving Spotify: the developer port, not clicks.** Started with
   `--remote-debugging-port=9222` (localhost only; `tv-spotify.sh` restarts a
   launcher-started Spotify once to get it), the app's page takes JavaScript
-  over the Chrome DevTools protocol: buttons by `aria-label`
+  over the Chrome DevTools protocol: buttons by their accessibility label
   ("Enter Full screen", "Switch to video", "Video quality") and
   `video.requestFullscreen()` with `userGesture`. That is what made full
   screen reliable. Dead ends, do not retry: simulated pointer clicks
