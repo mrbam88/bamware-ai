@@ -1,6 +1,6 @@
 #!/bin/bash
 # Presence for Bilal's apartment, run on omarchy every 2 min by presence.timer.
-#   presence.sh            one check: home if his iPhone or MacBook answered on the LAN in the last 15 min
+#   presence.sh            one check: home if his iPhone or MacBook answered on the LAN in the last 60 min (was 15: a sleeping iPhone stops answering pings, 2026-11-26 false away x2)
 #   presence.sh home|away  manual override for 3 h (he can check in/out from the seat)
 #   presence.sh status
 # Away transition: lights off, Spotify pause, TVs off.
@@ -8,7 +8,7 @@
 # the hour: before 11:00 morning (at once), 11:00-18:30 daylight tracker, after that evening. Writes presence.log.
 export XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 S=~/.local/state/bamware; mkdir -p $S; STATE=$S/presence.state; SEEN=$S/presence.lastseen; OVR=$S/presence.override
-PHONE_MAC=66:ce:e3:fd:bb:78; MAC_MAC=60:3e:5f:58:ac:92; PY=~/.venvs/smarthome/bin/python
+PHONE_MAC="66:ce:e3:fd:bb:78|72:6b:40:78:70:44"; MAC_MAC=60:3e:5f:58:ac:92; PY=~/.venvs/smarthome/bin/python
 now=$(date +%s)
 case ${1:-} in
   home|away) echo "$1 $((now+10800))" > $OVR; echo "override: $1 for 3 h";;
@@ -23,7 +23,7 @@ fi
 present=$(ip neigh | grep -i -E "$PHONE_MAC|$MAC_MAC" | grep -v -E "FAILED|INCOMPLETE" | wc -l)
 [[ $present -gt 0 ]] && echo $now > $SEEN
 last=$(cat $SEEN 2>/dev/null || echo 0)
-new=away; (( now - last < 900 )) && new=home
+new=away; (( now - last < 3600 )) && new=home
 if [[ -f $OVR ]]; then read o until < $OVR; (( now < until )) && new=$o || rm -f $OVR; fi
 # server on battery? (2026-11-23 the charger came out unnoticed; upower suspended at 5% and the box was dark 37 h)
 ac=$(cat /sys/class/power_supply/ADP1/online 2>/dev/null || echo 1); PWR=$S/power.state; oldac=$(cat $PWR 2>/dev/null || echo 1); echo $ac > $PWR
