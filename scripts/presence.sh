@@ -25,6 +25,14 @@ present=$(ip neigh | grep -i -E "$PHONE_MAC|$MAC_MAC" | grep -v -E "FAILED|INCOM
 last=$(cat $SEEN 2>/dev/null || echo 0)
 new=away; (( now - last < 900 )) && new=home
 if [[ -f $OVR ]]; then read o until < $OVR; (( now < until )) && new=$o || rm -f $OVR; fi
+# server on battery? (2026-11-23 the charger came out unnoticed; upower suspended at 5% and the box was dark 37 h)
+ac=$(cat /sys/class/power_supply/ADP1/online 2>/dev/null || echo 1); PWR=$S/power.state; oldac=$(cat $PWR 2>/dev/null || echo 1); echo $ac > $PWR
+if [[ $ac != $oldac ]]; then
+  bat=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo ?)
+  [[ $ac == 0 ]] && msg="omarchy is ON BATTERY ($bat%): charger unplugged. Plug it back in or the apartment goes dark." || msg="omarchy back on AC ($bat%)."
+  echo "$(date '+%F %T') power: $msg" | tee -a $S/presence.log
+  hook=~/.config/bamware/discord-webhook-status; [[ -r $hook ]] && curl -sS -m 20 -H 'Content-Type: application/json' -d "$(printf '{"content":"%s"}' "$msg")" "$(cat $hook)" >/dev/null 2>&1
+fi
 # quiet hours for the neighbours: 22:00-08:00 cap the stereo at 55%
 h=$(date +%H); if (( 10#$h >= 22 || 10#$h < 8 )); then v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print $2}'); [[ -n $v ]] && awk "BEGIN{exit !($v > 0.55)}" && wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.55 && echo "$(date '+%F %T') quiet hours: volume $v -> 0.55"; fi
 old=$(cat $STATE 2>/dev/null || echo unknown)

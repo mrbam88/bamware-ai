@@ -1,18 +1,28 @@
 # State of the Union — Bamware
 
-## 2026-11-25 — Power loss on omarchy switched the apartment off (presence bug, fixed)
+## 2026-11-25 — omarchy ran out of battery, was dark 37 h, then switched the apartment off (fixed)
 
 - **Bilal:** "my light not working?!!! this laptop randomly lost power and did a
-  reboot." Server rebooted ~12:52 ET; linger and every timer came back.
+  reboot." Not random: the charger came out unnoticed on 11-23, the box ran on
+  battery, upowerd suspended it at 5% at 23:37 ET, it drained to zero in sleep
+  (RTC reset to 1970), and it stayed dark until power returned 11-25 12:52 ET.
+  Every light timer, the probe and the Discord seat were down those 37 hours.
+  Battery health is fine (82% of design); lid and power key are set to ignore.
 - **Cause:** `presence.sh` only pinged addresses already in the kernel
   neighbour table. After a reboot that table is empty, so the 12:53 check saw
   neither phone nor Mac, flipped home -> away and ran the away routine: lights
   off, Spotify paused, TVs off. The 13:00 vibes and every daylight tick then
   skipped as "away" for an hour.
-- **Fix ($0):** when neither device is in the table, sweep 192.168.1.0/24 once
-  (~1 s). Installed to `~/.local/bin` and the next check flipped away -> home
-  and restored daylight. Worth a glance: the away routine has no boot guard,
-  while the welcome-home path does.
+- **Fix ($0), both in `presence.sh`, installed live:** (1) when neither device
+  is in the table, sweep 192.168.1.0/24 once (~1 s); the next check flipped
+  away -> home and restored daylight. (2) Power watch: on every 2-min run read
+  `/sys/class/power_supply/ADP1/online`; on a change post to `#status` via the
+  webhook ("omarchy is ON BATTERY (82%): charger unplugged...") and log it.
+  Tested by faking the state file. Worth a glance: the away routine has no boot
+  guard, while the welcome-home path does.
+- **Physical ask for Bilal:** the server lives on the bamboo console under the
+  TV with one charger lead to the floor. Route it so a foot or the Xbox cables
+  cannot pull it, or put the brick on the wall outlet behind the console.
 - **Also failing after the reboot, not touched:** `bamware-neon-dump` (Neon
   says the account is over quota: Bilal's call); `ai-quota-sample` (wants
   `~/.claude/.credentials.json`; fresh `/login` on 11-25 did not create it);
