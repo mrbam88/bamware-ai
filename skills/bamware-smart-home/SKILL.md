@@ -508,7 +508,21 @@ after a command, `device/state` reflects it. A control call is one of the
 
 ## The stereo (verified live 2026-10-29)
 
-Marshall Kilburn Bluetooth speaker under the TV, fed by an AUX cable from
+**Aux, not Bluetooth (Bilal, 2026-11-26):** the speaker is a Marshall
+**Kilburn III**. He chose aux for quality (uncompressed, no lip-sync delay);
+the server's Bluetooth adapter works and AAC/aptX are installed if that ever
+changes, nothing is paired. **"It shuts off by itself":** Marshall speakers
+go to standby after about 10 min without signal and, per a user report, treat
+a quiet aux input as silence; Marshall says it cannot be disabled on the
+Kilburn II, and nothing was found for the III (its Marshall Bluetooth app
+settings are unchecked). Our side: keep the sink at the 0.83 reference so the
+signal is strong. `presence.sh` remembers the level its 22:00 cap replaced
+and restores it after 08:00 (before this the cap never lifted). If it still
+sleeps in pauses, next is a keep-alive tone while nothing plays, tested with
+him listening. Whether staying on wall power prevents standby is his open
+experiment.
+
+Marshall Kilburn III Bluetooth speaker under the TV, fed by an AUX cable from
 `omarchy`'s headphone jack (Apple T2 audio, PipeWire sink "Apple Audio Device
 Headphones", card profile "HiFi (Headphones, Mic)"). Bilal installed the
 Spotify desktop app himself (`/opt/spotify/spotify`, his account); it runs in
