@@ -668,6 +668,29 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   - **Album colours override the "no blue" rule in party mode only.** He
     asked for Spotify's colours, and covers are often blue. Every other scene
     keeps the warm palette.
+- **Everyday scenes that play music get the TV too (Bilal, 2026-11-26).**
+  "Make sure that the other modes, if they're playing music, music should be
+  integrated with the TV. By default I like the TV backlight changing with
+  the music. Party mode is the only mode where all the lights change."
+  `tv_music <uri> <volume>` in `vibes.sh` replaces `spotify` for those
+  scenes: Spotify onto the Samsung, the playlist, then `party_stage.py` with
+  `PARTY_MODE=tv`, which keeps the video (or the cover) full screen and puts
+  the TV wall in its Spectrum music mode in a colour from the cover, once per
+  track. Room lights are left exactly as the scene set them. Outside party
+  mode the TV wall still skips blue (a blue or colourless cover gives the
+  house amber).
+  - **On it now: cleaning and evening.** Cleaning verified with the real
+    button: bulbs and strip steady at 5000K 100%, 90s hip-hop playing, its
+    video full screen on the TV. The TV wall's music mode was accepted by
+    Govee but its state endpoint never reports a music mode, so how it looks
+    is unverified by an agent.
+  - **Not on it, his call pending:** morning and afternoon already put their
+    own video on the TV through the Apple TV (news, NBA), and work is "light
+    near the ceiling, nothing at eye level" with the TV wall off.
+  - Its own PID file (`tv-stage.pid`): `party-stop` is what Dim and Bright
+    call and must not take the TV down. Any scene and Kill stop it
+    (`vibes.sh stage-stop`). Both stages run inside `buttons.service`, so
+    restarting that service stops them.
 - **Driving Spotify: the developer port, not clicks.** Started with
   `--remote-debugging-port=9222` (localhost only; `tv-spotify.sh` restarts a
   launcher-started Spotify once to get it), the app's page takes JavaScript

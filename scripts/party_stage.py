@@ -58,6 +58,10 @@ TV_WALL = ("H6099", "1C:CF:D4:0F:40:46:18:6A")    # cloud only, so it follows a 
 # "screen": the whole room takes one colour, read live from what is on the TV (Bilal 2026-11-26: "all the lights in
 # sync together, like the whole room was changing colors... go completely off the music video screen and don't
 # worry about the blue rule"). "cover": each light its own colour from the track's artwork (the first version).
+# "tv": for the everyday scenes that play music (Bilal 2026-11-26: "if they're playing music, music should be
+# integrated with the TV. By default I like the TV backlight changing with the music... party mode is the only mode
+# where all the lights change"). The TV shows the video or the cover, the TV wall dances in Govee's own music mode
+# in a colour from the cover, and every other light is left exactly as the scene set it.
 MODE = os.environ.get("PARTY_MODE", "screen")
 # Govee's own music modes: (sku, device id, mode number, label). Spectrum follows frequency.
 NATIVE = [
@@ -378,6 +382,41 @@ def native_music(palette) -> None:
             log(f"{label}: {type(error).__name__}")
 
 
+def scene_colour(palette):
+    """One colour for the TV wall outside party mode: the cover's strongest hue that is not blue.
+
+    Blue and lavender stay reserved for the too-loud alert in every scene but the party, where he waived
+    the rule. A cover that is all blue, or has no colour, gets the house amber.
+    """
+    if palette == FALLBACK:
+        return (255, 140, 40)
+    for colour in palette:
+        hue = colorsys.rgb_to_hsv(*(c / 255 for c in colour))[0]
+        if not 0.47 < hue < 0.80:
+            return colour
+    return (255, 140, 40)
+
+
+def wall_music(colour) -> None:
+    """The TV wall into its Spectrum music mode in one colour: it then moves with the music by itself."""
+    key = govee_key()
+    if not key:
+        return
+    r, g, b = (round(c) for c in colour)
+    body = {"requestId": "stage", "payload": {"sku": TV_WALL[0], "device": TV_WALL[1], "capability": {
+        "type": "devices.capabilities.music_setting", "instance": "musicMode",
+        "value": {"musicMode": 2, "sensitivity": SENSITIVITY, "autoColor": 0, "rgb": (r << 16) + (g << 8) + b}}}}
+    request = urllib.request.Request("https://openapi.api.govee.com/router/api/v1/device/control",
+                                     data=json.dumps(body).encode(),
+                                     headers={"Govee-API-Key": key, "Content-Type": "application/json"})
+    try:
+        reply = json.loads(urllib.request.urlopen(request, timeout=8).read())  # noqa: S310 - fixed https URL
+        if reply.get("code") != 200:
+            log(f"TV wall: Govee said {reply.get('code')} {str(reply.get('msg'))[:80]}")
+    except Exception as error:  # noqa: BLE001 - a slow cloud must not stop the music
+        log(f"TV wall: {type(error).__name__}")
+
+
 # --- the TV -------------------------------------------------------------------
 
 STAGE_JS = """(async () => {
@@ -622,12 +661,29 @@ def run() -> int:
                         shared["palette"] = list(FALLBACK)
                     log(f"track: {title[:50]} -> {['#%02x%02x%02x' % c for c in shared['palette']]}")
                     native_music(shared["palette"])
+                elif MODE == "tv":
+                    try:
+                        colour = scene_colour(palette_from(pixels(art)))
+                    except Exception:  # noqa: BLE001 - no cover: the house amber
+                        colour = (255, 140, 40)
+                    log(f"track: {title[:50]} -> TV wall #%02x%02x%02x" % colour)
+                    wall_music(colour)
                 else:
                     log(f"track: {title[:50]}")
             stop.wait(3.0)
 
     threading.Thread(target=follow_track, daemon=True).start()
     threading.Thread(target=stage_loop, args=(stop, shared), daemon=True).start()
+
+    if MODE == "tv":
+        # No room lights and no listening: the scene owns the lights, the TV wall listens for itself.
+        log("started in tv mode: TV arranged, TV wall in its music mode, room lights untouched")
+        started = time.monotonic()
+        while not stop.wait(1.0) and time.monotonic() - started < MAX_SECONDS:
+            pass
+        stop.set()
+        log("stopped")
+        return 0
 
     lights = Bulbs(ROOM if MODE == "screen" else BULBS)
     ble = BleLights(BLE_STRIPS if MODE == "screen" else [], stop)

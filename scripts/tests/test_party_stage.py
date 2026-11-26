@@ -165,6 +165,22 @@ class ScreenTest(unittest.TestCase):
         self.assertGreater(current[2], 250, "and it arrives within a second or so")
 
 
+class SceneColourTest(unittest.TestCase):
+    """Outside party mode the TV wall still keeps blue for the too-loud alert."""
+
+    def test_blue_cover_falls_back_to_amber(self):
+        self.assertEqual(ps.scene_colour([(0, 60, 255), (60, 0, 255)]), (255, 140, 40))
+
+    def test_first_colour_that_is_not_blue_wins(self):
+        self.assertEqual(ps.scene_colour([(0, 60, 255), (255, 0, 120), (255, 200, 0)]), (255, 0, 120))
+
+    def test_colourless_cover_is_amber_not_party_pink(self):
+        self.assertEqual(ps.scene_colour(list(ps.FALLBACK)), (255, 140, 40))
+
+    def test_warm_cover_is_kept(self):
+        self.assertEqual(ps.scene_colour([(255, 90, 0)]), (255, 90, 0))
+
+
 class BluetoothPacketTest(unittest.TestCase):
     def test_packets_are_twenty_bytes_with_an_xor_checksum(self):
         packet = ps.ble_packet(0x33, 0x01, 0x01)

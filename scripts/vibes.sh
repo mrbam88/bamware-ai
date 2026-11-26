@@ -34,12 +34,24 @@ party_loop() { # party (Bilal 2026-10-31): warm party colours rotate across the 
     (( i % 2 == 0 )) && { IFS=, read -r r g b <<< "${C[(i+4)%n]}"; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (r<<16)+(g<<8)+b )); }
     sleep 4; i=$((i+1))
   done; rm -f $PARTY_PID; }
-[[ ${1:-} == party-stop ]] && { party_stop; echo "party loop stopped"; exit 0; }   # buttons call this before any plain light command; works while away too
+# TV stage for the everyday music scenes (2026-11-26): Spotify on the Samsung with the video or the cover full
+# screen, and the TV wall dancing in its own music mode. Its own PID file: party-stop is called by the plain light
+# buttons (Dim, Bright), and those must not take the TV down. Any scene, and Kill, do stop it.
+STAGE_PID=~/.local/state/bamware/tv-stage.pid
+stage_stop() { [[ -f $STAGE_PID ]] && { kill $(cat $STAGE_PID) 2>/dev/null; rm -f $STAGE_PID; }; }
+tv_music() { # $1 = playlist URI, $2 = volume. One background job, in order: Spotify onto the TV (may restart it once), the playlist, then the stage.
+  [[ -x ~/.local/bin/party_stage.py ]] || { spotify "$1" "$2"; return; }
+  ( ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
+    P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player
+    $P call $D $O $I OpenUri s "$1" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2" 2>/dev/null
+    PARTY_MODE=tv exec $PY ~/.local/bin/party_stage.py ) >/dev/null 2>&1 & echo $! > $STAGE_PID; disown; }
+[[ ${1:-} == party-stop ]] && { party_stop; echo "party loop stopped"; exit 0; }
+[[ ${1:-} == stage-stop ]] && { stage_stop; echo "tv stage stopped"; exit 0; }   # buttons call this before any plain light command; works while away too
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
 # a manual scene (cleaning, or any agent that touched lights.hold) wins over the schedule for 3 h (2026-10-29: the 19:30 run clobbered cleaning lights)
 HOLD=~/.local/state/bamware/lights.hold
 if [[ ${1:-} =~ ^(morning|afternoon|evening)$ && -f $HOLD && $(( $(date +%s) - $(stat -c %Y $HOLD) )) -lt 10800 && ${2:-} != --force && ${2:-} != --now ]]; then echo "$(date "+%F %T") vibes $1 skipped: lights.hold is fresh (vibes.sh $1 --force to override)"; exit 0; fi
-party_stop   # any scene replaces the party colour loop
+party_stop; stage_stop   # any scene replaces the party stage and the TV stage
 case ${1:-} in
   morning)   # Bilal 2026-10-29 v2: "mimic the sun" on gloomy mornings. Light from the ceiling and the kitchen, warm, nothing at eye level.
     STEP=60; [[ ${2:-} == --now ]] && STEP=1                 # the 08:00 timer ramps over ~6 min; the button does it at once
@@ -82,7 +94,7 @@ case ${1:-} in
     cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1
     cloud H60B0 $LAMP devices.capabilities.range brightness 55; sleep 1; scene H60B0 $LAMP Candlelight
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.range brightness 12; sleep 1; scene H6099 $TVB Candlelight
-    spotify "spotify:playlist:37i9dQZF1DX4wta20PHgwo" 0.65   # Late Night Jazz
+    tv_music "spotify:playlist:37i9dQZF1DX4wta20PHgwo" 0.65   # Late Night Jazz, with the TV (2026-11-26)
     ;;
   cleaning)  # "cleaning lights" (Bilal 2026-10-29): everything 100%, cool white, bottom-heavy lamp; no music or screen change
     $LAN on all >/dev/null; $LAN kelvin all 5000 >/dev/null; $LAN bright all 100 >/dev/null
@@ -91,7 +103,7 @@ case ${1:-} in
     # TV wall: 5000K photographs lavender on the H6099 (no blue, ever), so warm white by RGB instead
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(235<<8)+205 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
-    spotify "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
+    tv_music "spotify:playlist:37i9dQZF1DX186v583rmzp" 0.75   # with the TV (2026-11-26). I Love My '90s Hip-Hop (Bilal 2026-10-29: "Make the 90s hip-hop the cleaning music!")
     echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
   party)     # party lights (Bilal 2026-10-31, Halloween): cleaning brightness, but warm party colours that keep moving; Dance Party on the stereo
     $LAN on all >/dev/null; $LAN bright "smart led bulb" 100 >/dev/null; $LAN bright strip 100 >/dev/null   # "smart led bulb" matches both bulbs
