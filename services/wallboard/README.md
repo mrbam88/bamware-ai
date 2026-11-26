@@ -21,6 +21,16 @@ It reads files other timers already write, so it spends **no agent tokens**.
 | Claude weekly allowance | `~/.local/state/bamware/cfo/capacity.json` |
 | CFO halt banner | `~/.local/state/bamware/cfo/halt.json` |
 
+**Entertainment mode (2026-11-26).** The server doubles as the living-room
+media hub. While something plays (any MPRIS player: Spotify, mpv, a browser),
+the board stays off every screen that has a full-screen window, so a music
+video on the TV keeps playing while the lid still goes to the board. On the
+screens it does cover it changes look: violet and amber glows that keep
+moving, "Now playing" in the masthead, and the cover, track and artist where
+the notes line sits. It rechecks every 20 s, so it steps aside soon after a
+video starts. Idle inhibitors from video players are ignored on purpose; the
+per-screen rule replaces them.
+
 Colours follow the Omarchy theme. Trouble is amber with a different mark shape
 (dot = fine, ring = warning, square = alert), never red against green.
 
