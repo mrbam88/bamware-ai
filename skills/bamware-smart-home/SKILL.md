@@ -540,6 +540,26 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
 
 - Reference volume: sink 0.83, Spotify volume 1.0, the Kilburn dial does the
   rest. Do not change either unless asked.
+- **The speaker is portable and its dial moves (Bilal, 2026-11-26):** "I
+  unplug the Bluetooth speaker all the time and take it outside, and so the
+  knobs are going to change." So a server level is never a loudness: 0.83
+  was "too loud" and 0.60 "the max, for my neighbours" on one afternoon with
+  one dial position, and neither number means anything after the next trip
+  outside. Do not hard-code ceilings from a remark like that (one was added
+  and removed the same day). When he says too loud or too quiet, step the
+  sink and stop; when starting music after the speaker may have moved, start
+  modest and let him adjust. The scene levels in `vibes.sh` (0.50 to 0.80)
+  are relative to each other only. The speaker may also simply be gone:
+  silence with everything green can mean it is outside on Bluetooth with his
+  phone.
+- **Video on the big TV from the server (verified 2026-11-26):** with the
+  cast on, open `https://www.youtube.com/watch?v=<id>` in a Chromium app
+  window with its own profile and
+  `--autoplay-policy=no-user-gesture-required` on the TV's workspace, set the
+  window fullscreen, then focus it, send `F`, and hand focus back. Sound
+  goes out the aux to the Marshall. Newest official uploads:
+  `yt-dlp --flat-playlist --playlist-end 12 --print "%(id)s | %(title)s" <channel>/videos`.
+  The player is not signed in, so ads play first.
 - Verify after every command: PlaybackStatus "Playing" and an active Spotify
   stream on the Headphones sink (`wpctl status`). Silence with everything
   green means Spotify Connect moved playback to another device (phone,
