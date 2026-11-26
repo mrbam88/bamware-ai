@@ -43,7 +43,7 @@ if [[ $new != $old ]]; then
     python3 ~/.local/bin/govee_lan.py off all >/dev/null 2>&1
     . ~/.config/bamware/govee.env; curl -s -H "Govee-API-Key: $GOVEE_API_KEY" -H "Content-Type: application/json" -X POST https://openapi.api.govee.com/router/api/v1/device/control -d '{"requestId":"p","payload":{"sku":"BaseGroup","device":"15560214","capability":{"type":"devices.capabilities.on_off","instance":"powerSwitch","value":0}}}' >/dev/null
     busctl --user call org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player Pause 2>/dev/null
-    $PY ~/.local/bin/appletv.py key turn_off >/dev/null 2>&1; $PY ~/.local/bin/samsung_tv.py key KEY_POWER >/dev/null 2>&1; python3 ~/.local/bin/roku_tv.py off >/dev/null 2>&1
+    $PY ~/.local/bin/samsung_tv.py off >/dev/null 2>&1; python3 ~/.local/bin/roku_tv.py off >/dev/null 2>&1
   elif [[ $old == away ]]; then   # welcome home: only on a real away->home flip, never on the first run after boot
     hm=$((10#$(date +%H) * 60 + 10#$(date +%M)))
     if (( hm < 5*60 )); then scene="evening --force"; elif (( hm < 11*60 )); then scene="morning --now"; elif (( hm < 18*60+30 )); then scene=daylight; else scene="evening --force"; fi
