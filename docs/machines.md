@@ -331,6 +331,26 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   home-LAN IP on the X1, where ufw drops it. ufw allows `in on tailscale0`
   only. Lid close is ignored (`/etc/systemd/logind.conf.d/30-server-lid.conf`).
   Run agents inside `tmux` so they survive disconnects.
+- **USB 3 devices need the Thunderbolt-side USB controllers awake (2026-11-26).**
+  The chipset xhci `0000:00:14.0` carries only the USB 2 pairs of the four
+  USB-C ports; USB 3 goes to the Titan Ridge xhci `0000:09:00.0` and
+  `0000:7f:00.0`, which runtime-suspend into D3cold and then never see a
+  hotplug. Symptom: a gigabit Ethernet dongle or SSD enumerates nowhere (zero
+  kernel log lines) while a USB 2 HDMI adapter works, and the same dongle works
+  on the X1. Fix in place: `/etc/udev/rules.d/91-t2-xhci-always-on.rules` sets
+  `power/control=on` and `d3cold_allowed=0` on every xhci. First check when a
+  USB device is invisible: `cat /sys/bus/pci/devices/0000:09:00.0/power/runtime_status`
+  must say `active`.
+- **Wired Ethernet since 2026-11-26:** Anker USB-C dongle (ASIX AX88179A,
+  `cdc_ncm`) as `enp9s0u1c2`, DHCP on the home LAN, default route ahead of
+  Wi-Fi (metric 100 vs 600). `enp4s0f1u1` (`ac:de:48:00:11:22`) is **not a
+  NIC**: it is the T2 chip's internal CDC link. Its NetworkManager profile
+  "Wired connection 1" is set `autoconnect no` so it stops looping DHCP.
+- **Power: it is a laptop on a charger (2026-11-23 outage).** With the charger
+  out it runs on battery, upowerd suspends it at 5%, and it is dark until
+  someone plugs it back in. `presence.sh` posts to `#status` when the charger
+  comes out; the lead under the TV console must stay routed where nothing
+  pulls it.
 - Dictation: Omarchy's Voxtype (F9 push-to-talk, Super+Ctrl+X toggle). Wispr
   Flow has no Linux build.
 

@@ -14,13 +14,25 @@ case ${1:-} in
   home|away) echo "$1 $((now+10800))" > $OVR; echo "override: $1 for 3 h";;
   status) echo "state: $(cat $STATE 2>/dev/null || echo unknown); last seen: $(date -d @$(cat $SEEN 2>/dev/null || echo 0) '+%F %T'); override: $(cat $OVR 2>/dev/null || echo none)"; exit 0;;
 esac
-# did a personal device answer?
+# did a personal device answer? Ping what the kernel already knows; if neither device is in the table (empty after a
+# reboot: 2026-11-25 a power loss made the first check flip home->away and switch the apartment off) sweep the /24 once.
 for ip in $(ip neigh | awk '/192\.168\.1\./{print $1}'); do ping -c1 -W1 $ip >/dev/null 2>&1 & done; wait
+if ! ip neigh | grep -qi -E "$PHONE_MAC|$MAC_MAC"; then
+  for i in $(seq 1 254); do ping -c1 -W1 192.168.1.$i >/dev/null 2>&1 & done; wait
+fi
 present=$(ip neigh | grep -i -E "$PHONE_MAC|$MAC_MAC" | grep -v -E "FAILED|INCOMPLETE" | wc -l)
 [[ $present -gt 0 ]] && echo $now > $SEEN
 last=$(cat $SEEN 2>/dev/null || echo 0)
 new=away; (( now - last < 900 )) && new=home
 if [[ -f $OVR ]]; then read o until < $OVR; (( now < until )) && new=$o || rm -f $OVR; fi
+# server on battery? (2026-11-23 the charger came out unnoticed; upower suspended at 5% and the box was dark 37 h)
+ac=$(cat /sys/class/power_supply/ADP1/online 2>/dev/null || echo 1); PWR=$S/power.state; oldac=$(cat $PWR 2>/dev/null || echo 1); echo $ac > $PWR
+if [[ $ac != $oldac ]]; then
+  bat=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo ?)
+  [[ $ac == 0 ]] && msg="omarchy is ON BATTERY ($bat%): charger unplugged. Plug it back in or the apartment goes dark." || msg="omarchy back on AC ($bat%)."
+  echo "$(date '+%F %T') power: $msg" | tee -a $S/presence.log
+  hook=~/.config/bamware/discord-webhook-status; [[ -r $hook ]] && curl -sS -m 20 -H 'Content-Type: application/json' -d "$(printf '{"content":"%s"}' "$msg")" "$(cat $hook)" >/dev/null 2>&1
+fi
 # quiet hours for the neighbours: 22:00-08:00 cap the stereo at 55%
 h=$(date +%H); if (( 10#$h >= 22 || 10#$h < 8 )); then v=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print $2}'); [[ -n $v ]] && awk "BEGIN{exit !($v > 0.55)}" && wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.55 && echo "$(date '+%F %T') quiet hours: volume $v -> 0.55"; fi
 old=$(cat $STATE 2>/dev/null || echo unknown)
@@ -34,7 +46,7 @@ if [[ $new != $old ]]; then
     $PY ~/.local/bin/appletv.py key turn_off >/dev/null 2>&1; $PY ~/.local/bin/samsung_tv.py key KEY_POWER >/dev/null 2>&1; python3 ~/.local/bin/roku_tv.py off >/dev/null 2>&1
   elif [[ $old == away ]]; then   # welcome home: only on a real away->home flip, never on the first run after boot
     hm=$((10#$(date +%H) * 60 + 10#$(date +%M)))
-    if (( hm < 11*60 )); then scene="morning --now"; elif (( hm < 18*60+30 )); then scene=daylight; else scene="evening --force"; fi
+    if (( hm < 5*60 )); then scene="evening --force"; elif (( hm < 11*60 )); then scene="morning --now"; elif (( hm < 18*60+30 )); then scene=daylight; else scene="evening --force"; fi
     echo "$(date '+%F %T') welcome home -> $scene" >> $S/presence.log
     rm -f $S/lights.hold
     if [[ $scene == daylight ]]; then python3 ~/.local/bin/daylight.py >> $S/presence.log 2>&1; else ~/.local/bin/vibes.sh $scene >> $S/presence.log 2>&1 & fi
