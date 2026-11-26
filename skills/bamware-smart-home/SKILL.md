@@ -552,14 +552,35 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   are relative to each other only. The speaker may also simply be gone:
   silence with everything green can mean it is outside on Bluetooth with his
   phone.
-- **Video on the big TV from the server (verified 2026-11-26):** with the
-  cast on, open `https://www.youtube.com/watch?v=<id>` in a Chromium app
-  window with its own profile and
-  `--autoplay-policy=no-user-gesture-required` on the TV's workspace, set the
-  window fullscreen, then focus it, send `F`, and hand focus back. Sound
-  goes out the aux to the Marshall. Newest official uploads:
+- **Video on the big TV from the server: `tv-play.sh <id|url>`, `tv-play.sh
+  stop` (2026-11-26).** Bilal: "I prefer 4K at the highest resolution
+  possible." The script puts the TV on PC and runs mpv full screen on the TV
+  output with the video's best stream up to 2160p (yt-dlp from the smarthome
+  venv); it prints the resolution actually on screen. Verified: Drake "Cold
+  Shoulder" at AV1 3840x2160, software decode at about 170% of one core, no
+  dropped frames, keyboard focus untouched, sound out the aux. No browser
+  page, so no quality guessing and no ads. Log:
+  `~/.local/state/bamware/tv-play.log`. Newest official uploads:
   `yt-dlp --flat-playlist --playlist-end 12 --print "%(id)s | %(title)s" <channel>/videos`.
-  The player is not signed in, so ads play first.
+  The first version (a Chromium app window on the watch page, fullscreen,
+  then `F`) worked but picked a lower quality and played an ad first.
+- **Spotify music videos on the TV (verified 2026-11-26; Spotify is his
+  primary music, he is building a party mode).** The Linux app (1.3.8) has
+  them. Launch `spotify` on the TV's workspace, `OpenUri` a track or
+  `spotify:search:<words>` (the search URI started playing the top song),
+  then click "Switch to video" in the Now Playing panel. The app said
+  "Desktop will keep playing video when available, until you change back to
+  audio", so that click should be needed once, not per song (not yet
+  re-verified after a restart). Full screen: set the window fullscreen in
+  Hyprland, then double-click the video. Clicking Spotify's own fullscreen
+  icons only paused playback. There is no MPRIS or Web API call for video;
+  it is pointer work: `hl.dsp.cursor.move({ x, y })` then
+  `hl.dsp.send_key_state` with key `mouse:272` down and up, in global
+  logical pixels (the TV starts at x=1536). Button positions come from a
+  `grim -o <tv>` screenshot, never from memory: the layout moves. Give
+  keyboard focus back to his window afterwards. **Phone as the remote:**
+  the app is a Spotify Connect device, so his phone's Spotify app can pick
+  this computer and change songs with nothing built by us.
 - Verify after every command: PlaybackStatus "Playing" and an active Spotify
   stream on the Headphones sink (`wpctl status`). Silence with everything
   green means Spotify Connect moved playback to another device (phone,
