@@ -46,7 +46,9 @@ HERE = pathlib.Path(__file__).resolve().parent
 LOG = HOME / ".local/state/bamware/party-stage.log"
 FALLBACK = [(255, 20, 110), (255, 110, 0), (255, 200, 0), (230, 40, 160)]   # the old party palette
 BULBS = ["smart led bulb", "bulb top"]            # LAN, driven live; name fragments
-ROOM = ["smart led bulb", "bulb top", "strip", "uplighter"]   # every light that answers on the LAN
+# Every light on the LAN that can show a colour. Not the floor lamp: in party mode only its ceiling ripple is on
+# (Bilal 2026-11-26), a fixed rainbow prism, and a colour command would wake the disc he asked to be off.
+ROOM = ["smart led bulb", "bulb top", "strip"]
 TV_WALL = ("H6099", "1C:CF:D4:0F:40:46:18:6A")    # cloud only, so it follows a few seconds behind
 # "screen": the whole room takes one colour, read live from what is on the TV (Bilal 2026-11-26: "all the lights in
 # sync together, like the whole room was changing colors... go completely off the music video screen and don't
