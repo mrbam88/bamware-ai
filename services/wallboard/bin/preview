@@ -1,0 +1,22 @@
+#!/bin/bash
+# Render a still of the board to a PNG without touching any display.
+#   bin/preview [width height [data.json]]
+# The PNG lands beside the data file. With no data file, fresh data is collected.
+set -euo pipefail
+here=$(cd "$(dirname "$0")/.." && pwd)
+width=${1:-1536}
+height=${2:-960}
+data=${3:-}
+
+if [[ -z $data ]]; then
+  data=$(mktemp -d)/wallboard.json
+  python3 "$here/collect.py" >"$data"
+fi
+data=$(realpath "$data")
+
+# The software renderer needs no GPU or compositor, so this works over SSH.
+QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QML_XHR_ALLOW_FILE_READ=1 \
+  QT_FORCE_STDERR_LOGGING=1 timeout 30 qml6 "$here/Preview.qml" -- "$width" "$height" "$data" 2>&1 |
+  grep -v 'XMLHttpRequest' || true
+
+echo "${data%.json}.png"

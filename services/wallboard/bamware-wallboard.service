@@ -1,0 +1,14 @@
+[Unit]
+Description=Bamware wall board: living-room screensaver on idle (services/wallboard)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+# Optional settings and the private calendar feed URL; see the README.
+EnvironmentFile=-%h/.config/bamware/wallboard.env
+ExecStart=/usr/bin/qs -p %h/.local/share/bamware/wallboard/shell.qml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

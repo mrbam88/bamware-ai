@@ -1,0 +1,10 @@
+#!/bin/bash
+# Drive the running wall board: wallboard show | hide | toggle | status
+set -euo pipefail
+case "${1:-toggle}" in
+  show) call=open ;;
+  hide) call=close ;;
+  toggle | status) call=${1:-toggle} ;;
+  *) echo "Usage: wallboard [show|hide|toggle|status]" >&2; exit 1 ;;
+esac
+exec qs -p "$HOME/.local/share/bamware/wallboard/shell.qml" ipc call wallboard "$call"
