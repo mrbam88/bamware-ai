@@ -581,29 +581,51 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   keyboard focus back to his window afterwards. **Phone as the remote:**
   the app is a Spotify Connect device, so his phone's Spotify app can pick
   this computer and change songs with nothing built by us.
-- **Party = lights + his music + the TV, not a playlist (Bilal, 2026-11-26):**
+- **Party = lights + his music + the TV, not a playlist (Bilal, 2026-11-26).**
   "Party mode does not mean literally play party music! It's about sticking
-  the lights and the music and the TV together", and "we already have a party
-  button, just tweak it by adding the music video playback on the TV". So
-  `vibes.sh party` keeps the existing light loop and now (1) leaves whatever
-  is playing alone, at his volume; Dance Party starts only into silence, at
-  the current volume; (2) runs `tv-spotify.sh` in the background: cast on,
-  Spotify moved to the TV and set full screen, keyboard focus and pointer
-  handed back. Verified by pressing the real button twice (once into
-  silence, once over playing music: same track, same volume, focus on his
-  terminal). Log: `~/.local/state/bamware/tv-spotify.log`.
-  `tv-spotify.sh off` takes it off full screen.
-- **Buttons are found by reading the screen, not by position:**
-  `screen_find.py <output> <words...>` (grim + tesseract) prints where a
-  label is, in global logical pixels, or exits 1. `tv-spotify.sh` uses it to
-  click "Switch to video" when that label is on screen, which opens the video
-  large; clicks register only while the window is not full screen. **Open
-  limit:** when Spotify is already in video mode with the video small in its
-  side panel (label "Switch to audio"), clicking that label did nothing in
-  five attempts, though other clicks landed. Spotify's own full-screen icons
-  also ignore simulated clicks. Until that is solved, a track's video may
-  show small in the panel and one hand click on it is needed. Many tracks
-  have no video at all (six in a row in Dance Party).
+  the lights and the music and the TV together." After the first version
+  (rotating colours, Spotify's dashboard on the TV): "party mode sucks. I
+  want the lights to be way more dynamic and changing with the music
+  frequency... music videos full screen by default... the colors from Spotify
+  as the inspiration for the lights dancing in my room. I want movement,
+  fluidity, dynamism. Even the presets that come with the Govee app are
+  better." What `vibes.sh party` does now:
+  - **Music:** whatever is playing stays, at his volume. Dance Party starts
+    only into silence, at the current volume.
+  - **TV:** `tv-spotify.sh` casts, puts Spotify on the Samsung and makes sure
+    it runs with its developer port. `party_stage.py` then keeps the TV right
+    every 2 s: a track with a video gets that video element full screen, a
+    track without one gets Spotify's own full-screen cover view, and keyboard
+    focus goes back to whoever had it.
+  - **Lights:** `party_stage.py` (smarthome venv). Palette = the few most
+    vivid hues of the current cover, renewed per track; a colourless cover
+    gets the classic party palette; green is dropped beside red. The two
+    H6006 bulbs have no music mode, so they are driven live over the LAN
+    about 8 times a second from the server's own audio (sink monitor): one
+    follows the bass, the other mids and treble, both slide through the
+    palette and jump on each beat. The strip (Spectrum), TV wall (Spectrum)
+    and floor lamp (Flowing Light) are put in Govee's own music modes in the
+    palette's colours, once per track; those animate from each light's
+    built-in microphone.
+  - Stop: any other scene, Kill, or `vibes.sh party-stop` (same PID file as
+    the old loop, which remains the fallback). Log:
+    `~/.local/state/bamware/party-stage.log` (track, palette, TV state,
+    beats per minute). Dry runs that touch nothing: `party_stage.py --listen`,
+    `--palette`. Tests: `python3 scripts/tests/test_party_stage.py`.
+  - **Album colours override the "no blue" rule in party mode only.** He
+    asked for Spotify's colours, and covers are often blue. Every other scene
+    keeps the warm palette.
+- **Driving Spotify: the developer port, not clicks.** Started with
+  `--remote-debugging-port=9222` (localhost only; `tv-spotify.sh` restarts a
+  launcher-started Spotify once to get it), the app's page takes JavaScript
+  over the Chrome DevTools protocol: buttons by `aria-label`
+  ("Enter Full screen", "Switch to video", "Video quality") and
+  `video.requestFullscreen()` with `userGesture`. That is what made full
+  screen reliable. Dead ends, do not retry: simulated pointer clicks
+  (`send_key_state` with `mouse:272`) landed on some elements and were
+  ignored by the video buttons; `OpenUri` navigates Spotify away from its
+  full-screen view. Many tracks have no video (six in a row in Dance Party);
+  Spotify's video tops out around 1080p, so `tv-play.sh` is still the 4K path.
 - Verify after every command: PlaybackStatus "Playing" and an active Spotify
   stream on the Headphones sink (`wpctl status`). Silence with everything
   green means Spotify Connect moved playback to another device (phone,

@@ -99,15 +99,28 @@ case ${1:-} in
     [[ $(snapshot H60B0 $LAMP "Cleaning") == 1 || $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(20<<8)+110 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
-    # Music (Bilal 2026-11-26: "Party mode does not mean literally play party music! It's about sticking the lights and
-    # the music and the TV together"): whatever he is playing stays, at his volume. Dance Party only fills a silence.
-    if [[ $(busctl --user get-property org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player PlaybackStatus 2>/dev/null) == *Playing* ]]; then music="your music stays on"
-    else spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')"; music="Dance Party at the current volume (nothing was playing)"; fi   # no fixed level: the Marshall's dial moves
-    # TV: the Spotify app full screen on the Samsung, music video when the track has one. Backgrounded: reading the
-    # screen takes a few seconds and the lights must not wait for it.
-    ( sleep 6; ~/.local/bin/tv-spotify.sh ) >> $LOGD/tv-spotify.log 2>&1 &
-    ( party_loop ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
-    echo "party mode: every light full, colours rotating (hot pink, orange, gold, red, fuchsia) for 3 h; $music; Spotify video going up on the TV; any other scene or Kill stops the lights" ;;
+    # Party = lights + his music + the TV (Bilal 2026-11-26: "Party mode does not mean literally play party music! It's
+    # about sticking the lights and the music and the TV together"). Whatever he is playing stays, at his volume; Dance
+    # Party only fills a silence, at the current volume (no fixed level: the Marshall's dial moves).
+    # Same day: "party mode sucks... I want the lights way more dynamic, changing with the music frequency... music
+    # videos full screen by default... the colors from Spotify as the inspiration." So the colour loop gave way to
+    # party_stage.py: bulbs driven live from bass/mids/treble, strip + TV wall + lamp in Govee's own music modes, all in
+    # the cover's colours, and the video full screen on the Samsung. The old loop remains the fallback.
+    if [[ $(busctl --user get-property org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player PlaybackStatus 2>/dev/null) == *Playing* ]]; then silent=0; music="your music stays on"
+    else silent=1; music="Dance Party at the current volume (nothing was playing)"; fi
+    if [[ -x ~/.local/bin/party_stage.py ]]; then
+      # One background job, in order: Spotify onto the TV (may restart it once), music into a silence, then the stage.
+      # exec keeps the job's PID, so party-stop and every other scene end it the way they ended the old loop.
+      ( ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
+        (( silent )) && { busctl --user call org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player OpenUri s "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" >/dev/null 2>&1; sleep 2; }
+        exec $PY ~/.local/bin/party_stage.py ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
+      how="lights dancing to the music in the cover's colours"
+    else
+      (( silent )) && spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')"
+      ( party_loop ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
+      how="colours rotating"
+    fi
+    echo "party mode: every light full, $how for 3 h; $music; video full screen on the TV; any other scene or Kill stops it" ;;
   release)   # drop the manual hold so timers run again
     rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
   *) echo "usage: vibes.sh morning [--now]|afternoon|evening|cleaning|work|party|party-stop|release"; exit 1;;
