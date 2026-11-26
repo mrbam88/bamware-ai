@@ -687,8 +687,8 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   - **Not on it, his call pending:** morning and afternoon already put their
     own video on the TV through the Apple TV (news, NBA), and work is "light
     near the ceiling, nothing at eye level" with the TV wall off.
-  - Its own PID file (`tv-stage.pid`): `party-stop` is what Dim and Bright
-    call and must not take the TV down. Any scene and Kill stop it
+  - Its own PID file (`tv-stage.pid`): `vibes.sh party-stop` is what Dim and
+    Bright call and must not take the TV down. Any scene and Kill stop it
     (`vibes.sh stage-stop`). Both stages run inside `buttons.service`, so
     restarting that service stops them.
 - **Driving Spotify: the developer port, not clicks.** Started with
