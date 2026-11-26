@@ -540,6 +540,21 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
 
 - Reference volume: sink 0.83, Spotify volume 1.0, the Kilburn dial does the
   rest. Do not change either unless asked.
+- **2026-11-26, supersedes 0.83 for now:** with the speaker moved closer to
+  the laptop, 0.83 was "too loud" for a YouTube music video and he called
+  0.60 "the max volume I think... for my neighbours". Start music at 0.60 or
+  below. The morning restore in `presence.sh` is capped at 0.60. Not yet
+  reconciled (ask him): the cleaning (0.75), party (0.80) and afternoon
+  (0.70) scenes in `vibes.sh` still set higher levels, tuned when the dial
+  and the speaker sat elsewhere.
+- **Video on the big TV from the server (verified 2026-11-26):** with the
+  cast on, open `https://www.youtube.com/watch?v=<id>` in a Chromium app
+  window with its own profile and
+  `--autoplay-policy=no-user-gesture-required` on the TV's workspace, set the
+  window fullscreen, then focus it, send `F`, and hand focus back. Sound
+  goes out the aux to the Marshall. Newest official uploads:
+  `yt-dlp --flat-playlist --playlist-end 12 --print "%(id)s | %(title)s" <channel>/videos`.
+  The player is not signed in, so ads play first.
 - Verify after every command: PlaybackStatus "Playing" and an active Spotify
   stream on the Headphones sink (`wpctl status`). Silence with everything
   green means Spotify Connect moved playback to another device (phone,
