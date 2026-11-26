@@ -540,13 +540,18 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
 
 - Reference volume: sink 0.83, Spotify volume 1.0, the Kilburn dial does the
   rest. Do not change either unless asked.
-- **2026-11-26, supersedes 0.83 for now:** with the speaker moved closer to
-  the laptop, 0.83 was "too loud" for a YouTube music video and he called
-  0.60 "the max volume I think... for my neighbours". Start music at 0.60 or
-  below. The morning restore in `presence.sh` is capped at 0.60. Not yet
-  reconciled (ask him): the cleaning (0.75), party (0.80) and afternoon
-  (0.70) scenes in `vibes.sh` still set higher levels, tuned when the dial
-  and the speaker sat elsewhere.
+- **The speaker is portable and its dial moves (Bilal, 2026-11-26):** "I
+  unplug the Bluetooth speaker all the time and take it outside, and so the
+  knobs are going to change." So a server level is never a loudness: 0.83
+  was "too loud" and 0.60 "the max, for my neighbours" on one afternoon with
+  one dial position, and neither number means anything after the next trip
+  outside. Do not hard-code ceilings from a remark like that (one was added
+  and removed the same day). When he says too loud or too quiet, step the
+  sink and stop; when starting music after the speaker may have moved, start
+  modest and let him adjust. The scene levels in `vibes.sh` (0.50 to 0.80)
+  are relative to each other only. The speaker may also simply be gone:
+  silence with everything green can mean it is outside on Bluetooth with his
+  phone.
 - **Video on the big TV from the server (verified 2026-11-26):** with the
   cast on, open `https://www.youtube.com/watch?v=<id>` in a Chromium app
   window with its own profile and

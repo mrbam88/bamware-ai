@@ -47,8 +47,8 @@ if (( 10#$h >= 22 || 10#$h < 8 )); then
   [[ -n $v ]] && awk "BEGIN{exit !($v > 0.55)}" && echo "$v" > $CAP && wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.55 && echo "$(date '+%F %T') quiet hours: volume $v -> 0.55"
 elif [[ -f $CAP ]]; then
   was=$(cat $CAP); rm -f $CAP
-  # Never hand back more than 0.60: with the Marshall where it sits now that is "the max, for my neighbours" (Bilal, 2026-11-26).
-  [[ $was =~ ^[01]\.[0-9]+$ ]] && was=$(awk "BEGIN{print ($was > 0.60) ? 0.60 : $was}")
+  # No fixed ceiling here on purpose: the Marshall's own dial moves every time he carries it outside, so a server
+  # number says nothing about how loud the room is (Bilal, 2026-11-26). Hand back exactly what he had before the cap.
   [[ $v == 0.55 && $was =~ ^[01]\.[0-9]+$ ]] && wpctl set-volume @DEFAULT_AUDIO_SINK@ "$was" && echo "$(date '+%F %T') quiet hours over: volume 0.55 -> $was"
 fi
 echo $new > $STATE
