@@ -95,11 +95,12 @@ case ${1:-} in
     echo "cleaning mode: every light full, lamp bottom + ripple, 90s hip-hop at 75%; Evening button or 'vibes.sh evening --force' when done" ;;
   party)     # party lights (Bilal 2026-10-31, Halloween): cleaning brightness, but warm party colours that keep moving; Dance Party on the stereo
     $LAN on all >/dev/null; $LAN bright "smart led bulb" 100 >/dev/null; $LAN bright strip 100 >/dev/null   # "smart led bulb" matches both bulbs
-    # Lamp (Bilal 2026-11-26, after trying ripple + ring at 6%): "in this party mode, you can just turn off the lamp and
-    # only use the top light with the ripple at 100%." So: ring off, disc off, ceiling ripple on, dimmer at 100. The
-    # ripple is a fixed rainbow prism and cannot take the room's colour, so the stage sends the lamp nothing. A snapshot
-    # he saves in the Govee app as "Party" wins over this. The ripple is sent last: the last toggle wins on this lamp.
-    [[ $(snapshot H60B0 $LAMP "Party") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1
+    # Lamp (Bilal 2026-11-26): "the lamp has to be off, which is fine, but the top two should be on... I want the disk on
+    # too, obviously... the ripple at 100%." In his words the "lamp" is the white bottom ring; the "top two" are the disc
+    # and the ceiling ripple. So: ring off, disc on, ripple on, dimmer at 100. The disc takes the room's colour from the
+    # stage; the ripple is a fixed rainbow prism. The lamp runs two of its three lights, and the last toggle sent wins,
+    # so the ring goes off first. A snapshot he saves in the Govee app as "Party" wins over this.
+    [[ $(snapshot H60B0 $LAMP "Party") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 0; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 1; cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1
       $LAN bright uplighter 100 >/dev/null; }
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(20<<8)+110 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old

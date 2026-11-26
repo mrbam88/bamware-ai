@@ -631,17 +631,19 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     music modes on the strip, TV wall and lamp). **No colour rules apply in
     party mode**, by his word; every other scene keeps the warm palette.
     The Govee TV Backlight's own camera mode is not reachable from the API.
-  - **The floor lamp in party mode: ripple only, at 100%.** He first tuned
-    ripple + ring down to 6% ("a really good place"), asked why "my top
-    light is the only one not changing" (the ceiling ripple is a fixed
-    rainbow prism with no colour control; only the disc takes colour, and
-    the lamp runs two of its three lights at once), and then decided: "in
-    this party mode, you can just turn off the lamp and only use the top
-    light with the ripple at 100%." The scene sets disc off, ring off, ripple
-    on, dimmer 100 (an app snapshot named `Party` wins), and the stage sends
-    the lamp nothing, so three LAN lights carry the room's colour. Verified
-    by read-back twice after pressing the button. It used to recall the
-    "Cleaning" look (ring + disc at 100%).
+  - **The floor lamp in party mode: disc + ceiling ripple on, white ring
+    off, dimmer 100.** His words, and how to read them: "the lamp has to be
+    off, which is fine, but the top two should be on... I want the disk on
+    too, obviously." **"The lamp" = the white bottom ring; "the top two" =
+    the disc and the ripple.** (An agent first read "turn off the lamp and
+    only use the top light with the ripple at 100%" as ripple alone and
+    turned the disc off; he corrected it.) The disc takes the room's colour
+    from the stage with the other three LAN lights; the ripple is a fixed
+    rainbow prism with no colour control. The ring goes off first because
+    the lamp runs two of three and the last toggle wins. An app snapshot
+    named `Party` wins over the toggles. Verified by read-back twice after
+    pressing the button: ripple 1, disc 1, ring 0, all four lights the same
+    colour. It used to recall the "Cleaning" look (ring + disc at 100%).
   - Stop: any other scene, Kill, or `vibes.sh party-stop` (same PID file as
     the old loop, which remains the fallback). Log:
     `~/.local/state/bamware/party-stage.log` (track, palette, TV state,
