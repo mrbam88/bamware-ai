@@ -135,7 +135,23 @@ the REST app launcher, and `ed.installedApp.get` over the websocket hung;
 the key is the way. True local over-the-air (ABC 7, CBS 2, FOX 5, PIX11) needs
 an antenna on the Samsung's tuner (indoor works in Manhattan), which is a
 purchase and his call; Rule #1.
-**Samsung input:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
+**Samsung source by name (2026-11-26, use this first):** Bilal: "you're just
+guessing... it's a smart TV, things are always rearranging." The websocket
+remote is one-way; only SmartThings can read the TV. `samsung_tv.py sources`
+lists the TV's own labels with the current one marked; `samsung_tv.py source
+pc` (or `xbox`, `tv`) selects by label and reads it back, exit 1 if the TV did
+not confirm. Verified: TV (dtv), XBOX One (HDMI3), PC (HDMI4). A source only
+appears while its device sends a signal, so the Apple TV was absent while
+asleep. Token in `~/.config/bamware/smartthings.token` (600), made at
+account.smartthings.com/tokens with the device scopes; personal tokens are
+believed to expire after 24 h, so a refusal means "make a new one" until a
+permanent sign-in is set up. Never count `KEY_SOURCE` presses for a new
+source.
+**The server on the TV:** `tv-cast.sh on` enables the output, then selects
+"PC". The output is pinned to 4K at 30 Hz in `~/.config/hypr/monitors.lua`:
+at 60 Hz the AMD card refused the stream on this cable (kernel `Adding stream
+... failed with err 28`) and the panel showed no signal.
+**Samsung input, older key path:** `KEY_HDMI1..4` do nothing on the QN90B; `KEY_SOURCE`
 cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30).
 **`samsung_tv.py appletv`** = wake, wait for the REST port, KEY_HOME, then
 KEY_SOURCE twice: lands on the Apple TV from any state. Every TV launch
