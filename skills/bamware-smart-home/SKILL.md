@@ -139,8 +139,10 @@ purchase and his call; Rule #1.
 cycles inputs (home -> Xbox -> Apple TV, verified by Bilal 2026-10-30; with
 omarchy on a third HDMI since 2026-11-26 the count is unverified, and the
 08:00 scene landed on the laptop's empty desktop: "audio works, screen black").
-The laptop's TV output is therefore `monitor = DP-4, disable` in
-`~/.config/hypr/monitors.conf` until a cast button enables it on purpose.
+The laptop's TV output is therefore disabled by model in
+`~/.config/hypr/monitors.lua` (`hl.monitor({ output = "desc:Samsung Electric
+Company QBQ90 0x01000E00", disabled = true })`, Hyprland 0.56 Lua config; the
+old `monitors.conf` is not read) until a cast button enables it on purpose.
 Preferred path is HDMI-CEC: `samsung_tv.py appletv|off` go through the Apple
 TV first and only touch the Samsung websocket (each connect can re-prompt
 "Allow Bamware?") as fallback; `touch ~/.config/bamware/samsung_cec` once CEC
