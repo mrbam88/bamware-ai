@@ -267,7 +267,8 @@ Good for the same work as the ThinkPad, with more headroom (RAM, disk, no
 glibc ceiling — rolling release, glibc 2.44).
 
 **Screensaver is the wall board (Bilal, 2026-11-26).** The lid stays open in
-the living room, so after 150 s idle it shows time, date, calendar, weather and
+the living room, so after 30 s idle (150 s until 2026-11-26) it dims the lid
+and shows time, date, calendar, weather and
 Bamware health instead of Omarchy's terminal animation. It reads local state
 only (no agent tokens). Install, settings and the calendar feed:
 `services/wallboard/README.md`. Omarchy's own screensaver is switched off by

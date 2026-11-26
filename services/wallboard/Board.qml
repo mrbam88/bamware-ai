@@ -41,6 +41,19 @@ Item {
     readonly property string sans: sansFont.status === FontLoader.Ready ? sansFont.name : "Noto Sans"
 
     readonly property int minuteStamp: Math.floor(now.getTime() / 60000)
+    // How much the coloured glows are held back. The lid sits in a living room (Bilal 2026-11-26: "subtle... I
+    // don't want a bright screen").
+    readonly property real hush: 0.6
+    // Which side page is showing; they take turns so each can be set large enough to read from the sofa.
+    property int page: 0
+    readonly property var pages: {
+        var list = ["calendar"]
+        if (systems.length) list.push("systems")
+        if (info.board) list.push("board")
+        return list
+    }
+    readonly property string pageName: pages[page % pages.length]
+    Timer { interval: 14000; repeat: true; running: !board.instant && board.pages.length > 1; onTriggered: board.page = (board.page + 1) % board.pages.length }
 
     FontLoader { id: serifFont; source: "fonts/InstrumentSerif-Regular.ttf" }
     FontLoader { id: italicFont; source: "fonts/InstrumentSerif-Italic.ttf" }
@@ -124,30 +137,45 @@ Item {
     }
     Timer { interval: 7000; repeat: true; running: board.playing && !board.instant; onTriggered: board.beat += 1 }
 
-    Glow { tint: board.playing ? board.accent : board.calm; size: 125 * board.u; opacity: board.playing ? 0.85 : 0.70
+    Glow { tint: board.playing ? board.accent : board.calm; size: 125 * board.u; opacity: (board.playing ? 0.85 : 0.70) * board.hush
         x: -34 * board.u + board.orbit(0.0, 9); y: -44 * board.u + board.orbit(1.7, 7) }
-    Glow { tint: board.playing ? board.warm : board.glowA; size: 110 * board.u; opacity: board.playing ? 0.62 : 0.50
+    Glow { tint: board.playing ? board.warm : board.glowA; size: 110 * board.u; opacity: (board.playing ? 0.62 : 0.50) * board.hush
         x: board.width - 62 * board.u + board.orbit(2.4, 8); y: board.height - 58 * board.u + board.orbit(4.1, 6) }
-    Glow { tint: board.playing ? board.gold : board.glowB; size: 85 * board.u; opacity: board.playing ? 0.36 : 0.26
+    Glow { tint: board.playing ? board.gold : board.glowB; size: 85 * board.u; opacity: (board.playing ? 0.36 : 0.26) * board.hush
         x: board.width * 0.36 + board.orbit(5.2, 10); y: board.height * 0.48 + board.orbit(3.3, 7) }
 
     // --- content ----------------------------------------------------------
 
     component Caps: Text {
         font.family: board.sans
-        font.pixelSize: Math.round(1.45 * board.u)
+        font.pixelSize: Math.round(1.95 * board.u)
         font.weight: Font.DemiBold
-        font.letterSpacing: 0.24 * board.u
+        font.letterSpacing: 0.22 * board.u
         font.capitalization: Font.AllUppercase
         color: board.dim
     }
 
     component Rule: Rectangle { height: 1; color: board.rule }
 
+    // One page of the side column. Declared here, at the top level: the live shell rejects a component
+    // declared inside another item ("Page is not a type"), though the offscreen preview accepts it.
+    component SidePage: Column {
+        property string name
+        width: parent ? parent.width : 0
+        anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+        anchors.verticalCenterOffset: 1.5 * board.u
+        spacing: 2.2 * board.u
+        opacity: board.pageName === name ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { enabled: !board.instant; NumberAnimation { duration: 900; easing.type: Easing.InOutSine } }
+    }
+
     Item {
         id: content
         anchors.fill: parent
-        opacity: board.instant ? 1 : 0
+        // Never full white: this is a lamp-lit room, and the board should sit in it like a clock, not a monitor.
+        readonly property real rest: 0.80
+        opacity: board.instant ? rest : 0
         // A few pixels of drift each minute keeps any one pixel from holding
         // the same glyph edge for days.
         transform: Translate {
@@ -158,7 +186,7 @@ Item {
         readonly property real margin: 7 * board.u
         readonly property real sideWidth: Math.min(60 * board.u, width * 0.36)
 
-        NumberAnimation on opacity { running: !board.instant; from: 0; to: 1; duration: 1600; easing.type: Easing.OutCubic }
+        NumberAnimation on opacity { running: !board.instant; from: 0; to: content.rest; duration: 1600; easing.type: Easing.OutCubic }
 
         // Masthead.
         Caps { id: masthead; x: content.margin; y: content.margin; text: "Bamware  ·  Living room" + (board.playing ? "  ·  Now playing" : "") }
@@ -237,6 +265,16 @@ Item {
 
             Item { width: 1; height: 3.4 * board.u }
 
+            // The minute, filling in real time: the one thing on the board that is always moving.
+            Item {
+                width: parent.width; height: 2.2 * board.u
+                Rectangle {
+                    height: Math.max(2, Math.round(0.22 * board.u)); color: board.accent; opacity: 0.55
+                    width: parent.width * (board.now.getSeconds() + 1) / 60
+                    Behavior on width { enabled: !board.instant && board.now.getSeconds() !== 0; NumberAnimation { duration: 1000 } }
+                }
+            }
+
             // The day as a line: daylight in accent, a tick where we are now.
             Item {
                 id: dayLine
@@ -265,10 +303,6 @@ Item {
                     visible: !!board.sunset
                     text: board.sunset ? "Sunset " + board.clock(board.sunset) : ""
                 }
-                Caps {
-                    anchors.right: parent.right; y: 2.4 * board.u
-                    text: "Day " + board.dayOfYear(board.now) + " of " + board.daysInYear(board.now)
-                }
             }
         }
 
@@ -279,7 +313,7 @@ Item {
             x: content.margin
             width: hero.width
             anchors.bottom: parent.bottom; anchors.bottomMargin: content.margin
-            height: 2.6 * board.u
+            height: 3.4 * board.u
             readonly property var current: board.notes.length ? board.notes[board.noteIndex % board.notes.length] : null
 
             Row {
@@ -295,7 +329,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     width: note.width - noteTag.width - noteRow.spacing
                     elide: Text.ElideRight
-                    font.family: board.sans; font.pixelSize: Math.round(1.9 * board.u)
+                    font.family: board.sans; font.pixelSize: Math.round(2.5 * board.u)
                     color: board.soft
                     text: note.current ? note.current.text : ""
                 }
@@ -319,7 +353,7 @@ Item {
             spacing: 2.2 * board.u
 
             Rectangle {
-                width: 9 * board.u; height: 9 * board.u
+                width: 13 * board.u; height: 13 * board.u
                 color: Qt.rgba(board.ink.r, board.ink.g, board.ink.b, 0.06)
                 border.color: board.rule; border.width: 1
                 Image {
@@ -332,7 +366,7 @@ Item {
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
-                width: hero.width - 11.2 * board.u
+                width: hero.width - 15.2 * board.u
                 spacing: 0.5 * board.u
                 Row {
                     spacing: 1.2 * board.u
@@ -360,128 +394,129 @@ Item {
                 }
                 Text {
                     width: parent.width; elide: Text.ElideRight
-                    font.family: board.serif; font.pixelSize: Math.round(4.2 * board.u)
+                    font.family: board.serif; font.pixelSize: Math.round(5.6 * board.u)
                     color: board.ink
                     text: board.media.title || ""
                 }
                 Text {
                     width: parent.width; elide: Text.ElideRight
                     visible: text.length > 0
-                    font.family: board.sans; font.pixelSize: Math.round(1.9 * board.u)
+                    font.family: board.sans; font.pixelSize: Math.round(2.6 * board.u)
                     color: board.soft
                     text: board.media.artist || ""
+                }
+                // Where the track is, moving every second between data refreshes.
+                Item {
+                    width: parent.width; height: 1.4 * board.u
+                    visible: (board.media.length || 0) > 0
+                    readonly property real elapsed: (board.media.position || 0) + Math.max(0, (board.now - new Date(board.info.generatedAt || board.now)) / 1000)
+                    Rule { width: parent.width; y: parent.height - 1 }
+                    Rectangle {
+                        y: parent.height - 2; height: 3; color: board.accent; opacity: 0.8
+                        width: parent.width * Math.min(1, parent.elapsed / Math.max(1, board.media.length || 1))
+                    }
                 }
             }
         }
 
-        // Side column: calendar, systems, allowance.
-        Column {
+        // Side column: three pages that take turns, so each is large enough to read from across the room.
+        Item {
             id: side
             width: content.sideWidth
+            height: parent.height - 2 * content.margin
             anchors.right: parent.right; anchors.rightMargin: content.margin
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: 1.2 * board.u
-            spacing: 1.5 * board.u
 
-            // Month.
-            Item {
-                width: parent.width; height: monthName.height
-                Text {
-                    id: monthName
-                    font.family: board.serif; font.pixelSize: Math.round(3.6 * board.u)
-                    color: board.ink
-                    text: Qt.formatDate(board.now, "MMMM")
-                }
-                Caps {
-                    anchors.right: parent.right; anchors.baseline: monthName.baseline
-                    text: Qt.formatDate(board.now, "yyyy") + "  ·  Week " + board.isoWeek(board.now)
-                }
-            }
-
-            Grid {
-                id: month
-                columns: 7
-                width: parent.width
-                readonly property real cell: width / 7
-                readonly property int year: board.now.getFullYear()
-                readonly property int monthIndex: board.now.getMonth()
-                readonly property int lead: new Date(year, monthIndex, 1).getDay()
-                readonly property int days: new Date(year, monthIndex + 1, 0).getDate()
-
-                Repeater {
-                    model: ["S", "M", "T", "W", "T", "F", "S"]
-                    Item {
-                        width: month.cell; height: 2.6 * board.u
-                        Caps { anchors.centerIn: parent; text: modelData; font.letterSpacing: 0 }
+            // Calendar.
+            SidePage {
+                name: "calendar"
+                Item {
+                    width: parent.width; height: monthName.height
+                    Text {
+                        id: monthName
+                        font.family: board.serif; font.pixelSize: Math.round(6.0 * board.u)
+                        color: board.ink
+                        text: Qt.formatDate(board.now, "MMMM")
+                    }
+                    Caps {
+                        anchors.right: parent.right; anchors.baseline: monthName.baseline
+                        text: "Week " + board.isoWeek(board.now)
                     }
                 }
-                Repeater {
-                    model: Math.ceil((month.lead + month.days) / 7) * 7
-                    Item {
-                        id: dayCell
-                        readonly property int day: index - month.lead + 1
-                        readonly property bool real: day >= 1 && day <= month.days
-                        readonly property bool today: real && day === board.now.getDate()
-                        readonly property bool weekend: index % 7 === 0 || index % 7 === 6
-                        width: month.cell; height: 3.0 * board.u
-                        Rectangle {
-                            visible: dayCell.today
-                            anchors.centerIn: parent
-                            width: 2.8 * board.u; height: 2.8 * board.u
-                            color: board.accent
+                Grid {
+                    id: month
+                    columns: 7
+                    width: parent.width
+                    readonly property real cell: width / 7
+                    readonly property int year: board.now.getFullYear()
+                    readonly property int monthIndex: board.now.getMonth()
+                    readonly property int lead: new Date(year, monthIndex, 1).getDay()
+                    readonly property int days: new Date(year, monthIndex + 1, 0).getDate()
+
+                    Repeater {
+                        model: ["S", "M", "T", "W", "T", "F", "S"]
+                        Item {
+                            width: month.cell; height: 3.6 * board.u
+                            Caps { anchors.centerIn: parent; text: modelData; font.letterSpacing: 0 }
                         }
-                        Text {
-                            anchors.centerIn: parent
-                            visible: dayCell.real
-                            font.family: board.sans; font.pixelSize: Math.round(1.75 * board.u)
-                            font.weight: dayCell.today ? Font.Bold : Font.Normal
-                            font.features: { "tnum": 1 }
-                            color: dayCell.today ? board.base : (dayCell.day < board.now.getDate() || dayCell.weekend ? board.dim : board.soft)
-                            text: dayCell.day
+                    }
+                    Repeater {
+                        model: Math.ceil((month.lead + month.days) / 7) * 7
+                        Item {
+                            id: dayCell
+                            readonly property int day: index - month.lead + 1
+                            readonly property bool real: day >= 1 && day <= month.days
+                            readonly property bool today: real && day === board.now.getDate()
+                            readonly property bool weekend: index % 7 === 0 || index % 7 === 6
+                            width: month.cell; height: 4.6 * board.u
+                            Rectangle {
+                                visible: dayCell.today
+                                anchors.centerIn: parent
+                                width: 4.3 * board.u; height: 4.3 * board.u
+                                color: board.accent; opacity: 0.9
+                            }
+                            Text {
+                                anchors.centerIn: parent
+                                visible: dayCell.real
+                                font.family: board.sans; font.pixelSize: Math.round(2.7 * board.u)
+                                font.weight: dayCell.today ? Font.Bold : Font.Normal
+                                font.features: { "tnum": 1 }
+                                color: dayCell.today ? board.base : (dayCell.day < board.now.getDate() || dayCell.weekend ? board.dim : board.soft)
+                                text: dayCell.day
+                            }
                         }
                     }
                 }
-            }
-
-            // Agenda, when a calendar feed is linked.
-            Rule { width: parent.width; visible: board.events.length > 0 }
-            Column {
-                width: parent.width
-                visible: board.events.length > 0
-                spacing: 1.0 * board.u
-                Caps { text: "Up next" }
-                Repeater {
-                    model: board.events.slice(0, 3)
-                    Item {
-                        id: eventRow
-                        readonly property date start: new Date(modelData.start)
-                        width: side.width; height: 2.5 * board.u
-                        Text {
-                            id: eventWhen
-                            width: 20 * board.u
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.family: board.sans; font.pixelSize: Math.round(1.7 * board.u)
-                            font.features: { "tnum": 1 }
-                            color: board.sameDay(eventRow.start, board.now) ? board.accent : board.dim
-                            text: board.eventDay(eventRow.start) + (modelData.allDay ? "" : "  " + board.clock(eventRow.start) + " " + board.meridiem(eventRow.start))
-                        }
-                        Text {
-                            anchors.left: eventWhen.right; anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            elide: Text.ElideRight
-                            font.family: board.sans; font.pixelSize: Math.round(1.85 * board.u)
-                            color: board.ink
-                            text: modelData.title
+                Rule { width: parent.width; visible: board.events.length > 0 }
+                Column {
+                    width: parent.width
+                    visible: board.events.length > 0
+                    spacing: 1.2 * board.u
+                    Repeater {
+                        model: board.events.slice(0, 2)
+                        Column {
+                            id: eventRow
+                            readonly property date start: new Date(modelData.start)
+                            width: side.width
+                            spacing: 0.2 * board.u
+                            Caps {
+                                color: board.sameDay(eventRow.start, board.now) ? board.accent : board.dim
+                                text: board.eventDay(eventRow.start) + (modelData.allDay ? "" : "  ·  " + board.clock(eventRow.start) + " " + board.meridiem(eventRow.start))
+                            }
+                            Text {
+                                width: parent.width; elide: Text.ElideRight
+                                font.family: board.sans; font.pixelSize: Math.round(2.9 * board.u)
+                                color: board.ink
+                                text: modelData.title
+                            }
                         }
                     }
                 }
             }
 
-            // Systems.
-            Rule { width: parent.width }
-            Column {
-                width: parent.width
-                spacing: 1.0 * board.u
+            // Systems, and the week's allowance.
+            SidePage {
+                name: "systems"
                 Caps { text: "Systems" }
                 Repeater {
                     model: board.systems
@@ -489,105 +524,108 @@ Item {
                         id: systemRow
                         readonly property bool fine: modelData.level === "ok"
                         readonly property color tone: fine ? board.accent : (modelData.level === "unknown" ? board.dim : board.amber)
-                        width: side.width; height: 2.5 * board.u
-                        // Healthy is a filled dot, a warning a hollow ring, an alert a
-                        // solid square: readable without telling colours apart.
+                        width: side.width; height: 6.2 * board.u
+                        // Healthy is a filled dot, a warning a hollow ring, an alert a solid square: readable
+                        // without telling colours apart.
                         Rectangle {
                             id: mark
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 0.95 * board.u; height: width
+                            y: 1.2 * board.u
+                            width: 1.5 * board.u; height: width
                             radius: modelData.level === "alert" ? 0 : width / 2
                             color: modelData.level === "warn" || modelData.level === "unknown" ? "transparent" : systemRow.tone
-                            border.color: systemRow.tone; border.width: Math.max(1, Math.round(0.18 * board.u))
+                            border.color: systemRow.tone; border.width: Math.max(2, Math.round(0.26 * board.u))
                         }
                         Text {
                             id: systemLabel
-                            anchors.left: mark.right; anchors.leftMargin: 1.3 * board.u
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.family: board.sans; font.pixelSize: Math.round(1.85 * board.u)
+                            anchors.left: mark.right; anchors.leftMargin: 1.8 * board.u
+                            font.family: board.sans; font.pixelSize: Math.round(3.0 * board.u)
                             color: board.ink
                             text: modelData.label
                         }
                         Text {
-                            anchors.left: systemLabel.right; anchors.leftMargin: 1.4 * board.u
-                            anchors.right: systemValue.left; anchors.rightMargin: 1.4 * board.u
-                            anchors.verticalCenter: parent.verticalCenter
-                            horizontalAlignment: Text.AlignRight
-                            elide: Text.ElideRight
-                            font.family: board.sans; font.pixelSize: Math.round(1.6 * board.u)
+                            anchors.left: systemLabel.left; anchors.top: systemLabel.bottom
+                            width: side.width - 3.3 * board.u; elide: Text.ElideRight
+                            font.family: board.sans; font.pixelSize: Math.round(1.95 * board.u)
                             color: board.dim
                             text: modelData.detail || ""
                         }
                         Text {
-                            id: systemValue
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.family: board.sans; font.pixelSize: Math.round(1.85 * board.u)
+                            anchors.right: parent.right; anchors.baseline: systemLabel.baseline
+                            font.family: board.sans; font.pixelSize: Math.round(3.0 * board.u)
                             font.weight: systemRow.fine ? Font.Normal : Font.DemiBold
                             color: systemRow.fine ? board.soft : board.amber
                             text: modelData.value
                         }
                     }
                 }
+                Rule { width: parent.width; visible: !!board.info.allowance }
+                Column {
+                    visible: !!board.info.allowance
+                    width: parent.width
+                    spacing: 1.2 * board.u
+                    readonly property var pool: board.info.allowance || ({ usedOf100: 0, resetHours: 0, label: "", level: "ok" })
+                    Item {
+                        width: parent.width; height: allowanceLabel.height
+                        Caps { id: allowanceLabel; text: "Claude this week" }
+                        Caps { anchors.right: parent.right; color: board.soft; text: parent.parent.pool.usedOf100 + " of 100 used" }
+                    }
+                    Item {
+                        width: parent.width; height: 4
+                        Rule { width: parent.width; y: 2 }
+                        Rectangle {
+                            width: parent.width * Math.min(100, parent.parent.pool.usedOf100) / 100; height: 4
+                            color: parent.parent.pool.level === "ok" ? board.accent : board.amber
+                        }
+                    }
+                    Caps { text: "Resets in " + parent.pool.resetHours + " h" }
+                }
             }
 
-            // Board counts, set like figures in a magazine sidebar.
-            Rule { width: parent.width; visible: !!board.info.board }
-            Row {
-                visible: !!board.info.board
-                width: parent.width
+            // The board, as three large figures.
+            SidePage {
+                name: "board"
+                Caps { text: "Board" }
                 Repeater {
                     model: board.info.board ? [
-                        { n: board.info.board.readyForQa, label: "Ready for QA" },
-                        { n: board.info.board.inProgress, label: "In progress" },
-                        { n: board.info.board.todo, label: "To do" }
+                        { n: board.info.board.readyForQa, label: "Ready for QA", lead: true },
+                        { n: board.info.board.inProgress, label: "In progress", lead: false },
+                        { n: board.info.board.todo, label: "To do", lead: false }
                     ] : []
-                    Column {
-                        width: side.width / 3
-                        spacing: 0.2 * board.u
+                    Item {
+                        width: side.width; height: 11 * board.u
                         Text {
-                            font.family: board.serif; font.pixelSize: Math.round(4.4 * board.u)
-                            color: index === 0 && modelData.n > 0 ? board.accent : board.ink
+                            id: figure
+                            font.family: board.serif; font.pixelSize: Math.round(11 * board.u)
+                            color: modelData.lead && modelData.n > 0 ? board.accent : board.ink
                             text: modelData.n
                         }
-                        Caps { text: modelData.label; font.letterSpacing: 0.14 * board.u }
+                        Caps {
+                            anchors.right: parent.right; anchors.baseline: figure.baseline
+                            text: modelData.label
+                        }
+                        Rule { width: parent.width; anchors.bottom: parent.bottom }
                     }
                 }
             }
 
-            // Allowance.
-            Rule { width: parent.width; visible: !!board.info.allowance }
-            Column {
-                visible: !!board.info.allowance
-                width: parent.width
-                spacing: 1.1 * board.u
-                readonly property var pool: board.info.allowance || ({ usedOf100: 0, resetHours: 0, label: "", level: "ok" })
-                readonly property color tone: pool.level === "ok" ? board.accent : board.amber
-                Item {
-                    width: parent.width; height: allowanceLabel.height
-                    Caps { id: allowanceLabel; text: parent.parent.pool.label }
-                    Caps {
-                        anchors.right: parent.right
-                        color: board.soft
-                        text: parent.parent.pool.usedOf100 + " of 100 used"
+            // Which page this is, and when the numbers were read.
+            Row {
+                anchors.bottom: parent.bottom
+                spacing: 0.9 * board.u
+                visible: board.pages.length > 1
+                Repeater {
+                    model: board.pages.length
+                    Rectangle {
+                        width: (index === board.page % board.pages.length ? 3.2 : 1.2) * board.u; height: Math.max(2, Math.round(0.28 * board.u))
+                        color: index === board.page % board.pages.length ? board.accent : board.rule
+                        Behavior on width { enabled: !board.instant; NumberAnimation { duration: 600 } }
                     }
                 }
-                Item {
-                    width: parent.width; height: 3
-                    Rule { width: parent.width; y: 1 }
-                    Rectangle { width: parent.width * Math.min(100, parent.parent.pool.usedOf100) / 100; height: 3; color: parent.parent.tone }
-                }
-                Item {
-                    width: parent.width; height: resetLabel.height
-                    Caps { id: resetLabel; text: "Resets in " + parent.parent.pool.resetHours + " h" }
-                    Caps {
-                        anchors.right: parent.right
-                        visible: !!board.info.generatedAt
-                        text: board.info.generatedAt
-                            ? "Updated " + board.clock(new Date(board.info.generatedAt)) + " " + board.meridiem(new Date(board.info.generatedAt))
-                            : ""
-                    }
-                }
+            }
+            Caps {
+                anchors.right: parent.right; anchors.bottom: parent.bottom
+                visible: !!board.info.generatedAt
+                text: board.info.generatedAt ? "Live  ·  " + board.clock(new Date(board.info.generatedAt)) + ":" + board.pad(new Date(board.info.generatedAt).getSeconds()) : ""
             }
         }
     }
