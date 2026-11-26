@@ -6,11 +6,11 @@ PY=~/.venvs/smarthome/bin/python; LAN="python3 $HOME/.local/bin/govee_lan.py"
 . ~/.config/bamware/govee.env
 API=https://openapi.api.govee.com/router/api/v1; H=(-H "Govee-API-Key: $GOVEE_API_KEY" -H "Content-Type: application/json")
 LAMP=40:F9:DA:C3:41:06:03:53; TVB=1C:CF:D4:0F:40:46:18:6A
-cloud() { curl -s "${H[@]}" -X POST $API/device/control -d "{\"requestId\":\"v\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\",\"capability\":{\"type\":\"$3\",\"instance\":\"$4\",\"value\":$5}}}" >/dev/null; }
-scene() { v=$(curl -s "${H[@]}" -X POST $API/device/scenes -d "{\"requestId\":\"q\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\"}}" | jq -c --arg n "$3" '.payload.capabilities[0].parameters.options[] | select(.name==$n) | .value' | head -1); [[ -n $v ]] && cloud $1 $2 devices.capabilities.dynamic_scene lightScene "$v"; }
+cloud() { curl -s -m 8 "${H[@]}" -X POST $API/device/control -d "{\"requestId\":\"v\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\",\"capability\":{\"type\":\"$3\",\"instance\":\"$4\",\"value\":$5}}}" >/dev/null; }
+scene() { v=$(curl -s -m 8 "${H[@]}" -X POST $API/device/scenes -d "{\"requestId\":\"q\",\"payload\":{\"sku\":\"$1\",\"device\":\"$2\"}}" | jq -c --arg n "$3" '.payload.capabilities[0].parameters.options[] | select(.name==$n) | .value' | head -1); [[ -n $v ]] && cloud $1 $2 devices.capabilities.dynamic_scene lightScene "$v"; }
 snapshot() { # $1 sku $2 device $3 snapshot name saved in the Govee app -> recall it; prints 1 if found (the only way to set the lamp's ring level)
   # loose match: the app keeps whatever he typed ("Focus bright " with a trailing space, 2026-10-30), so compare lowercased and trimmed
-  v=$(curl -s "${H[@]}" $API/user/devices | jq -c --arg d "$2" --arg n "$(echo "$3" | tr "[:upper:]" "[:lower:]" | xargs)" '.data[] | select(.device==$d) | .capabilities[] | select(.instance=="snapshot") | .parameters.options[] | select((.name | ascii_downcase | gsub("^\\s+|\\s+$"; "")) == $n) | .value' | head -1)
+  v=$(curl -s -m 8 "${H[@]}" $API/user/devices | jq -c --arg d "$2" --arg n "$(echo "$3" | tr "[:upper:]" "[:lower:]" | xargs)" '.data[] | select(.device==$d) | .capabilities[] | select(.instance=="snapshot") | .parameters.options[] | select((.name | ascii_downcase | gsub("^\\s+|\\s+$"; "")) == $n) | .value' | head -1)
   [[ -n $v ]] && { cloud $1 $2 devices.capabilities.dynamic_scene snapshot "$v"; echo 1; } || echo 0; }
 lamp_top() { # ripple on the ceiling + bottom ring, disc off (two of three); args = snapshot names to try in order (a snapshot also sets the ring level)
   for n in "$@"; do [[ $(snapshot H60B0 $LAMP "$n") == 1 ]] && return; done
@@ -99,9 +99,15 @@ case ${1:-} in
     [[ $(snapshot H60B0 $LAMP "Cleaning") == 1 || $(snapshot H60B0 $LAMP "Clean") == 1 ]] || { cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 0; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle sideLightToggle 1; sleep 2; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1; }
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 1; cloud H6099 $TVB devices.capabilities.color_setting colorRgb $(( (255<<16)+(20<<8)+110 )); cloud H6099 $TVB devices.capabilities.range brightness 100
     touch ~/.local/state/bamware/lights.hold   # scheduled vibes and daylight.timer skip while this is under 3 h old
-    spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" 0.80   # Dance Party
+    # Music (Bilal 2026-11-26: "Party mode does not mean literally play party music! It's about sticking the lights and
+    # the music and the TV together"): whatever he is playing stays, at his volume. Dance Party only fills a silence.
+    if [[ $(busctl --user get-property org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player PlaybackStatus 2>/dev/null) == *Playing* ]]; then music="your music stays on"
+    else spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')"; music="Dance Party at the current volume (nothing was playing)"; fi   # no fixed level: the Marshall's dial moves
+    # TV: the Spotify app full screen on the Samsung, music video when the track has one. Backgrounded: reading the
+    # screen takes a few seconds and the lights must not wait for it.
+    ( sleep 6; ~/.local/bin/tv-spotify.sh ) >> $LOGD/tv-spotify.log 2>&1 &
     ( party_loop ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
-    echo "party mode: every light full, colours rotating (hot pink, orange, gold, red, fuchsia) for 3 h, Dance Party at 80%; any other scene or Kill stops it" ;;
+    echo "party mode: every light full, colours rotating (hot pink, orange, gold, red, fuchsia) for 3 h; $music; Spotify video going up on the TV; any other scene or Kill stops the lights" ;;
   release)   # drop the manual hold so timers run again
     rm -f ~/.local/state/bamware/lights.hold; echo "hold released" ;;
   *) echo "usage: vibes.sh morning [--now]|afternoon|evening|cleaning|work|party|party-stop|release"; exit 1;;

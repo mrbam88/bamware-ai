@@ -52,6 +52,10 @@ ACTIONS = {
     "game-on":     ("Game on",        "tv",     f"python3 {BIN}/nba_watch.py now"),   # the live NBA game he can watch, Knicks first (2026-10-31)
     "local-tv":    ("Local TV",       "tv",     f"P={HOME}/.venvs/smarthome/bin/python; $P {BIN}/samsung_tv.py wake >/dev/null 2>&1; sleep 3; $P {BIN}/samsung_tv.py key KEY_TV"),   # Samsung Live TV / TV Plus: free NYC local channels (verified by Bilal 2026-10-30)
     "mute-alert":  ("Quiet the mic 2 h", "misc", f"{BIN}/roomlevel.sh mute 120"),
+    "away":        ("I'm leaving",    "misc",   f"{BIN}/presence.sh away"),   # the only way the apartment goes "away" (2026-11-26); lights/TV/stereo off follows
+    "home":        ("I'm home",       "misc",   f"{BIN}/presence.sh home"),
+    "cast":        ("Cast omarchy",   "tv",     f"{BIN}/tv-cast.sh on"),      # laptop desktop on the Samsung (2026-11-26)
+    "cast-off":    ("Stop cast",      "tv",     f"{BIN}/tv-cast.sh off"),
     "tv-off":      ("TVs off",        "misc",   f"{HOME}/.venvs/smarthome/bin/python {BIN}/appletv.py key turn_off >/dev/null 2>&1; {HOME}/.venvs/smarthome/bin/python {BIN}/samsung_tv.py off >/dev/null 2>&1; true"),
 }
 TV_APPS = {"peacock": "com.peacocktv.peacock", "prime": "com.amazon.aiv.AIVApp", "espn": "com.espn.ScoreCenter", "pluto": "tv.pluto.ios", "tubi": "com.adrise.tubitv"}

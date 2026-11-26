@@ -581,6 +581,29 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   keyboard focus back to his window afterwards. **Phone as the remote:**
   the app is a Spotify Connect device, so his phone's Spotify app can pick
   this computer and change songs with nothing built by us.
+- **Party = lights + his music + the TV, not a playlist (Bilal, 2026-11-26):**
+  "Party mode does not mean literally play party music! It's about sticking
+  the lights and the music and the TV together", and "we already have a party
+  button, just tweak it by adding the music video playback on the TV". So
+  `vibes.sh party` keeps the existing light loop and now (1) leaves whatever
+  is playing alone, at his volume; Dance Party starts only into silence, at
+  the current volume; (2) runs `tv-spotify.sh` in the background: cast on,
+  Spotify moved to the TV and set full screen, keyboard focus and pointer
+  handed back. Verified by pressing the real button twice (once into
+  silence, once over playing music: same track, same volume, focus on his
+  terminal). Log: `~/.local/state/bamware/tv-spotify.log`.
+  `tv-spotify.sh off` takes it off full screen.
+- **Buttons are found by reading the screen, not by position:**
+  `screen_find.py <output> <words...>` (grim + tesseract) prints where a
+  label is, in global logical pixels, or exits 1. `tv-spotify.sh` uses it to
+  click "Switch to video" when that label is on screen, which opens the video
+  large; clicks register only while the window is not full screen. **Open
+  limit:** when Spotify is already in video mode with the video small in its
+  side panel (label "Switch to audio"), clicking that label did nothing in
+  five attempts, though other clicks landed. Spotify's own full-screen icons
+  also ignore simulated clicks. Until that is solved, a track's video may
+  show small in the panel and one hand click on it is needed. Many tracks
+  have no video at all (six in a row in Dance Party).
 - Verify after every command: PlaybackStatus "Playing" and an active Spotify
   stream on the Headphones sink (`wpctl status`). Silence with everything
   green means Spotify Connect moved playback to another device (phone,
