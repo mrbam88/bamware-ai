@@ -19,7 +19,15 @@ Item {
     readonly property color ink: tones.bright_foreground || "#c0caf5"
     readonly property color soft: tones.foreground || "#a9b1d6"
     readonly property color dim: tones.dark_foreground || "#565f89"
-    readonly property color accent: tones.accent || "#7aa2f7"
+    readonly property color calm: tones.accent || "#7aa2f7"
+    // Something is playing: the board warms up so the room can tell it is in entertainment mode.
+    readonly property var media: info.media || ({})
+    readonly property bool playing: !!media.playing
+    readonly property color accent: playing ? (tones.bright_magenta || "#bb9af7") : calm
+    readonly property color warm: tones.bright_yellow || "#ff9e64"
+    readonly property color gold: tones.yellow || "#e0af68"
+    // Advances every few seconds while playing, so the glows keep flowing instead of resting.
+    property int beat: 0
     readonly property color glowA: tones.bright_magenta || "#bb9af7"
     readonly property color glowB: tones.bright_cyan || "#0db9d7"
     // Bilal is red-green colourblind: trouble is amber and a different shape,
@@ -105,19 +113,22 @@ Item {
         }
         // The glows only travel for a few seconds when the minute turns, so an
         // always-on screen is a still picture (and an idle GPU) the rest of the time.
-        Behavior on x { enabled: !board.instant; NumberAnimation { duration: 14000; easing.type: Easing.InOutSine } }
-        Behavior on y { enabled: !board.instant; NumberAnimation { duration: 14000; easing.type: Easing.InOutSine } }
+        Behavior on x { enabled: !board.instant; NumberAnimation { duration: board.playing ? 7000 : 14000; easing.type: Easing.InOutSine } }
+        Behavior on y { enabled: !board.instant; NumberAnimation { duration: board.playing ? 7000 : 14000; easing.type: Easing.InOutSine } }
         Behavior on opacity { enabled: !board.instant; NumberAnimation { duration: 2400; easing.type: Easing.OutCubic } }
     }
 
     // Each minute picks a new resting place from a slow orbit.
-    function orbit(phase, radius) { return Math.sin(minuteStamp * 0.37 + phase) * radius * u }
+    function orbit(phase, radius) {
+        return playing ? Math.sin(beat * 0.9 + phase) * radius * 1.8 * u : Math.sin(minuteStamp * 0.37 + phase) * radius * u
+    }
+    Timer { interval: 7000; repeat: true; running: board.playing && !board.instant; onTriggered: board.beat += 1 }
 
-    Glow { tint: board.accent; size: 125 * board.u; opacity: 0.70
+    Glow { tint: board.playing ? board.accent : board.calm; size: 125 * board.u; opacity: board.playing ? 0.85 : 0.70
         x: -34 * board.u + board.orbit(0.0, 9); y: -44 * board.u + board.orbit(1.7, 7) }
-    Glow { tint: board.glowA; size: 110 * board.u; opacity: 0.50
+    Glow { tint: board.playing ? board.warm : board.glowA; size: 110 * board.u; opacity: board.playing ? 0.62 : 0.50
         x: board.width - 62 * board.u + board.orbit(2.4, 8); y: board.height - 58 * board.u + board.orbit(4.1, 6) }
-    Glow { tint: board.glowB; size: 85 * board.u; opacity: 0.26
+    Glow { tint: board.playing ? board.gold : board.glowB; size: 85 * board.u; opacity: board.playing ? 0.36 : 0.26
         x: board.width * 0.36 + board.orbit(5.2, 10); y: board.height * 0.48 + board.orbit(3.3, 7) }
 
     // --- content ----------------------------------------------------------
@@ -150,7 +161,7 @@ Item {
         NumberAnimation on opacity { running: !board.instant; from: 0; to: 1; duration: 1600; easing.type: Easing.OutCubic }
 
         // Masthead.
-        Caps { id: masthead; x: content.margin; y: content.margin; text: "Bamware  ·  Living room" }
+        Caps { id: masthead; x: content.margin; y: content.margin; text: "Bamware  ·  Living room" + (board.playing ? "  ·  Now playing" : "") }
         Caps {
             anchors.right: parent.right; anchors.rightMargin: content.margin; y: content.margin
             visible: !!board.info.weather
@@ -264,7 +275,7 @@ Item {
         // What is waiting for a person, one line at a time.
         Item {
             id: note
-            visible: board.notes.length > 0
+            visible: board.notes.length > 0 && !board.playing
             x: content.margin
             width: hero.width
             anchors.bottom: parent.bottom; anchors.bottomMargin: content.margin
@@ -297,6 +308,70 @@ Item {
                 NumberAnimation { target: noteRow; property: "opacity"; to: 1; duration: 900 }
             }
             Timer { interval: 14000; repeat: true; running: !board.instant && board.notes.length > 1; onTriggered: turnNote.restart() }
+        }
+
+        // Now playing: cover, track and a small level meter, where the notes line normally sits.
+        Row {
+            id: nowPlaying
+            visible: board.playing
+            x: content.margin
+            anchors.bottom: parent.bottom; anchors.bottomMargin: content.margin - 1.2 * board.u
+            spacing: 2.2 * board.u
+
+            Rectangle {
+                width: 9 * board.u; height: 9 * board.u
+                color: Qt.rgba(board.ink.r, board.ink.g, board.ink.b, 0.06)
+                border.color: board.rule; border.width: 1
+                Image {
+                    anchors.fill: parent; anchors.margins: 1
+                    source: board.media.art || ""
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    visible: status === Image.Ready
+                }
+            }
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                width: hero.width - 11.2 * board.u
+                spacing: 0.5 * board.u
+                Row {
+                    spacing: 1.2 * board.u
+                    // Three bars that keep moving while music plays.
+                    Row {
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 0.35 * board.u
+                        height: 1.6 * board.u
+                        Repeater {
+                            model: 3
+                            Rectangle {
+                                width: 0.4 * board.u; color: board.accent
+                                anchors.bottom: parent.bottom
+                                height: 0.5 * board.u
+                                SequentialAnimation on height {
+                                    running: board.playing && !board.instant
+                                    loops: Animation.Infinite
+                                    NumberAnimation { to: (1.6 - index * 0.3) * board.u; duration: 420 + index * 130; easing.type: Easing.InOutSine }
+                                    NumberAnimation { to: 0.4 * board.u; duration: 520 + index * 90; easing.type: Easing.InOutSine }
+                                }
+                            }
+                        }
+                    }
+                    Caps { color: board.accent; text: "Now playing" + (board.media.player ? " on " + board.media.player : "") }
+                }
+                Text {
+                    width: parent.width; elide: Text.ElideRight
+                    font.family: board.serif; font.pixelSize: Math.round(4.2 * board.u)
+                    color: board.ink
+                    text: board.media.title || ""
+                }
+                Text {
+                    width: parent.width; elide: Text.ElideRight
+                    visible: text.length > 0
+                    font.family: board.sans; font.pixelSize: Math.round(1.9 * board.u)
+                    color: board.soft
+                    text: board.media.artist || ""
+                }
+            }
         }
 
         // Side column: calendar, systems, allowance.

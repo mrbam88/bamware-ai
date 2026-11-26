@@ -153,5 +153,39 @@ class StateTest(unittest.TestCase):
         self.assertEqual(document["name"], "Bilal")
 
 
+class MediaTest(unittest.TestCase):
+    def setUp(self):
+        self.c = load()
+
+    def test_screens_with_a_visible_fullscreen_window(self):
+        monitors = [{"name": "eDP-1", "activeWorkspace": {"id": 2}}, {"name": "DP-4", "activeWorkspace": {"id": 11}}]
+        clients = [
+            {"fullscreen": 0, "workspace": {"id": 2}},
+            {"fullscreen": 2, "workspace": {"id": 11}},
+            {"fullscreen": 2, "workspace": {"id": 7}},   # full screen, but on a workspace nobody is looking at
+        ]
+        with mock.patch.object(self.c, "run_json", side_effect=[monitors, clients]):
+            self.assertEqual(self.c.fullscreen_screens(), ["DP-4"])
+
+    def test_nothing_playing_owns_no_screen(self):
+        with mock.patch.object(self.c, "now_playing", return_value=None), \
+                mock.patch.object(self.c, "fullscreen_screens", return_value=["DP-4"]):
+            self.assertEqual(self.c.media(), {"playing": False, "screens": []})
+
+    def test_the_fuller_description_wins(self):
+        thin = {"player": "Chromium", "title": "Sticky • Drake", "artist": "", "art": ""}
+        full = {"player": "Spotify", "title": "Sticky", "artist": "Drake", "art": "https://i.scdn.co/x"}
+        listing = mock.Mock(stdout="org.mpris.MediaPlayer2.chromium.instance1 1 x\norg.mpris.MediaPlayer2.spotify 2 x\n:1.5 3 x\n")
+        with mock.patch.object(self.c.subprocess, "run", return_value=listing), \
+                mock.patch.object(self.c, "describe_player", side_effect=[thin, full]), \
+                mock.patch.object(self.c, "fullscreen_screens", return_value=["DP-4"]):
+            result = self.c.media()
+        self.assertEqual((result["player"], result["artist"], result["screens"]), ("Spotify", "Drake", ["DP-4"]))
+
+    def test_paused_player_is_not_playing(self):
+        with mock.patch.object(self.c, "mpris_property", return_value="Paused"):
+            self.assertIsNone(self.c.describe_player("org.mpris.MediaPlayer2.spotify"))
+
+
 if __name__ == "__main__":
     unittest.main()

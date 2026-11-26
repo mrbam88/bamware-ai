@@ -464,6 +464,72 @@ def halt():
     return {"reason": str(reason)[:120]}
 
 
+# --- media ---------------------------------------------------------------
+
+def run_json(argv: list[str]):
+    result = subprocess.run(argv, capture_output=True, text=True, timeout=5, check=False)  # noqa: S603 - fixed argv
+    return json.loads(result.stdout) if result.returncode == 0 and result.stdout.strip() else None
+
+
+def mpris_property(name: str, interface: str, prop: str):
+    reply = run_json(["busctl", "--user", "--json=short", "get-property", name,
+                      "/org/mpris/MediaPlayer2", interface, prop])
+    return reply.get("data") if reply else None
+
+
+def now_playing():
+    """The playing media player that describes its track best, or None.
+
+    Spotify shows up twice: once as itself and once as the Chromium engine
+    inside it, which knows only a combined title. The fuller description wins.
+    """
+    listing = subprocess.run(["busctl", "--user", "--no-legend", "list"],  # noqa: S603, S607
+                             capture_output=True, text=True, timeout=5, check=False).stdout
+    players = [line.split()[0] for line in listing.splitlines() if line.startswith("org.mpris.MediaPlayer2.")]
+    found = [entry for entry in (describe_player(name) for name in players) if entry]
+    return max(found, key=lambda e: (bool(e["artist"]), bool(e["art"]), bool(e["title"])), default=None)
+
+
+def describe_player(name: str):
+    """One player's track, or None when it is not playing."""
+    if mpris_property(name, "org.mpris.MediaPlayer2.Player", "PlaybackStatus") != "Playing":
+        return None
+    meta = mpris_property(name, "org.mpris.MediaPlayer2.Player", "Metadata") or {}
+
+    def field(key: str):
+        return (meta.get(key) or {}).get("data")
+
+    artists = field("xesam:artist") or []
+    art = field("mpris:artUrl") or ""
+    return {
+        "player": mpris_property(name, "org.mpris.MediaPlayer2", "Identity") or name.rsplit(".", 1)[-1],
+        "title": field("xesam:title") or "",
+        "artist": ", ".join(artists) if isinstance(artists, list) else str(artists),
+        "art": art if art.startswith("https://") else "",
+    }
+
+
+def fullscreen_screens() -> list[str]:
+    """Connector names of the displays that have a full-screen window on their visible workspace."""
+    monitors = run_json(["hyprctl", "monitors", "-j"]) or []
+    clients = run_json(["hyprctl", "clients", "-j"]) or []
+    visible = {m["activeWorkspace"]["id"]: m["name"] for m in monitors}
+    return sorted({visible[c["workspace"]["id"]] for c in clients
+                   if c.get("fullscreen") and c.get("workspace", {}).get("id") in visible})
+
+
+def media():
+    """What is playing, and which screens it owns.
+
+    A screen showing a full-screen window while something plays is a screen
+    someone is watching: the board stays off it and covers only the others.
+    """
+    playing = now_playing()
+    if not playing:
+        return {"playing": False, "screens": []}
+    return {"playing": True, **playing, "screens": fullscreen_screens()}
+
+
 def attempt(function, *args):
     try:
         return function(*args)
@@ -488,6 +554,7 @@ def collect(now: dt.datetime | None = None) -> dict:
         "allowance": attempt(allowance, now_ts),
         "halt": attempt(halt),
         "presence": attempt(read_text, STATE / "presence.state"),
+        "media": attempt(media) or {"playing": False, "screens": []},
     }
 
 
