@@ -612,14 +612,21 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     if all the lights were in sync together, like the whole room was changing
     colors. Let's go completely off the music video screen and don't worry
     about the blue rule." So the default (`PARTY_MODE=screen`) reads the
-    picture on the TV about 3 to 5 times a second (a thumbnail of Spotify's
-    page over the developer port, about 70 ms; `grim` on the 4K output took
-    1.4 s), takes its dominant vivid hue at full strength, and sends that one
-    colour to all four LAN lights at the same instant; the room glides to
-    each new colour and its brightness breathes with the bass. The TV wall is
-    cloud-only and follows every 5 s. A black frame holds the last colour; a
-    colourless bright frame is warm white. Verified: night-blue scene on the
-    TV, four lights reading the same blue. `PARTY_MODE=cover` keeps the first
+    picture on the TV about 6 times a second, takes its dominant vivid hue at
+    full strength, and sends that one colour to all four LAN lights at the
+    same instant; the room glides to each new colour and its brightness
+    breathes with the bass. The TV wall is cloud-only and follows every 5 s.
+    A black frame holds the last colour; a colourless frame is warm white, as
+    bright as the frame. Verified over a minute of a video: 366 looks, four
+    lights reading the same colour each time, tracking the picture's hue.
+    **How it looks at the TV: `grim -g` on three thin strips, in turn, about
+    0.1 s each.** It works for anything on the TV, not only Spotify. Capture
+    cost grows with area: the middle half of the screen took 0.7 s with a
+    video playing, the whole 4K output 1.4 s. Dead ends, do not retry:
+    reading the `<video>` from inside Spotify returns black (protected
+    video); `Page.captureScreenshot` over the developer port worked on the
+    cover view, then stalled with a video full screen and left the page's
+    viewport stuck at 0x0, which blanked the TV until full screen was left. `PARTY_MODE=cover` keeps the first
     version (a palette from the cover, each light its own colour, Govee's
     music modes on the strip, TV wall and lamp). **No colour rules apply in
     party mode**, by his word; every other scene keeps the warm palette.

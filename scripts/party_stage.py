@@ -52,7 +52,6 @@ TV_WALL = ("H6099", "1C:CF:D4:0F:40:46:18:6A")    # cloud only, so it follows a 
 # sync together, like the whole room was changing colors... go completely off the music video screen and don't
 # worry about the blue rule"). "cover": each light its own colour from the track's artwork (the first version).
 MODE = os.environ.get("PARTY_MODE", "screen")
-LOOK_EVERY = 0.15                 # seconds between looks at the TV picture
 # Govee's own music modes: (sku, device id, mode number, label). Spectrum follows frequency.
 NATIVE = [
     ("H61F2", "22:A6:C2:53:56:54:74:A1", 3, "strip: Spectrum"),
@@ -310,45 +309,6 @@ def hypr(*args: str):
     return subprocess.run(["hyprctl", *args], capture_output=True, text=True, timeout=5).stdout  # noqa: S603, S607
 
 
-def decode_png(data: bytes) -> list[tuple[int, int, int]]:
-    """The pixels of a small 8-bit RGB or RGBA PNG. Enough of the format for a thumbnail, no library needed."""
-    import zlib
-    position, packed, width, height, channels = 8, b"", 0, 0, 3
-    while position < len(data):
-        length, kind = struct.unpack(">I4s", data[position:position + 8])
-        body = data[position + 8:position + 8 + length]
-        if kind == b"IHDR":
-            width, height, _, colour_type = struct.unpack(">IIBB", body[:10])
-            channels = {2: 3, 6: 4}[colour_type]
-        elif kind == b"IDAT":
-            packed += body
-        position += 12 + length
-    raw = zlib.decompress(packed)
-    stride = width * channels
-    out: list[tuple[int, int, int]] = []
-    previous = bytearray(stride)
-    for y in range(height):
-        kind = raw[y * (stride + 1)]
-        line = bytearray(raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
-        for i in range(stride):
-            left = line[i - channels] if i >= channels else 0
-            up = previous[i]
-            corner = previous[i - channels] if i >= channels else 0
-            if kind == 1:
-                line[i] = (line[i] + left) & 255
-            elif kind == 2:
-                line[i] = (line[i] + up) & 255
-            elif kind == 3:
-                line[i] = (line[i] + (left + up) // 2) & 255
-            elif kind == 4:
-                guess = left + up - corner
-                dl, du, dc = abs(guess - left), abs(guess - up), abs(guess - corner)
-                line[i] = (line[i] + (left if dl <= du and dl <= dc else up if du <= dc else corner)) & 255
-        out.extend(tuple(line[x * channels:x * channels + 3]) for x in range(width))
-        previous = line
-    return out
-
-
 def screen_colour(picture: list[tuple[int, int, int]]):
     """One light colour for a frame of video: its dominant vivid hue at full strength, or None for a dark frame.
 
@@ -370,11 +330,13 @@ def screen_colour(picture: list[tuple[int, int, int]]):
         entry[1] += math.cos(2 * math.pi * h) * weight
         entry[2] += math.sin(2 * math.pi * h) * weight
         entry[3] += sat * weight
-    if light / len(picture) < 0.04:
+    if light / len(picture) < 0.09:
         return None                              # a black frame: hold the last colour instead of flashing
     best = max(bins.values(), key=lambda entry: entry[0]) if bins else None
     if not best or best[0] < 0.004 * len(picture):
-        return (255, 244, 229)                   # a frame with light but no colour: warm white
+        # Light but no colour (a white room, grey credits): warm white, as bright as the frame is.
+        level = min(1.0, 0.2 + 1.4 * light / len(picture))
+        return tuple(round(c * level) for c in (255, 244, 229))
     hue = (math.atan2(best[2], best[1]) / (2 * math.pi)) % 1
     saturation = min(1.0, 0.55 + best[3] / best[0])
     return tuple(round(c * 255) for c in colorsys.hsv_to_rgb(hue, saturation, 1.0))
@@ -398,6 +360,8 @@ class Stage:
         while True:
             reply = json.loads(self.ws.recv())
             if reply.get("id") == self.sent:
+                if "error" in reply:
+                    raise RuntimeError(f"{method}: {reply['error'].get('message', 'refused')[:80]}")
                 return reply.get("result", {})
 
     def arrange(self) -> str:
@@ -446,40 +410,76 @@ class Stage:
         if not on_tv:
             hypr("dispatch", f'hl.dsp.focus({{ window = "address:{owner}" }})')
 
-    def look(self):
-        """The colour of the picture on the TV right now (a thumbnail of the page, about 70 ms)."""
-        import base64
-        self.looks = getattr(self, "looks", 0) + 1
-        if self.looks % 20 == 1:      # the window's size only changes when it enters or leaves full screen
-            size = self.call("Runtime.evaluate", {"expression": "[innerWidth, innerHeight]", "returnByValue": True})
-            self.size = size.get("result", {}).get("value") or (1920, 1080)
-        width, height = self.size
-        shot = self.call("Page.captureScreenshot", {"format": "png", "clip": {
-            "x": 0, "y": 0, "width": width, "height": height, "scale": 0.02}})
-        return screen_colour(decode_png(base64.b64decode(shot["data"])))
+def tv_strips() -> list[str]:
+    """Three thin horizontal strips across the TV output, as grim regions; empty when the TV is not an output."""
+    monitors = json.loads(hypr("monitors", "-j") or "[]")
+    tv = next((m for m in monitors if "Samsung" in m.get("description", "")), None)
+    if not tv:
+        return []
+    width, height = tv["width"] / tv["scale"], tv["height"] / tv["scale"]
+    left, span = round(tv["x"] + width * 0.1), round(width * 0.8)
+    return [f"{left},{round(tv['y'] + height * part)} {span}x4" for part in (0.33, 0.5, 0.67)]
+
+
+def strip_pixels(box: str) -> list[tuple[int, int, int]]:
+    """One strip of what is on the TV right now, thinned to a few hundred pixels.
+
+    A capture by the compositor, so it sees exactly what the panel shows: Spotify's videos are protected
+    and read as black from inside the app, and page screenshots left the app's page stuck at zero size.
+    The cost of a capture grows with its area (the pixels come back from the graphics card): a strip takes
+    about 0.1 s while a video plays, the middle half of the screen 0.7 s, the whole 4K output 1.4 s.
+    """
+    ppm = subprocess.run(["grim", "-g", box, "-t", "ppm", "-"], capture_output=True, timeout=5).stdout  # noqa: S603, S607
+    parts = ppm.split(b"\n", 3)
+    if len(parts) < 4 or parts[0] != b"P6":
+        return []
+    data = parts[3]
+    return [tuple(data[i:i + 3]) for i in range(0, len(data) - 2, 3 * 23)]     # every 23rd pixel
 
 
 def stage_loop(stop: threading.Event, shared: dict) -> None:
+    """Keep the TV arranged (every 2 s, through Spotify) and keep looking at it (as fast as the capture allows)."""
+    if "WAYLAND_DISPLAY" not in os.environ:      # started from a service: find the session's display
+        runtime = pathlib.Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"))
+        sockets = sorted(p.name for p in runtime.glob("wayland-[0-9]*") if not p.name.endswith(".lock"))
+        if sockets:
+            os.environ["WAYLAND_DISPLAY"] = sockets[0]
     stage = None
-    last_arrange = last_note = 0.0
-    while not stop.wait(LOOK_EVERY if MODE == "screen" else 2.0):
-        try:
-            stage = stage or Stage()
-            now = time.monotonic()
-            if now - last_arrange >= 2.0:
-                last_arrange = now
+    strips: list[str] = []
+    recent: dict[int, list] = {}
+    turn = 0
+    last_arrange = last_note = last_box = 0.0
+    while not stop.wait(0.05 if MODE == "screen" else 2.0):
+        now = time.monotonic()
+        if now - last_arrange >= 2.0:
+            last_arrange = now
+            try:
+                stage = stage or Stage()
                 stage.arrange()
-            if MODE == "screen":
-                colour = stage.look()
+            except Exception as error:  # noqa: BLE001 - Spotify closed, or started without its developer port
+                stage = None
+                if now - last_note > 30:
+                    last_note = now
+                    log(f"TV: Spotify not reachable ({type(error).__name__}: {str(error)[:80]})")
+        if MODE != "screen":
+            continue
+        try:
+            if not strips or now - last_box > 30:
+                strips, last_box = tv_strips(), now
+            if strips:
+                # One strip per look, in turn; the room's colour comes from the last three together, so the
+                # whole picture is covered about three times a second.
+                turn += 1
+                recent[turn % len(strips)] = strip_pixels(strips[turn % len(strips)])
+                colour = screen_colour([pixel for strip in recent.values() for pixel in strip])
                 if colour:
                     shared["screen"] = colour
-                    shared["looks"] = shared.get("looks", 0) + 1
-        except Exception as error:  # noqa: BLE001 - Spotify closed, or started without its developer port
-            stage = None
-            if time.monotonic() - last_note > 30:
-                last_note = time.monotonic()
-                log(f"TV: not reachable ({type(error).__name__})")
-            stop.wait(2.0)
+                shared["looks"] = shared.get("looks", 0) + 1
+        except Exception as error:  # noqa: BLE001 - a failed capture must not stop the lights
+            if now - last_note > 30:
+                last_note = now
+                log(f"TV: could not look at the screen ({type(error).__name__}: {str(error)[:80]})")
+            stop.wait(1.0)
 
 
 def wall(colour) -> None:

@@ -5,6 +5,7 @@ import math
 import pathlib
 import random
 import unittest
+import unittest.mock
 
 SCRIPT = pathlib.Path(__file__).resolve().parents[1] / "party_stage.py"
 spec = importlib.util.spec_from_file_location("party_stage", SCRIPT)
@@ -115,43 +116,7 @@ class BulbColourTest(unittest.TestCase):
             self.assertGreater(max(colour), 30)
 
 
-def png(width, height, colour_at, alpha=False, kind=0):
-    """A small PNG built by hand, with a chosen row filter, to check the decoder against known pixels."""
-    import struct
-    import zlib
-    channels = 4 if alpha else 3
-    rows = [[colour_at(x, y) + ((255,) if alpha else ()) for x in range(width)] for y in range(height)]
-    raw = b""
-    previous = bytes(width * channels)
-    for row in rows:
-        line = bytes(c for pixel in row for c in pixel)
-        if kind == 0:
-            packed = line
-        elif kind == 1:   # Sub
-            packed = bytes((line[i] - (line[i - channels] if i >= channels else 0)) & 255 for i in range(len(line)))
-        else:             # Up
-            packed = bytes((line[i] - previous[i]) & 255 for i in range(len(line)))
-        raw += bytes([kind]) + packed
-        previous = line
-
-    def chunk(name, body):
-        return struct.pack(">I", len(body)) + name + body + struct.pack(">I", zlib.crc32(name + body))
-
-    header = struct.pack(">IIBBBBB", width, height, 8, 6 if alpha else 2, 0, 0, 0)
-    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
-
-
 class ScreenTest(unittest.TestCase):
-    def test_png_decoder_reads_every_filter_and_alpha(self):
-        def colour(x, y):
-            return ((x * 40) % 256, (y * 60) % 256, (x * y * 7) % 256)
-
-        expected = [colour(x, y) for y in range(5) for x in range(7)]
-        for kind in (0, 1, 2):
-            for alpha in (False, True):
-                with self.subTest(kind=kind, alpha=alpha):
-                    self.assertEqual(ps.decode_png(png(7, 5, colour, alpha, kind)), expected)
-
     def test_the_vivid_part_of_a_frame_sets_the_room(self):
         night = [(8, 10, 30)] * 700 + [(20, 60, 230)] * 200 + [(200, 200, 200)] * 60
         colour = ps.screen_colour(night)
@@ -165,9 +130,26 @@ class ScreenTest(unittest.TestCase):
         self.assertIsNone(ps.screen_colour([(2, 2, 2)] * 500))
         self.assertIsNone(ps.screen_colour([]))
 
-    def test_colourless_bright_frame_is_warm_white(self):
-        colour = ps.screen_colour([(210, 210, 210)] * 500)
-        self.assertGreater(min(colour), 200)
+    def test_colourless_frame_is_warm_white_as_bright_as_the_frame(self):
+        bright = ps.screen_colour([(230, 230, 230)] * 500)
+        credits = ps.screen_colour([(30, 30, 30)] * 480 + [(240, 240, 240)] * 20)
+        self.assertGreater(min(bright), 200)
+        self.assertLess(max(credits), 120, "grey end credits must not light the room up")
+        self.assertGreater(bright[0], bright[2], "warm, not blue-white")
+
+    def test_capture_regions_are_thin_strips_inside_the_tv(self):
+        monitors = [{"description": "Apple Color LCD", "x": 0, "y": 0, "width": 3072, "height": 1920, "scale": 2},
+                    {"description": "Samsung Electric Company QBQ90", "x": 1536, "y": 0, "width": 3840, "height": 2160, "scale": 2}]
+        with unittest.mock.patch.object(ps, "hypr", return_value=__import__("json").dumps(monitors)):
+            strips = ps.tv_strips()
+        self.assertEqual(len(strips), 3)
+        for strip in strips:
+            origin, size = strip.split(" ")
+            x, y = map(int, origin.split(","))
+            w, h = map(int, size.split("x"))
+            self.assertTrue(1536 <= x and x + w <= 1536 + 1920 and 0 <= y <= 1080 and h == 4)
+        with unittest.mock.patch.object(ps, "hypr", return_value=__import__("json").dumps(monitors[:1])):
+            self.assertEqual(ps.tv_strips(), [], "no TV output: nothing to look at")
 
     def test_room_glides_and_breathes_with_the_bass(self):
         ear = ps.Ear()
