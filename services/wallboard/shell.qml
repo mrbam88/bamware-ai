@@ -35,10 +35,13 @@ ShellRoot {
         root.now = new Date()
         root.fresh = false
         root.shown = true
+        // Shown and hidden times go to the journal: after a freeze they say whether the board was up.
+        console.log("wallboard: shown" + (root.forced ? " by hand" : " on idle"))
         refresh()
     }
 
     function hide() {
+        if (root.shown) console.log("wallboard: hidden")
         root.shown = false
         root.forced = false
     }
