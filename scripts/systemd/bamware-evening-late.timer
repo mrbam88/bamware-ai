@@ -1,0 +1,9 @@
+[Unit]
+Description=23:30 every night: evening mode
+
+[Timer]
+OnCalendar=*-*-* 23:30:00 America/New_York
+Persistent=false
+
+[Install]
+WantedBy=timers.target

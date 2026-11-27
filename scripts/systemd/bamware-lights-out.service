@@ -1,0 +1,9 @@
+[Unit]
+Description=Lights and TVs off at 01:00 every night ("times I fall asleep with the lights on", Bilal 2026-11-27)
+
+[Service]
+Type=oneshot
+# The same two actions as the Kill and "TVs off" buttons, through the button service, so they are logged in
+# buttons.log like a press and can never drift from what the buttons do. Each waits for its action to finish.
+ExecStart=/usr/bin/curl -s -m 120 -o /dev/null -X POST http://127.0.0.1:8787/do/lights-off
+ExecStart=/usr/bin/curl -s -m 120 -o /dev/null -X POST http://127.0.0.1:8787/do/tv-off

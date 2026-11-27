@@ -29,7 +29,7 @@ LAN = f"python3 {BIN}/govee_lan.py"
 # name: (label, group, shell)   order here = order on the page. Blue is alert-only, so the page never shows it.
 ACTIONS = {
     "lights-on":   ("Lights on",      "lights", f"{BIN}/vibes.sh party-stop >/dev/null; {LAN} on all && {LAN} kelvin all 3000 && {LAN} bright all 40"),
-    "lights-off":  ("Kill",           "lights", f"{BIN}/vibes.sh party-stop >/dev/null; {BIN}/vibes.sh stage-stop >/dev/null; {LAN} off all; {BIN}/govee.sh off 'TV Backlight 3 Lite' >/dev/null 2>&1; {BIN}/govee.sh off Kill >/dev/null 2>&1; true"),
+    "lights-off":  ("Kill",           "lights", f"{BIN}/vibes.sh party-stop >/dev/null; {BIN}/vibes.sh stage-stop >/dev/null; {LAN} off all; {BIN}/govee.sh off 'TV Backlight 3 Lite' >/dev/null 2>&1; {BIN}/govee.sh off Kill >/dev/null 2>&1; {HOME}/.venvs/smarthome/bin/python {BIN}/govee_ble.py off >/dev/null 2>&1; true"),   # + the Bluetooth-only ceiling strip (2026-11-27)
     "dim":         ("Dim",            "lights", f"{BIN}/vibes.sh party-stop >/dev/null; {LAN} bright all 8"),
     "bright":      ("Bright",         "lights", f"{BIN}/vibes.sh party-stop >/dev/null; {LAN} on all && {LAN} bright all 100"),
     "morning":     ("Morning",        "scenes", f"{BIN}/vibes.sh morning --now"),

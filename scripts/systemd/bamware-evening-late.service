@@ -1,0 +1,8 @@
+[Unit]
+Description=Evening mode at 23:30 every night (Bilal, 2026-11-27)
+
+[Service]
+Type=oneshot
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+# --force: a scene he set by hand earlier in the evening must not make this one skip. It still skips while he is away.
+ExecStart=%h/.local/bin/vibes.sh evening --force
