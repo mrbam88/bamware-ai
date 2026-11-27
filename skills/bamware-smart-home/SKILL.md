@@ -700,8 +700,9 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
   12 s test job under a oneshot unit was killed). From a button it worked,
   because `buttons.service` keeps running, which hid the bug. `&` and
   `disown` do not escape a unit. `detach <unit> <command>` in `vibes.sh`
-  (`systemd-run --user --collect`) does: `bamware-tv-video` (morning news,
-  afternoon NBA), `bamware-tv-stage` (music scenes), `bamware-party-stage`.
+  (`systemd-run --user --collect`) does: `bamware-tv-video.service` (morning
+  news, afternoon NBA), `bamware-tv-stage.service` (music scenes) and
+  `bamware-party-stage.service`.
   They also survive `buttons.service` restarting. `vibes.sh tv-news` runs
   the morning's TV step alone. Verified from a oneshot unit: the job
   outlived it, the Samsung came on, Bloomberg played. **Rule: anything a
