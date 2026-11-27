@@ -366,6 +366,29 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   someone plugs it back in. `presence.sh` posts to `#status` when the charger
   comes out; the lead under the TV console must stay routed where nothing
   pulls it.
+- **Hard freeze 2026-11-27, cause unknown.** The machine locked up at 16:57 ET
+  with the wall board on screen; the journal just stops, no error. Suspects,
+  unproven: the graphics drivers (i915 and amdgpu both log errors) and the wall
+  board. What was added so the next one explains itself and recovers:
+  - `scripts/flight-recorder.py` (`bamware-flight-recorder.service`, user unit):
+    one line every 5 s, forced to disk, with memory, load, temperatures, both
+    graphics chips and the wall-board process. After a freeze run
+    `flight-recorder.py last` for the records just before it; unclean stops are
+    listed in `~/.local/state/bamware/flight-recorder/unclean-stops.log`.
+  - The wall board logs `wallboard: shown` / `hidden` to the journal.
+  - `/etc/systemd/journald.conf.d/10-bamware-sync.conf`: journal syncs every
+    5 s. The default is 5 min, so the last minutes before a freeze were lost.
+  - `/etc/sysctl.d/95-bamware-lockup-reboot.conf`: a lockup the kernel detects
+    panics and reboots after 30 s. No hardware watchdog is exposed on this Mac,
+    so a freeze the kernel cannot see still hangs. EFI crash capture (pstore)
+    is deliberately off: firmware variable writes are risky on T2 Macs.
+  - Unattended boot (Bilal: no password prompt on the build server): a second
+    LUKS key is built into the boot image
+    (`/etc/mkinitcpio.conf.d/zz-bamware-autounlock.conf`,
+    `/etc/limine-entry-tool.d/zz-bamware-autounlock.conf`). The passphrase still
+    works. Backups of the old image and LUKS header: `/root/boot-backup-2026-11-27`.
+    **Not yet proven by a reboot.**
+  - Lead not followed: ACPI interrupt 9 (GPE 6E) fires about 80 times a second.
 - Dictation: Omarchy's Voxtype (F9 push-to-talk, Super+Ctrl+X toggle). Wispr
   Flow has no Linux build.
 
