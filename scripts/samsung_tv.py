@@ -167,6 +167,12 @@ def main(a):
             time.sleep(2)
             if power() == "on": break
         if os.path.exists(CEC): print("samsung: on, input follows the Apple TV (CEC)"); return 0
+        # By label first (2026-11-27): the source list gained "PC" and the Apple TV's entry moved, so two SOURCE
+        # presses no longer land on it. The TV lists the Apple TV as "Apple" once that box is awake.
+        try:
+            time.sleep(3)
+            if set_source("apple") == 0: return 0
+        except Exception as e: print(f"samsung: could not pick the source by name ({e}); falling back to key presses", file=sys.stderr)
         time.sleep(3); keys(["KEY_HOME", "KEY_SOURCE", "KEY_SOURCE"], gap=2.5)
         print("samsung: awake, home, source x2 -> Apple TV (one socket)")
     elif a[0] == "key": print("keys sent,", keys(a[1:]))

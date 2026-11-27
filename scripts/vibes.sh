@@ -25,7 +25,16 @@ tv_youtube() { # $1 = youtube page/channel url -> resolve current video id, deep
   $PY ~/.local/bin/appletv.py status 2>&1 | tail -1
 }
 PARTY_PID=~/.local/state/bamware/party.pid
-party_stop() { [[ -f $PARTY_PID ]] && { kill $(cat $PARTY_PID) 2>/dev/null; rm -f $PARTY_PID; }; }
+# detach <unit> <command...>: run a job that must outlive this script in its own transient systemd unit.
+# Incident 2026-11-27 ("my TV didn't turn on automatically, my lights did"): the morning timer is a oneshot unit, and
+# when its script exits systemd kills everything the script left running. The news-on-the-TV step was the last line,
+# backgrounded with &, so it died within a second every morning; from a button it survived, because buttons.service
+# keeps running. Reproduced with a 12 s test job under a oneshot unit: killed. `&` and `disown` do not escape a unit;
+# a unit of its own does, and it also survives buttons.service restarting.
+detach() { local unit=$1; shift
+  systemctl --user stop "$unit" 2>/dev/null; systemctl --user reset-failed "$unit" 2>/dev/null
+  systemd-run --user --quiet --collect --unit="$unit" --setenv=XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}" "$@"; }
+party_stop() { systemctl --user stop bamware-party-stage 2>/dev/null; [[ -f $PARTY_PID ]] && { kill $(cat $PARTY_PID) 2>/dev/null; rm -f $PARTY_PID; }; }
 party_loop() { # party (Bilal 2026-10-31): warm party colours rotate across the room every few seconds for up to 3 h. Each device is one step out of phase so the room is never one colour.
   # hot pink, orange, gold, candle red, fuchsia. No blue (alerts only), no green next to red (he is red-green colorblind). The TV wall is cloud-only, so it moves every other step.
   local C=(255,20,110 255,110,0 255,200,0 255,0,60 230,40,160) n=5 i=0 end=$(( $(date +%s) + 10800 ))
@@ -35,16 +44,28 @@ party_loop() { # party (Bilal 2026-10-31): warm party colours rotate across the 
     sleep 4; i=$((i+1))
   done; rm -f $PARTY_PID; }
 # TV stage for the everyday music scenes (2026-11-26): Spotify on the Samsung with the video or the cover full
-# screen, and the TV wall dancing in its own music mode. Its own PID file: party-stop is called by the plain light
-# buttons (Dim, Bright), and those must not take the TV down. Any scene, and Kill, do stop it.
-STAGE_PID=~/.local/state/bamware/tv-stage.pid
-stage_stop() { [[ -f $STAGE_PID ]] && { kill $(cat $STAGE_PID) 2>/dev/null; rm -f $STAGE_PID; }; }
-tv_music() { # $1 = playlist URI, $2 = volume. One background job, in order: Spotify onto the TV (may restart it once), the playlist, then the stage.
+# screen, and the TV wall dancing in its own music mode. Its own unit (bamware-tv-stage): party-stop is called by
+# the plain light buttons (Dim, Bright), and those must not take the TV down. Any scene, and Kill, do stop it.
+stage_stop() { systemctl --user stop bamware-tv-stage 2>/dev/null; }
+tv_music() { # $1 = playlist URI, $2 = volume: Spotify onto the TV, the playlist, then the stage, in a unit of their own
   [[ -x ~/.local/bin/party_stage.py ]] || { spotify "$1" "$2"; return; }
-  ( ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
+  detach bamware-tv-stage ~/.local/bin/vibes.sh run-tv-stage "$1" "$2"; }
+tv_news() { detach bamware-tv-video ~/.local/bin/vibes.sh run-tv-video "https://www.youtube.com/@markets/live" "https://www.youtube.com/@CNBC/live" "https://www.youtube.com/@NBCNews/live"; }
+[[ ${1:-} == tv-news ]] && { tv_news; echo "news starting on the TV (about 30 s)"; exit 0; }   # the morning's TV step on its own
+# The jobs themselves, run in the foreground by the units that detach starts. Not for use by hand.
+case ${1:-} in
+  run-tv-stage)     # $2 = playlist URI, $3 = volume
+    ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
     P="busctl --user"; D=org.mpris.MediaPlayer2.spotify; O=/org/mpris/MediaPlayer2; I=org.mpris.MediaPlayer2.Player
-    $P call $D $O $I OpenUri s "$1" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$2" 2>/dev/null
-    PARTY_MODE=tv exec $PY ~/.local/bin/party_stage.py ) >/dev/null 2>&1 & echo $! > $STAGE_PID; disown; }
+    $P call $D $O $I OpenUri s "$2" 2>/dev/null; sleep 3; $P set-property $D $O $I Shuffle b true 2>/dev/null; wpctl set-volume @DEFAULT_AUDIO_SINK@ "$3" 2>/dev/null
+    PARTY_MODE=tv exec $PY ~/.local/bin/party_stage.py ;;
+  run-party-stage)  # $2 = 1 when nothing was playing: start Dance Party into the silence
+    ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
+    [[ ${2:-0} == 1 ]] && { busctl --user call org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player OpenUri s "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" >/dev/null 2>&1; sleep 2; }
+    exec $PY ~/.local/bin/party_stage.py ;;
+  run-tv-video)     # $2... = YouTube pages to try in order; the first that plays on the Apple TV wins
+    shift; for u in "$@"; do tv_youtube "$u" && break; done >> $LOGD/vibes-tv.log 2>&1; exit 0 ;;
+esac
 [[ ${1:-} == party-stop ]] && { party_stop; echo "party loop stopped"; exit 0; }
 [[ ${1:-} == stage-stop ]] && { stage_stop; echo "tv stage stopped"; exit 0; }   # buttons call this before any plain light command; works while away too
 [[ $(cat ~/.local/state/bamware/presence.state 2>/dev/null) == away ]] && { echo "$(date "+%F %T") vibes $1 skipped: away"; exit 0; }
@@ -66,7 +87,7 @@ case ${1:-} in
     for b in 10 30 55 80 100; do $LAN bright strip $b >/dev/null; sleep $STEP; done
     $LAN kelvin strip 3000 >/dev/null
     touch ~/.local/state/bamware/lights.hold
-    ( for u in "https://www.youtube.com/@markets/live" "https://www.youtube.com/@CNBC/live" "https://www.youtube.com/@NBCNews/live"; do tv_youtube "$u" && break; done ) >> $LOGD/vibes-tv.log 2>&1 &
+    tv_news
     echo "morning: lights up, piano on, news starting on the TV (about 30 s)" ;;
   work)      # study / focus (Bilal 2026-10-29 v2): light near the ceiling, nothing at eye level. "I don't want to be blinded when I'm looking at my monitors."
     $LAN on all >/dev/null
@@ -85,7 +106,7 @@ case ${1:-} in
     cloud H60B0 $LAMP devices.capabilities.toggle rippleLightToggle 1; cloud H60B0 $LAMP devices.capabilities.toggle bottomLightToggle 1
     cloud H6099 $TVB devices.capabilities.on_off powerSwitch 0
     spotify "spotify:playlist:37i9dQZF1DWWQRwui0ExPn" 0.70   # lo-fi beats
-    tv_youtube "https://www.youtube.com/@NBA/videos" >> $LOGD/vibes-tv.log 2>&1 &
+    detach bamware-tv-video ~/.local/bin/vibes.sh run-tv-video "https://www.youtube.com/@NBA/videos"
     echo "afternoon: lights bright, lo-fi on, NBA starting on the TV" ;;
   evening)   # wind down: candlelight, jazz
     $LAN on all >/dev/null
@@ -126,11 +147,8 @@ case ${1:-} in
     if [[ $(busctl --user get-property org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player PlaybackStatus 2>/dev/null) == *Playing* ]]; then silent=0; music="your music stays on"
     else silent=1; music="Dance Party at the current volume (nothing was playing)"; fi
     if [[ -x ~/.local/bin/party_stage.py ]]; then
-      # One background job, in order: Spotify onto the TV (may restart it once), music into a silence, then the stage.
-      # exec keeps the job's PID, so party-stop and every other scene end it the way they ended the old loop.
-      ( ~/.local/bin/tv-spotify.sh >> $LOGD/tv-spotify.log 2>&1
-        (( silent )) && { busctl --user call org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player OpenUri s "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" >/dev/null 2>&1; sleep 2; }
-        exec $PY ~/.local/bin/party_stage.py ) >/dev/null 2>&1 & echo $! > $PARTY_PID; disown
+      # Its own unit: Spotify onto the TV (may restart it once), music into a silence, then the stage.
+      detach bamware-party-stage ~/.local/bin/vibes.sh run-party-stage $silent
       how="lights dancing to the music in the cover's colours"
     else
       (( silent )) && spotify "spotify:playlist:37i9dQZF1DXaXB8fQg7xif" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')"

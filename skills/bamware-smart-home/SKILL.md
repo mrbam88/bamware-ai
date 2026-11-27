@@ -645,8 +645,10 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     `AA A5 01` (answer on `...2b10`). Verified by read-back: orange, violet,
     then the same red as the four Wi-Fi lights mid-party. `party_stage.py`
     keeps the connection and repaints it with the room; while it is
-    connected the Govee app on his phone cannot connect to that strip. No
-    other scene or button knows this strip yet: Kill does not turn it off.
+    connected the Govee app on his phone cannot connect to that strip.
+    `govee_ble.py on|off|color r g b|status` (smarthome venv) drives it
+    outside a party, and Kill turns it off since 2026-11-27. Lights on and
+    the everyday scenes still leave it alone.
   - **The floor lamp in party mode: disc + ceiling ripple on, white ring
     off, dimmer 100.** His words, and how to read them: "the lamp has to be
     off, which is fine, but the top two should be on... I want the disk on
@@ -689,8 +691,35 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@                                    # 0.83 
     near the ceiling, nothing at eye level" with the TV wall off.
   - Its own PID file (`tv-stage.pid`): `vibes.sh party-stop` is what Dim and
     Bright call and must not take the TV down. Any scene and Kill stop it
-    (`vibes.sh stage-stop`). Both stages run inside `buttons.service`, so
-    restarting that service stops them.
+    (`vibes.sh stage-stop`).
+- **A scene's long jobs run in units of their own (incident 2026-11-27).**
+  "This morning, my TV didn't turn on automatically. My lights did." The
+  08:00 timer is a oneshot unit; when its script exits, systemd kills
+  everything the script left running. The news-on-the-TV step was the last
+  line, backgrounded with `&`, so it died within a second (reproduced: a
+  12 s test job under a oneshot unit was killed). From a button it worked,
+  because `buttons.service` keeps running, which hid the bug. `&` and
+  `disown` do not escape a unit. `detach <unit> <command>` in `vibes.sh`
+  (`systemd-run --user --collect`) does: `bamware-tv-video` (morning news,
+  afternoon NBA), `bamware-tv-stage` (music scenes), `bamware-party-stage`.
+  They also survive `buttons.service` restarting. `vibes.sh tv-news` runs
+  the morning's TV step alone. Verified from a oneshot unit: the job
+  outlived it, the Samsung came on, Bloomberg played. **Rule: anything a
+  scene starts that must outlive the script goes through `detach`.**
+- **Samsung to the Apple TV by label.** `samsung_tv.py appletv` now tries
+  `source apple` first: the list is TV, Apple (HDMI3), PC (HDMI4) since the
+  server was plugged in, so two SOURCE presses no longer land on the Apple
+  TV. The key presses remain the fallback.
+- **Nightly rules (Bilal, 2026-11-27).** "11:30 p.m. every night, trigger
+  the evening mode. At 1 in the morning every night, kill the lights and
+  the TV. Times I fall asleep with the lights on."
+  `bamware-evening-late.timer` runs `vibes.sh evening --force` at 23:30
+  (skips only while away). `bamware-lights-out.timer` at 01:00 calls the
+  Kill and "TVs off" button actions through the button service, so it does
+  exactly what those buttons do and shows up in `buttons.log`. It does not
+  pause the music: he asked for lights and TV. Unit files in
+  `scripts/systemd/`. Installed 2026-11-27; the 01:00 unit has not yet run
+  for real.
 - **Driving Spotify: the developer port, not clicks.** Started with
   `--remote-debugging-port=9222` (localhost only; `tv-spotify.sh` restarts a
   launcher-started Spotify once to get it), the app's page takes JavaScript
