@@ -1,0 +1,11 @@
+[Unit]
+Description=Bamware flight events: graphics, board, cast and crash events synced to disk as they happen (scripts/flight-events.py)
+
+[Service]
+ExecStart=%h/.local/bin/flight-events.py
+Restart=always
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=default.target

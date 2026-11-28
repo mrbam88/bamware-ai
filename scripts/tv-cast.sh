@@ -11,6 +11,8 @@ F=~/.local/state/bamware/tv-cast
 # ended in an i915 GPU hang inside Hyprland with cast on (AMD drives the TV, Intel the laptop panel), and the music
 # scenes call `on` by themselves through tv-spotify.sh, so a plain `off` did not stay off.
 H=$F.hold
+# Every toggle goes to the journal (flight-events.py keeps it): on 2026-11-27 nothing recorded when cast came on.
+if [[ ${1:-status} != status ]]; then logger -t tv-cast "$1 requested by $(ps -o comm= -p $PPID 2>/dev/null || echo ?) (hold=$([[ -f $H ]] && echo on || echo off))"; fi
 case ${1:-status} in
   hold)    touch $H; rm -f $F; hyprctl reload >/dev/null; sleep 2; echo "cast off and held (tv-cast.sh release to allow it again)";;
   release) rm -f $H; echo "cast hold released";;
