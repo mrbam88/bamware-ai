@@ -366,6 +366,22 @@ and with `KillUserProcesses=no` they survive being orphaned to PID 1 (observed
   someone plugs it back in. `presence.sh` posts to `#status` when the charger
   comes out; the lead under the TV console must stay routed where nothing
   pulls it.
+- **After a freeze or surprise reboot, read these first (2026-11-28).** Do not
+  guess from `journalctl` alone: its clock is wrong for the first seconds of a
+  boot (the RTC lags), so the tail of one boot and the head of the next overlap.
+  - `flight-recorder.py last 20`: memory, load, temperatures, both graphics
+    chips and the wall-board process every 5 s up to the stop.
+  - `flight-events.py last 60`: what happened, in order: graphics and kernel
+    warnings, wall board shown or hidden, cast toggles, core dumps, charger.
+  - `/var/log/bamware-gpu/`: the GPU's own error dump, saved at the hang.
+  - `/var/lib/systemd/pstore/`: kernel crash dumps kept by the firmware.
+  - `journalctl -b -1 -n 40`: the previous boot's last lines.
+  Both recorders are user units (`bamware-flight-recorder`,
+  `bamware-flight-events`); the last two come from
+  `sudo bash scripts/freeze-forensics-root.sh`, which also arms the hardware
+  watchdog. Known as of 2026-11-28: two hard stops on 11-27 with the wall board
+  showing while cast was on; the board alone then ran 11.5 h clean. Cast is
+  held off (`tv-cast.sh hold` / `release`) until that is understood.
 - Dictation: Omarchy's Voxtype (F9 push-to-talk, Super+Ctrl+X toggle). Wispr
   Flow has no Linux build.
 

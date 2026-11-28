@@ -1,0 +1,11 @@
+[Unit]
+Description=Bamware flight recorder: machine state every 5 s, synced to disk, for freeze forensics (scripts/flight-recorder.py)
+
+[Service]
+ExecStart=%h/.local/bin/flight-recorder.py
+Restart=always
+RestartSec=10
+Nice=10
+
+[Install]
+WantedBy=default.target

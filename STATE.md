@@ -1,5 +1,60 @@
 # State of the Union — Bamware
 
+## 2026-11-28 — Drive spring cleaning IN PROGRESS: both external drives copying to omarchy, then reformat
+
+- **Bilal:** "DO NOT DELETE ANYTHING", then (11-28): move both drives to this
+  machine first, then format both properly. Format decision: **exFAT with
+  small clusters** (the drives move between his laptops).
+- **Why:** the 4 TB SanDisk Extreme Pro shows 3.2 TB used but holds 242 GB of
+  real data; it is exFAT with 1 MiB clusters and 3.1 million tiny files, so
+  about 3 TB is padding. The 1 TB WD_BLACK P40: 168 GB real, 568 GB occupied
+  (128 KiB clusters). The ThinkPad backup `x1-carbon-backup-2026-09-22`
+  (5 files, 8.8 GB, with a restore README) is on the Extreme Pro.
+- **Running since 10:53 ET (started by Claude, survives sessions):** user
+  units `drive-copy-extremepro` and `drive-copy-wdblack`
+  (`~/.local/bin/drive-copy.sh`, `rsync -rt`, source read-only) into
+  `~/drives/ExtremePro` and `~/drives/WD_BLACK`. Logs `~/drives/<name>.copy.log`,
+  exit code `~/drives/<name>.copy.exit`. At 11:27: 377k of 2.59M and 695k of
+  3.15M files; estimate ~4 h and ~2.5 h. Restart = rerun the same command.
+- **NEXT, in order. Do not skip a step:**
+  1. Both `.copy.exit` files say 0.
+  2. Verify each copy against the saved index
+     (`~/Documents/{ExtremePro,WD_BLACK}_index/files.tsv`: type, size, date,
+     path): every file present with the same size. Then a content pass:
+     `rsync -rtc --dry-run --itemize-changes <drive>/ ~/drives/<name>/` must
+     list nothing.
+  3. Only then format, and only with Bilal present (needs sudo, and it is the
+     one irreversible step): unmount, `mkfs.exfat -c 32K -L <label>` (4K if he wants maximum density) on the
+     partition, remount, write a test file.
+  4. Decide with him what goes back onto the drives; as zips it all fits on the
+     WD_BLACK alone.
+- **Private detail is not here.** Inventory and findings:
+  `~/Documents/drive-report-2026-11-28.txt` on omarchy (not in git). The drives
+  hold credentials and identity documents; nothing from them goes in this repo.
+
+## 2026-11-27/28 — omarchy froze twice; cast held off; Spotify fixed; freeze forensics added
+
+- **Freezes:** hard stops 11-27 16:57 (no log) and 20:03 (i915 "GPU HANG ...
+  in Hyprland"). At 20:03 the wall board had been on screen an hour **and**
+  cast was on (AMD drives the TV, Intel the laptop panel). With cast off the
+  board then ran 11.5 h clean. Working theory: board animating while the TV
+  output is live. Not proven: one logged hang, one clean night.
+- **Cast is held off:** `tv-cast.sh hold` (new) makes every `on` refuse until
+  `release`; needed because the 11-26 TV stage (`tv-spotify.sh`, called by the
+  everyday music scenes) turns cast on by itself. Music still plays on the stereo.
+- **Spotify:** 32 core dumps in two days were its GPU helper segfaulting under
+  XWayland (first launch of 1.3.8 was 11-26 16:01; the TV stage restarts it
+  often). Fix: `~/.config/spotify-flags.conf` = `--ozone-platform=wayland`.
+  Clean on launch; needs a day to confirm.
+- **Forensics (Bilal: "basic engineering"):** `flight-events.py` (new user
+  unit) syncs graphics/kernel warnings, board shown/hidden, cast toggles and
+  core dumps to disk as they happen; cast toggles now go to the journal;
+  `flight-recorder.py` is finally in the repo. Runbook: `docs/machines.md`,
+  "After a freeze". **Open:** Bilal runs
+  `sudo bash ~/.local/bin/freeze-forensics-root.sh` once (GPU error dump
+  capture, crash-dump archive, hardware watchdog, SysRq).
+- All of it is in draft PR #321 (branch `fix-cast-hold`), installed live.
+
 ## 2026-11-25 — omarchy ran out of battery, was dark 37 h, then switched the apartment off (fixed)
 
 - **Bilal:** "my light not working?!!! this laptop randomly lost power and did a
